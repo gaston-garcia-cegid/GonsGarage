@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -38,3 +39,6 @@ func (u *User) ValidatePassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	return err == nil
 }
+
+// ErrUserNotFound is returned when a user is not found in the repository.
+var ErrUserNotFound = errors.New("user not found")

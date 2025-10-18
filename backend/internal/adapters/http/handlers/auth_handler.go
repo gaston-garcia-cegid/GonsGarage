@@ -3,15 +3,15 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/services"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
-	authService services.AuthService
+	authService ports.AuthService
 }
 
-func NewAuthHandler(authService services.AuthService) *AuthHandler {
+func NewAuthHandler(authService ports.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
@@ -47,13 +47,13 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
-	var req RegisterRequest
+	var req ports.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	user, err := h.authService.Register(c.Request.Context(), req.Email, req.Password, req.Role)
+	user, err := h.authService.Register(c.Request.Context(), req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
