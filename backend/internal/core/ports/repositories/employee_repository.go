@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/gaston-garcia-cegid/gons-garage-backend/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/domain"
 )
 
 // EmployeeRepository defines employee data operations
