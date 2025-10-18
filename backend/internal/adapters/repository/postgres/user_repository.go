@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/ports/repositories"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/repositories"
 )
 
 // PostgresUserRepository implements UserRepository interface using PostgreSQL

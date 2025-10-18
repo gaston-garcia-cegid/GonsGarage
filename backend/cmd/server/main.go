@@ -9,13 +9,13 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/adapters/http/handlers"
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/adapters/http/routes"
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/adapters/repository/postgres"
-	redisRepo "github.com/gaston-garcia-cegid/gonsgarage/backend/internal/adapters/repository/redis"
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/usecases/auth"
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/usecases/employee"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/handlers"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/routes"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/postgres"
+	redisRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/redis"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/auth"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/employee"
 )
 
 func main() {

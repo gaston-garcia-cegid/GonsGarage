@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 )
 
 type EmployeeRepositoryMock struct {

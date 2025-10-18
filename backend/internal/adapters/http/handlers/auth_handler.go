@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/ports/services"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/services"
 	"github.com/gin-gonic/gin"
 )
 

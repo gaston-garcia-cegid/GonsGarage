@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"gonsgarage/backend/internal/core/domain"
+	"gonsgarage/internal/core/domain"
 )
 
 // NotificationService defines notification operations

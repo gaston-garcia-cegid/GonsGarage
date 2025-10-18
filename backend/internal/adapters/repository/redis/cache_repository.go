@@ -8,7 +8,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/ports/external"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/external"
 )
 
 // RedisCacheRepository implements CacheService interface
