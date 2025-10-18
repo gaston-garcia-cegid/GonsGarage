@@ -6,16 +6,16 @@ import (
 	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/repositories"
 	"github.com/google/uuid"
 )
 
 type EmployeeUseCase struct {
-	employeeRepo ports.EmployeeRepository
-	cache        ports.CacheRepository
+	employeeRepo repositories.EmployeeRepository
+	cache        repositories.CacheRepository
 }
 
-func NewEmployeeUseCase(employeeRepo ports.EmployeeRepository, cache ports.CacheRepository) *EmployeeUseCase {
+func NewEmployeeUseCase(employeeRepo repositories.EmployeeRepository, cache repositories.CacheRepository) *EmployeeUseCase {
 	return &EmployeeUseCase{
 		employeeRepo: employeeRepo,
 		cache:        cache,

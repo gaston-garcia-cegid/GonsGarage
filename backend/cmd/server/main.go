@@ -9,9 +9,10 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	postgresRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/postgres"
+
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/handlers"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/routes"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/postgres"
 	redisRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/redis"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/auth"
@@ -44,11 +45,9 @@ func main() {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 	})
-
-	// Initialize repositories
-	userRepo := postgres.NewUserRepository(db)
-	employeeRepo := postgres.NewEmployeeRepository(db)
-	cacheRepo := redisRepo.NewCacheRepository(rdb)
+	userRepo := postgresRepo.NewPostgresUserRepository(db)
+	employeeRepo := postgresRepo.NewPostgresEmployeeRepository(db)
+	cacheRepo := redisRepo.NewRedisCacheRepository(rdb)
 
 	// Initialize use cases
 	jwtSecret := os.Getenv("JWT_SECRET")
