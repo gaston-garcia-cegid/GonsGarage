@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/repositories"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 )
 
 // WorkshopRepository is a PostgreSQL implementation of the WorkshopRepository interface
@@ -13,7 +13,7 @@ type WorkshopRepository struct {
 }
 
 // NewWorkshopRepository creates a new WorkshopRepository
-func NewWorkshopRepository() repositories.WorkshopRepository {
+func NewWorkshopRepository() ports.WorkshopRepository {
 	return &WorkshopRepository{}
 }
 

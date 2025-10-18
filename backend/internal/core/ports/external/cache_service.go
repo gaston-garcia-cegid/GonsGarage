@@ -44,22 +44,5 @@ type CacheService interface {
 	FlushAll(ctx context.Context) error
 }
 
-// Delete implements repositories.CacheRepository.
-func (c CacheService) Delete(ctx context.Context, key string) error {
-	panic("unimplemented")
-}
-
-// Exists implements repositories.CacheRepository.
-func (c CacheService) Exists(ctx context.Context, key string) (bool, error) {
-	panic("unimplemented")
-}
-
-// Get implements repositories.CacheRepository.
-func (c CacheService) Get(ctx context.Context, key string, dest interface{}) error {
-	panic("unimplemented")
-}
-
-// Set implements repositories.CacheRepository.
-func (c CacheService) Set(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
-	panic("unimplemented")
-}
+// Method implementations should not be provided for interfaces in Go.
+// Remove these implementations or move them to a struct that implements CacheService.

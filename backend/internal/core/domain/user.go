@@ -8,12 +8,16 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id" gorm:"type:uuid;primary_key"`
-	Email     string    `json:"email" gorm:"unique;not null"`
-	Password  string    `json:"-" gorm:"not null"`
-	Role      string    `json:"role" gorm:"not null;default:'employee'"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID  `json:"id" gorm:"type:uuid;primary_key"`
+	Email     string     `json:"email" gorm:"unique;not null"`
+	Password  string     `json:"-" gorm:"not null"`
+	FirstName string     `gorm:"not null"`
+	LastName  string     `gorm:"not null"`
+	Role      string     `json:"role" gorm:"not null;default:'employee'"`
+	IsActive  bool       `gorm:"default:true"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `gorm:"index"`
 }
 
 func NewUser(email, password, role string) (*User, error) {

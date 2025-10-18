@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"backend/internal/core/domain"
 	"net/http"
 	"strings"
 
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/gin-gonic/gin"
 )

@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/repositories"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 )
 
 // MockUserRepository is a mock implementation of UserRepository for testing
@@ -15,7 +15,7 @@ type MockUserRepository struct {
 }
 
 // NewMockUserRepository creates a new mock user repository
-func NewMockUserRepository() repositories.UserRepository {
+func NewMockUserRepository() ports.UserRepository {
 	return &MockUserRepository{}
 }
 

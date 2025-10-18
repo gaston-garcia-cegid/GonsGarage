@@ -25,22 +25,22 @@ func NewAuthUseCase(userRepo ports.UserRepository, jwtSecret string, expireHours
 	}
 }
 
-func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (*domain.User, string, error) {
+func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (string, error) {
 	user, err := uc.userRepo.GetByEmail(ctx, email)
-	if err != nil {
-		return nil, "", errors.New("invalid credentials")
+	if err != nil || user == nil {
+		return "", errors.New("invalid credentials")
 	}
 
 	if !user.ValidatePassword(password) {
-		return nil, "", errors.New("invalid credentials")
+		return "", errors.New("invalid credentials")
 	}
 
 	token, err := uc.GenerateToken(user)
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
 
-	return user, token, nil
+	return token, nil
 }
 
 func (uc *AuthUseCase) Register(ctx context.Context, email, password, role string) (*domain.User, error) {
@@ -104,4 +104,13 @@ func (uc *AuthUseCase) ValidateToken(tokenString string) (*domain.User, error) {
 	}
 
 	return user, nil
+}
+
+func (uc *AuthUseCase) RefreshToken(ctx context.Context, token string) (string, error) {
+	user, err := uc.ValidateToken(token)
+	if err != nil {
+		return "", err
+	}
+
+	return uc.GenerateToken(user)
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/repositories"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 )
 
 // QueueRepository is a Redis implementation of the QueueRepository interface
@@ -13,7 +13,7 @@ type QueueRepository struct {
 }
 
 // NewQueueRepository creates a new QueueRepository
-func NewQueueRepository() repositories.QueueRepository {
+func NewQueueRepository() ports.QueueRepository {
 	return &QueueRepository{}
 }
 

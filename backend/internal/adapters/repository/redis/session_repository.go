@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/repositories"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 )
 
 // SessionRepository is a Redis implementation of the SessionRepository interface
@@ -13,7 +13,7 @@ type SessionRepository struct {
 }
 
 // NewSessionRepository creates a new SessionRepository
-func NewSessionRepository() repositories.SessionRepository {
+func NewSessionRepository() ports.SessionRepository {
 	return &SessionRepository{}
 }
 

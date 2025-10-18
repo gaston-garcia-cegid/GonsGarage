@@ -1,6 +1,10 @@
 package external
 
-import "context"
+import (
+	"context"
+
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+)
 
 // FileStorage defines the interface for the file storage service
 type FileStorage interface {

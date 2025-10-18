@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/repositories"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 )
 
 // PostgresEmployeeRepository implements EmployeeRepository interface
@@ -18,7 +18,7 @@ type PostgresEmployeeRepository struct {
 }
 
 // NewPostgresEmployeeRepository creates a new PostgreSQL employee repository
-func NewPostgresEmployeeRepository(db *gorm.DB) repositories.EmployeeRepository {
+func NewPostgresEmployeeRepository(db *gorm.DB) ports.EmployeeRepository {
 	return &PostgresEmployeeRepository{
 		db: db,
 	}
@@ -154,7 +154,7 @@ func (r *PostgresEmployeeRepository) Delete(ctx context.Context, id string) erro
 }
 
 // List implements EmployeeRepository.List
-func (r *PostgresEmployeeRepository) List(ctx context.Context, filters *repositories.EmployeeFilters) ([]*domain.Employee, int64, error) {
+func (r *PostgresEmployeeRepository) List(ctx context.Context, filters *ports.EmployeeFilters) ([]*domain.Employee, int64, error) {
 	query := r.db.WithContext(ctx).Model(&EmployeeModel{}).
 		Preload("User").
 		Where("employees.deleted_at IS NULL")

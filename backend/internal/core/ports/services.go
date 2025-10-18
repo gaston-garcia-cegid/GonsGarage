@@ -2,10 +2,27 @@ package ports
 
 import (
 	"context"
+	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/google/uuid"
 )
+
+// AuthService define os métodos do serviço de autenticação
+type AuthService interface {
+	Login(ctx context.Context, email, password string) (string, error)
+	Register(ctx context.Context, req RegisterRequest) (*domain.User, error)
+	ValidateToken(token string) (*domain.User, error)
+	RefreshToken(ctx context.Context, token string) (string, error)
+}
+
+// RegisterRequest representa os dados para registro
+type RegisterRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+	Name     string `json:"name" binding:"required"`
+	Role     string `json:"role"`
+}
 
 // EmployeeService define os métodos do serviço de funcionários
 type EmployeeService interface {
@@ -18,11 +35,22 @@ type EmployeeService interface {
 
 // CreateEmployeeRequest representa os dados para criar um funcionário
 type CreateEmployeeRequest struct {
-	Name        string `json:"name" binding:"required"`
-	Email       string `json:"email" binding:"required,email"`
-	Position    string `json:"position" binding:"required"`
-	Department  string `json:"department"`
-	PhoneNumber string `json:"phone_number"`
+	UserID       uuid.UUID `json:"user_id" gorm:"type:uuid;not null"`
+	FirstName    string    `json:"first_name" gorm:"not null"`
+	LastName     string    `json:"last_name" gorm:"not null"`
+	Email        string    `json:"email" binding:"required,email"`
+	Position     string    `json:"position" binding:"required"`
+	HourlyRate   float64   `json:"hourly_rate" gorm:"not null"`
+	HoursWorked  float64   `json:"hours_worked" gorm:"default:0"`
+	IsActive     bool      `json:"is_active" gorm:"default:true"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	EmployeeCode string    `json:"employee_code"`
+	Department   string    `json:"department"`
+	HireDate     time.Time `json:"hire_date"`
+	Salary       float64   `json:"salary"`
+	HoursPerWeek int       `json:"hours_per_week"`
+	PhoneNumber  string    `json:"phone_number"`
 }
 
 // UpdateEmployeeRequest representa os dados para atualizar um funcionário
