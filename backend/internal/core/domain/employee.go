@@ -24,25 +24,37 @@ type Employee struct {
 	HireDate     time.Time `json:"hire_date"`
 	Salary       float64   `json:"salary"`
 	HoursPerWeek int       `json:"hours_per_week"`
+	Phone        string    `json:"phone"`
+	Role         string    `json:"role"`
 
 	// Relationships
 	User *User `json:"user,omitempty" gorm:"foreignKey:UserID"`
 }
 
-func NewEmployee(userID uuid.UUID, firstName, lastName, position string, hourlyRate float64) *Employee {
+func NewEmployee(firstName, lastName, position string, hourlyRate float64, role, department, phone string) *Employee {
 	return &Employee{
 		ID:         uuid.New(),
-		UserID:     userID,
 		FirstName:  firstName,
 		LastName:   lastName,
 		Position:   position,
 		HourlyRate: hourlyRate,
 		IsActive:   true,
+		Role:       role,
+		Department: department,
+		Phone:      phone,
 	}
 }
 
 func (e *Employee) FullName() string {
 	return e.FirstName + " " + e.LastName
+}
+
+// EmployeeFilters representa filtros de busca para funcionários
+type EmployeeFilters struct {
+	Department string
+	Role       string
+	IsActive   *bool
+	Search     string
 }
 
 // ErrEmployeeNotFound is returned when an employee is not found in the repository.

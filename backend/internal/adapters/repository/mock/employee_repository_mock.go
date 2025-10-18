@@ -5,15 +5,16 @@ import (
 	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	"github.com/google/uuid"
 )
 
 type EmployeeRepositoryMock struct {
-	employees map[string]*domain.Employee
+	employees map[uuid.UUID]*domain.Employee
 }
 
 func NewEmployeeRepositoryMock() *EmployeeRepositoryMock {
 	return &EmployeeRepositoryMock{
-		employees: make(map[string]*domain.Employee),
+		employees: make(map[uuid.UUID]*domain.Employee),
 	}
 }
 
@@ -22,7 +23,7 @@ func (m *EmployeeRepositoryMock) Create(ctx context.Context, employee *domain.Em
 	m.employees[employee.ID] = employee
 	return nil
 }
-func (m *EmployeeRepositoryMock) GetByID(ctx context.Context, id string) (*domain.Employee, error) {
+func (m *EmployeeRepositoryMock) GetByID(ctx context.Context, id uuid.UUID) (*domain.Employee, error) {
 	employee, exists := m.employees[id]
 	if !exists {
 		return nil, domain.ErrEmployeeNotFound
@@ -33,7 +34,7 @@ func (m *EmployeeRepositoryMock) Update(ctx context.Context, employee *domain.Em
 	m.employees[employee.ID] = employee
 	return nil
 }
-func (m *EmployeeRepositoryMock) Delete(ctx context.Context, id string) error {
+func (m *EmployeeRepositoryMock) Delete(ctx context.Context, id uuid.UUID) error {
 	delete(m.employees, id)
 	return nil
 }
@@ -88,7 +89,7 @@ func (m *EmployeeRepositoryMock) GetEmployeesOnVacation(ctx context.Context, dat
 func (m *EmployeeRepositoryMock) SearchByName(ctx context.Context, name string, limit int) ([]*domain.Employee, error) {
 	var result []*domain.Employee
 	for _, employee := range m.employees {
-		if employee.Name == name {
+		if employee.FirstName == name {
 			result = append(result, employee)
 		}
 		if len(result) >= limit {

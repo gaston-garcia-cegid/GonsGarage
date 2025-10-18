@@ -62,9 +62,18 @@ type WorkshopRepository interface {
 	ListWorkshops(ctx context.Context, limit, offset int) ([]*domain.Workshop, int64, error)
 }
 
-// NotificationService defines the interface for the notification service
-type NotificationService interface {
+// NotificationRepository defines the interface for the notification repository
+type NotificationRepository interface {
 	SendWorkshopCreatedNotification(ctx context.Context, workshop *domain.Workshop) error
 	SendWorkshopUpdatedNotification(ctx context.Context, workshop *domain.Workshop) error
 	SendWorkshopDeletedNotification(ctx context.Context, workshop *domain.Workshop) error
+}
+
+// AccountingRepository defines the interface for the accounting repository
+type AccountingRepository interface {
+	CreateAccountingEntry(ctx context.Context, entry *domain.AccountingEntry) error
+	GetAccountingEntryByID(ctx context.Context, id string) (*domain.AccountingEntry, error)
+	UpdateAccountingEntry(ctx context.Context, entry *domain.AccountingEntry) error
+	DeleteAccountingEntry(ctx context.Context, id string) error
+	ListAccountingEntries(ctx context.Context, limit, offset int) ([]*domain.AccountingEntry, int64, error)
 }

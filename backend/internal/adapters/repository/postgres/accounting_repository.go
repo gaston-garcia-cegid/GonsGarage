@@ -4,17 +4,18 @@ import (
 	"context"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/repositories"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
+	"gorm.io/gorm"
 )
 
 // AccountingRepository is a PostgreSQL implementation of the AccountingRepository interface
 type AccountingRepository struct {
-	// db *gorm.DB
+	db *gorm.DB
 }
 
 // NewAccountingRepository creates a new AccountingRepository
-func NewAccountingRepository() repositories.AccountingRepository {
-	return &AccountingRepository{}
+func NewAccountingRepository(db *gorm.DB) ports.AccountingRepository {
+	return &AccountingRepository{db: db}
 }
 
 // Create implements AccountingRepository.Create
