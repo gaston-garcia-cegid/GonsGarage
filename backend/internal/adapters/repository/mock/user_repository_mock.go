@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/ports/repositories"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports/repositories"
 )
 
 // MockUserRepository is a mock implementation of UserRepository for testing
