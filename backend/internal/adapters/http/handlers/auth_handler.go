@@ -3,15 +3,15 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
+	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/ports/services"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
-	authService ports.AuthService
+	authService services.AuthService
 }
 
-func NewAuthHandler(authService ports.AuthService) *AuthHandler {
+func NewAuthHandler(authService services.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 

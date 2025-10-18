@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/domain"
 	"github.com/google/uuid"
 )
 

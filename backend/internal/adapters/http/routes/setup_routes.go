@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/handlers"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/middleware"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
+	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/adapters/http/handlers"
+	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/adapters/http/middleware"
+	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/ports"
 	"github.com/gin-gonic/gin"
 )
 

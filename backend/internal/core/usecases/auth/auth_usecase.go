@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
+	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/backend/internal/core/ports"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
