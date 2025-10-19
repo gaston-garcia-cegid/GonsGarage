@@ -19,9 +19,7 @@ type PostgresEmployeeRepository struct {
 
 // NewPostgresEmployeeRepository creates a new PostgreSQL employee repository
 func NewPostgresEmployeeRepository(db *gorm.DB) ports.EmployeeRepository {
-	return &PostgresEmployeeRepository{
-		db: db,
-	}
+	return &PostgresEmployeeRepository{db: db}
 }
 
 // Create implements EmployeeRepository.Create
@@ -140,7 +138,7 @@ func (r *PostgresEmployeeRepository) Update(ctx context.Context, employee *domai
 }
 
 // Delete implements EmployeeRepository.Delete
-func (r *PostgresEmployeeRepository) Delete(ctx context.Context, id string) error {
+func (r *PostgresEmployeeRepository) Delete(ctx context.Context, id uint) error {
 	result := r.db.WithContext(ctx).Model(&EmployeeModel{}).Where("id = ?", id).Update("deleted_at", time.Now())
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete employee: %w", result.Error)
@@ -253,4 +251,23 @@ type EmployeeModel struct {
 // TableName specifies the table name for GORM
 func (EmployeeModel) TableName() string {
 	return "employees"
+}
+
+// FindByID implements EmployeeRepository.FindByID
+func (r *PostgresEmployeeRepository) FindByID(ctx context.Context, id uint) (*domain.Employee, error) {
+	var dbEmployee EmployeeModel
+
+	err := r.db.WithContext(ctx).
+		Preload("User").
+		Where("employees.id = ? AND employees.deleted_at IS NULL", id).
+		First(&dbEmployee).Error
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, domain.ErrEmployeeNotFound
+		}
+		return nil, fmt.Errorf("failed to get employee by ID: %w", err)
+	}
+
+	return r.toDomainEmployee(&dbEmployee), nil
 }

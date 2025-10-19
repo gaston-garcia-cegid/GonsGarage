@@ -19,14 +19,14 @@ func NewMockWorkshopRepository() repositories.WorkshopRepository {
 	return &MockWorkshopRepository{}
 }
 
-// Create implements WorkshopRepository.Create
-func (m *MockWorkshopRepository) Create(ctx context.Context, workshop *domain.Workshop) error {
+// CreateWorkshop implements WorkshopRepository.CreateWorkshop
+func (m *MockWorkshopRepository) CreateWorkshop(ctx context.Context, workshop *domain.Workshop) error {
 	args := m.Called(ctx, workshop)
 	return args.Error(0)
 }
 
-// GetByID implements WorkshopRepository.GetByID
-func (m *MockWorkshopRepository) GetByID(ctx context.Context, id string) (*domain.Workshop, error) {
+// GetWorkshopByID implements WorkshopRepository.GetWorkshopByID
+func (m *MockWorkshopRepository) GetWorkshopByID(ctx context.Context, id string) (*domain.Workshop, error) {
 	args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -34,20 +34,20 @@ func (m *MockWorkshopRepository) GetByID(ctx context.Context, id string) (*domai
 	return args.Get(0).(*domain.Workshop), args.Error(1)
 }
 
-// Update implements WorkshopRepository.Update
-func (m *MockWorkshopRepository) Update(ctx context.Context, workshop *domain.Workshop) error {
+// UpdateWorkshop implements WorkshopRepository.UpdateWorkshop
+func (m *MockWorkshopRepository) UpdateWorkshop(ctx context.Context, workshop *domain.Workshop) error {
 	args := m.Called(ctx, workshop)
 	return args.Error(0)
 }
 
-// Delete implements WorkshopRepository.Delete
-func (m *MockWorkshopRepository) Delete(ctx context.Context, id string) error {
+// DeleteWorkshop implements WorkshopRepository.DeleteWorkshop
+func (m *MockWorkshopRepository) DeleteWorkshop(ctx context.Context, id string) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
 
-// List implements WorkshopRepository.List
-func (m *MockWorkshopRepository) List(ctx context.Context, limit, offset int) ([]*domain.Workshop, int64, error) {
+// ListWorkshops implements WorkshopRepository.ListWorkshops
+func (m *MockWorkshopRepository) ListWorkshops(ctx context.Context, limit, offset int) ([]*domain.Workshop, int64, error) {
 	args := m.Called(ctx, limit, offset)
 	if args.Get(0) == nil {
 		return nil, args.Get(1).(int64), args.Error(2)

@@ -23,7 +23,7 @@ type EmployeeRepository interface {
 	FindByID(ctx context.Context, id uint) (*domain.Employee, error)
 	Update(ctx context.Context, employee *domain.Employee) error
 	Delete(ctx context.Context, id uint) error
-	List(ctx context.Context) ([]*domain.Employee, error)
+	List(ctx context.Context, filters *EmployeeFilters) ([]*domain.Employee, int64, error)
 }
 
 // CacheRepository define os métodos para o repositório de cache

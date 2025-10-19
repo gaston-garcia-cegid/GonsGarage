@@ -51,6 +51,7 @@ type CreateEmployeeRequest struct {
 	Salary       float64   `json:"salary"`
 	HoursPerWeek int       `json:"hours_per_week"`
 	PhoneNumber  string    `json:"phone_number"`
+	Role         string    `json:"role"`
 }
 
 // UpdateEmployeeRequest representa os dados para atualizar um funcionário

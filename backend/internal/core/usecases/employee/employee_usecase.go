@@ -25,11 +25,13 @@ func NewEmployeeUseCase(
 
 func (uc *EmployeeUseCase) CreateEmployee(ctx context.Context, req ports.CreateEmployeeRequest) (*domain.Employee, error) {
 	employee := domain.NewEmployee(
-		req.UserID,
 		req.FirstName,
 		req.LastName,
 		req.Position,
 		req.HourlyRate,
+		req.Role,
+		req.Department,
+		req.PhoneNumber,
 	)
 
 	if err := uc.employeeRepo.Create(ctx, employee); err != nil {
@@ -47,7 +49,8 @@ func (uc *EmployeeUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*doma
 }
 
 func (uc *EmployeeUseCase) ListEmployees(ctx context.Context, limit, offset int) ([]*domain.Employee, error) {
-	employees, err := uc.employeeRepo.List(ctx)
+	employees, total, err := uc.employeeRepo.List(ctx, limit, offset)
+	_ = total // If you need total, you can return it or use it as needed
 	return employees, err
 }
 

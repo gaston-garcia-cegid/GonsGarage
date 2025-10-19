@@ -19,9 +19,7 @@ type PostgresUserRepository struct {
 
 // NewPostgresUserRepository creates a new PostgreSQL user repository
 func NewPostgresUserRepository(db *gorm.DB) ports.UserRepository {
-	return &PostgresUserRepository{
-		db: db,
-	}
+	return &PostgresUserRepository{db: db}
 }
 
 // Create implements UserRepository.Create
@@ -51,7 +49,7 @@ func (r *PostgresUserRepository) Create(ctx context.Context, user *domain.User) 
 }
 
 // GetByID implements UserRepository.GetByID
-func (r *PostgresUserRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
+func (r *PostgresUserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	var dbUser UserModel
 
 	err := r.db.WithContext(ctx).Where("id = ? AND deleted_at IS NULL", id).First(&dbUser).Error
@@ -107,7 +105,7 @@ func (r *PostgresUserRepository) Update(ctx context.Context, user *domain.User) 
 }
 
 // Delete implements UserRepository.Delete (soft delete)
-func (r *PostgresUserRepository) Delete(ctx context.Context, id string) error {
+func (r *PostgresUserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	result := r.db.WithContext(ctx).Model(&UserModel{}).Where("id = ?", id).Update("deleted_at", time.Now())
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete user: %w", result.Error)
@@ -121,31 +119,22 @@ func (r *PostgresUserRepository) Delete(ctx context.Context, id string) error {
 }
 
 // List implements UserRepository.List
-func (r *PostgresUserRepository) List(ctx context.Context, limit, offset int) ([]*domain.User, int64, error) {
+func (r *PostgresUserRepository) List(ctx context.Context) ([]*domain.User, error) {
 	var dbUsers []UserModel
-	var total int64
 
-	// Count total records
-	if err := r.db.WithContext(ctx).Model(&UserModel{}).Where("deleted_at IS NULL").Count(&total).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to count users: %w", err)
-	}
-
-	// Get paginated records
 	err := r.db.WithContext(ctx).Where("deleted_at IS NULL").
-		Limit(limit).Offset(offset).
 		Order("created_at DESC").
 		Find(&dbUsers).Error
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to list users: %w", err)
+		return nil, fmt.Errorf("failed to list users: %w", err)
 	}
 
-	// Convert to domain entities
 	users := make([]*domain.User, len(dbUsers))
 	for i, dbUser := range dbUsers {
 		users[i] = r.toDomainUser(&dbUser)
 	}
 
-	return users, total, nil
+	return users, nil
 }
 
 // EmailExists implements UserRepository.EmailExists

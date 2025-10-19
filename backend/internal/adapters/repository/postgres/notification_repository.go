@@ -19,19 +19,19 @@ func NewNotificationRepository(db *gorm.DB) ports.NotificationRepository {
 }
 
 // Create implements NotificationRepository.Create
-func (r *NotificationRepository) SendWorkshopCreatedNotification(ctx context.Context, notification *domain.Notification) error {
+func (r *NotificationRepository) SendWorkshopCreatedNotification(ctx context.Context, workshop *domain.Workshop) error {
 	// TODO: Implementar
 	return nil
 }
 
 // Update implements NotificationRepository.Update
-func (r *NotificationRepository) SendWorkshopUpdatedNotification(ctx context.Context, notification *domain.Notification) error {
+func (r *NotificationRepository) SendWorkshopUpdatedNotification(ctx context.Context, workshop *domain.Workshop) error {
 	// TODO: Implementar
 	return nil
 }
 
 // Delete implements NotificationRepository.Delete
-func (r *NotificationRepository) SendWorkshopDeletedNotification(ctx context.Context, id string) error {
+func (r *NotificationRepository) SendWorkshopDeletedNotification(ctx context.Context, workshop *domain.Workshop) error {
 	// TODO: Implementar
 	return nil
 }

@@ -3,6 +3,7 @@ package mock
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
@@ -26,7 +27,7 @@ func (m *MockUserRepository) Create(ctx context.Context, user *domain.User) erro
 }
 
 // GetByID implements UserRepository.GetByID
-func (m *MockUserRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
+func (m *MockUserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -50,18 +51,18 @@ func (m *MockUserRepository) Update(ctx context.Context, user *domain.User) erro
 }
 
 // Delete implements UserRepository.Delete
-func (m *MockUserRepository) Delete(ctx context.Context, id string) error {
+func (m *MockUserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
 
 // List implements UserRepository.List
-func (m *MockUserRepository) List(ctx context.Context, limit, offset int) ([]*domain.User, int64, error) {
-	args := m.Called(ctx, limit, offset)
+func (m *MockUserRepository) List(ctx context.Context) ([]*domain.User, error) {
+	args := m.Called(ctx)
 	if args.Get(0) == nil {
-		return nil, args.Get(1).(int64), args.Error(2)
+		return nil, args.Error(1)
 	}
-	return args.Get(0).([]*domain.User), args.Get(1).(int64), args.Error(2)
+	return args.Get(0).([]*domain.User), args.Error(1)
 }
 
 // EmailExists implements UserRepository.EmailExists
