@@ -56,20 +56,21 @@ func (h *EmployeeHandler) GetEmployee(c *gin.Context) {
 func (h *EmployeeHandler) ListEmployees(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "10")
 	offsetStr := c.DefaultQuery("offset", "0")
+	department := c.Query("department")
 
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
-		return
+	limit, _ := strconv.Atoi(limitStr)
+	offset, _ := strconv.Atoi(offsetStr)
+
+	filters := &ports.EmployeeFilters{
+		Limit:  limit,
+		Offset: offset,
 	}
 
-	offset, err := strconv.Atoi(offsetStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset parameter"})
-		return
+	if department != "" {
+		filters.Department = &department
 	}
 
-	employees, err := h.employeeService.ListEmployees(c.Request.Context(), limit, offset)
+	employees, total, err := h.employeeService.ListEmployees(c.Request.Context(), filters)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -77,7 +78,9 @@ func (h *EmployeeHandler) ListEmployees(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"employees": employees,
-		"total":     len(employees),
+		"total":     total,
+		"limit":     limit,
+		"offset":    offset,
 	})
 }
 

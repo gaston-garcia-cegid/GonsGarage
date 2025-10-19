@@ -49,13 +49,5 @@ func (e *Employee) FullName() string {
 	return e.FirstName + " " + e.LastName
 }
 
-// EmployeeFilters representa filtros de busca para funcionários
-type EmployeeFilters struct {
-	Department string
-	Role       string
-	IsActive   *bool
-	Search     string
-}
-
 // ErrEmployeeNotFound is returned when an employee is not found in the repository.
 var ErrEmployeeNotFound = errors.New("employee not found")

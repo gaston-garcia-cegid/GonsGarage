@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/google/uuid"
 )
 
@@ -65,13 +66,13 @@ func (m *EmployeeRepositoryMock) GetEmployeesByRole(ctx context.Context, role st
 	}
 	return result, nil
 }
-func (m *EmployeeRepositoryMock) List(ctx context.Context, filters *domain.EmployeeFilters) ([]*domain.Employee, int64, error) {
+func (m *EmployeeRepositoryMock) List(ctx context.Context, filters *ports.EmployeeFilters) ([]*domain.Employee, int64, error) {
 	var result []*domain.Employee
 	for _, employee := range m.employees {
-		if filters.Department != "" && employee.Department != filters.Department {
+		if filters.Department != nil && employee.Department != *filters.Department {
 			continue
 		}
-		if filters.Role != "" && employee.Role != filters.Role {
+		if filters.IsActive != nil && employee.IsActive != *filters.IsActive {
 			continue
 		}
 		result = append(result, employee)

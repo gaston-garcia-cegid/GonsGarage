@@ -67,7 +67,7 @@ func main() {
 
 	// CORS middleware
 	router.Use(func(c *gin.Context) {
-		routes.SetupRoutes(router, authHandler, employeeHandler, authService)
+		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 

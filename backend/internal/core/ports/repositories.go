@@ -26,6 +26,17 @@ type EmployeeRepository interface {
 	List(ctx context.Context, filters *EmployeeFilters) ([]*domain.Employee, int64, error)
 }
 
+// EmployeeFilters representa os filtros para listagem de funcionários
+type EmployeeFilters struct {
+	Department *string
+	IsActive   *bool
+	Search     *string
+	SortBy     string
+	SortOrder  string
+	Limit      int
+	Offset     int
+}
+
 // CacheRepository define os métodos para o repositório de cache
 type CacheRepository interface {
 	Get(ctx context.Context, key string, dest interface{}) error

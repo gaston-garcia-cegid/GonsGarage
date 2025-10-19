@@ -17,7 +17,7 @@ type AuthUseCase struct {
 	expireTime time.Duration
 }
 
-func NewAuthUseCase(userRepo ports.UserRepository, jwtSecret string, expireHours int) *AuthUseCase {
+func NewAuthUseCase(userRepo ports.UserRepository, jwtSecret string, expireHours int) ports.AuthService {
 	return &AuthUseCase{
 		userRepo:   userRepo,
 		jwtSecret:  jwtSecret,
@@ -43,16 +43,21 @@ func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (strin
 	return token, nil
 }
 
-func (uc *AuthUseCase) Register(ctx context.Context, email, password, role string) (*domain.User, error) {
+func (uc *AuthUseCase) Register(ctx context.Context, req ports.RegisterRequest) (*domain.User, error) {
 	// Check if user already exists
-	existingUser, _ := uc.userRepo.GetByEmail(ctx, email)
+	existingUser, _ := uc.userRepo.GetByEmail(ctx, req.Email)
 	if existingUser != nil {
 		return nil, errors.New("user already exists")
 	}
 
-	user, err := domain.NewUser(email, password, role)
+	user, err := domain.NewUser(req.Email, req.Password, req.Role)
 	if err != nil {
 		return nil, err
+	}
+
+	// Atribuir nome se fornecido
+	if req.Name != "" {
+		user.FirstName = req.Name
 	}
 
 	if err := uc.userRepo.Create(ctx, user); err != nil {

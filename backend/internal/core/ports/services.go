@@ -28,7 +28,7 @@ type RegisterRequest struct {
 type EmployeeService interface {
 	CreateEmployee(ctx context.Context, req CreateEmployeeRequest) (*domain.Employee, error)
 	GetEmployee(ctx context.Context, id uuid.UUID) (*domain.Employee, error)
-	ListEmployees(ctx context.Context, limit, offset int) ([]*domain.Employee, error)
+	ListEmployees(ctx context.Context, filters *EmployeeFilters) ([]*domain.Employee, int64, error)
 	UpdateEmployee(ctx context.Context, id uuid.UUID, req UpdateEmployeeRequest) (*domain.Employee, error)
 	DeleteEmployee(ctx context.Context, id uuid.UUID) error
 }

@@ -48,10 +48,30 @@ func (uc *EmployeeUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*doma
 	return uc.employeeRepo.FindByID(ctx, uint(id.ID()))
 }
 
-func (uc *EmployeeUseCase) ListEmployees(ctx context.Context, limit, offset int) ([]*domain.Employee, error) {
-	employees, total, err := uc.employeeRepo.List(ctx, limit, offset)
-	_ = total // If you need total, you can return it or use it as needed
-	return employees, err
+func (uc *EmployeeUseCase) ListEmployees(ctx context.Context, filters *ports.EmployeeFilters) ([]*domain.Employee, int64, error) {
+	if filters == nil {
+		filters = &ports.EmployeeFilters{
+			Limit:     10,
+			Offset:    0,
+			SortBy:    "created_at",
+			SortOrder: "DESC",
+		}
+	}
+
+	if filters.Limit == 0 {
+		filters.Limit = 10
+	}
+
+	if filters.SortBy == "" {
+		filters.SortBy = "created_at"
+	}
+
+	if filters.SortOrder == "" {
+		filters.SortOrder = "DESC"
+	}
+
+	employees, total, err := uc.employeeRepo.List(ctx, filters)
+	return employees, total, err
 }
 
 func (uc *EmployeeUseCase) UpdateEmployee(ctx context.Context, id uuid.UUID, req ports.UpdateEmployeeRequest) (*domain.Employee, error) {
