@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
@@ -29,7 +30,10 @@ type RegisterRequest struct {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid request data",
+			"details": err.Error(),
+		})
 		return
 	}
 
@@ -48,18 +52,48 @@ func (h *AuthHandler) Login(c *gin.Context) {
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req ports.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid request data",
+			"details": err.Error(),
+		})
 		return
 	}
 
-	user, err := h.authService.Register(c.Request.Context(), req)
+	// Convert to service request
+	serviceReq := ports.RegisterRequest{
+		Email:     req.Email,
+		Password:  req.Password,
+		FirstName: req.FirstName,
+		LastName:  req.LastName,
+		Role:      req.Role,
+	}
+
+	user, err := h.authService.Register(c.Request.Context(), serviceReq)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		log.Printf("Error when try to register user: %s", err.Error())
+		log.Printf("/******************************************/")
+
+		statusCode := http.StatusBadRequest
+		if err.Error() == "user already exists" {
+			statusCode = http.StatusConflict
+		}
+
+		c.JSON(statusCode, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "User created successfully",
-		"user":    user,
+		"message": "User registered successfully",
+		"user": gin.H{
+			"id":         user.ID,
+			"email":      user.Email,
+			"first_name": user.FirstName,
+			"last_name":  user.LastName,
+			"role":       user.Role,
+			"is_active":  user.IsActive,
+			"created_at": user.CreatedAt,
+		},
 	})
 }

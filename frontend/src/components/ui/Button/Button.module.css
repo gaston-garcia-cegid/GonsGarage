@@ -1,0 +1,60 @@
+/* src/components/Button/Button.module.css */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.danger {
+  background-color: var(--color-error);
+  color: var(--color-white);
+}
+
+.danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.small {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+}
+
+.large {
+  padding: var(--space-4) var(--space-6);
+  font-size: 1rem;
+}

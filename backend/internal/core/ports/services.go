@@ -18,10 +18,23 @@ type AuthService interface {
 
 // RegisterRequest representa os dados para registro
 type RegisterRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-	Name     string `json:"name" binding:"required"`
-	Role     string `json:"role"`
+	Email     string `json:"email" binding:"required,email"`
+	Password  string `json:"password" binding:"required,min=6"`
+	FirstName string `json:"first_name" binding:"required"`
+	LastName  string `json:"last_name" binding:"required"`
+	Role      string `json:"role"`
+}
+
+// LoginResponse representa a resposta do login
+type LoginResponse struct {
+	Token string       `json:"token"`
+	User  *domain.User `json:"user"`
+}
+
+// RegisterResponse representa a resposta do registro
+type RegisterResponse struct {
+	User    *domain.User `json:"user"`
+	Message string       `json:"message"`
 }
 
 // EmployeeService define os métodos do serviço de funcionários

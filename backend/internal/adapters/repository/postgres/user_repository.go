@@ -28,7 +28,7 @@ func (r *PostgresUserRepository) Create(ctx context.Context, user *domain.User) 
 	dbUser := &UserModel{
 		ID:           user.ID,
 		Email:        user.Email,
-		PasswordHash: user.Password,
+		PasswordHash: user.PasswordHash,
 		FirstName:    user.FirstName,
 		LastName:     user.LastName,
 		Role:         user.Role,
@@ -83,7 +83,7 @@ func (r *PostgresUserRepository) Update(ctx context.Context, user *domain.User) 
 	dbUser := &UserModel{
 		ID:           user.ID,
 		Email:        user.Email,
-		PasswordHash: user.Password,
+		PasswordHash: user.PasswordHash,
 		FirstName:    user.FirstName,
 		LastName:     user.LastName,
 		Role:         user.Role,
@@ -150,15 +150,15 @@ func (r *PostgresUserRepository) EmailExists(ctx context.Context, email string) 
 // toDomainUser converts database model to domain entity
 func (r *PostgresUserRepository) toDomainUser(dbUser *UserModel) *domain.User {
 	return &domain.User{
-		ID:        dbUser.ID,
-		Email:     dbUser.Email,
-		Password:  dbUser.PasswordHash,
-		FirstName: dbUser.FirstName,
-		LastName:  dbUser.LastName,
-		Role:      dbUser.Role,
-		IsActive:  dbUser.IsActive,
-		CreatedAt: dbUser.CreatedAt,
-		UpdatedAt: dbUser.UpdatedAt,
+		ID:           dbUser.ID,
+		Email:        dbUser.Email,
+		PasswordHash: dbUser.PasswordHash,
+		FirstName:    dbUser.FirstName,
+		LastName:     dbUser.LastName,
+		Role:         dbUser.Role,
+		IsActive:     dbUser.IsActive,
+		CreatedAt:    dbUser.CreatedAt,
+		UpdatedAt:    dbUser.UpdatedAt,
 	}
 }
 

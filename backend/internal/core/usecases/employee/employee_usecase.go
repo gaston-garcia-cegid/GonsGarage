@@ -27,11 +27,15 @@ func (uc *EmployeeUseCase) CreateEmployee(ctx context.Context, req ports.CreateE
 	employee := domain.NewEmployee(
 		req.FirstName,
 		req.LastName,
+		req.Email,
 		req.Position,
 		req.HourlyRate,
 		req.Role,
 		req.Department,
 		req.PhoneNumber,
+		req.HireDate,
+		req.Salary,
+		req.HoursPerWeek,
 	)
 
 	if err := uc.employeeRepo.Create(ctx, employee); err != nil {

@@ -1,0 +1,74 @@
+/* src/components/Input/Input.module.css */
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.input {
+  appearance: none;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius);
+  color: var(--color-gray-900);
+  font-size: 0.875rem;
+  padding: var(--space-3) var(--space-3);
+  transition: all var(--transition-fast);
+  width: 100%;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+  outline: none;
+}
+
+.input.error {
+  border-color: var(--color-error);
+}
+
+.input.error:focus {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgb(239 68 68 / 0.1);
+}
+
+.input::placeholder {
+  color: var(--color-gray-500);
+}
+
+.errorMessage {
+  color: var(--color-error);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.helperText {
+  color: var(--color-gray-600);
+  font-size: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .input {
+    background-color: var(--color-gray-800);
+    border-color: var(--color-gray-600);
+    color: var(--color-gray-100);
+  }
+  
+  .label {
+    color: var(--color-gray-300);
+  }
+}

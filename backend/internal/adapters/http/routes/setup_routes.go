@@ -3,37 +3,48 @@ package routes
 import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/handlers"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/middleware"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(
-	router *gin.Engine,
-	authHandler *handlers.AuthHandler,
-	employeeHandler *handlers.EmployeeHandler,
-	authService ports.AuthService,
-) {
-	api := router.Group("/api/v1")
-
-	// Public routes
-	auth := api.Group("/auth")
+func SetupAuthRoutes(router *gin.Engine, authHandler *handlers.AuthHandler) {
+	authGroup := router.Group("/api/v1/auth")
 	{
-		auth.POST("/login", authHandler.Login)
-		auth.POST("/register", authHandler.Register)
-	}
+		// Public routes
+		authGroup.POST("/login", authHandler.Login)
+		authGroup.POST("/register", authHandler.Register)
 
-	// Protected routes
-	protected := api.Group("/")
-	protected.Use(middleware.AuthMiddleware(authService))
-	{
-		// Employee routes
-		employees := protected.Group("/employees")
-		{
-			employees.POST("/", middleware.RoleMiddleware("admin", "manager"), employeeHandler.CreateEmployee)
-			employees.GET("/", employeeHandler.ListEmployees)
-			employees.GET("/:id", employeeHandler.GetEmployee)
-			employees.PUT("/:id", middleware.RoleMiddleware("admin", "manager"), employeeHandler.UpdateEmployee)
-			employees.DELETE("/:id", middleware.RoleMiddleware("admin"), employeeHandler.DeleteEmployee)
-		}
+		// Protected routes (if you need them later)
+		// protected := authGroup.Group("/")
+		// protected.Use(middleware.AuthMiddleware())
+		// {
+		// 	protected.POST("/refresh", authHandler.RefreshToken)
+		// 	protected.POST("/logout", authHandler.Logout)
+		// }
 	}
+}
+
+func SetupEmployeeRoutes(router *gin.Engine, employeeHandler *handlers.EmployeeHandler) {
+	employeeGroup := router.Group("/api/v1/employees")
+	employeeGroup.Use(middleware.AuthMiddleware()) // Protect all employee routes
+	{
+		employeeGroup.POST("/", employeeHandler.CreateEmployee)
+		employeeGroup.GET("/", employeeHandler.ListEmployees)
+		employeeGroup.GET("/:id", employeeHandler.GetEmployee)
+		employeeGroup.PUT("/:id", employeeHandler.UpdateEmployee)
+		employeeGroup.DELETE("/:id", employeeHandler.DeleteEmployee)
+	}
+}
+
+func SetupAllRoutes(router *gin.Engine, authHandler *handlers.AuthHandler, employeeHandler *handlers.EmployeeHandler) {
+	// Health check endpoint
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "ok",
+			"message": "GonsGarage API is running",
+		})
+	})
+
+	// Setup all route groups
+	SetupAuthRoutes(router, authHandler)
+	SetupEmployeeRoutes(router, employeeHandler)
 }

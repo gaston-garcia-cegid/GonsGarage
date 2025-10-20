@@ -35,6 +35,10 @@ func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (strin
 		return "", errors.New("invalid credentials")
 	}
 
+	if !user.IsActive {
+		return "", errors.New("user account is deactivated")
+	}
+
 	token, err := uc.GenerateToken(user)
 	if err != nil {
 		return "", err
@@ -47,32 +51,52 @@ func (uc *AuthUseCase) Register(ctx context.Context, req ports.RegisterRequest) 
 	// Check if user already exists
 	existingUser, _ := uc.userRepo.GetByEmail(ctx, req.Email)
 	if existingUser != nil {
-		return nil, errors.New("user already exists")
+		return nil, domain.ErrUserAlreadyExists
 	}
 
-	user, err := domain.NewUser(req.Email, req.Password, req.Role)
+	// Validate role
+	if req.Role == "" {
+		req.Role = "employee"
+	}
+
+	// Validate role is one of the allowed values
+	allowedRoles := []string{"admin", "manager", "employee"}
+	validRole := false
+	for _, role := range allowedRoles {
+		if req.Role == role {
+			validRole = true
+			break
+		}
+	}
+	if !validRole {
+		return nil, errors.New("invalid role. Must be one of: admin, manager, employee")
+	}
+
+	user, err := domain.NewUser(req.Email, req.Password, req.FirstName, req.LastName, req.Role)
 	if err != nil {
 		return nil, err
-	}
-
-	// Atribuir nome se fornecido
-	if req.Name != "" {
-		user.FirstName = req.Name
 	}
 
 	if err := uc.userRepo.Create(ctx, user); err != nil {
 		return nil, err
 	}
 
+	// Remove password from response
+	user.PasswordHash = ""
+
 	return user, nil
 }
 
 func (uc *AuthUseCase) GenerateToken(user *domain.User) (string, error) {
 	claims := jwt.MapClaims{
-		"user_id": user.ID.String(),
-		"email":   user.Email,
-		"role":    user.Role,
-		"exp":     time.Now().Add(uc.expireTime).Unix(),
+		"user_id":    user.ID.String(),
+		"email":      user.Email,
+		"first_name": user.FirstName,
+		"last_name":  user.LastName,
+		"role":       user.Role,
+		"is_active":  user.IsActive,
+		"exp":        time.Now().Add(uc.expireTime).Unix(),
+		"iat":        time.Now().Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -81,34 +105,40 @@ func (uc *AuthUseCase) GenerateToken(user *domain.User) (string, error) {
 
 func (uc *AuthUseCase) ValidateToken(tokenString string) (*domain.User, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
 		return []byte(uc.jwtSecret), nil
 	})
 
-	if err != nil || !token.Valid {
-		return nil, errors.New("invalid token")
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, errors.New("invalid token claims")
-	}
-
-	userIDStr, ok := claims["user_id"].(string)
-	if !ok {
-		return nil, errors.New("invalid user ID in token")
-	}
-
-	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
-		return nil, errors.New("invalid user ID format")
+		return nil, err
 	}
 
-	user, err := uc.userRepo.GetByID(context.Background(), userID)
-	if err != nil {
-		return nil, errors.New("user not found")
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userIDStr, ok := claims["user_id"].(string)
+		if !ok {
+			return nil, errors.New("invalid token claims")
+		}
+
+		userID, err := uuid.Parse(userIDStr)
+		if err != nil {
+			return nil, errors.New("invalid user ID in token")
+		}
+
+		user, err := uc.userRepo.GetByID(context.Background(), userID)
+		if err != nil {
+			return nil, err
+		}
+
+		if !user.IsActive {
+			return nil, errors.New("user account is deactivated")
+		}
+
+		return user, nil
 	}
 
-	return user, nil
+	return nil, errors.New("invalid token")
 }
 
 func (uc *AuthUseCase) RefreshToken(ctx context.Context, token string) (string, error) {
