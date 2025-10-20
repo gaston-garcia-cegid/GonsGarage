@@ -22,7 +22,6 @@ interface RegisterData {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
