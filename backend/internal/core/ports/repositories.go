@@ -88,3 +88,23 @@ type AccountingRepository interface {
 	DeleteAccountingEntry(ctx context.Context, id string) error
 	ListAccountingEntries(ctx context.Context, limit, offset int) ([]*domain.AccountingEntry, int64, error)
 }
+
+// CarRepository defines the interface for the car repository
+type CarRepository interface {
+	Create(ctx context.Context, car *domain.Car) error
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Car, error)
+	GetByClientID(ctx context.Context, clientID uuid.UUID) ([]*domain.Car, error)
+	List(ctx context.Context, limit, offset int) ([]*domain.Car, error)
+	Update(ctx context.Context, car *domain.Car) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	GetByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error)
+}
+
+// RepairRepository defines the interface for the repair repository
+type RepairRepository interface {
+	Create(ctx context.Context, repair *domain.Repair) error
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Repair, error)
+	Update(ctx context.Context, repair *domain.Repair) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	GetByCarID(ctx context.Context, carID uuid.UUID) ([]*domain.Repair, error)
+}

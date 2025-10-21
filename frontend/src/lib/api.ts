@@ -65,7 +65,7 @@ export interface EmployeeListResponse {
   offset: number;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+//const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 class ApiClient {
   private baseURL: string;
@@ -131,7 +131,7 @@ class ApiClient {
       console.error('API request failed:', error);
       return {
         error: {
-          message: 'Network error occurred',
+          message: 'Network error occurred, Line 134',
           status: 0,
         },
       };
@@ -156,11 +156,13 @@ class ApiClient {
 
   // Employee endpoints
   async getEmployees(limit = 20, offset = 0): Promise<ApiResponse<EmployeeListResponse>> {
-    return this.request<EmployeeListResponse>(`/employees?limit=${limit}&offset=${offset}`);
+    const response = await this.request<EmployeeListResponse>(`/employees?limit=${limit}&offset=${offset}`);
+    return response;
   }
 
   async getEmployee(id: string): Promise<ApiResponse<Employee>> {
-    return this.request<Employee>(`/employees/${id}`);
+    const response = await this.request<Employee>(`/employees/${id}`);
+    return response;
   }
 
   async createEmployee(employeeData: CreateEmployeeRequest): Promise<ApiResponse<Employee>> {

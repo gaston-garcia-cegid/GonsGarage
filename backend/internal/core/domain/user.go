@@ -8,6 +8,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var (
+	// ErrUserNotFound is returned when a user is not found in the repository.
+	ErrUserNotFound      = errors.New("user not found")
+	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrInvalidRole       = errors.New("invalid role")
+)
+
 type User struct {
 	ID           uuid.UUID  `json:"id" gorm:"type:uuid;primary_key"`
 	Email        string     `json:"email" gorm:"unique;not null"`
@@ -19,6 +26,14 @@ type User struct {
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    time.Time  `json:"updated_at"`
 	DeletedAt    *time.Time `gorm:"index" json:"deleted_at,omitempty"`
+
+	// Client specific fields
+	Phone   string `json:"phone,omitempty"`
+	Address string `json:"address,omitempty"`
+
+	// Relations
+	Cars         []Car         `json:"cars,omitempty"`
+	Appointments []Appointment `json:"appointments,omitempty"`
 }
 
 // TableName especifica o nome da tabela
@@ -71,6 +86,35 @@ func (u *User) FullName() string {
 	return u.FirstName + " " + u.LastName
 }
 
-// ErrUserNotFound is returned when a user is not found in the repository.
-var ErrUserNotFound = errors.New("user not found")
-var ErrUserAlreadyExists = errors.New("user already exists")
+// User roles
+const (
+	RoleAdmin    = "admin"
+	RoleManager  = "manager"
+	RoleEmployee = "employee"
+	RoleClient   = "client" // New role
+)
+
+// ValidateRole checks if the role is valid
+func (u *User) ValidateRole() bool {
+	switch u.Role {
+	case RoleAdmin, RoleManager, RoleEmployee, RoleClient:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsClient returns true if user is a client
+func (u *User) IsClient() bool {
+	return u.Role == RoleClient
+}
+
+// IsEmployee returns true if user is employee, manager or admin
+func (u *User) IsEmployee() bool {
+	return u.Role == RoleEmployee || u.Role == RoleManager || u.Role == RoleAdmin
+}
+
+// CanManageUsers returns true if user can manage other users
+func (u *User) CanManageUsers() bool {
+	return u.Role == RoleAdmin || u.Role == RoleManager
+}

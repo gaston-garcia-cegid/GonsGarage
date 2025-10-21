@@ -43,7 +43,7 @@ export default function EmployeesPage() {
         setError(apiError?.message || 'Failed to fetch employees');
       }
     } catch (err) {
-      setError('Network error occurred');
+      setError('Network error occurred, Line 46');
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export default function EmployeesPage() {
         alert('Failed to delete employee: ' + error.message);
       }
     } catch (err) {
-      alert('Network error occurred');
+      alert('Network error occurred, Line 66');
     }
   };
 
@@ -861,7 +861,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
         setErrors({ general: result.error?.message || 'Operation failed' });
       }
     } catch (error) {
-      setErrors({ general: 'Network error occurred' });
+      setErrors({ general: 'Network error occurred, Line 864' });
     } finally {
       setIsLoading(false);
     }

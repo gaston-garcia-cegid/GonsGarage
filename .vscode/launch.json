@@ -10,10 +10,10 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/backend/cmd/server",
+            "program": "${workspaceFolder}/backend/cmd/server/main.go",
             "cwd": "${workspaceFolder}/backend",
             "env": {
-                "DATABASE_URL": "postgres://admindb:0onsgarag3db!@localhost:5432/gonsgaragedb?sslmode=disable",
+                "DATABASE_URL": "postgres://admindb:gonsgarage123@localhost:5432/gonsgarage?sslmode=disable",
                 "REDIS_URL": "localhost:6379",
                 "JWT_SECRET": "your-super-secret-jwt-key-change-in-production",
                 "SERVER_PORT": "8080",

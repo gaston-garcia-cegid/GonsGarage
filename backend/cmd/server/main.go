@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -15,12 +16,14 @@ import (
 	postgresRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/postgres"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/handlers"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/routes"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/middleware"
 	redisRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/redis"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/auth"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/car"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/employee"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/repair"
 )
 
 func main() {
@@ -183,6 +186,8 @@ func main() {
 	// Initialize repositories
 	userRepo := postgresRepo.NewPostgresUserRepository(db)
 	employeeRepo := postgresRepo.NewPostgresEmployeeRepository(db)
+	carRepo := postgresRepo.NewPostgresCarRepository(db)
+	repairRepo := postgresRepo.NewPostgresRepairRepository(db)
 
 	var cacheRepo ports.CacheRepository
 	if err == nil {
@@ -208,12 +213,19 @@ func main() {
 
 	authUseCase := auth.NewAuthUseCase(userRepo, jwtSecret, 24)
 	employeeUseCase := employee.NewEmployeeUseCase(employeeRepo, cacheRepo)
+	carUseCase := car.NewCarUseCase(carRepo, userRepo, cacheRepo)
+	repairUseCase := repair.NewRepairUseCase(repairRepo, carRepo, userRepo)
 	log.Printf("Use cases initialized")
 	log.Printf("/******************************************/")
+
+	// Initialize middleware
+	authMiddleware := middleware.NewAuthMiddleware(jwtSecret)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authUseCase)
 	employeeHandler := handlers.NewEmployeeHandler(employeeUseCase)
+	carHandler := handlers.NewCarHandler(carUseCase)
+	repairHandler := handlers.NewRepairHandler(repairUseCase)
 	log.Printf("Handlers initialized")
 	log.Printf("/******************************************/")
 
@@ -240,7 +252,8 @@ func main() {
 	log.Printf("/******************************************/")
 
 	// Setup routes
-	routes.SetupAllRoutes(router, authHandler, employeeHandler)
+	setupRoutes(router, authHandler, employeeHandler, carHandler, repairHandler, authMiddleware)
+
 	log.Printf("Routes set up")
 	log.Printf("/******************************************/")
 
@@ -260,6 +273,127 @@ func main() {
 	}
 	log.Printf("Server started successfully")
 	log.Printf("/*************** End Main ***************/")
+}
+
+// CORS middleware function
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		origin := c.Request.Header.Get("Origin")
+
+		// Allow specific origins or all origins for development
+		if origin == "http://localhost:3000" || origin == "http://localhost:3001" || os.Getenv("GIN_MODE") != "release" {
+			c.Header("Access-Control-Allow-Origin", origin)
+		}
+
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		c.Header("Access-Control-Allow-Credentials", "true")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// Setup all routes
+func setupRoutes(
+	router *gin.Engine,
+	authHandler *handlers.AuthHandler,
+	employeeHandler *handlers.EmployeeHandler,
+	carHandler *handlers.CarHandler,
+	repairHandler *handlers.RepairHandler,
+	authMiddleware *middleware.AuthMiddleware,
+) {
+	// Health check
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "ok",
+			"message": "GonsGarage API is running",
+		})
+	})
+
+	// API v1 routes
+	api := router.Group("/api/v1")
+
+	// Public auth routes
+	auth := api.Group("/auth")
+	{
+		auth.POST("/register", authHandler.Register)
+		auth.POST("/login", authHandler.Login)
+	}
+
+	// Protected routes
+	protected := api.Group("/")
+	protected.Use(ginAuthMiddleware(authMiddleware))
+	{
+		// Employee routes
+		employees := protected.Group("/employees")
+		{
+			employees.POST("", employeeHandler.CreateEmployee)
+			employees.GET("", employeeHandler.ListEmployees)
+			employees.GET("/:id", employeeHandler.GetEmployee)
+			employees.PUT("/:id", employeeHandler.UpdateEmployee)
+			employees.DELETE("/:id", employeeHandler.DeleteEmployee)
+		}
+
+		// Car routes
+		cars := protected.Group("/cars")
+		{
+			cars.POST("", ginHandler(carHandler.CreateCar))
+			cars.GET("", ginHandler(carHandler.ListCars))
+			cars.GET("/:id", ginHandler(carHandler.GetCar))
+			cars.PUT("/:id", ginHandler(carHandler.UpdateCar))
+			cars.DELETE("/:id", ginHandler(carHandler.DeleteCar))
+		}
+
+		// Repair routes
+		repairs := protected.Group("/repairs")
+		{
+			repairs.POST("", ginHandler(repairHandler.CreateRepair))
+			repairs.GET("/:id", ginHandler(repairHandler.GetRepair))
+			repairs.PUT("/:id", ginHandler(repairHandler.UpdateRepair))
+			repairs.GET("/car/:carId", ginHandler(repairHandler.GetRepairsByCarID))
+		}
+	}
+}
+
+// Convert http.HandlerFunc to gin.HandlerFunc
+func ginHandler(h func(http.ResponseWriter, *http.Request)) gin.HandlerFunc {
+	return gin.WrapF(h)
+}
+
+// Convert auth middleware to Gin middleware
+func ginAuthMiddleware(authMiddleware *middleware.AuthMiddleware) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Create a ResponseWriter wrapper
+		rw := &responseWriterWrapper{ResponseWriter: c.Writer, statusCode: 200}
+
+		// Call the middleware
+		authMiddleware.Authenticate(rw, c.Request, func(w http.ResponseWriter, r *http.Request) {
+			// Update the context with any changes from middleware
+			c.Request = r
+			c.Next()
+		})
+
+		// If middleware wrote a response (error), abort
+		if rw.statusCode >= 400 {
+			c.Abort()
+		}
+	}
+}
+
+// ResponseWriter wrapper to capture status codes
+type responseWriterWrapper struct {
+	gin.ResponseWriter
+	statusCode int
+}
+
+func (rw *responseWriterWrapper) WriteHeader(statusCode int) {
+	rw.statusCode = statusCode
+	rw.ResponseWriter.WriteHeader(statusCode)
 }
 
 // NullCacheRepository é uma implementação dummy quando Redis não está disponível
