@@ -190,4 +190,3 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
-export type { Employee, EmployeeListResponse };

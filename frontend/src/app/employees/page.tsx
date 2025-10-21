@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { CreateEmployeeRequest, Employee, apiClient } from '@/src/lib/api';
+import { useAuth } from "@/contexts/AuthContext";
+import { CreateEmployeeRequest, Employee, apiClient } from '@/lib/api';
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -78,35 +78,147 @@ export default function EmployeesPage() {
 
   if (loading && employees.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex items-center space-x-2">
-          <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'var(--color-gray-50)',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-2)',
+        }}>
+          <svg 
+            style={{ 
+              animation: 'spin 1s linear infinite',
+              width: '20px', 
+              height: '20px',
+              color: 'var(--color-primary)'
+            }} 
+            xmlns="http://www.w3.org/2000/svg" 
+            fill="none" 
+            viewBox="0 0 24 24"
+          >
+            <circle 
+              style={{ opacity: 0.25 }} 
+              cx="12" 
+              cy="12" 
+              r="10" 
+              stroke="currentColor" 
+              strokeWidth="4"
+            />
+            <path 
+              style={{ opacity: 0.75 }} 
+              fill="currentColor" 
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
           </svg>
-          <span className="text-lg text-gray-600">Loading employees...</span>
+          <span style={{
+            fontSize: '0.875rem',
+            color: 'var(--color-gray-600)',
+          }}>
+            Loading employees...
+          </span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: 'var(--color-gray-50)',
+    }}>
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">GonsGarage</h1>
-              <p className="text-sm text-gray-600">Employee Management</p>
+      <header style={{
+        backgroundColor: 'white',
+        boxShadow: 'var(--shadow-sm)',
+        borderBottom: '1px solid var(--color-gray-200)',
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 var(--space-4)',
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            height: '64px',
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-3)',
+            }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                backgroundColor: 'var(--color-primary)',
+                borderRadius: 'var(--radius)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <svg 
+                  style={{ width: '16px', height: '16px', color: 'white' }} 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
+                </svg>
+              </div>
+              <div>
+                <h1 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '700',
+                  color: 'var(--color-gray-900)',
+                  margin: 0,
+                }}>
+                  GonsGarage
+                </h1>
+                <p style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--color-gray-600)',
+                  margin: 0,
+                }}>
+                  Employee Management
+                </p>
+              </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
-                Welcome, {user?.first_name} {user?.last_name}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-3)',
+            }}>
+              <span style={{
+                fontSize: '0.875rem',
+                color: 'var(--color-gray-700)',
+              }}>
+                Welcome, {user?.firstName} {user?.lastName}
               </span>
               <button
                 onClick={logout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+                style={{
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  padding: 'var(--space-2) var(--space-3)',
+                  borderRadius: 'var(--radius)',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color var(--transition-fast)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#b91c1c';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#dc2626';
+                }}
               >
                 Logout
               </button>
@@ -116,226 +228,551 @@ export default function EmployeesPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Controls */}
-          <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-            <div className="flex-1 max-w-lg">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search employees..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-                <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
+      <main style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: 'var(--space-6) var(--space-4)',
+      }}>
+        {/* Controls */}
+        <div style={{
+          marginBottom: 'var(--space-6)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-4)',
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 'var(--space-4)',
+          }}>
+            <div style={{
+              position: 'relative',
+              maxWidth: '320px',
+              flex: '1',
+            }}>
+              <input
+                type="text"
+                placeholder="Search employees..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  paddingLeft: '2.25rem',
+                  paddingRight: 'var(--space-3)',
+                  paddingTop: 'var(--space-2)',
+                  paddingBottom: 'var(--space-2)',
+                  border: '1px solid var(--color-gray-300)',
+                  borderRadius: 'var(--radius)',
+                  fontSize: '0.875rem',
+                  outline: 'none',
+                  transition: 'border-color var(--transition-fast)',
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--color-primary)';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'var(--color-gray-300)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+              <svg 
+                style={{
+                  position: 'absolute',
+                  left: 'var(--space-2)',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '16px',
+                  height: '16px',
+                  color: 'var(--color-gray-400)',
+                }} 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out flex items-center"
+              style={{
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                padding: 'var(--space-2) var(--space-4)',
+                borderRadius: 'var(--radius)',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'background-color var(--transition-fast)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+              }}
             >
-              <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg 
+                style={{ width: '16px', height: '16px' }} 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               Add Employee
             </button>
           </div>
+        </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-              <div className="flex">
-                <svg className="h-5 w-5 text-red-400 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                {error}
+        {/* Error Message */}
+        {error && (
+          <div style={{
+            marginBottom: 'var(--space-4)',
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#dc2626',
+            padding: 'var(--space-3)',
+            borderRadius: 'var(--radius)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)',
+          }}>
+            <svg 
+              style={{ width: '16px', height: '16px', flexShrink: 0 }} 
+              viewBox="0 0 20 20" 
+              fill="currentColor"
+            >
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            <span style={{ fontSize: '0.875rem' }}>{error}</span>
+          </div>
+        )}
+
+        {/* Employee Table Container */}
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-md)',
+          overflow: 'hidden',
+        }}>
+          {/* Table Header */}
+          <div style={{
+            padding: 'var(--space-4) var(--space-6)',
+            borderBottom: '1px solid var(--color-gray-200)',
+          }}>
+            <h3 style={{
+              fontSize: '1.125rem',
+              fontWeight: '600',
+              color: 'var(--color-gray-900)',
+              margin: 0,
+              marginBottom: 'var(--space-1)',
+            }}>
+              Employees ({totalEmployees})
+            </h3>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--color-gray-600)',
+              margin: 0,
+            }}>
+              Manage your workshop employees
+            </p>
+          </div>
+          
+          {/* Table */}
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+            }}>
+              <thead style={{
+                backgroundColor: 'var(--color-gray-50)',
+              }}>
+                <tr>
+                  <th style={{
+                    padding: 'var(--space-3) var(--space-6)',
+                    textAlign: 'left',
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    color: 'var(--color-gray-500)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Name
+                  </th>
+                  <th style={{
+                    padding: 'var(--space-3) var(--space-6)',
+                    textAlign: 'left',
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    color: 'var(--color-gray-500)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Email
+                  </th>
+                  <th style={{
+                    padding: 'var(--space-3) var(--space-6)',
+                    textAlign: 'left',
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    color: 'var(--color-gray-500)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Department
+                  </th>
+                  <th style={{
+                    padding: 'var(--space-3) var(--space-6)',
+                    textAlign: 'left',
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    color: 'var(--color-gray-500)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Position
+                  </th>
+                  <th style={{
+                    padding: 'var(--space-3) var(--space-6)',
+                    textAlign: 'left',
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    color: 'var(--color-gray-500)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Salary
+                  </th>
+                  <th style={{
+                    padding: 'var(--space-3) var(--space-6)',
+                    textAlign: 'left',
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    color: 'var(--color-gray-500)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Status
+                  </th>
+                  <th style={{
+                    padding: 'var(--space-3) var(--space-6)',
+                    textAlign: 'left',
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    color: 'var(--color-gray-500)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody style={{
+                backgroundColor: 'white',
+              }}>
+                {filteredEmployees.length === 0 ? (
+                  <tr>
+                    <td 
+                      colSpan={7} 
+                      style={{
+                        padding: 'var(--space-8) var(--space-6)',
+                        textAlign: 'center',
+                        color: 'var(--color-gray-500)',
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      {searchTerm ? 'No employees found matching your search.' : 'No employees found. Add your first employee!'}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredEmployees.map((employee, index) => (
+                    <tr 
+                      key={employee.id}
+                      style={{
+                        borderTop: index > 0 ? '1px solid var(--color-gray-200)' : 'none',
+                        transition: 'background-color var(--transition-fast)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--color-gray-50)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'white';
+                      }}
+                    >
+                      <td style={{
+                        padding: 'var(--space-4) var(--space-6)',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-3)',
+                        }}>
+                          <div style={{
+                            width: '32px',
+                            height: '32px',
+                            backgroundColor: 'var(--color-primary)',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                          }}>
+                            <span style={{
+                              fontSize: '0.75rem',
+                              fontWeight: '500',
+                              color: 'white',
+                            }}>
+                              {employee.first_name[0]}{employee.last_name[0]}
+                            </span>
+                          </div>
+                          <div>
+                            <div style={{
+                              fontSize: '0.875rem',
+                              fontWeight: '500',
+                              color: 'var(--color-gray-900)',
+                            }}>
+                              {employee.first_name} {employee.last_name}
+                            </div>
+                            <div style={{
+                              fontSize: '0.75rem',
+                              color: 'var(--color-gray-500)',
+                            }}>
+                              {employee.phone || 'No phone'}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{
+                        padding: 'var(--space-4) var(--space-6)',
+                        whiteSpace: 'nowrap',
+                        fontSize: '0.875rem',
+                        color: 'var(--color-gray-900)',
+                      }}>
+                        {employee.email}
+                      </td>
+                      <td style={{
+                        padding: 'var(--space-4) var(--space-6)',
+                        whiteSpace: 'nowrap',
+                        fontSize: '0.875rem',
+                        color: 'var(--color-gray-900)',
+                      }}>
+                        {employee.department}
+                      </td>
+                      <td style={{
+                        padding: 'var(--space-4) var(--space-6)',
+                        whiteSpace: 'nowrap',
+                        fontSize: '0.875rem',
+                        color: 'var(--color-gray-900)',
+                      }}>
+                        {employee.position}
+                      </td>
+                      <td style={{
+                        padding: 'var(--space-4) var(--space-6)',
+                        whiteSpace: 'nowrap',
+                        fontSize: '0.875rem',
+                        color: 'var(--color-gray-900)',
+                      }}>
+                        ${employee.salary.toLocaleString()}
+                      </td>
+                      <td style={{
+                        padding: 'var(--space-4) var(--space-6)',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          padding: 'var(--space-1) var(--space-2)',
+                          fontSize: '0.75rem',
+                          fontWeight: '500',
+                          borderRadius: 'var(--radius)',
+                          backgroundColor: employee.is_active ? '#ecfdf5' : '#fef2f2',
+                          color: employee.is_active ? '#065f46' : '#991b1b',
+                        }}>
+                          {employee.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td style={{
+                        padding: 'var(--space-4) var(--space-6)',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          gap: 'var(--space-2)',
+                        }}>
+                          <button
+                            onClick={() => setEditingEmployee(employee)}
+                            style={{
+                              color: 'var(--color-primary)',
+                              backgroundColor: 'transparent',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '0.875rem',
+                              fontWeight: '500',
+                              textDecoration: 'none',
+                              transition: 'color var(--transition-fast)',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = 'var(--color-primary-hover)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color = 'var(--color-primary)';
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(employee.id)}
+                            style={{
+                              color: '#dc2626',
+                              backgroundColor: 'transparent',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '0.875rem',
+                              fontWeight: '500',
+                              textDecoration: 'none',
+                              transition: 'color var(--transition-fast)',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = '#b91c1c';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color = '#dc2626';
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div style={{
+              backgroundColor: 'white',
+              padding: 'var(--space-3) var(--space-6)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderTop: '1px solid var(--color-gray-200)',
+            }}>
+              <div>
+                <p style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--color-gray-700)',
+                  margin: 0,
+                }}>
+                  Showing{' '}
+                  <span style={{ fontWeight: '500' }}>{(currentPage - 1) * employeesPerPage + 1}</span>
+                  {' '}to{' '}
+                  <span style={{ fontWeight: '500' }}>
+                    {Math.min(currentPage * employeesPerPage, totalEmployees)}
+                  </span>
+                  {' '}of{' '}
+                  <span style={{ fontWeight: '500' }}>{totalEmployees}</span>
+                  {' '}results
+                </p>
+              </div>
+              <div style={{
+                display: 'flex',
+                gap: 'var(--space-1)',
+              }}>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    border: '1px solid var(--color-gray-300)',
+                    backgroundColor: 'white',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: currentPage === 1 ? 'var(--color-gray-400)' : 'var(--color-gray-700)',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    borderRadius: 'var(--radius)',
+                    transition: 'background-color var(--transition-fast)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (currentPage !== 1) {
+                      e.currentTarget.style.backgroundColor = 'var(--color-gray-50)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'white';
+                  }}
+                >
+                  Previous
+                </button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const pageNum = i + 1;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      style={{
+                        padding: 'var(--space-2) var(--space-3)',
+                        border: '1px solid var(--color-gray-300)',
+                        backgroundColor: pageNum === currentPage ? 'var(--color-primary)' : 'white',
+                        fontSize: '0.875rem',
+                        fontWeight: '500',
+                        color: pageNum === currentPage ? 'white' : 'var(--color-gray-700)',
+                        cursor: 'pointer',
+                        borderRadius: 'var(--radius)',
+                        transition: 'all var(--transition-fast)',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (pageNum !== currentPage) {
+                          e.currentTarget.style.backgroundColor = 'var(--color-gray-50)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (pageNum !== currentPage) {
+                          e.currentTarget.style.backgroundColor = 'white';
+                        }
+                      }}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    border: '1px solid var(--color-gray-300)',
+                    backgroundColor: 'white',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: currentPage === totalPages ? 'var(--color-gray-400)' : 'var(--color-gray-700)',
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    borderRadius: 'var(--radius)',
+                    transition: 'background-color var(--transition-fast)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (currentPage !== totalPages) {
+                      e.currentTarget.style.backgroundColor = 'var(--color-gray-50)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'white';
+                  }}
+                >
+                  Next
+                </button>
               </div>
             </div>
           )}
-
-          {/* Employee Table */}
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Employees ({totalEmployees})
-              </h3>
-              <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                Manage your workshop employees
-              </p>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Department
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Position
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Salary
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredEmployees.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
-                        {searchTerm ? 'No employees found matching your search.' : 'No employees found. Add your first employee!'}
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredEmployees.map((employee) => (
-                      <tr key={employee.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="h-10 w-10 flex-shrink-0">
-                              <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center">
-                                <span className="text-sm font-medium text-white">
-                                  {employee.first_name[0]}{employee.last_name[0]}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {employee.first_name} {employee.last_name}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {employee.phone || 'No phone'}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {employee.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {employee.department}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {employee.position}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          ${employee.salary.toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            employee.is_active 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {employee.is_active ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => setEditingEmployee(employee)}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete(employee.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                <div className="flex-1 flex justify-between sm:hidden">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
-                </div>
-                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      Showing{' '}
-                      <span className="font-medium">{(currentPage - 1) * employeesPerPage + 1}</span>
-                      {' '}to{' '}
-                      <span className="font-medium">
-                        {Math.min(currentPage * employeesPerPage, totalEmployees)}
-                      </span>
-                      {' '}of{' '}
-                      <span className="font-medium">{totalEmployees}</span>
-                      {' '}results
-                    </p>
-                  </div>
-                  <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Previous
-                      </button>
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                        <button
-                          key={pageNum}
-                          onClick={() => setCurrentPage(pageNum)}
-                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                            pageNum === currentPage
-                              ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                          }`}
-                        >
-                          {pageNum}
-                        </button>
-                      ))}
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Next
-                      </button>
-                    </nav>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </main>
 
@@ -354,11 +791,18 @@ export default function EmployeesPage() {
           }}
         />
       )}
+
+      <style jsx>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
 
-// Employee Modal Component
+// Employee Modal Component with consistent styling
 interface EmployeeModalProps {
   employee?: Employee | null;
   onClose: () => void;
@@ -436,87 +880,254 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-        <div className="mt-3">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">
-              {employee ? 'Edit Employee' : 'Add New Employee'}
-            </h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 'var(--space-4)',
+      zIndex: 50,
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-lg)',
+        width: '100%',
+        maxWidth: '500px',
+        maxHeight: '90vh',
+        overflow: 'hidden',
+      }}>
+        {/* Modal Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 'var(--space-4) var(--space-6)',
+          borderBottom: '1px solid var(--color-gray-200)',
+        }}>
+          <h3 style={{
+            fontSize: '1.125rem',
+            fontWeight: '600',
+            color: 'var(--color-gray-900)',
+            margin: 0,
+          }}>
+            {employee ? 'Edit Employee' : 'Add New Employee'}
+          </h3>
+          <button
+            onClick={onClose}
+            style={{
+              color: 'var(--color-gray-400)',
+              backgroundColor: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 'var(--space-1)',
+              borderRadius: 'var(--radius)',
+              transition: 'color var(--transition-fast)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--color-gray-600)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--color-gray-400)';
+            }}
+          >
+            <svg style={{ width: '20px', height: '20px' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Modal Body */}
+        <div style={{
+          padding: 'var(--space-6)',
+          maxHeight: '70vh',
+          overflowY: 'auto',
+        }}>
+          <form onSubmit={handleSubmit}>
             {errors.general && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-md text-sm">
+              <div style={{
+                backgroundColor: '#fef2f2',
+                border: '1px solid #fecaca',
+                color: '#dc2626',
+                padding: 'var(--space-3)',
+                borderRadius: 'var(--radius)',
+                marginBottom: 'var(--space-4)',
+                fontSize: '0.875rem',
+              }}>
                 {errors.general}
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'var(--space-4)',
+              marginBottom: 'var(--space-4)',
+            }}>
               <div>
-                <label className="block text-sm font-medium text-gray-700">First Name</label>
+                <label style={{
+                  display: 'block',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: 'var(--color-gray-700)',
+                  marginBottom: 'var(--space-1)',
+                }}>
+                  First Name
+                </label>
                 <input
                   type="text"
                   name="first_name"
                   value={formData.first_name}
                   onChange={handleChange}
-                  className={`mt-1 block w-full px-3 py-2 border ${errors.first_name ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-2)',
+                    border: `1px solid ${errors.first_name ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    borderRadius: 'var(--radius)',
+                    fontSize: '0.875rem',
+                    outline: 'none',
+                    transition: 'border-color var(--transition-fast)',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'var(--color-primary)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = errors.first_name ? '#fca5a5' : 'var(--color-gray-300)';
+                    e.target.style.boxShadow = 'none';
+                  }}
                 />
-                {errors.first_name && <p className="mt-1 text-sm text-red-600">{errors.first_name}</p>}
+                {errors.first_name && (
+                  <p style={{
+                    marginTop: 'var(--space-1)',
+                    fontSize: '0.75rem',
+                    color: '#dc2626',
+                  }}>
+                    {errors.first_name}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                <label style={{
+                  display: 'block',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: 'var(--color-gray-700)',
+                  marginBottom: 'var(--space-1)',
+                }}>
+                  Last Name
+                </label>
                 <input
                   type="text"
                   name="last_name"
                   value={formData.last_name}
                   onChange={handleChange}
-                  className={`mt-1 block w-full px-3 py-2 border ${errors.last_name ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-2)',
+                    border: `1px solid ${errors.last_name ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    borderRadius: 'var(--radius)',
+                    fontSize: '0.875rem',
+                    outline: 'none',
+                    transition: 'border-color var(--transition-fast)',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'var(--color-primary)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = errors.last_name ? '#fca5a5' : 'var(--color-gray-300)';
+                    e.target.style.boxShadow = 'none';
+                  }}
                 />
-                {errors.last_name && <p className="mt-1 text-sm text-red-600">{errors.last_name}</p>}
+                {errors.last_name && (
+                  <p style={{
+                    marginTop: 'var(--space-1)',
+                    fontSize: '0.75rem',
+                    color: '#dc2626',
+                  }}>
+                    {errors.last_name}
+                  </p>
+                )}
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
+            <div style={{ marginBottom: 'var(--space-4)' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                color: 'var(--color-gray-700)',
+                marginBottom: 'var(--space-1)',
+              }}>
+                Email
+              </label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`mt-1 block w-full px-3 py-2 border ${errors.email ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                style={{
+                  width: '100%',
+                  padding: 'var(--space-2)',
+                  border: `1px solid ${errors.email ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                  borderRadius: 'var(--radius)',
+                  fontSize: '0.875rem',
+                  outline: 'none',
+                  transition: 'border-color var(--transition-fast)',
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--color-primary)';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = errors.email ? '#fca5a5' : 'var(--color-gray-300)';
+                  e.target.style.boxShadow = 'none';
+                }}
               />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+              {errors.email && (
+                <p style={{
+                  marginTop: 'var(--space-1)',
+                  fontSize: '0.75rem',
+                  color: '#dc2626',
+                }}>
+                  {errors.email}
+                </p>
+              )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Phone</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'var(--space-4)',
+              marginBottom: 'var(--space-4)',
+            }}>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Department</label>
+                <label style={{
+                  display: 'block',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: 'var(--color-gray-700)',
+                  marginBottom: 'var(--space-1)',
+                }}>
+                  Department
+                </label>
                 <select
                   name="department"
                   value={formData.department}
                   onChange={handleChange}
-                  className={`mt-1 block w-full px-3 py-2 border ${errors.department ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-2)',
+                    border: `1px solid ${errors.department ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    borderRadius: 'var(--radius)',
+                    fontSize: '0.875rem',
+                    outline: 'none',
+                    transition: 'border-color var(--transition-fast)',
+                  }}
                 >
                   <option value="">Select Department</option>
                   <option value="Mechanical">Mechanical</option>
@@ -525,37 +1136,122 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   <option value="Administration">Administration</option>
                   <option value="Sales">Sales</option>
                 </select>
-                {errors.department && <p className="mt-1 text-sm text-red-600">{errors.department}</p>}
+                {errors.department && (
+                  <p style={{
+                    marginTop: 'var(--space-1)',
+                    fontSize: '0.75rem',
+                    color: '#dc2626',
+                  }}>
+                    {errors.department}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Position</label>
+                <label style={{
+                  display: 'block',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: 'var(--color-gray-700)',
+                  marginBottom: 'var(--space-1)',
+                }}>
+                  Position
+                </label>
                 <input
                   type="text"
                   name="position"
                   value={formData.position}
                   onChange={handleChange}
-                  className={`mt-1 block w-full px-3 py-2 border ${errors.position ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-2)',
+                    border: `1px solid ${errors.position ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    borderRadius: 'var(--radius)',
+                    fontSize: '0.875rem',
+                    outline: 'none',
+                    transition: 'border-color var(--transition-fast)',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'var(--color-primary)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = errors.position ? '#fca5a5' : 'var(--color-gray-300)';
+                    e.target.style.boxShadow = 'none';
+                  }}
                 />
-                {errors.position && <p className="mt-1 text-sm text-red-600">{errors.position}</p>}
+                {errors.position && (
+                  <p style={{
+                    marginTop: 'var(--space-1)',
+                    fontSize: '0.75rem',
+                    color: '#dc2626',
+                  }}>
+                    {errors.position}
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'var(--space-4)',
+              marginBottom: 'var(--space-4)',
+            }}>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Hire Date</label>
+                <label style={{
+                  display: 'block',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: 'var(--color-gray-700)',
+                  marginBottom: 'var(--space-1)',
+                }}>
+                  Hire Date
+                </label>
                 <input
                   type="date"
                   name="hire_date"
                   value={formData.hire_date}
                   onChange={handleChange}
-                  className={`mt-1 block w-full px-3 py-2 border ${errors.hire_date ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-2)',
+                    border: `1px solid ${errors.hire_date ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    borderRadius: 'var(--radius)',
+                    fontSize: '0.875rem',
+                    outline: 'none',
+                    transition: 'border-color var(--transition-fast)',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'var(--color-primary)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = errors.hire_date ? '#fca5a5' : 'var(--color-gray-300)';
+                    e.target.style.boxShadow = 'none';
+                  }}
                 />
-                {errors.hire_date && <p className="mt-1 text-sm text-red-600">{errors.hire_date}</p>}
+                {errors.hire_date && (
+                  <p style={{
+                    marginTop: 'var(--space-1)',
+                    fontSize: '0.75rem',
+                    color: '#dc2626',
+                  }}>
+                    {errors.hire_date}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Salary</label>
+                <label style={{
+                  display: 'block',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: 'var(--color-gray-700)',
+                  marginBottom: 'var(--space-1)',
+                }}>
+                  Salary
+                </label>
                 <input
                   type="number"
                   name="salary"
@@ -563,28 +1259,90 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   onChange={handleChange}
                   min="0"
                   step="0.01"
-                  className={`mt-1 block w-full px-3 py-2 border ${errors.salary ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-2)',
+                    border: `1px solid ${errors.salary ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    borderRadius: 'var(--radius)',
+                    fontSize: '0.875rem',
+                    outline: 'none',
+                    transition: 'border-color var(--transition-fast)',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'var(--color-primary)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = errors.salary ? '#fca5a5' : 'var(--color-gray-300)';
+                    e.target.style.boxShadow = 'none';
+                  }}
                 />
-                {errors.salary && <p className="mt-1 text-sm text-red-600">{errors.salary}</p>}
+                {errors.salary && (
+                  <p style={{
+                    marginTop: 'var(--space-1)',
+                    fontSize: '0.75rem',
+                    color: '#dc2626',
+                  }}>
+                    {errors.salary}
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3 pt-4">
+            <div style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: 'var(--space-3)',
+              paddingTop: 'var(--space-4)',
+              borderTop: '1px solid var(--color-gray-200)',
+            }}>
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                style={{
+                  padding: 'var(--space-2) var(--space-4)',
+                  border: '1px solid var(--color-gray-300)',
+                  borderRadius: 'var(--radius)',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: 'var(--color-gray-700)',
+                  backgroundColor: 'white',
+                  cursor: 'pointer',
+                  transition: 'background-color var(--transition-fast)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--color-gray-50)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'white';
+                }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                  isLoading
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-                }`}
+                style={{
+                  padding: 'var(--space-2) var(--space-4)',
+                  border: 'none',
+                  borderRadius: 'var(--radius)',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: 'white',
+                  backgroundColor: isLoading ? 'var(--color-gray-400)' : 'var(--color-primary)',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  transition: 'background-color var(--transition-fast)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+                  }
+                }}
               >
                 {isLoading ? 'Saving...' : (employee ? 'Update' : 'Create')}
               </button>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { apiClient } from '@/lib/api';
 
 interface User {
   id: string;
@@ -48,20 +49,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const checkAuthStatus = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-
-      apiClient.setToken(token);
-      const { data, error } = await apiClient.getProfile();
+      if (typeof window === 'undefined') return;
       
-      if (data && !error) {
-        setUser(data);
-      } else {
-        localStorage.removeItem('token');
-        apiClient.clearToken();
+      const storedToken = localStorage.getItem('auth_token');
+      const storedUser = localStorage.getItem('auth_user');
+      
+      if (storedToken && storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setToken(storedToken);
+          setUser(userData);
+        } catch (error) {
+          console.error('Failed to parse stored user data:', error);
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error);
@@ -72,9 +74,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const login = async (email: string, password: string) : Promise<{ success: boolean; error?: string }> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setIsLoading(true);
+
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
@@ -126,8 +129,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: false, error: data.error || 'Login failed' };
       }
     } catch (error) {
-      console.log('Login error:', error);
-      return { success: false, error: 'Network error occurred' };
+      console.error('Login error:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Network error. Please try again.' 
+      };
     } finally {
       setIsLoading(false);
     }
@@ -178,7 +184,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return { success: true };
     } catch (error) {
       console.error('Registration error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Network error. Please try again.' 
+      };
     }
   };
 
@@ -195,10 +204,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const value: AuthContextType = {
     user,
+    token,
     isLoading,
     login,
-    logout,
     register,
+    logout,
     isAuthenticated: !!user,
   };
 
