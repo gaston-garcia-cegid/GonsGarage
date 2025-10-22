@@ -4,9 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient, Car, Repair, Appointment } from '@/lib/api';
+import Image from 'next/image';
 import styles from './dashboard.module.css';
 
-export default function ClientDashboardPage() {
+export default function DashboardPage() {
   const [cars, setCars] = useState<Car[]>([]);
   const [recentRepairs, setRecentRepairs] = useState<Repair[]>([]);
   const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
@@ -21,22 +22,38 @@ export default function ClientDashboardPage() {
       router.push('/auth/login');
       return;
     }
-
-    // Verificar se é realmente um cliente
-    if (user.role !== 'client') {
-      console.warn('Access denied: user role is', user.role, 'but page requires client');
-      router.push('/auth/login');
-      return;
-    }
+    fetchDashboardData();
   }, [user, router]);
 
-  if (!user || user.role !== 'client') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [carsResponse, repairsResponse, appointmentsResponse] = await Promise.all([
+        apiClient.getCars(),
+        apiClient.getRepairs(),
+        apiClient.getAppointments(),
+      ]);
+
+      if (carsResponse.data && !carsResponse.error) {
+        setCars(carsResponse.data);
+      }
+
+      if (repairsResponse.data && !repairsResponse.error) {
+        setRecentRepairs(repairsResponse.data.slice(0, 5));
+      }
+
+      if (appointmentsResponse.data && !appointmentsResponse.error) {
+        setUpcomingAppointments(appointmentsResponse.data.slice(0, 3));
+      }
+    } catch (err) {
+      setError('Failed to load dashboard data');
+      console.error('Dashboard error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -54,13 +71,17 @@ export default function ClientDashboardPage() {
         <div className={styles.headerContent}>
           <div className={styles.logoSection}>
             <div className={styles.logoIcon}>
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
-              </svg>
+              <Image
+                src="/images/LogoGonsGarage.jpg"
+                alt="GonsGarage Logo"
+                width={24}
+                height={24}
+                style={{ objectFit: 'contain' }}
+              />
             </div>
             <div>
               <h1>GonsGarage</h1>
-              <p>Customer Dashboard</p>
+              <p>My Cars</p>
             </div>
           </div>
           <div className={styles.userSection}>

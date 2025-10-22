@@ -12,20 +12,26 @@ export default function LandingPage() {
 
   // Só redireciona se o usuário ESTIVER autenticado
   useEffect(() => {
+    console.log('Landing page - Auth state:', { isLoading, isAuthenticated, userRole: user?.role });
+  
     if (!isLoading && isAuthenticated && user) {
       switch (user.role) {
         case 'admin':
         case 'manager':
+          console.log('Redirecting to admin dashboard');
           router.push('/admin/dashboard');
           break;
         case 'employee':
         case 'technician':
+          console.log('Redirecting to technician dashboard');
           router.push('/technician/dashboard');
           break;
         case 'client':
+          console.log('Redirecting to client dashboard');
           router.push('/client/dashboard');
           break;
         default:
+          console.log('Unknown role, redirecting to default dashboard');
           router.push('/dashboard');
       }
     }
@@ -131,9 +137,13 @@ export default function LandingPage() {
         <div className={styles.headerContent}>
           <div className={styles.logoSection}>
             <div className={styles.logo}>
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
-              </svg>
+              <Image
+                src="/images/LogoGonsGarage.jpg" // ou .jpg/.jpeg dependendo da extensão
+                alt="GonsGarage Logo"
+                width={32}
+                height={32}
+                style={{ objectFit: 'contain' }}
+              />
             </div>
             <div className={styles.logoText}>
               <h1>GonsGarage</h1>
@@ -298,9 +308,13 @@ export default function LandingPage() {
           <div className={styles.footerSection}>
             <div className={styles.footerLogo}>
               <div className={styles.logo}>
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
-                </svg>
+                <Image
+                  src="/images/LogoGonsGarage.jpg"
+                  alt="GonsGarage Logo"
+                  width={32}
+                  height={32}
+                  style={{ objectFit: 'contain' }}
+                />
               </div>
               <div>
                 <h4>GonsGarage</h4>

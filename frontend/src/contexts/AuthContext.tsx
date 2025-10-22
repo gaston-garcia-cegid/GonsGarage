@@ -1,16 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { apiClient } from '@/lib/api';
-
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  isActive: boolean;
-}
+import { useRouter } from 'next/navigation';
+import { apiClient, User, LoginRequest } from '@/lib/api';
 
 interface RegisterData {
   email: string;
@@ -41,7 +33,34 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  // Helper function to redirect based on role
+  const redirectBasedOnRole = (userData: User) => {
+    console.log('Redirecting user with role:', userData.role); // Debug log
+    
+    switch (userData.role) {
+      case 'admin':
+      case 'manager':
+        console.log('Redirecting to admin dashboard');
+        router.push('/admin/dashboard');
+        break;
+      case 'employee':
+      case 'technician':
+        console.log('Redirecting to technician dashboard');
+        router.push('/technician/dashboard');
+        break;
+      case 'client':
+        console.log('Redirecting to client dashboard');
+        router.push('/client/dashboard');
+        break;
+      default:
+        console.warn('Unknown role:', userData.role, 'redirecting to default dashboard');
+        router.push('/dashboard'); // fallback
+    }
+  };
 
   useEffect(() => {
     checkAuthStatus();
@@ -107,21 +126,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // Mock user data based on email for now
         const userData: User = {
-          id: '1',
-          email: email,
-          firstName: email.split('@')[0],
-          lastName: 'User',
-          role: 'admin',
-          isActive: true,
+          id: data?.user?.id || '1',
+          email: data?.user?.email || email,
+          first_name: data?.user?.first_name || data?.user?.firstName || email.split('@')[0],
+          last_name: data?.user?.last_name || data?.user?.lastName || 'User',
+          role: data?.user?.role || 'client',
+          is_active: data?.user?.is_active || true,
+          created_at: data?.user?.created_at || new Date().toISOString(),
+          updated_at: data?.user?.updated_at || new Date().toISOString(),
         };
+
+        console.log('Setting user data:', userData);
         
+        setToken(data.token);
         setUser(userData);
+        setIsAuthenticated(true);
         
         // Store in localStorage (with window check)
         if (typeof window !== 'undefined') {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('auth_user', JSON.stringify(userData));
         }
+
+        // Redirect based on role
+        setTimeout(() => {
+          redirectBasedOnRole(userData);
+        }, 100);
         
         return { success: true };
       } else {

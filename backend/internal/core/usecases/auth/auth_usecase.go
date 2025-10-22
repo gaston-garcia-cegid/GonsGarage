@@ -60,7 +60,7 @@ func (uc *AuthUseCase) Register(ctx context.Context, req ports.RegisterRequest) 
 	}
 
 	// Validate role is one of the allowed values
-	allowedRoles := []string{"admin", "manager", "employee"}
+	allowedRoles := []string{"admin", "manager", "employee", "client"}
 	validRole := false
 	for _, role := range allowedRoles {
 		if req.Role == role {
@@ -69,7 +69,7 @@ func (uc *AuthUseCase) Register(ctx context.Context, req ports.RegisterRequest) 
 		}
 	}
 	if !validRole {
-		return nil, errors.New("invalid role. Must be one of: admin, manager, employee")
+		return nil, errors.New("invalid role. Must be one of: admin, manager, employee, client")
 	}
 
 	user, err := domain.NewUser(req.Email, req.Password, req.FirstName, req.LastName, req.Role)

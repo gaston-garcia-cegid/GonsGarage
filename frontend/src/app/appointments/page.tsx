@@ -96,7 +96,7 @@ export default function AppointmentsPage() {
             </div>
           </div>
           <div className={styles.userSection}>
-            <span>Welcome, {user?.firstName} {user?.lastName}</span>
+            <span>Welcome, {user?.first_name} {user?.last_name}</span>
             <button onClick={logout} className={styles.logoutButton}>
               Logout
             </button>

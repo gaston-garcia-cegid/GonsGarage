@@ -19,9 +19,9 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/employees');
-    }
+    // if (isAuthenticated) {
+    //   router.push('/employees');
+    // }
     
     // Check for success message from registration
     const message = searchParams.get('message');
@@ -62,9 +62,7 @@ export default function LoginForm() {
     try {
       const result = await login(formData.email, formData.password);
       
-      if (result.success) {
-        router.push('/employees');
-      } else {
+      if (!result.success) {
         setErrors({ general: result.error || 'Login failed' });
       }
     } catch (error) {
@@ -125,7 +123,9 @@ export default function LoginForm() {
               viewBox="0 0 24 24" 
               stroke="currentColor"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
+              <path strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
             </svg>
           </div>
           <h1 style={{

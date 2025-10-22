@@ -35,12 +35,13 @@
 .logo {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: white;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  padding: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .logo svg {
@@ -428,11 +429,15 @@
   gap: 2rem;
 }
 
-.footerLogo {
+.footerLogo .logo {
+  width: 32px;
+  height: 32px;
+  background: white;
+  border-radius: 6px;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  justify-content: center;
+  padding: 4px;
 }
 
 .footerLogo .logo {

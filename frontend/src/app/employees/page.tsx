@@ -198,7 +198,7 @@ export default function EmployeesPage() {
                 fontSize: '0.875rem',
                 color: 'var(--color-gray-700)',
               }}>
-                Welcome, {user?.firstName} {user?.lastName}
+                Welcome, {user?.first_name} {user?.last_name}
               </span>
               <button
                 onClick={logout}

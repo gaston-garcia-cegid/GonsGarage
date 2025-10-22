@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient, Car, CreateCarRequest } from '@/lib/api';
+import Image from 'next/image';
 import styles from './cars.module.css';
 
 export default function CarsPage() {
@@ -76,9 +77,13 @@ export default function CarsPage() {
         <div className={styles.headerContent}>
           <div className={styles.logoSection}>
             <div className={styles.logoIcon}>
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
-              </svg>
+              <Image
+                src="/images/LogoGonsGarage.jpg"
+                alt="GonsGarage Logo"
+                width={24}
+                height={24}
+                style={{ objectFit: 'contain' }}
+              />
             </div>
             <div>
               <h1>GonsGarage</h1>
@@ -86,7 +91,7 @@ export default function CarsPage() {
             </div>
           </div>
           <div className={styles.userSection}>
-            <span>Welcome, {user?.firstName} {user?.lastName}</span>
+            <span>Welcome, {user?.first_name} {user?.last_name}</span>
             <button onClick={logout} className={styles.logoutButton}>
               Logout
             </button>
