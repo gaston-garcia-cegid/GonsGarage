@@ -1,122 +1,44 @@
+// src/app/client/page.tsx (dashboard principal)
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { apiClient, Car, Repair, Appointment } from '@/lib/api';
-import Image from 'next/image';
-import styles from './dashboard.module.css';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { getNavigationConfig } from '@/lib/navigation';
+import styles from './client.module.css';
 
-export default function DashboardPage() {
+export default function ClientPage() {
+  const { user, isLoading, isAuthorized } = useAuthGuard('client');
   const [cars, setCars] = useState<Car[]>([]);
   const [recentRepairs, setRecentRepairs] = useState<Repair[]>([]);
   const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const { user, logout } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!user) {
-      router.push('/auth/login');
-      return;
-    }
-    fetchDashboardData();
-  }, [user, router]);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const [carsResponse, repairsResponse, appointmentsResponse] = await Promise.all([
-        apiClient.getCars(),
-        apiClient.getRepairs(),
-        apiClient.getAppointments(),
-      ]);
-
-      if (carsResponse.data && !carsResponse.error) {
-        setCars(carsResponse.data);
-      }
-
-      if (repairsResponse.data && !repairsResponse.error) {
-        setRecentRepairs(repairsResponse.data.slice(0, 5));
-      }
-
-      if (appointmentsResponse.data && !appointmentsResponse.error) {
-        setUpcomingAppointments(appointmentsResponse.data.slice(0, 3));
-      }
-    } catch (err) {
-      setError('Failed to load dashboard data');
-      console.error('Dashboard error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
+  
+  // Só mostra loading, não faz redirecionamentos (AuthContext cuida disso)
+  if (isLoading || !isAuthorized) {
     return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.spinner}></div>
-        <span>Loading dashboard...</span>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
+  const navConfig = getNavigationConfig('client');
+
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.logoSection}>
-            <div className={styles.logoIcon}>
-              <Image
-                src="/images/LogoGonsGarage.jpg"
-                alt="GonsGarage Logo"
-                width={24}
-                height={24}
-                style={{ objectFit: 'contain' }}
-              />
-            </div>
-            <div>
-              <h1>GonsGarage</h1>
-              <p>My Cars</p>
-            </div>
-          </div>
-          <div className={styles.userSection}>
-            <span>Welcome, {user?.first_name} {user?.last_name}</span>
-            <button onClick={logout} className={styles.logoutButton}>
-              Logout
-            </button>
-          </div>
+    <DashboardLayout
+      title="Dashboard"
+      subtitle="Customer Dashboard"
+      activeTab="dashboard"
+      navigationItems={navConfig.items}
+    >
+      {/* Conteúdo do dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-2">My Cars</h3>
+          <p className="text-3xl font-bold text-blue-600">3</p>
         </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className={styles.navigation}>
-        <button 
-          onClick={() => router.push('/dashboard')}
-          className={`${styles.navButton} ${styles.active}`}
-        >
-          Dashboard
-        </button>
-        <button 
-          onClick={() => router.push('/cars')}
-          className={styles.navButton}
-        >
-          My Cars
-        </button>
-        <button 
-          onClick={() => router.push('/appointments')}
-          className={styles.navButton}
-        >
-          Appointments
-        </button>
-      </nav>
-
-      {/* Main Content */}
-      <main className={styles.main}>
+        {/* Mais conteúdo... */}
         {error && (
           <div className={styles.errorAlert}>
             <span>{error}</span>
@@ -249,7 +171,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+
+    </DashboardLayout>
   );
 }

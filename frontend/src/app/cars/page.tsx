@@ -75,7 +75,7 @@ export default function CarsPage() {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <div className={styles.logoSection}>
+          <div className={styles.logoSection} onClick={() => router.push('/')}>
             <div className={styles.logoIcon}>
               <Image
                 src="/images/LogoGonsGarage.jpg"

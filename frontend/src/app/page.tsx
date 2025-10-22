@@ -135,7 +135,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <div className={styles.logoSection}>
+          <div className={styles.logoSection} onClick={() => router.push('/')}>
             <div className={styles.logo}>
               <Image
                 src="/images/LogoGonsGarage.jpg" // ou .jpg/.jpeg dependendo da extensão
@@ -305,7 +305,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
-          <div className={styles.footerSection}>
+          <div className={styles.footerSection} onClick={() => router.push('/')}>
             <div className={styles.footerLogo}>
               <div className={styles.logo}>
                 <Image

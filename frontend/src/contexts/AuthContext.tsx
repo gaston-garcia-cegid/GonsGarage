@@ -45,20 +45,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       case 'admin':
       case 'manager':
         console.log('Redirecting to admin dashboard');
-        router.push('/admin/dashboard');
+        router.push('/admin/');
         break;
       case 'employee':
       case 'technician':
         console.log('Redirecting to technician dashboard');
-        router.push('/technician/dashboard');
+        router.push('/technician/');
         break;
       case 'client':
         console.log('Redirecting to client dashboard');
-        router.push('/client/dashboard');
+        router.push('/client/');
         break;
       default:
         console.warn('Unknown role:', userData.role, 'redirecting to default dashboard');
-        router.push('/dashboard'); // fallback
+        router.push('/'); // fallback
     }
   };
 
