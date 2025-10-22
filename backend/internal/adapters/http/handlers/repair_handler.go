@@ -93,7 +93,7 @@ func (h *RepairHandler) CreateRepair(w http.ResponseWriter, r *http.Request) {
 		CarID:       carID,
 		Description: req.Description,
 		Status:      req.Status,
-		StartDate:   startDate,
+		StartedAt:   startDate,
 		Cost:        req.Cost,
 	}
 

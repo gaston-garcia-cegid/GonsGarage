@@ -32,7 +32,7 @@ func (uc *CarUseCase) CreateCar(ctx context.Context, car *domain.Car, userID uui
 	}
 
 	// Check permissions: only client can create their own car, or admin/manager
-	if user.IsClient() && car.ClientID != userID {
+	if user.IsClient() && car.OwnerID != userID {
 		return nil, domain.ErrUnauthorizedAccess
 	}
 
@@ -41,7 +41,7 @@ func (uc *CarUseCase) CreateCar(ctx context.Context, car *domain.Car, userID uui
 	}
 
 	// Validate client exists
-	client, err := uc.userRepo.GetByID(ctx, car.ClientID)
+	client, err := uc.userRepo.GetByID(ctx, car.OwnerID)
 	if err != nil {
 		return nil, fmt.Errorf("client not found: %w", err)
 	}
@@ -87,7 +87,7 @@ func (uc *CarUseCase) GetCar(ctx context.Context, carID uuid.UUID, userID uuid.U
 	}
 
 	// Check permissions: clients can only see their own cars
-	if user.IsClient() && car.ClientID != userID {
+	if user.IsClient() && car.OwnerID != userID {
 		return nil, domain.ErrUnauthorizedAccess
 	}
 
@@ -124,7 +124,7 @@ func (uc *CarUseCase) UpdateCar(ctx context.Context, car *domain.Car, userID uui
 	}
 
 	// Check permissions
-	if user.IsClient() && existingCar.ClientID != userID {
+	if user.IsClient() && existingCar.OwnerID != userID {
 		return nil, domain.ErrUnauthorizedAccess
 	}
 
@@ -194,9 +194,6 @@ func (uc *CarUseCase) validateCar(car *domain.Car) error {
 	}
 	if car.Color == "" {
 		return fmt.Errorf("color is required")
-	}
-	if car.Mileage < 0 {
-		return fmt.Errorf("mileage cannot be negative")
 	}
 
 	return nil

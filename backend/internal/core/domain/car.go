@@ -9,75 +9,27 @@ import (
 
 // Car entity
 type Car struct {
-	ID           uuid.UUID  `json:"id"`
-	ClientID     uuid.UUID  `json:"client_id"`
-	Make         string     `json:"make"`
-	Model        string     `json:"model"`
-	Year         int        `json:"year"`
-	LicensePlate string     `json:"license_plate"`
-	VIN          string     `json:"vin"`
+	ID           uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	Make         string     `json:"make" gorm:"not null"`
+	Model        string     `json:"model" gorm:"not null"`
+	Year         int        `json:"year" gorm:"not null"`
+	LicensePlate string     `json:"license_plate" gorm:"column:license_plate;uniqueIndex;not null"`
+	VIN          string     `json:"vin" gorm:"column:vin;uniqueIndex"`
 	Color        string     `json:"color"`
-	Mileage      int        `json:"mileage"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
-	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
+	OwnerID      uuid.UUID  `json:"owner_id" gorm:"type:uuid;column:owner_id;not null;index"`
+	CreatedAt    time.Time  `json:"created_at" gorm:"column:created_at;autoCreateTime"`
+	UpdatedAt    time.Time  `json:"updated_at" gorm:"column:updated_at;autoUpdateTime"`
+	DeletedAt    *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at;index"`
 
-	// Relations
-	Client  *User    `json:"client,omitempty"`
-	Repairs []Repair `json:"repairs,omitempty"`
+	// Relationships - these will be ignored by GORM for auto-migration
+	Owner   User     `json:"owner,omitempty" gorm:"-"`
+	Repairs []Repair `json:"repairs,omitempty" gorm:"-"`
 }
 
-// Repair entity
-type Repair struct {
-	ID          uuid.UUID  `json:"id"`
-	CarID       uuid.UUID  `json:"car_id"`
-	EmployeeID  uuid.UUID  `json:"employee_id"`
-	Description string     `json:"description"`
-	Status      string     `json:"status"`
-	StartDate   time.Time  `json:"start_date"`
-	EndDate     *time.Time `json:"end_date,omitempty"`
-	Cost        float64    `json:"cost"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
-	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
-
-	// Relations
-	Car      *Car  `json:"car,omitempty"`
-	Employee *User `json:"employee,omitempty"`
+// TableName specifies the table name for GORM
+func (Car) TableName() string {
+	return "cars"
 }
-
-// Appointment entity
-type Appointment struct {
-	ID            uuid.UUID  `json:"id"`
-	CarID         uuid.UUID  `json:"car_id"`
-	ClientID      uuid.UUID  `json:"client_id"`
-	ScheduledDate time.Time  `json:"scheduled_date"`
-	Status        string     `json:"status"`
-	Description   string     `json:"description"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
-	DeletedAt     *time.Time `json:"deleted_at,omitempty"`
-
-	// Relations
-	Car    *Car  `json:"car,omitempty"`
-	Client *User `json:"client,omitempty"`
-}
-
-// Repair statuses
-const (
-	RepairStatusPending    = "pending"
-	RepairStatusInProgress = "in_progress"
-	RepairStatusCompleted  = "completed"
-	RepairStatusCancelled  = "cancelled"
-)
-
-// Appointment statuses
-const (
-	AppointmentStatusScheduled = "scheduled"
-	AppointmentStatusConfirmed = "confirmed"
-	AppointmentStatusCancelled = "cancelled"
-	AppointmentStatusCompleted = "completed"
-)
 
 // Car validation errors
 var (
@@ -87,23 +39,3 @@ var (
 	ErrInvalidCarData      = errors.New("invalid car data")
 	ErrUnauthorizedAccess  = errors.New("unauthorized access")
 )
-
-// ValidateRepairStatus checks if repair status is valid
-func ValidateRepairStatus(status string) bool {
-	switch status {
-	case RepairStatusPending, RepairStatusInProgress, RepairStatusCompleted, RepairStatusCancelled:
-		return true
-	default:
-		return false
-	}
-}
-
-// ValidateAppointmentStatus checks if appointment status is valid
-func ValidateAppointmentStatus(status string) bool {
-	switch status {
-	case AppointmentStatusScheduled, AppointmentStatusConfirmed, AppointmentStatusCancelled, AppointmentStatusCompleted:
-		return true
-	default:
-		return false
-	}
-}

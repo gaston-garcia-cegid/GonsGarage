@@ -49,7 +49,7 @@ type UpdateCarRequest struct {
 // CarResponse represents the response payload for car data
 type CarResponse struct {
 	ID           string        `json:"id"`
-	ClientID     string        `json:"client_id"`
+	OwnerID      string        `json:"owner_id"`
 	Make         string        `json:"make"`
 	Model        string        `json:"model"`
 	Year         int           `json:"year"`
@@ -95,14 +95,13 @@ func (h *CarHandler) CreateCar(w http.ResponseWriter, r *http.Request) {
 
 	// Create domain car
 	car := &domain.Car{
-		ClientID:     clientID,
+		OwnerID:      clientID,
 		Make:         req.Make,
 		Model:        req.Model,
 		Year:         req.Year,
 		LicensePlate: req.LicensePlate,
 		VIN:          req.VIN,
 		Color:        req.Color,
-		Mileage:      req.Mileage,
 	}
 
 	// Create car using use case
@@ -263,14 +262,13 @@ func (h *CarHandler) UpdateCar(w http.ResponseWriter, r *http.Request) {
 	// Create updated car
 	car := &domain.Car{
 		ID:           carID,
-		ClientID:     existingCar.ClientID, // Preserve client ID
+		OwnerID:      existingCar.OwnerID,
 		Make:         req.Make,
 		Model:        req.Model,
 		Year:         req.Year,
 		LicensePlate: req.LicensePlate,
 		VIN:          req.VIN,
 		Color:        req.Color,
-		Mileage:      req.Mileage,
 	}
 
 	// Update car using use case
@@ -334,26 +332,25 @@ func (h *CarHandler) DeleteCar(w http.ResponseWriter, r *http.Request) {
 func (h *CarHandler) toCarResponse(car *domain.Car) *CarResponse {
 	response := &CarResponse{
 		ID:           car.ID.String(),
-		ClientID:     car.ClientID.String(),
+		OwnerID:      car.OwnerID.String(),
 		Make:         car.Make,
 		Model:        car.Model,
 		Year:         car.Year,
 		LicensePlate: car.LicensePlate,
 		VIN:          car.VIN,
 		Color:        car.Color,
-		Mileage:      car.Mileage,
 		CreatedAt:    car.CreatedAt.Format("2006-01-02T15:04:05Z"),
 		UpdatedAt:    car.UpdatedAt.Format("2006-01-02T15:04:05Z"),
 	}
 
-	if car.Client != nil {
+	if car.Owner.ID != uuid.Nil {
 		response.Client = &UserResponse{
-			ID:        car.Client.ID.String(),
-			Email:     car.Client.Email,
-			FirstName: car.Client.FirstName,
-			LastName:  car.Client.LastName,
-			Role:      car.Client.Role,
-			IsActive:  car.Client.IsActive,
+			ID:        car.Owner.ID.String(),
+			Email:     car.Owner.Email,
+			FirstName: car.Owner.FirstName,
+			LastName:  car.Owner.LastName,
+			Role:      car.Owner.Role,
+			IsActive:  car.Owner.IsActive,
 		}
 	}
 

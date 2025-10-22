@@ -34,6 +34,11 @@ type Employee struct {
 	User *User `gorm:"foreignKey:UserID" json:"user,omitempty"`
 }
 
+// TableName specifies the table name for GORM
+func (Employee) TableName() string {
+	return "employees"
+}
+
 func NewEmployee(firstName, lastName, email, position string, hourlyRate float64, role, department, phone string, hireDate time.Time, salary float64, hoursPerWeek int) *Employee {
 	return &Employee{
 		ID:           uuid.New(),

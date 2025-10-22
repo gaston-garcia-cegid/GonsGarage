@@ -16,24 +16,22 @@ var (
 )
 
 type User struct {
-	ID           uuid.UUID  `json:"id" gorm:"type:uuid;primary_key"`
-	Email        string     `json:"email" gorm:"unique;not null"`
-	PasswordHash string     `json:"-" gorm:"not null"`
-	FirstName    string     `json:"first_name" gorm:"not null"`
-	LastName     string     `json:"last_name" gorm:"not null"`
+	ID           uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	Email        string     `json:"email" gorm:"uniqueIndex;not null"`
+	PasswordHash string     `json:"-" gorm:"column:password_hash;not null"`
+	FirstName    string     `json:"first_name" gorm:"column:first_name;not null"`
+	LastName     string     `json:"last_name" gorm:"column:last_name;not null"`
 	Role         string     `json:"role" gorm:"not null;default:'employee'"`
-	IsActive     bool       `json:"is_active" gorm:"default:true"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
-	DeletedAt    *time.Time `gorm:"index" json:"deleted_at,omitempty"`
+	IsActive     bool       `json:"is_active" gorm:"column:is_active;default:true"`
+	Phone        string     `json:"phone" gorm:"column:phone"`
+	Address      string     `json:"address" gorm:"column:address"`
+	CreatedAt    time.Time  `json:"created_at" gorm:"column:created_at;autoCreateTime"`
+	UpdatedAt    time.Time  `json:"updated_at" gorm:"column:updated_at;autoUpdateTime"`
+	DeletedAt    *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at;index"`
 
-	// Client specific fields
-	Phone   string `json:"phone,omitempty"`
-	Address string `json:"address,omitempty"`
-
-	// Relations
-	Cars         []Car         `json:"cars,omitempty"`
-	Appointments []Appointment `json:"appointments,omitempty"`
+	// Relationships - these will be ignored by GORM for auto-migration
+	Cars         []Car         `json:"cars,omitempty" gorm:"-"`
+	Appointments []Appointment `json:"appointments,omitempty" gorm:"-"`
 }
 
 // TableName especifica o nome da tabela

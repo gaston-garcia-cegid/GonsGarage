@@ -43,14 +43,13 @@ func (CarModel) TableName() string {
 func (r *PostgresCarRepository) Create(ctx context.Context, car *domain.Car) error {
 	dbCar := &CarModel{
 		ID:           car.ID,
-		ClientID:     car.ClientID,
+		ClientID:     car.OwnerID,
 		Make:         car.Make,
 		Model:        car.Model,
 		Year:         car.Year,
 		LicensePlate: car.LicensePlate,
 		VIN:          car.VIN,
 		Color:        car.Color,
-		Mileage:      car.Mileage,
 		CreatedAt:    car.CreatedAt,
 		UpdatedAt:    car.UpdatedAt,
 	}
@@ -122,14 +121,13 @@ func (r *PostgresCarRepository) List(ctx context.Context, limit, offset int) ([]
 func (r *PostgresCarRepository) Update(ctx context.Context, car *domain.Car) error {
 	dbCar := &CarModel{
 		ID:           car.ID,
-		ClientID:     car.ClientID,
+		ClientID:     car.OwnerID,
 		Make:         car.Make,
 		Model:        car.Model,
 		Year:         car.Year,
 		LicensePlate: car.LicensePlate,
 		VIN:          car.VIN,
 		Color:        car.Color,
-		Mileage:      car.Mileage,
 		UpdatedAt:    car.UpdatedAt,
 	}
 
@@ -175,14 +173,13 @@ func (r *PostgresCarRepository) GetByLicensePlate(ctx context.Context, licensePl
 func (r *PostgresCarRepository) toDomainCar(dbCar *CarModel) *domain.Car {
 	return &domain.Car{
 		ID:           dbCar.ID,
-		ClientID:     dbCar.ClientID,
+		OwnerID:      dbCar.ClientID,
 		Make:         dbCar.Make,
 		Model:        dbCar.Model,
 		Year:         dbCar.Year,
 		LicensePlate: dbCar.LicensePlate,
 		VIN:          dbCar.VIN,
 		Color:        dbCar.Color,
-		Mileage:      dbCar.Mileage,
 		CreatedAt:    dbCar.CreatedAt,
 		UpdatedAt:    dbCar.UpdatedAt,
 		DeletedAt:    dbCar.DeletedAt,
