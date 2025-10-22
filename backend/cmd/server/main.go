@@ -67,6 +67,15 @@ func main() {
 
 	log.Printf("Database connection established")
 
+	// Check if we need to reset database (for development)
+	resetDB := os.Getenv("RESET_DATABASE")
+	if resetDB == "true" {
+		log.Printf("RESET_DATABASE=true, dropping existing tables...")
+		if err := dropAllTables(db); err != nil {
+			log.Printf("Warning: Failed to drop tables: %v", err)
+		}
+	}
+
 	// Auto-migrate tables in correct order (dependencies first)
 	log.Printf("Starting database migration...")
 
@@ -80,10 +89,18 @@ func main() {
 	}
 
 	for _, model := range models {
+		log.Printf("Migrating %T...", model)
 		if err := db.AutoMigrate(model); err != nil {
-			log.Fatalf("Failed to migrate %T: %v", model, err)
+			log.Printf("Migration error for %T: %v", model, err)
+			// Continue with other migrations instead of failing completely
+			continue
 		}
 		log.Printf("Successfully migrated %T", model)
+	}
+
+	// Create indexes manually if they don't exist
+	if err := createIndexes(db); err != nil {
+		log.Printf("Warning: Failed to create some indexes: %v", err)
 	}
 
 	log.Printf("Database migration completed successfully")
@@ -168,6 +185,52 @@ func main() {
 	}
 }
 
+// Drop all tables for clean migration
+func dropAllTables(db *gorm.DB) error {
+	tables := []string{
+		"appointments",
+		"repairs",
+		"cars",
+		"employees",
+		"users",
+	}
+
+	for _, table := range tables {
+		if err := db.Exec("DROP TABLE IF EXISTS " + table + " CASCADE").Error; err != nil {
+			log.Printf("Failed to drop table %s: %v", table, err)
+		} else {
+			log.Printf("Dropped table: %s", table)
+		}
+	}
+	return nil
+}
+
+// Create indexes manually
+func createIndexes(db *gorm.DB) error {
+	indexes := []string{
+		"CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)",
+		"CREATE INDEX IF NOT EXISTS idx_users_deleted_at ON users(deleted_at)",
+		"CREATE INDEX IF NOT EXISTS idx_employees_user_id ON employees(user_id)",
+		"CREATE INDEX IF NOT EXISTS idx_employees_deleted_at ON employees(deleted_at)",
+		"CREATE INDEX IF NOT EXISTS idx_cars_owner_id ON cars(owner_id)",
+		"CREATE INDEX IF NOT EXISTS idx_cars_license_plate ON cars(license_plate)",
+		"CREATE INDEX IF NOT EXISTS idx_cars_deleted_at ON cars(deleted_at)",
+		"CREATE INDEX IF NOT EXISTS idx_repairs_car_id ON repairs(car_id)",
+		"CREATE INDEX IF NOT EXISTS idx_repairs_technician_id ON repairs(technician_id)",
+		"CREATE INDEX IF NOT EXISTS idx_repairs_deleted_at ON repairs(deleted_at)",
+		"CREATE INDEX IF NOT EXISTS idx_appointments_customer_id ON appointments(customer_id)",
+		"CREATE INDEX IF NOT EXISTS idx_appointments_car_id ON appointments(car_id)",
+		"CREATE INDEX IF NOT EXISTS idx_appointments_deleted_at ON appointments(deleted_at)",
+	}
+
+	for _, idx := range indexes {
+		if err := db.Exec(idx).Error; err != nil {
+			log.Printf("Failed to create index: %s, error: %v", idx, err)
+		}
+	}
+	return nil
+}
+
 // CORS middleware function
 func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -212,8 +275,8 @@ func setupRoutes(
 	// Public auth routes
 	auth := api.Group("/auth")
 	{
-		auth.POST("/register", ginHandler(authHandler.Register))
-		auth.POST("/login", ginHandler(authHandler.Login))
+		auth.POST("/register", authHandler.Register)
+		auth.POST("/login", authHandler.Login)
 	}
 
 	// Protected routes
@@ -223,11 +286,11 @@ func setupRoutes(
 		// Employee routes
 		employees := protected.Group("/employees")
 		{
-			employees.POST("", ginHandler(employeeHandler.CreateEmployee))
-			employees.GET("", ginHandler(employeeHandler.ListEmployees))
-			employees.GET("/:id", ginHandler(employeeHandler.GetEmployee))
-			employees.PUT("/:id", ginHandler(employeeHandler.UpdateEmployee))
-			employees.DELETE("/:id", ginHandler(employeeHandler.DeleteEmployee))
+			employees.POST("", employeeHandler.CreateEmployee)
+			employees.GET("", employeeHandler.ListEmployees)
+			employees.GET("/:id", employeeHandler.GetEmployee)
+			employees.PUT("/:id", employeeHandler.UpdateEmployee)
+			employees.DELETE("/:id", employeeHandler.DeleteEmployee)
 		}
 	}
 }

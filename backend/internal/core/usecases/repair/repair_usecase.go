@@ -48,18 +48,18 @@ func (uc *RepairUseCase) CreateRepair(ctx context.Context, repair *domain.Repair
 		return nil, fmt.Errorf("failed to check existing repairs: %w", err)
 	}
 	for _, r := range existingRepairs {
-		if r.Description == repair.Description && r.StartDate == repair.StartDate {
+		if r.Description == repair.Description && r.StartedAt == repair.StartedAt {
 			return nil, fmt.Errorf("repair already exists for the same car with same description and start date")
 		}
 	}
 
-	if car.ClientID != userID {
+	if car.OwnerID != userID {
 		return nil, domain.ErrUnauthorizedAccess
 	}
 
 	// Set metadata
 	repair.ID = uuid.New()
-	repair.EmployeeID = userID
+	repair.TechnicianID = userID
 	repair.CreatedAt = time.Now()
 	repair.UpdatedAt = time.Now()
 
@@ -98,7 +98,7 @@ func (uc *RepairUseCase) GetRepair(ctx context.Context, repairID uuid.UUID, user
 		if err != nil {
 			return nil, fmt.Errorf("failed to get car: %w", err)
 		}
-		if car.ClientID != userID {
+		if car.OwnerID != userID {
 			return nil, domain.ErrUnauthorizedAccess
 		}
 	}
@@ -120,7 +120,7 @@ func (uc *RepairUseCase) GetRepairsByCarID(ctx context.Context, carID uuid.UUID,
 	}
 
 	// Check permissions: clients can only see repairs for their cars
-	if user.IsClient() && car.ClientID != userID {
+	if user.IsClient() && car.OwnerID != userID {
 		return nil, domain.ErrUnauthorizedAccess
 	}
 
@@ -155,9 +155,9 @@ func (uc *RepairUseCase) UpdateRepair(ctx context.Context, repair *domain.Repair
 	repair.CreatedAt = existingRepair.CreatedAt // Preserve original creation time
 
 	// If marking as completed, set end date
-	if repair.Status == domain.RepairStatusCompleted && repair.EndDate == nil {
+	if repair.Status == domain.RepairStatusCompleted && repair.CompletedAt == nil {
 		now := time.Now()
-		repair.EndDate = &now
+		repair.CompletedAt = &now
 	}
 
 	// Update repair

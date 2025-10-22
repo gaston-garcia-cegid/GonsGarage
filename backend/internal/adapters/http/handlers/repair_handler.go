@@ -92,8 +92,8 @@ func (h *RepairHandler) CreateRepair(w http.ResponseWriter, r *http.Request) {
 	repair := &domain.Repair{
 		CarID:       carID,
 		Description: req.Description,
-		Status:      req.Status,
-		StartedAt:   startDate,
+		Status:      domain.RepairStatus(req.Status),
+		StartedAt:   &startDate,
 		Cost:        req.Cost,
 	}
 
@@ -251,13 +251,13 @@ func (h *RepairHandler) UpdateRepair(w http.ResponseWriter, r *http.Request) {
 
 	// Create updated repair
 	repair := &domain.Repair{
-		ID:          repairID,
-		CarID:       existingRepair.CarID,
-		EmployeeID:  existingRepair.EmployeeID,
-		Description: req.Description,
-		Status:      req.Status,
-		StartDate:   existingRepair.StartDate,
-		Cost:        req.Cost,
+		ID:           repairID,
+		CarID:        existingRepair.CarID,
+		TechnicianID: existingRepair.TechnicianID,
+		Description:  req.Description,
+		Status:       domain.RepairStatus(req.Status),
+		StartedAt:    existingRepair.StartedAt,
+		Cost:         req.Cost,
 	}
 
 	// Parse end date if provided
@@ -271,7 +271,7 @@ func (h *RepairHandler) UpdateRepair(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		repair.EndDate = &endDate
+		repair.CompletedAt = &endDate
 	}
 
 	// Update repair using use case
@@ -296,21 +296,21 @@ func (h *RepairHandler) toRepairResponse(repair *domain.Repair) *RepairResponse 
 	response := &RepairResponse{
 		ID:          repair.ID.String(),
 		CarID:       repair.CarID.String(),
-		EmployeeID:  repair.EmployeeID.String(),
+		EmployeeID:  repair.TechnicianID.String(),
 		Description: repair.Description,
-		Status:      repair.Status,
-		StartDate:   repair.StartDate.Format("2006-01-02T15:04:05Z"),
+		Status:      string(repair.Status),
+		StartDate:   repair.StartedAt.Format("2006-01-02T15:04:05Z"),
 		Cost:        repair.Cost,
 		CreatedAt:   repair.CreatedAt.Format("2006-01-02T15:04:05Z"),
 		UpdatedAt:   repair.UpdatedAt.Format("2006-01-02T15:04:05Z"),
 	}
 
-	if repair.EndDate != nil {
-		endDate := repair.EndDate.Format("2006-01-02T15:04:05Z")
+	if repair.CompletedAt != nil {
+		endDate := repair.CompletedAt.Format("2006-01-02T15:04:05Z")
 		response.EndDate = &endDate
 	}
 
-	if repair.Car != nil {
+	if repair.Car.ID != uuid.Nil {
 		response.Car = &CarResponse{
 			ID:           repair.Car.ID.String(),
 			Make:         repair.Car.Make,
@@ -321,12 +321,12 @@ func (h *RepairHandler) toRepairResponse(repair *domain.Repair) *RepairResponse 
 		}
 	}
 
-	if repair.Employee != nil {
+	if repair.Technician.ID != uuid.Nil {
 		response.Employee = &UserResponse{
-			ID:        repair.Employee.ID.String(),
-			FirstName: repair.Employee.FirstName,
-			LastName:  repair.Employee.LastName,
-			Email:     repair.Employee.Email,
+			ID:        repair.Technician.ID.String(),
+			FirstName: repair.Technician.FirstName,
+			LastName:  repair.Technician.LastName,
+			Email:     repair.Technician.Email,
 		}
 	}
 
