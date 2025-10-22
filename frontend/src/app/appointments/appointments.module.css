@@ -1,0 +1,594 @@
+.container {
+  min-height: 100vh;
+  background-color: var(--color-gray-50);
+}
+
+.header {
+  background-color: white;
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-primary);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.logoIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.logoSection h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+  margin: 0;
+}
+
+.logoSection p {
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.userSection span {
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+}
+
+.logoutButton {
+  background-color: #dc2626;
+  color: white;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.logoutButton:hover {
+  background-color: #b91c1c;
+}
+
+.navigation {
+  background-color: white;
+  border-bottom: 1px solid var(--color-gray-200);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  display: flex;
+  gap: var(--space-6);
+}
+
+.navButton {
+  padding: var(--space-3) 0;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.navButton:hover {
+  color: var(--color-primary);
+}
+
+.navButton.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+}
+
+.loadingContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-gray-200);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.errorAlert {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-4);
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--space-6);
+  gap: var(--space-4);
+}
+
+.controlsLeft h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.controlsLeft p {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+.controlsRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.statusFilter {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  background-color: white;
+  cursor: pointer;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius);
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.addButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.addButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--space-16) var(--space-4);
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: var(--space-4);
+}
+
+.emptyState h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-2);
+}
+
+.emptyState p {
+  color: var(--color-gray-500);
+  margin-bottom: var(--space-6);
+}
+
+.primaryButton {
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius);
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.primaryButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.appointmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.appointmentCard {
+  background-color: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow var(--transition-fast);
+}
+
+.appointmentCard:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.appointmentHeader {
+  padding: var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.appointmentDate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.dateLabel {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.dateValue {
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+  font-weight: 600;
+}
+
+.statusBadge {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusBadge.scheduled {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statusBadge.confirmed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.statusBadge.completed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusBadge.cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.appointmentBody {
+  padding: var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.serviceInfo {
+  flex: 1;
+}
+
+.serviceInfo h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-2);
+}
+
+.notes {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+.carInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius);
+}
+
+.carIcon {
+  font-size: 1.5rem;
+}
+
+.carInfo h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin: 0;
+}
+
+.carInfo p {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  margin: 0;
+}
+
+.appointmentFooter {
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.appointmentId {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  font-family: monospace;
+}
+
+.appointmentActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.editButton,
+.cancelButton,
+.viewButton {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.editButton {
+  background-color: transparent;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.editButton:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.cancelButton {
+  background-color: transparent;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+}
+
+.cancelButton:hover {
+  background-color: #dc2626;
+  color: white;
+}
+
+.viewButton {
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  color: white;
+}
+
+.viewButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.section h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.selectedCarInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+.selectedCarInfo .carIcon {
+  font-size: 1.5rem;
+}
+
+.carDetails h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.carDetails p {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.serviceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.serviceOption {
+  cursor: pointer;
+}
+
+.serviceOption input[type="radio"] {
+  display: none;
+}
+
+.serviceCard {
+  padding: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease-in-out;
+  background-color: white;
+}
+
+.serviceOption input[type="radio"]:checked + .serviceCard {
+  border-color: #2563eb;
+  background-color: #f0f9ff;
+}
+
+.serviceCard:hover {
+  border-color: #9ca3af;
+}
+
+.serviceOption input[type="radio"]:checked + .serviceCard:hover {
+  border-color: #2563eb;
+}
+
+.serviceCard h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.serviceCard p {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.appointmentSummary {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.appointmentSummary h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.summaryGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summaryLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.summaryValue {
+  font-size: 0.875rem;
+  color: #111827;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .serviceGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .summaryItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .summaryValue {
+    text-align: left;
+  }
+  
+  .controlsRight {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+}

@@ -247,6 +247,7 @@ export default function RegisterPage() {
                 <option value="employee">Employee</option>
                 <option value="manager">Manager</option>
                 <option value="admin">Administrator</option>
+                <option value="client">Client</option>
               </select>
               {errors.role && (
                 <span className={styles.fieldError}>{errors.role}</span>
