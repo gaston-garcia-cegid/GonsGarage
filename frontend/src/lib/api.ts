@@ -65,6 +65,73 @@ export interface EmployeeListResponse {
   offset: number;
 }
 
+export interface Car {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  license_plate: string;
+  vin?: string;
+  color: string;
+  owner_id: string;
+  created_at: string;
+  updated_at: string;
+  repairs?: Repair[];
+}
+
+export interface Repair {
+  id: string;
+  car_id: string;
+  technician_id: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  cost: number;
+  started_at?: string;
+  completed_at?: string;
+  created_at: string;
+  updated_at: string;
+  car?: Car;
+  technician?: User;
+}
+
+export interface Appointment {
+  id: string;
+  customer_id: string;
+  car_id: string;
+  service_type: string;
+  status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
+  scheduled_at: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  car?: Car;
+  customer?: User;
+}
+
+export interface CreateCarRequest {
+  make: string;
+  model: string;
+  year: number;
+  license_plate: string;
+  vin?: string;
+  color: string;
+}
+
+export interface CreateRepairRequest {
+  car_id: string;
+  description: string;
+  status?: string;
+  start_date: string;
+  cost: number;
+}
+
+export interface CreateAppointmentRequest {
+  car_id: string;
+  service_type: string;
+  scheduled_at: string;
+  notes?: string;
+}
+
 //const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 class ApiClient {
@@ -188,6 +255,71 @@ class ApiClient {
   // Profile endpoint
   async getProfile(): Promise<ApiResponse<User>> {
     return this.request<User>('/auth/profile');
+  }
+
+  // Car endpoints
+  async getCars(): Promise<ApiResponse<Car[]>> {
+    return this.request<Car[]>('/cars');
+  }
+
+  async getCar(id: string): Promise<ApiResponse<Car>> {
+    return this.request<Car>(`/cars/${id}`);
+  }
+
+  async createCar(carData: CreateCarRequest): Promise<ApiResponse<Car>> {
+    return this.request<Car>('/cars', {
+      method: 'POST',
+      body: JSON.stringify(carData),
+    });
+  }
+
+  async updateCar(id: string, carData: Partial<CreateCarRequest>): Promise<ApiResponse<Car>> {
+    return this.request<Car>(`/cars/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(carData),
+    });
+  }
+
+  async deleteCar(id: string): Promise<ApiResponse<{ message: string }>> {
+    return this.request<{ message: string }>(`/cars/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Repair endpoints
+  async getRepairs(carId?: string): Promise<ApiResponse<Repair[]>> {
+    const url = carId ? `/repairs/car/${carId}` : '/repairs';
+    return this.request<Repair[]>(url);
+  }
+
+  async getRepair(id: string): Promise<ApiResponse<Repair>> {
+    return this.request<Repair>(`/repairs/${id}`);
+  }
+
+  async createRepair(repairData: CreateRepairRequest): Promise<ApiResponse<Repair>> {
+    return this.request<Repair>('/repairs', {
+      method: 'POST',
+      body: JSON.stringify(repairData),
+    });
+  }
+
+  async updateRepair(id: string, repairData: Partial<CreateRepairRequest>): Promise<ApiResponse<Repair>> {
+    return this.request<Repair>(`/repairs/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(repairData),
+    });
+  }
+
+  // Appointment endpoints
+  async getAppointments(): Promise<ApiResponse<Appointment[]>> {
+    return this.request<Appointment[]>('/appointments');
+  }
+
+  async createAppointment(appointmentData: CreateAppointmentRequest): Promise<ApiResponse<Appointment>> {
+    return this.request<Appointment>('/appointments', {
+      method: 'POST',
+      body: JSON.stringify(appointmentData),
+    });
   }
 }
 
