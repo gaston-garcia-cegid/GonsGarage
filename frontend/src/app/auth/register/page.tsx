@@ -27,7 +27,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'employee',
+    role: 'client',
   });
   
   const [errors, setErrors] = useState<FormErrors>({});
@@ -230,29 +230,6 @@ export default function RegisterPage() {
               autoComplete="email"
               required
             />
-
-            {/* Role Selection */}
-            <div className={styles.selectWrapper}>
-              <label htmlFor="role" className={styles.selectLabel}>
-                Role
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className={`${styles.select} ${errors.role ? styles.selectError : ''}`}
-                required
-              >
-                <option value="employee">Employee</option>
-                <option value="manager">Manager</option>
-                <option value="admin">Administrator</option>
-                <option value="client">Client</option>
-              </select>
-              {errors.role && (
-                <span className={styles.fieldError}>{errors.role}</span>
-              )}
-            </div>
 
             {/* Password Fields */}
             <div className={styles.passwordField}>
