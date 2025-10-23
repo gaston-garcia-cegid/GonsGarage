@@ -1,4 +1,8 @@
 // src/components/client/ClientCars.tsx
+'use client';
+
+import styles from '../client.module.css';
+
 export default function ClientCars(
   { onAddCar }: { onAddCar: () => void }) {
   return (
@@ -6,7 +10,7 @@ export default function ClientCars(
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold">Your Vehicles</h3>
         <button onClick={onAddCar}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          className={styles.primaryButton}>
           Add New Car
         </button>
       </div>

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiClient, User, LoginRequest } from '@/lib/api';
+import { apiClient, User } from '@/lib/api';
 
 interface RegisterData {
   email: string;
@@ -45,12 +45,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       case 'admin':
       case 'manager':
         console.log('Redirecting to admin dashboard');
-        router.push('/admin/');
+        router.push('/admin/dashboard');
         break;
       case 'employee':
       case 'technician':
         console.log('Redirecting to technician dashboard');
-        router.push('/technician/');
+        router.push('/technician/dashboard');
         break;
       case 'client':
         console.log('Redirecting to client dashboard');
@@ -78,16 +78,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const userData = JSON.parse(storedUser);
           setToken(storedToken);
           setUser(userData);
+          setIsAuthenticated(true);
+
+          apiClient.setToken(storedToken);
         } catch (error) {
           console.error('Failed to parse stored user data:', error);
           localStorage.removeItem('auth_token');
           localStorage.removeItem('auth_user');
+          setIsAuthenticated(false);
         }
+      } else {
+        setIsAuthenticated(false);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      localStorage.removeItem('token');
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
       apiClient.clearToken();
+      setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
     }
@@ -224,12 +232,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     try {
       await apiClient.logout();
+
+      // Clear state first
+      setUser(null);
+      setToken(null);
+      setIsAuthenticated(false);
+      
+      // Redirect to landing page
+      router.push('/');
+
     } catch (error) {
       console.error('Logout error:', error);
-    } finally {
-      setUser(null);
-      apiClient.clearToken();
-    }
+    } 
   };
 
   const value: AuthContextType = {
@@ -239,7 +253,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     register,
     logout,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && !!token,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

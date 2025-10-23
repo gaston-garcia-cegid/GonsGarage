@@ -1,4 +1,8 @@
 // src/components/client/ClientAppointments.tsx
+'use client';
+
+import styles from '../client.module.css';
+
 export default function ClientAppointments(
   { onScheduleService }: { onScheduleService: () => void }) {
   return (
@@ -7,7 +11,7 @@ export default function ClientAppointments(
         <h3 className="text-lg font-semibold">Your Appointments</h3>
         <button 
           onClick={onScheduleService}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          className={styles.primaryButton}>
           Schedule Service
         </button>
       </div>
