@@ -235,23 +235,3 @@ func (uc *CarUseCase) GetCarWithRepairs(ctx context.Context, carID uuid.UUID, re
 
 	return car, nil
 }
-
-func (uc *CarUseCase) validateCar(car *domain.Car) error {
-	if car.Make == "" {
-		return fmt.Errorf("make is required")
-	}
-	if car.Model == "" {
-		return fmt.Errorf("model is required")
-	}
-	if car.Year < 1900 || car.Year > time.Now().Year()+1 {
-		return fmt.Errorf("invalid year")
-	}
-	if car.LicensePlate == "" {
-		return fmt.Errorf("license plate is required")
-	}
-	if car.Color == "" {
-		return fmt.Errorf("color is required")
-	}
-
-	return nil
-}

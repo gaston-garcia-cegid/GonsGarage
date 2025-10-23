@@ -13,9 +13,12 @@ type UserRepository interface {
 	Create(ctx context.Context, user *domain.User) error
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	GetByEmail(ctx context.Context, email string) (*domain.User, error)
+	GetByRole(ctx context.Context, role string, limit, offset int) ([]*domain.User, error)
+	List(ctx context.Context, limit, offset int) ([]*domain.User, error)
 	Update(ctx context.Context, user *domain.User) error
 	Delete(ctx context.Context, id uuid.UUID) error
-	List(ctx context.Context) ([]*domain.User, error)
+	UpdatePassword(ctx context.Context, userID uuid.UUID, passwordHash string) error
+	GetActiveUsers(ctx context.Context, limit, offset int) ([]*domain.User, error)
 }
 
 // EmployeeRepository define os métodos para o repositório de funcionários
@@ -136,9 +139,13 @@ type ClientRepository interface {
 
 // ClientUseCase defines the business logic interface for clients
 type ClientUseCase interface {
-	CreateClient(ctx context.Context, client *domain.Client) error
-	ListClients(ctx context.Context) ([]*domain.Client, error)
-	GetClient(ctx context.Context, id int) (*domain.Client, error)
-	UpdateClient(ctx context.Context, id int, client *domain.Client) error
-	DeleteClient(ctx context.Context, id int) error
+	CreateClient(ctx context.Context, client *domain.User) (*domain.User, error)
+	GetClient(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) (*domain.User, error)
+	GetClientProfile(ctx context.Context, clientID uuid.UUID) (*domain.User, error)
+	UpdateClient(ctx context.Context, client *domain.User, requestingUserID uuid.UUID) (*domain.User, error)
+	UpdateClientProfile(ctx context.Context, clientID uuid.UUID, client *domain.User) (*domain.User, error)
+	DeleteClient(ctx context.Context, clientID uuid.UUID) error
+	ListClients(ctx context.Context, requestingUserID uuid.UUID, limit, offset int) ([]*domain.User, error)
+	GetClientCars(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Car, error)
+	GetClientRepairs(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Repair, error)
 }

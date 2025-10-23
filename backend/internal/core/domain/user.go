@@ -34,6 +34,10 @@ type User struct {
 	Appointments []Appointment `json:"appointments,omitempty" gorm:"-"`
 }
 
+func (u *User) Validate() any {
+	panic("unimplemented")
+}
+
 // TableName especifica o nome da tabela
 func (User) TableName() string {
 	return "users"
