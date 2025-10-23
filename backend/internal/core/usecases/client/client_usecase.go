@@ -40,10 +40,10 @@ func (uc *ClientUseCase) CreateClient(ctx context.Context, client *domain.Client
 func (uc *ClientUseCase) ListClients(ctx context.Context) ([]*domain.Client, error) {
 	return uc.clientRepo.List(ctx)
 }
-func (uc *ClientUseCase) GetClient(ctx context.Context, id int) (*domain.Client, error) {
+func (uc *ClientUseCase) GetClient(ctx context.Context, id uuid.UUID) (*domain.Client, error) {
 	return uc.clientRepo.GetByID(ctx, id)
 }
-func (uc *ClientUseCase) UpdateClient(ctx context.Context, id int, updatedData *domain.Client) (*domain.Client, error) {
+func (uc *ClientUseCase) UpdateClient(ctx context.Context, id uuid.UUID, updatedData *domain.Client) (*domain.Client, error) {
 	// Get existing client
 	client, err := uc.clientRepo.GetByID(ctx, id)
 	if err != nil {
@@ -51,12 +51,13 @@ func (uc *ClientUseCase) UpdateClient(ctx context.Context, id int, updatedData *
 	}
 
 	// Update client fields
-	client.Name = updatedData.Name
+	client.FirstName = updatedData.FirstName
+	client.LastName = updatedData.LastName
 	client.Email = updatedData.Email
 	client.UpdatedAt = time.Now()
 
 	return uc.clientRepo.Update(ctx, client)
 }
-func (uc *ClientUseCase) DeleteClient(ctx context.Context, id int) error {
+func (uc *ClientUseCase) DeleteClient(ctx context.Context, id uuid.UUID) error {
 	return uc.clientRepo.Delete(ctx, id)
 }

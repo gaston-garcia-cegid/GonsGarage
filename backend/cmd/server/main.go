@@ -21,6 +21,8 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/auth"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/car"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/client"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/employee"
 )
 
@@ -136,7 +138,8 @@ func main() {
 	// Initialize repositories
 	userRepo := postgresRepo.NewPostgresUserRepository(db)
 	employeeRepo := postgresRepo.NewPostgresEmployeeRepository(db)
-
+	clientRepo := postgresRepo.NewPostgresClientRepository(db)
+	carRepo := postgresRepo.NewPostgresCarRepository(db)
 	log.Printf("Repositories initialized")
 
 	// Initialize use cases
@@ -148,6 +151,8 @@ func main() {
 
 	authUseCase := auth.NewAuthUseCase(userRepo, jwtSecret, 24)
 	employeeUseCase := employee.NewEmployeeUseCase(employeeRepo, cacheRepo)
+	clientUseCase := client.NewClientUseCase(clientRepo, userRepo, cacheRepo)
+	carUseCase := car.NewCarUseCase(carRepo, userRepo, cacheRepo)
 
 	log.Printf("Use cases initialized")
 
@@ -157,6 +162,8 @@ func main() {
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authUseCase)
 	employeeHandler := handlers.NewEmployeeHandler(employeeUseCase)
+	clientHandler := handlers.NewClientHandler(clientUseCase)
+	carHandler := handlers.NewCarHandler(carUseCase)
 
 	log.Printf("Handlers initialized")
 
@@ -170,7 +177,7 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Setup routes
-	setupRoutes(router, authHandler, employeeHandler, authMiddleware)
+	setupRoutes(router, authHandler, employeeHandler, clientHandler, carHandler, authMiddleware)
 
 	log.Printf("Routes set up")
 
@@ -298,21 +305,21 @@ func setupRoutes(
 		// Client routes would go here
 		clients := protected.Group("/clients")
 		{
-			clients.POST("", clientHandler.CreateClient)
-			clients.GET("", clientHandler.ListClients)
-			clients.GET("/:id", clientHandler.GetClient)
-			clients.PUT("/:id", clientHandler.UpdateClient)
-			clients.DELETE("/:id", clientHandler.DeleteClient)
+			clients.POST("", gin.WrapF(clientHandler.CreateClient))
+			clients.GET("", gin.WrapF(clientHandler.ListClients))
+			clients.GET("/:id", gin.WrapF(clientHandler.GetClient))
+			clients.PUT("/:id", gin.WrapF(clientHandler.UpdateClient))
+			clients.DELETE("/:id", gin.WrapF(clientHandler.DeleteClient))
 		}
 
 		// Car routes would go here
 		cars := protected.Group("/cars")
 		{
-			cars.POST("", carHandler.CreateCar)
-			cars.GET("", carHandler.ListCars)
-			cars.GET("/:id", carHandler.GetCar)
-			cars.PUT("/:id", carHandler.UpdateCar)
-			cars.DELETE("/:id", carHandler.DeleteCar)
+			cars.POST("", gin.WrapF(carHandler.CreateCar))
+			cars.GET("", gin.WrapF(carHandler.ListCars))
+			cars.GET("/:id", gin.WrapF(carHandler.GetCar))
+			cars.PUT("/:id", gin.WrapF(carHandler.UpdateCar))
+			cars.DELETE("/:id", gin.WrapF(carHandler.DeleteCar))
 		}
 	}
 }

@@ -285,3 +285,57 @@ func (r *postgresCarRepository) toDomainRepair(dbRepair *RepairModel) domain.Rep
 		DeletedAt:    dbRepair.DeletedAt,
 	}
 }
+
+func (c *CarModel) toDomain() *domain.Car {
+	car := &domain.Car{
+		ID:           c.ID,
+		Make:         c.Make,
+		Model:        c.Model,
+		Year:         c.Year,
+		LicensePlate: c.LicensePlate,
+		VIN:          c.VIN,
+		Color:        c.Color,
+		Mileage:      c.Mileage,
+		OwnerID:      c.OwnerID,
+		CreatedAt:    c.CreatedAt,
+		UpdatedAt:    c.UpdatedAt,
+		DeletedAt:    c.DeletedAt,
+	}
+
+	// Convert owner if present
+	if c.Owner.ID != uuid.Nil {
+		car.Owner = domain.User{
+			ID:        c.Owner.ID,
+			Email:     c.Owner.Email,
+			FirstName: c.Owner.FirstName,
+			LastName:  c.Owner.LastName,
+			Role:      c.Owner.Role,
+			IsActive:  c.Owner.IsActive,
+			CreatedAt: c.Owner.CreatedAt,
+			UpdatedAt: c.Owner.UpdatedAt,
+			DeletedAt: c.Owner.DeletedAt,
+		}
+	}
+
+	// Convert repairs if present (if RepairModel defined)
+	if len(c.Repairs) > 0 {
+		car.Repairs = make([]domain.Repair, len(c.Repairs))
+		for i, r := range c.Repairs {
+			car.Repairs[i] = domain.Repair{
+				ID:           r.ID,
+				CarID:        r.CarID,
+				TechnicianID: r.TechnicianID,
+				Description:  r.Description,
+				Status:       domain.RepairStatus(r.Status),
+				Cost:         r.Cost,
+				StartedAt:    &r.StartedAt,
+				CompletedAt:  r.CompletedAt,
+				CreatedAt:    r.CreatedAt,
+				UpdatedAt:    r.UpdatedAt,
+				DeletedAt:    r.DeletedAt,
+			}
+		}
+	}
+
+	return car
+}

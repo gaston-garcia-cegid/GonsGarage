@@ -7,10 +7,19 @@ import (
 )
 
 type Client struct {
-	ID        uuid.UUID
-	Name      string
-	Email     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	// Add other relevant fields here
+	ID          uuid.UUID
+	FirstName   string
+	LastName    string
+	Email       string
+	Phone       string
+	Address     string
+	City        string
+	State       string
+	ZipCode     string
+	DateOfBirth *time.Time
+	IsActive    bool
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   *time.Time
+	Cars        []Car
 }

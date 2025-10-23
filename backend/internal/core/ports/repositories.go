@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/google/uuid"
@@ -117,12 +118,20 @@ type Logger interface {
 }
 
 type ClientRepository interface {
-	GetByEmail(ctx context.Context, email string) (*domain.Client, error)
 	Create(ctx context.Context, client *domain.Client) error
+	GetByEmail(ctx context.Context, email string) (*domain.Client, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Client, error)
+	GetWithCars(ctx context.Context, id uuid.UUID) (*domain.Client, error)
 	List(ctx context.Context) ([]*domain.Client, error)
-	GetByID(ctx context.Context, id int) (*domain.Client, error)
+	Search(ctx context.Context, name string, limit int) ([]*domain.Client, error)
 	Update(ctx context.Context, client *domain.Client) (*domain.Client, error)
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	Count(ctx context.Context) (int64, error)
+	GetActiveClients(ctx context.Context) ([]*domain.Client, error)
+	DeactivateClient(ctx context.Context, id uuid.UUID) error
+	ActivateClient(ctx context.Context, id uuid.UUID) error
+	ExistsByEmail(ctx context.Context, email string) (bool, error)
+	GetClientsByDateRange(ctx context.Context, startDate, endDate time.Time) ([]*domain.Client, error)
 }
 
 // ClientUseCase defines the business logic interface for clients

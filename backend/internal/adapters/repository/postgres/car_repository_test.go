@@ -13,12 +13,13 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 )
 
 type CarRepositoryTestSuite struct {
 	suite.Suite
 	db   *gorm.DB
-	repo *PostgresCarRepository
+	repo ports.CarRepository
 }
 
 func (suite *CarRepositoryTestSuite) SetupSuite() {
@@ -27,17 +28,17 @@ func (suite *CarRepositoryTestSuite) SetupSuite() {
 	require.NoError(suite.T(), err)
 
 	// Auto-migrate tables
-	err = db.AutoMigrate(&CarModel{}, &UserModel{})
+	err = db.AutoMigrate(&CarModel{}, &ClientModel{})
 	require.NoError(suite.T(), err)
 
 	suite.db = db
-	suite.repo = &PostgresCarRepository{db: db}
+	suite.repo = NewPostgresCarRepository(db)
 }
 
 func (suite *CarRepositoryTestSuite) TearDownTest() {
 	// Clean up tables after each test
 	suite.db.Exec("DELETE FROM cars")
-	suite.db.Exec("DELETE FROM users")
+	suite.db.Exec("DELETE FROM clients")
 }
 
 func (suite *CarRepositoryTestSuite) TestCreate_Success() {
