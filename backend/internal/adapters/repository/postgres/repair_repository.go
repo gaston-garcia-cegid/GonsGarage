@@ -34,6 +34,13 @@ type RepairModel struct {
 	CreatedAt    time.Time  `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt    time.Time  `gorm:"column:updated_at;autoUpdateTime"`
 	DeletedAt    *time.Time `gorm:"column:deleted_at;index"`
+	CarID        uuid.UUID  `gorm:"type:uuid;not null;index"`
+	TechnicianID uuid.UUID  `gorm:"type:uuid;not null;index"`
+	Description  string     `gorm:"not null"`
+	Status       string     `gorm:"not null;default:'pending'"`
+	Cost         float64    `gorm:"not null;default:0"`
+	StartedAt    time.Time  `gorm:"column:start_date"`
+	CompletedAt  *time.Time `gorm:"column:completed_at"`
 }
 
 func (RepairModel) TableName() string {

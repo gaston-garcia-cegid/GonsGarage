@@ -271,21 +271,21 @@ class ApiClient {
   }
 
   async createCar(carData: CreateCarRequest): Promise<ApiResponse<Car>> {
-    return this.request<Car>('/cars', {
+    return this.request<Car>('/api/v1/cars', {
       method: 'POST',
       body: JSON.stringify(carData),
     });
   }
 
   async updateCar(id: string, carData: Partial<CreateCarRequest>): Promise<ApiResponse<Car>> {
-    return this.request<Car>(`/cars/${id}`, {
+    return this.request<Car>(`/api/v1/cars/${id}`, {
       method: 'PUT',
       body: JSON.stringify(carData),
     });
   }
 
   async deleteCar(id: string): Promise<ApiResponse<{ message: string }>> {
-    return this.request<{ message: string }>(`/cars/${id}`, {
+    return this.request<{ message: string }>(`/api/v1/cars/${id}`, {
       method: 'DELETE',
     });
   }

@@ -93,11 +93,12 @@ type AccountingRepository interface {
 type CarRepository interface {
 	Create(ctx context.Context, car *domain.Car) error
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Car, error)
-	GetByClientID(ctx context.Context, clientID uuid.UUID) ([]*domain.Car, error)
+	GetByOwnerID(ctx context.Context, ownerID uuid.UUID) ([]*domain.Car, error)
+	GetByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error)
 	List(ctx context.Context, limit, offset int) ([]*domain.Car, error)
 	Update(ctx context.Context, car *domain.Car) error
 	Delete(ctx context.Context, id uuid.UUID) error
-	GetByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error)
+	GetWithRepairs(ctx context.Context, id uuid.UUID) (*domain.Car, error)
 }
 
 // RepairRepository defines the interface for the repair repository
@@ -107,4 +108,28 @@ type RepairRepository interface {
 	Update(ctx context.Context, repair *domain.Repair) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByCarID(ctx context.Context, carID uuid.UUID) ([]*domain.Repair, error)
+}
+
+// Logger defines the interface for logging
+type Logger interface {
+	Info(msg string, keysAndValues ...interface{})
+	Error(msg string, keysAndValues ...interface{})
+}
+
+type ClientRepository interface {
+	GetByEmail(ctx context.Context, email string) (*domain.Client, error)
+	Create(ctx context.Context, client *domain.Client) error
+	List(ctx context.Context) ([]*domain.Client, error)
+	GetByID(ctx context.Context, id int) (*domain.Client, error)
+	Update(ctx context.Context, client *domain.Client) (*domain.Client, error)
+	Delete(ctx context.Context, id int) error
+}
+
+// ClientUseCase defines the business logic interface for clients
+type ClientUseCase interface {
+	CreateClient(ctx context.Context, client *domain.Client) error
+	ListClients(ctx context.Context) ([]*domain.Client, error)
+	GetClient(ctx context.Context, id int) (*domain.Client, error)
+	UpdateClient(ctx context.Context, id int, client *domain.Client) error
+	DeleteClient(ctx context.Context, id int) error
 }

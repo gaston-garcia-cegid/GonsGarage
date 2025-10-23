@@ -56,6 +56,14 @@ type RepairResponse struct {
 	Employee    *UserResponse `json:"employee,omitempty"`
 }
 
+// UserResponse represents the response payload for user data (employee)
+type UserResponse struct {
+	ID        string `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+}
+
 func (h *RepairHandler) CreateRepair(w http.ResponseWriter, r *http.Request) {
 	// Get user from middleware
 	userID, ok := middleware.GetUserIDFromContext(r.Context())

@@ -99,3 +99,24 @@ type AccountingService interface {
 	DeleteAccountingEntry(ctx context.Context, id string) error
 	ListAccountingEntries(ctx context.Context, limit, offset int) ([]*domain.AccountingEntry, int64, error)
 }
+
+// CarService defines the contract for car business operations
+type CarService interface {
+	// CreateCar creates a new car with proper authorization checks
+	CreateCar(ctx context.Context, car *domain.Car, requestingUserID uuid.UUID) (*domain.Car, error)
+
+	// GetCar retrieves a car by ID with authorization checks
+	GetCar(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) (*domain.Car, error)
+
+	// GetCarsByOwner retrieves all cars for a specific owner with authorization
+	GetCarsByOwner(ctx context.Context, ownerID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Car, error)
+
+	// UpdateCar modifies an existing car with authorization checks
+	UpdateCar(ctx context.Context, car *domain.Car, requestingUserID uuid.UUID) (*domain.Car, error)
+
+	// DeleteCar removes a car with authorization checks
+	DeleteCar(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) error
+
+	// GetCarWithRepairs retrieves a car with its repair history
+	GetCarWithRepairs(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) (*domain.Car, error)
+}

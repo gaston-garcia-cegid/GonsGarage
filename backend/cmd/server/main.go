@@ -259,6 +259,8 @@ func setupRoutes(
 	router *gin.Engine,
 	authHandler *handlers.AuthHandler,
 	employeeHandler *handlers.EmployeeHandler,
+	clientHandler *handlers.ClientHandler,
+	carHandler *handlers.CarHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) {
 	// Health check
@@ -291,6 +293,26 @@ func setupRoutes(
 			employees.GET("/:id", employeeHandler.GetEmployee)
 			employees.PUT("/:id", employeeHandler.UpdateEmployee)
 			employees.DELETE("/:id", employeeHandler.DeleteEmployee)
+		}
+
+		// Client routes would go here
+		clients := protected.Group("/clients")
+		{
+			clients.POST("", clientHandler.CreateClient)
+			clients.GET("", clientHandler.ListClients)
+			clients.GET("/:id", clientHandler.GetClient)
+			clients.PUT("/:id", clientHandler.UpdateClient)
+			clients.DELETE("/:id", clientHandler.DeleteClient)
+		}
+
+		// Car routes would go here
+		cars := protected.Group("/cars")
+		{
+			cars.POST("", carHandler.CreateCar)
+			cars.GET("", carHandler.ListCars)
+			cars.GET("/:id", carHandler.GetCar)
+			cars.PUT("/:id", carHandler.UpdateCar)
+			cars.DELETE("/:id", carHandler.DeleteCar)
 		}
 	}
 }
