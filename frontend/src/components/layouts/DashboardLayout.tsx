@@ -7,16 +7,19 @@ import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
 import styles from './DashboardLayout.module.css';
 
+interface NavigationItem {
+  key: string;
+  label: string;
+  href: string;
+}
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
   title: string;
   subtitle: string;
   activeTab: string;
-  navigationItems: Array<{
-    key: string;
-    label: string;
-    href: string;
-  }>;
+  navigationItems: NavigationItem[];
+  onNavClick?: (tabKey: string) => void;  // ✅ Callback opcional
 }
 
 export default function DashboardLayout({
@@ -24,14 +27,25 @@ export default function DashboardLayout({
   title,
   subtitle,
   activeTab,
-  navigationItems
+  navigationItems,
+  onNavClick
 }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const router = useRouter();
 
+  const handleNavigation = (item: NavigationItem) => {
+    if (onNavClick) {
+      // ✅ Se tem callback, usa (para SPA)
+      onNavClick(item.key);
+    } else {
+      // ✅ Se não tem, usa router (para páginas separadas)
+      router.push(item.href);
+    }
+  };
+
   return (
     <div className={styles.container}>
-      {/* Header Reutilizável */}
+      {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div 
@@ -63,12 +77,12 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      {/* Navigation Dinâmica */}
+      {/* Navigation */}
       <nav className={styles.navigation}>
         {navigationItems.map((item) => (
           <button
             key={item.key}
-            onClick={() => router.push(item.href)}
+            onClick={() => handleNavigation(item)}
             className={`${styles.navButton} ${
               activeTab === item.key ? styles.active : ''
             }`}
@@ -78,7 +92,7 @@ export default function DashboardLayout({
         ))}
       </nav>
 
-      {/* Conteúdo */}
+      {/* Content */}
       <main className={styles.main}>
         <div className={styles.pageHeader}>
           <h2>{title}</h2>

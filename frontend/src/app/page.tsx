@@ -28,7 +28,7 @@ export default function LandingPage() {
           break;
         case 'client':
           console.log('Redirecting to client dashboard');
-          router.push('/client/dashboard');
+          router.push('/client');
           break;
         default:
           console.log('Unknown role, redirecting to default dashboard');

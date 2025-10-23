@@ -153,17 +153,14 @@ class ApiClient {
   }
 
   clearToken() {
-    setToken(null);
-    setUser(null);
-    setIsAuthenticated(false);
+    this.token = null;
 
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
       localStorage.clear();
     }
-
-    // Redirect to home (landing page)
-    router.push('/');
   }
 
   private async request<T>(
