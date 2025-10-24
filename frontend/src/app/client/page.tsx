@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useAuthGuard } from '@hooks/useAuthGuard';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import ClientDashboard from './components/ClientDashboard';
 import ClientCars from './components/ClientCars';
