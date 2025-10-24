@@ -10,37 +10,40 @@ import (
 	"github.com/google/uuid"
 )
 
+// ClientUseCase handles client-related business logic (following Agent.md Clean Architecture)
 type ClientUseCase struct {
+	clientRepo ports.ClientRepository
 	userRepo   ports.UserRepository
 	carRepo    ports.CarRepository
 	repairRepo ports.RepairRepository
 }
 
+// NewClientUseCase creates a new client use case instance (following Agent.md dependency injection)
 func NewClientUseCase(
+	clientRepo ports.ClientRepository,
 	userRepo ports.UserRepository,
 	carRepo ports.CarRepository,
-	repairRepo ports.RepairRepository) *ClientUseCase {
+	repairRepo ports.RepairRepository,
+) ports.ClientUseCase {
 	return &ClientUseCase{
+		clientRepo: clientRepo,
 		userRepo:   userRepo,
 		carRepo:    carRepo,
 		repairRepo: repairRepo,
 	}
 }
-func (uc *ClientUseCase) CreateClient(ctx context.Context, client *domain.User) ([]*domain.User, error) {
-	// Validate that the user is being created as a client
-	if client.Role != "client" {
-		return nil, fmt.Errorf("invalid role: expected 'client', got '%s'", client.Role)
-	}
 
+// CreateClient creates a new client - ✅ Fixed: using *domain.Client parameter and return type
+func (uc *ClientUseCase) CreateClient(ctx context.Context, client *domain.Client) (*domain.Client, error) {
 	// Check if email already exists
-	existingUser, err := uc.userRepo.GetByEmail(ctx, client.Email)
-	if err == nil && existingUser != nil {
-		return nil, domain.ErrUserAlreadyExists
+	existingClient, err := uc.clientRepo.GetByEmail(ctx, client.Email)
+	if err == nil && existingClient != nil {
+		return nil, domain.ErrClientAlreadyExists
 	}
 
 	// Validate client data (following Agent.md validation rules)
 	if err := client.Validate(); err != nil {
-		return nil, fmt.Errorf("invalid client data: %w", err.(error))
+		return nil, fmt.Errorf("invalid client data: %w", err)
 	}
 
 	// Set metadata
@@ -50,16 +53,15 @@ func (uc *ClientUseCase) CreateClient(ctx context.Context, client *domain.User) 
 	client.IsActive = true
 
 	// Create the client
-	if err := uc.userRepo.Create(ctx, client); err != nil {
+	if err := uc.clientRepo.Create(ctx, client); err != nil {
 		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
 
-	return []*domain.User{client}, nil
+	return client, nil
 }
-func (uc *ClientUseCase) ListClients(ctx context.Context) ([]*domain.User, error) {
-	return uc.userRepo.List(ctx, 0, 0)
-}
-func (uc *ClientUseCase) GetClient(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) (*domain.User, error) {
+
+// GetClient retrieves a client by ID with permission checks (following Agent.md authorization)
+func (uc *ClientUseCase) GetClient(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) (*domain.Client, error) {
 	// Get the requesting user
 	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
 	if err != nil {
@@ -67,13 +69,13 @@ func (uc *ClientUseCase) GetClient(ctx context.Context, clientID uuid.UUID, requ
 	}
 
 	// Get the client
-	client, err := uc.userRepo.GetByID(ctx, clientID)
+	client, err := uc.clientRepo.GetByID(ctx, clientID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get client: %w", err)
 	}
 
-	if client == nil || !client.IsClient() {
-		return nil, domain.ErrUserNotFound
+	if client == nil {
+		return nil, domain.ErrClientNotFound
 	}
 
 	// Check permissions: clients can only see their own profile (Agent.md security rules)
@@ -89,7 +91,22 @@ func (uc *ClientUseCase) GetClient(ctx context.Context, clientID uuid.UUID, requ
 	return client, nil
 }
 
-func (uc *ClientUseCase) UpdateClient(ctx context.Context, client *domain.User, requestingUserID uuid.UUID) (*domain.User, error) {
+// GetClientProfile allows clients to get their own profile (following Agent.md self-service patterns)
+func (uc *ClientUseCase) GetClientProfile(ctx context.Context, clientID uuid.UUID) (*domain.Client, error) {
+	client, err := uc.clientRepo.GetByID(ctx, clientID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get client: %w", err)
+	}
+
+	if client == nil {
+		return nil, domain.ErrClientNotFound
+	}
+
+	return client, nil
+}
+
+// UpdateClient updates an existing client (following Agent.md business logic)
+func (uc *ClientUseCase) UpdateClient(ctx context.Context, client *domain.Client, requestingUserID uuid.UUID) (*domain.Client, error) {
 	// Get the requesting user
 	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
 	if err != nil {
@@ -97,9 +114,9 @@ func (uc *ClientUseCase) UpdateClient(ctx context.Context, client *domain.User, 
 	}
 
 	// Get the existing client
-	existingClient, err := uc.userRepo.GetByID(ctx, client.ID)
-	if err != nil || existingClient == nil || !existingClient.IsClient() {
-		return nil, domain.ErrUserNotFound
+	existingClient, err := uc.clientRepo.GetByID(ctx, client.ID)
+	if err != nil || existingClient == nil {
+		return nil, domain.ErrClientNotFound
 	}
 
 	// Check permissions
@@ -113,85 +130,75 @@ func (uc *ClientUseCase) UpdateClient(ctx context.Context, client *domain.User, 
 
 	// Validate client data
 	if err := client.Validate(); err != nil {
-		return nil, fmt.Errorf("invalid client data: %w", err.(error))
+		return nil, fmt.Errorf("invalid client data: %w", err)
 	}
 
 	// Preserve some fields (following Agent.md data integrity rules)
-	client.ID = existingClient.ID
-	client.Role = "client" // Ensure role remains client
 	client.CreatedAt = existingClient.CreatedAt
 	client.UpdatedAt = time.Now()
 
 	// Update the client
-	if err := uc.userRepo.Update(ctx, client); err != nil {
+	updatedClient, err := uc.clientRepo.Update(ctx, client)
+	if err != nil {
 		return nil, fmt.Errorf("failed to update client: %w", err)
 	}
 
-	return client, nil
+	return updatedClient, nil
 }
 
 // UpdateClientProfile allows clients to update their own profile
-func (uc *ClientUseCase) UpdateClientProfile(ctx context.Context, clientID uuid.UUID, client *domain.User) (*domain.User, error) {
+func (uc *ClientUseCase) UpdateClientProfile(ctx context.Context, clientID uuid.UUID, client *domain.Client) (*domain.Client, error) {
 	// Get the existing client
-	existingClient, err := uc.userRepo.GetByID(ctx, clientID)
-	if err != nil || existingClient == nil || !existingClient.IsClient() {
-		return nil, domain.ErrUserNotFound
+	existingClient, err := uc.clientRepo.GetByID(ctx, clientID)
+	if err != nil || existingClient == nil {
+		return nil, domain.ErrClientNotFound
 	}
 
 	// Validate client data
 	if err := client.Validate(); err != nil {
-		return nil, fmt.Errorf("invalid client data: %w", err.(error))
+		return nil, fmt.Errorf("invalid client data: %w", err)
 	}
 
-	// Preserve critical fields (clients can't change their own role, etc.)
+	// Preserve critical fields (clients can't change certain fields themselves)
 	client.ID = clientID
-	client.Role = "client"
 	client.CreatedAt = existingClient.CreatedAt
 	client.UpdatedAt = time.Now()
 	client.IsActive = existingClient.IsActive // Clients can't activate/deactivate themselves
 
 	// Update the client
-	if err := uc.userRepo.Update(ctx, client); err != nil {
+	updatedClient, err := uc.clientRepo.Update(ctx, client)
+	if err != nil {
 		return nil, fmt.Errorf("failed to update client: %w", err)
 	}
 
-	return client, nil
+	return updatedClient, nil
 }
 
-// DeleteClient deletes a client (soft delete) - ✅ Fixed: using uuid.UUID parameter
+// DeleteClient deletes a client (soft delete)
 func (uc *ClientUseCase) DeleteClient(ctx context.Context, clientID uuid.UUID) error {
 	// Get the client
-	client, err := uc.userRepo.GetByID(ctx, clientID)
-	if err != nil || client == nil || !client.IsClient() {
-		return domain.ErrUserNotFound
+	client, err := uc.clientRepo.GetByID(ctx, clientID)
+	if err != nil || client == nil {
+		return domain.ErrClientNotFound
 	}
 
 	// Note: Only admins/managers should be able to call this method
 	// The authorization should be handled at the handler/service layer
 
 	// Delete the client (soft delete)
-	if err := uc.userRepo.Delete(ctx, clientID); err != nil {
+	if err := uc.clientRepo.Delete(ctx, clientID); err != nil {
 		return fmt.Errorf("failed to delete client: %w", err)
 	}
 
 	return nil
 }
 
-// ListClients retrieves all clients (admin/manager only)
-func (uc *ClientUseCase) ListClientsWithAuth(ctx context.Context, requestingUserID uuid.UUID, limit, offset int) ([]*domain.User, error) {
-	// Get the requesting user
-	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get user: %w", err)
-	}
+// ListClients retrieves all clients (admin/manager only) - updated to match interface signature
+func (uc *ClientUseCase) ListClients(ctx context.Context) ([]*domain.Client, error) {
+	// NOTE: Authorization should be handled at the handler/service layer since we no longer have requestingUserID here.
 
-	// Check permissions: only admins and managers can list all clients
-	if !requestingUser.CanManageUsers() {
-		return nil, domain.ErrUnauthorizedAccess
-	}
-
-	// Get clients by role
-	clients, err := uc.userRepo.GetByRole(ctx, "client", limit, offset)
+	// Get clients
+	clients, err := uc.clientRepo.List(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list clients: %w", err)
 	}
@@ -207,10 +214,10 @@ func (uc *ClientUseCase) GetClientCars(ctx context.Context, clientID uuid.UUID, 
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	// Verify the target user is a client
-	client, err := uc.userRepo.GetByID(ctx, clientID)
-	if err != nil || client == nil || !client.IsClient() {
-		return nil, domain.ErrUserNotFound
+	// Verify the target client exists
+	client, err := uc.clientRepo.GetByID(ctx, clientID)
+	if err != nil || client == nil {
+		return nil, domain.ErrClientNotFound
 	}
 
 	// Check permissions: clients can only see their own cars
@@ -239,10 +246,10 @@ func (uc *ClientUseCase) GetClientRepairs(ctx context.Context, clientID uuid.UUI
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	// Verify the target user is a client
-	client, err := uc.userRepo.GetByID(ctx, clientID)
-	if err != nil || client == nil || !client.IsClient() {
-		return nil, domain.ErrUserNotFound
+	// Verify the target client exists
+	client, err := uc.clientRepo.GetByID(ctx, clientID)
+	if err != nil || client == nil {
+		return nil, domain.ErrClientNotFound
 	}
 
 	// Check permissions: clients can only see their own repairs

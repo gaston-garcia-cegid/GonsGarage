@@ -41,20 +41,19 @@ func (ClientModel) TableName() string {
 // toDomain converts ClientModel to domain.Client (following Agent.md conversion patterns)
 func (c *ClientModel) toDomain() *domain.Client {
 	client := &domain.Client{
-		ID:          c.ID,
-		FirstName:   c.FirstName,
-		LastName:    c.LastName,
-		Email:       c.Email,
-		Phone:       c.Phone,
-		Address:     c.Address,
-		City:        c.City,
-		State:       c.State,
-		ZipCode:     c.ZipCode,
-		DateOfBirth: c.DateOfBirth,
-		IsActive:    c.IsActive,
-		CreatedAt:   c.CreatedAt,
-		UpdatedAt:   c.UpdatedAt,
-		DeletedAt:   c.DeletedAt,
+		ID:        c.ID,
+		FirstName: c.FirstName,
+		LastName:  c.LastName,
+		Email:     c.Email,
+		Phone:     c.Phone,
+		Address:   c.Address,
+		City:      c.City,
+		State:     c.State,
+		ZipCode:   c.ZipCode,
+		IsActive:  c.IsActive,
+		CreatedAt: c.CreatedAt,
+		UpdatedAt: c.UpdatedAt,
+		DeletedAt: c.DeletedAt,
 	}
 
 	// Convert associated cars
@@ -81,7 +80,6 @@ func (c *ClientModel) fromDomain(client *domain.Client) {
 	c.City = client.City
 	c.State = client.State
 	c.ZipCode = client.ZipCode
-	c.DateOfBirth = client.DateOfBirth
 	c.IsActive = client.IsActive
 	c.CreatedAt = client.CreatedAt
 	c.UpdatedAt = client.UpdatedAt

@@ -57,8 +57,8 @@ func (m *MockUserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 // List implements UserRepository.List
-func (m *MockUserRepository) List(ctx context.Context) ([]*domain.User, error) {
-	args := m.Called(ctx)
+func (m *MockUserRepository) List(ctx context.Context, limit int, offset int) ([]*domain.User, error) {
+	args := m.Called(ctx, limit, offset)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -69,4 +69,28 @@ func (m *MockUserRepository) List(ctx context.Context) ([]*domain.User, error) {
 func (m *MockUserRepository) EmailExists(ctx context.Context, email string) (bool, error) {
 	args := m.Called(ctx, email)
 	return args.Bool(0), args.Error(1)
+}
+
+// GetActiveUsers implements UserRepository.GetActiveUsers
+func (m *MockUserRepository) GetActiveUsers(ctx context.Context, limit int, offset int) ([]*domain.User, error) {
+	args := m.Called(ctx, limit, offset)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*domain.User), args.Error(1)
+}
+
+// GetByRole implements UserRepository.GetByRole
+func (m *MockUserRepository) GetByRole(ctx context.Context, role string, limit int, offset int) ([]*domain.User, error) {
+	args := m.Called(ctx, role, limit, offset)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*domain.User), args.Error(1)
+}
+
+// UpdatePassword implements UserRepository.UpdatePassword
+func (m *MockUserRepository) UpdatePassword(ctx context.Context, id uuid.UUID, newPassword string) error {
+	args := m.Called(ctx, id, newPassword)
+	return args.Error(0)
 }

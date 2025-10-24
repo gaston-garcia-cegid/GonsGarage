@@ -140,6 +140,7 @@ func main() {
 	employeeRepo := postgresRepo.NewPostgresEmployeeRepository(db)
 	clientRepo := postgresRepo.NewPostgresClientRepository(db)
 	carRepo := postgresRepo.NewPostgresCarRepository(db)
+	repairRepo := postgresRepo.NewPostgresRepairRepository(db)
 	log.Printf("Repositories initialized")
 
 	// Initialize use cases
@@ -151,7 +152,7 @@ func main() {
 
 	authUseCase := auth.NewAuthUseCase(userRepo, jwtSecret, 24)
 	employeeUseCase := employee.NewEmployeeUseCase(employeeRepo, cacheRepo)
-	clientUseCase := client.NewClientUseCase(clientRepo, userRepo, cacheRepo)
+	clientUseCase := client.NewClientUseCase(clientRepo, userRepo, carRepo, repairRepo)
 	carUseCase := car.NewCarUseCase(carRepo, userRepo, cacheRepo)
 
 	log.Printf("Use cases initialized")

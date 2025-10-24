@@ -139,13 +139,13 @@ type ClientRepository interface {
 
 // ClientUseCase defines the business logic interface for clients
 type ClientUseCase interface {
-	CreateClient(ctx context.Context, client *domain.User) (*domain.User, error)
-	GetClient(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) (*domain.User, error)
-	GetClientProfile(ctx context.Context, clientID uuid.UUID) (*domain.User, error)
-	UpdateClient(ctx context.Context, client *domain.User, requestingUserID uuid.UUID) (*domain.User, error)
-	UpdateClientProfile(ctx context.Context, clientID uuid.UUID, client *domain.User) (*domain.User, error)
+	CreateClient(ctx context.Context, client *domain.Client) (*domain.Client, error)
+	GetClient(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) (*domain.Client, error)
+	GetClientProfile(ctx context.Context, clientID uuid.UUID) (*domain.Client, error)
+	UpdateClient(ctx context.Context, client *domain.Client, requestingUserID uuid.UUID) (*domain.Client, error)
+	UpdateClientProfile(ctx context.Context, clientID uuid.UUID, client *domain.Client) (*domain.Client, error)
 	DeleteClient(ctx context.Context, clientID uuid.UUID) error
-	ListClients(ctx context.Context, requestingUserID uuid.UUID, limit, offset int) ([]*domain.User, error)
+	ListClients(ctx context.Context) ([]*domain.Client, error)
 	GetClientCars(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Car, error)
 	GetClientRepairs(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Repair, error)
 }

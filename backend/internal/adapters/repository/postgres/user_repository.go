@@ -119,12 +119,17 @@ func (r *PostgresUserRepository) Delete(ctx context.Context, id uuid.UUID) error
 }
 
 // List implements UserRepository.List
-func (r *PostgresUserRepository) List(ctx context.Context) ([]*domain.User, error) {
+func (r *PostgresUserRepository) List(ctx context.Context, limit int, offset int) ([]*domain.User, error) {
 	var dbUsers []UserModel
 
-	err := r.db.WithContext(ctx).Where("deleted_at IS NULL").
-		Order("created_at DESC").
-		Find(&dbUsers).Error
+	query := r.db.WithContext(ctx).Where("deleted_at IS NULL").Order("created_at DESC")
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if offset > 0 {
+		query = query.Offset(offset)
+	}
+	err := query.Find(&dbUsers).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to list users: %w", err)
 	}
@@ -145,6 +150,64 @@ func (r *PostgresUserRepository) EmailExists(ctx context.Context, email string) 
 		return false, fmt.Errorf("failed to check email existence: %w", err)
 	}
 	return count > 0, nil
+}
+
+// GetActiveUsers implements UserRepository.GetActiveUsers
+func (r *PostgresUserRepository) GetActiveUsers(ctx context.Context, limit int, offset int) ([]*domain.User, error) {
+	var dbUsers []UserModel
+	query := r.db.WithContext(ctx).Where("is_active = ? AND deleted_at IS NULL", true).
+		Order("created_at DESC")
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if offset > 0 {
+		query = query.Offset(offset)
+	}
+	err := query.Find(&dbUsers).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to list active users: %w", err)
+	}
+	users := make([]*domain.User, len(dbUsers))
+	for i, dbUser := range dbUsers {
+		users[i] = r.toDomainUser(&dbUser)
+	}
+	return users, nil
+}
+
+// GetByRole implements UserRepository.GetByRole
+func (r *PostgresUserRepository) GetByRole(ctx context.Context, role string, limit int, offset int) ([]*domain.User, error) {
+	var dbUsers []UserModel
+	query := r.db.WithContext(ctx).Where("role = ? AND deleted_at IS NULL", role).
+		Order("created_at DESC")
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if offset > 0 {
+		query = query.Offset(offset)
+	}
+	err := query.Find(&dbUsers).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to get users by role: %w", err)
+	}
+	users := make([]*domain.User, len(dbUsers))
+	for i, dbUser := range dbUsers {
+		users[i] = r.toDomainUser(&dbUser)
+	}
+	return users, nil
+}
+
+// UpdatePassword implements UserRepository.UpdatePassword
+func (r *PostgresUserRepository) UpdatePassword(ctx context.Context, userID uuid.UUID, newPasswordHash string) error {
+	result := r.db.WithContext(ctx).Model(&UserModel{}).
+		Where("id = ? AND deleted_at IS NULL", userID).
+		Update("password_hash", newPasswordHash)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update password: %w", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrUserNotFound
+	}
+	return nil
 }
 
 // toDomainUser converts database model to domain entity
