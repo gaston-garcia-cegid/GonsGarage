@@ -79,7 +79,8 @@ export default function CarModal({
       if (success) {
         onClose();
       } else {
-        alert('Failed to save car. Please try again.');
+        errors.general = 'Failed to save car. Please try again.';
+        //alert('Failed to save car. Please try again.');
       }
     } catch (err) {
       console.log(err);
@@ -113,6 +114,19 @@ export default function CarModal({
         </div>
 
         <form onSubmit={handleSubmit} className={styles.modalForm}>
+            {errors.general && (
+              <div style={{
+                backgroundColor: '#fef2f2',
+                border: '1px solid #fecaca',
+                color: '#dc2626',
+                padding: 'var(--space-3)',
+                borderRadius: 'var(--radius)',
+                marginBottom: 'var(--space-4)',
+                fontSize: '0.875rem',
+              }}>
+                {errors.general}
+              </div>
+            )}
           <div className={styles.formGrid}>
             {/* Make Field */}
             <div className={styles.formGroup}>

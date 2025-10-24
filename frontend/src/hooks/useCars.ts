@@ -17,6 +17,8 @@ export function useCars(): UseCarsReturn {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const apiClient = useApiClient();
 
   // Fetch cars - following Agent.md error handling
   const fetchCars = useCallback(async () => {

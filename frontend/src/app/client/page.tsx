@@ -1,13 +1,15 @@
 // src/app/client/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useAuthGuard } from '@hooks/useAuthGuard';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import ClientDashboard from './components/ClientDashboard';
 import ClientCars from './components/ClientCars';
-import ClientAppointments from './components/ClientAppointments';
 import { useClientData } from './hooks/useClientData';
+import { useRouter } from 'next/navigation';
+import { Car } from '@/types/car';
+import ClientDashboard from './components/ClientDashboard';
+import ClientAppointments from './components/ClientAppointments';
 
 type ActiveTab = 'dashboard' | 'cars' | 'appointments';
 
@@ -15,7 +17,36 @@ export default function ClientPage() {
   const { isLoading: authLoading, isAuthorized } = useAuthGuard('client');
   const { cars, repairs, appointments, loading, error } = useClientData();
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
-  
+
+  // Move all hooks above any conditional returns
+  // Add missing userCars state for callbacks to work
+  const [userCars, setUserCars] = useState<Car[]>([]);
+
+  // Handle when a car is added - following Agent.md callback patterns
+  const handleAddCar = useCallback((newCar: Car) => {
+    console.log('New car added:', newCar);
+
+    // Update local state
+    setUserCars(prevCars => [...prevCars, newCar]);
+
+    // Show success message
+    alert(`${newCar.year} ${newCar.make} ${newCar.model} has been added successfully!`);
+
+    // Optional: Navigate to car details
+    // router.push(`/cars/${newCar.id}`);
+
+    // Optional: Track analytics
+    // trackEvent('car_added', { make: newCar.make, model: newCar.model });
+  }, []);
+
+  // Handle when cars list is updated - following Agent.md state management
+  const handleUpdateCar = useCallback((updatedCars: Car[]) => {
+    setUserCars(updatedCars);
+
+    // Optional: Sync with parent state or context
+    // updateUserCarsContext(updatedCars);
+  }, []);
+
   if (authLoading || loading || !isAuthorized) {
     return <div>Loading...</div>;
   }
@@ -39,7 +70,11 @@ export default function ClientPage() {
           />
         );
       case 'cars':
-        return <ClientCars onAddCar={() => {}} />;
+        return <ClientCars 
+        onAddCar={handleAddCar}
+        onUpdateCar={handleUpdateCar}
+        showAddButton={true}
+        maxCars={5} />;
       case 'appointments':
         return <ClientAppointments onScheduleService={() => {}} />;
     }

@@ -15,43 +15,118 @@ class CarApiClient {
     this.baseUrl = baseUrl;
   }
 
+  // ✅ Fixed: Safe token retrieval that works in both client and server
+  private getAuthToken(): string | null {
+    // Check if we're in the browser environment
+    if (typeof window !== 'undefined') {
+      // Try multiple storage locations following Agent.md security practices
+      return localStorage.getItem('authToken') || 
+             localStorage.getItem('token') || 
+             sessionStorage.getItem('authToken') ||
+             sessionStorage.getItem('token');
+    }
+    return null;
+  }
+
+  // ✅ Enhanced request method with better error handling
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = this.getAuthToken();
       const url = `${this.baseUrl}${endpoint}`;
       
+      // ✅ Better logging for debugging (following Agent.md logging practices)
+      console.log('API Request:', {
+        url,
+        method: options.method || 'GET',
+        hasToken: !!token,
+        tokenPreview: token ? `${token.substring(0, 10)}...` : 'null'
+      });
+
       const response = await fetch(url, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
+          // ✅ Fixed: Only add Authorization header if token exists
           ...(token && { Authorization: `Bearer ${token}` }),
           ...options.headers,
         },
       });
 
+      // ✅ Enhanced error handling for different HTTP status codes
       if (!response.ok) {
-        const errorText = await response.text();
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        
+        try {
+          const errorText = await response.text();
+          if (errorText) {
+            errorMessage = errorText;
+          }
+        } catch (e) {
+          // If response body can't be read, use default message
+        }
+
+        // ✅ Special handling for authentication errors
+        if (response.status === 401) {
+          // Clear invalid token
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('authToken');
+            sessionStorage.removeItem('token');
+          }
+          errorMessage = 'Authentication required. Please log in again.';
+        }
+
         return {
           data: null,
           error: {
-            message: errorText || `HTTP ${response.status}: ${response.statusText}`,
+            message: errorMessage,
             status: response.status
           }
         };
       }
 
-      const data = await response.json();
+      // ✅ Handle empty responses (like DELETE operations)
+      const contentType = response.headers.get('content-type');
+      let data = null;
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else if (response.status === 204) {
+        // No content for successful DELETE
+        data = { message: 'Operation completed successfully' } as T;
+      }
+
       return { data, error: null };
     } catch (error) {
+      console.error('API Request failed:', error);
+      
       return {
         data: null,
         error: {
           message: error instanceof Error ? error.message : 'Network error occurred'
         }
       };
+    }
+  }
+
+  // ✅ Method to set token (for integration with auth context)
+  setAuthToken(token: string): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('authToken', token);
+    }
+  }
+
+  // ✅ Method to clear token
+  clearAuthToken(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('authToken');
+      sessionStorage.removeItem('token');
     }
   }
 

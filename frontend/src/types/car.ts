@@ -46,6 +46,7 @@ export interface CarValidationErrors {
   licensePlate?: string; // ✅ camelCase per Agent.md
   color?: string;
   mileage?: string;
+  general?: string;
 }
 
 export interface Repair {
