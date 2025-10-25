@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Car, CreateCarRequest } from '@/types/car';
 import { carApi } from '@/lib/api/carApi';
+import { useApiClient } from '@hooks/useApiClient';
 
 export interface UseCarsReturn {
   cars: Car[];

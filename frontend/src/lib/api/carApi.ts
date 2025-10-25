@@ -12,7 +12,7 @@ class CarApiClient {
   private baseUrl: string;
 
   constructor(baseUrl: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080') {
-    this.baseUrl = baseUrl;
+    this.baseUrl = `${baseUrl}/api/v1`;
   }
 
   // ✅ Fixed: Safe token retrieval that works in both client and server
@@ -132,7 +132,7 @@ class CarApiClient {
 
   // Create car - following Agent.md error handling
   async createCar(carData: CreateCarRequest): Promise<ApiResponse<Car>> {
-    return this.request<Car>('/api/v1/cars', {
+    return this.request<Car>('/cars', {
       method: 'POST',
       body: JSON.stringify(carData),
     });
@@ -140,17 +140,17 @@ class CarApiClient {
 
   // Read cars - following Agent.md naming conventions
   async getCars(): Promise<ApiResponse<Car[]>> {
-    return this.request<Car[]>('/api/v1/cars');
+    return this.request<Car[]>('/cars');
   }
 
   // Read single car
   async getCar(id: string): Promise<ApiResponse<Car>> {
-    return this.request<Car>(`/api/v1/cars/${id}`);
+    return this.request<Car>(`/cars/${id}`);
   }
 
   // Update car - following Agent.md clean architecture
   async updateCar(id: string, carData: Partial<CreateCarRequest>): Promise<ApiResponse<Car>> {
-    return this.request<Car>(`/api/v1/cars/${id}`, {
+    return this.request<Car>(`/cars/${id}`, {
       method: 'PUT',
       body: JSON.stringify(carData),
     });
@@ -158,14 +158,14 @@ class CarApiClient {
 
   // Delete car - following Agent.md proper error handling
   async deleteCar(id: string): Promise<ApiResponse<{ message: string }>> {
-    return this.request<{ message: string }>(`/api/v1/cars/${id}`, {
+    return this.request<{ message: string }>(`/cars/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Get cars with repairs (complex read operation)
   async getCarWithRepairs(id: string): Promise<ApiResponse<Car>> {
-    return this.request<Car>(`/api/v1/cars/${id}/repairs`);
+    return this.request<Car>(`/cars/${id}/repairs`);
   }
 }
 

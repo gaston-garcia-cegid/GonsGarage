@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"os"
 	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
@@ -39,7 +40,7 @@ func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (strin
 		return "", errors.New("user account is deactivated")
 	}
 
-	token, err := uc.GenerateToken(user)
+	token, _, err := uc.GenerateToken(user)
 	if err != nil {
 		return "", err
 	}
@@ -87,9 +88,17 @@ func (uc *AuthUseCase) Register(ctx context.Context, req ports.RegisterRequest) 
 	return user, nil
 }
 
-func (uc *AuthUseCase) GenerateToken(user *domain.User) (string, error) {
+func (uc *AuthUseCase) GenerateToken(user *domain.User) (string, time.Time, error) {
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "your-super-secret-jwt-key"
+	}
+
+	expiresAt := time.Now().Add(24 * time.Hour)
+
 	claims := jwt.MapClaims{
 		"user_id":    user.ID.String(),
+		"sub":        user.ID.String(),
 		"email":      user.Email,
 		"first_name": user.FirstName,
 		"last_name":  user.LastName,
@@ -100,7 +109,12 @@ func (uc *AuthUseCase) GenerateToken(user *domain.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(uc.jwtSecret))
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		return "", time.Time{}, err
+	}
+
+	return tokenString, expiresAt, nil
 }
 
 func (uc *AuthUseCase) ValidateToken(tokenString string) (*domain.User, error) {
@@ -147,5 +161,6 @@ func (uc *AuthUseCase) RefreshToken(ctx context.Context, token string) (string, 
 		return "", err
 	}
 
-	return uc.GenerateToken(user)
+	token, _, err = uc.GenerateToken(user)
+	return token, err
 }
