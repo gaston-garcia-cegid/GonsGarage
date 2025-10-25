@@ -13,6 +13,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -29,6 +31,14 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/employee"
 )
 
+// @title GonsGarage API
+// @version 1.0
+// @description Auto repair shop management API
+// @host localhost:8080
+// @BasePath /api/v1
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
 func main() {
 	log.Printf("/*************** Start Main ***************/")
 
@@ -172,6 +182,7 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	router := gin.Default()
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// CORS middleware
 	router.Use(corsMiddleware())

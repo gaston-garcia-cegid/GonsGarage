@@ -4,6 +4,7 @@
 [![Go Version](https://img.shields.io/badge/go-1.21+-blue.svg)]()
 [![Next.js](https://img.shields.io/badge/Next.js-15.0+-black.svg)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)]()
+[![Swagger](https://img.shields.io/badge/Swagger-OpenAPI%203.0-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 
 A comprehensive auto repair shop management system built with modern technologies and clean architecture principles. GonsGarage provides a complete solution for managing clients, vehicles, repairs, appointments, and employees in an auto repair business.
@@ -31,6 +32,12 @@ A comprehensive auto repair shop management system built with modern technologie
 - ✅ **System Configuration**: Manage application settings and permissions
 - ✅ **Financial Reporting**: Generate financial reports and insights
 
+### For Developers
+- ✅ **API Documentation**: Interactive Swagger/OpenAPI documentation
+- ✅ **Type Safety**: Full TypeScript support with auto-generated types
+- ✅ **Testing**: Comprehensive test suite with TDD approach
+- ✅ **Development Tools**: Hot reload, linting, and code formatting
+
 ## 🏗️ Architecture
 
 GonsGarage follows **Clean Architecture** principles with unified domain entities:
@@ -44,12 +51,14 @@ GonsGarage follows **Clean Architecture** principles with unified domain entitie
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 └─────────────────────┬───────────────────────────────────────┘
                       │ HTTP/REST API (camelCase JSON)
+                      │ Swagger/OpenAPI Documentation
 ┌─────────────────────▼───────────────────────────────────────┐
 │              Backend (Go + Gin Framework)                   │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │   Handlers  │  │   Services  │  │   Repositories      │  │
 │  │ (Gin HTTP)  │  │ (Business)  │  │   (Data Access)     │  │
 │  │ + Middleware│  │             │  │                     │  │
+│  │ + Swagger   │  │             │  │                     │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 └─────────────────────┬───────────────────────────────────────┘
                       │
@@ -70,6 +79,7 @@ GonsGarage follows **Clean Architecture** principles with unified domain entitie
 - **Database**: PostgreSQL 15+
 - **Cache**: Redis 7+
 - **Authentication**: JWT tokens with Gin middleware
+- **API Documentation**: Swagger/OpenAPI 3.0 with swaggo
 - **Architecture**: Clean Architecture with unified domain entities
 - **Logging**: Structured logging with slog
 - **Testing**: Go testing + testify (TDD approach)
@@ -81,12 +91,14 @@ GonsGarage follows **Clean Architecture** principles with unified domain entitie
 - **Styling**: Tailwind CSS + CSS Modules
 - **Testing**: Jest + React Testing Library
 - **HTTP Client**: Fetch API with TypeScript wrappers
+- **API Integration**: Auto-generated types from OpenAPI specs
 
 ### Infrastructure
 - **Containerization**: Docker + Docker Compose
 - **Database**: PostgreSQL with persistent volumes
 - **Cache**: Redis for session management and caching
 - **Development**: Hot reload for both frontend and backend
+- **Documentation**: Automated API docs with Swagger UI
 
 ## 📋 Prerequisites
 
@@ -146,6 +158,12 @@ cd backend
 # Install dependencies
 go mod tidy
 
+# Install Swagger CLI (for documentation generation)
+go install github.com/swaggo/swag/cmd/swag@latest
+
+# Generate Swagger documentation
+swag init -g cmd/server/main.go -o docs
+
 # Run database migrations
 go run cmd/migrate/main.go up
 
@@ -160,6 +178,9 @@ cd frontend
 # Install dependencies
 npm install
 
+# Generate API types from Swagger (optional)
+npm run generate-types
+
 # Start development server
 npm run dev
 ```
@@ -170,7 +191,9 @@ After successful setup, access the application at:
 
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8080
-- **API Documentation**: http://localhost:8080/swagger/index.html
+- **📋 Swagger UI Documentation**: http://localhost:8080/swagger/index.html
+- **📄 OpenAPI JSON Spec**: http://localhost:8080/swagger/doc.json
+- **🔍 API Health Check**: http://localhost:8080/health
 
 ### Default Admin User
 ```
@@ -178,6 +201,46 @@ Email: admin@gonsgarage.com
 Password: admin123
 Role: admin
 ```
+
+## 📚 API Documentation (Swagger/OpenAPI)
+
+GonsGarage provides comprehensive API documentation through Swagger/OpenAPI 3.0:
+
+### 🔍 **Interactive Documentation**
+Visit [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html) for:
+- **Interactive API Explorer**: Test endpoints directly in the browser
+- **Request/Response Examples**: See real data structures
+- **Authentication Testing**: Test protected endpoints with JWT tokens
+- **Schema Validation**: Validate request payloads before sending
+
+### 📋 **API Specification**
+- **OpenAPI 3.0 Compliant**: Industry-standard specification format
+- **JSON Export**: Available at `/swagger/doc.json`
+- **Code Generation**: Use specs to generate client SDKs
+- **Postman Integration**: Import OpenAPI spec directly into Postman
+
+### 🛠️ **Documentation Features**
+```go
+// Example of documented endpoint
+// @Summary Create a new user
+// @Description Create a new user in the system (admin only)
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param user body CreateUserRequest true "User data"
+// @Success 201 {object} domain.User "User created successfully"
+// @Failure 400 {object} ErrorResponse "Invalid request body"
+// @Router /api/v1/users [post]
+```
+
+### 📊 **Available API Groups**
+- **🔐 Authentication** (`/auth/*`) - Login, register, token management
+- **👥 Users** (`/users/*`) - User management (unified clients/employees/admins)  
+- **🚗 Cars** (`/cars/*`) - Vehicle management
+- **👔 Employees** (`/employees/*`) - Employee profile management
+- **🔧 Repairs** (`/repairs/*`) - Repair order management
+- **📅 Appointments** (`/appointments/*`) - Appointment scheduling
 
 ## 📊 Unified Database Schema
 
@@ -274,6 +337,10 @@ go test ./internal/core/services/...
 
 # Run tests with verbose output
 go test -v ./...
+
+# Generate and view coverage report
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
 ```
 
 ### Frontend Testing (TypeScript + Jest)
@@ -292,6 +359,9 @@ npm run test:coverage
 
 # Type checking
 npm run type-check
+
+# Generate API types from Swagger
+npm run generate-types
 ```
 
 ### Test Structure Examples
@@ -361,7 +431,7 @@ describe('UserStore', () => {
 });
 ```
 
-## 🔧 API Documentation
+## 🔧 API Documentation Examples
 
 ### Authentication Endpoints
 
@@ -586,6 +656,63 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 ```
 
+## 📋 Swagger Documentation Setup
+
+### 1. Install Swagger Dependencies
+
+```bash
+# Backend - Install swaggo
+cd backend
+go install github.com/swaggo/swag/cmd/swag@latest
+go get github.com/swaggo/gin-swagger
+go get github.com/swaggo/files
+```
+
+### 2. Generate Documentation
+
+```bash
+# Generate Swagger docs from annotations
+cd backend
+swag init -g cmd/server/main.go -o docs
+```
+
+### 3. Integration Example
+
+```go
+// cmd/server/main.go
+package main
+
+import (
+    "github.com/gin-gonic/gin"
+    swaggerFiles "github.com/swaggo/files"
+    ginSwagger "github.com/swaggo/gin-swagger"
+    _ "github.com/your-org/gonsgarage/docs" // Import generated docs
+)
+
+// @title GonsGarage API
+// @version 1.0
+// @description Auto repair shop management system API
+// @contact.name API Support
+// @contact.email support@gonsgarage.com
+// @license.name MIT
+// @host localhost:8080
+// @BasePath /api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+func main() {
+    r := gin.Default()
+    
+    // Swagger endpoint
+    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+    
+    // Your API routes...
+    setupRoutes(r)
+    
+    r.Run(":8080")
+}
+```
+
 ## 🚀 Deployment
 
 ### Environment Variables
@@ -597,9 +724,11 @@ REDIS_URL=redis://localhost:6379
 JWT_SECRET=your-very-secure-jwt-secret-key-here
 GIN_MODE=release
 PORT=8080
+SWAGGER_ENABLED=true
 
 # Frontend (.env.local)
 NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+NEXT_PUBLIC_SWAGGER_URL=https://api.yourdomain.com/swagger
 NODE_ENV=production
 ```
 
@@ -631,6 +760,7 @@ services:
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET}
       GIN_MODE: release
+      SWAGGER_ENABLED: true
     depends_on:
       - postgres
       - redis
@@ -641,6 +771,7 @@ services:
       dockerfile: Dockerfile.prod
     environment:
       NEXT_PUBLIC_API_URL: http://backend:8080
+      NEXT_PUBLIC_SWAGGER_URL: http://backend:8080/swagger
       NODE_ENV: production
     depends_on:
       - backend
@@ -670,10 +801,12 @@ We welcome contributions! Please follow these steps:
 3. **Follow TDD**: Write tests first, then implementation
 4. **Follow coding standards**: See [Agent.md](Agent.md) for detailed guidelines
 5. **Use TypeScript**: Ensure type safety in frontend code
-6. **Test Zustand stores**: Write tests for state management logic
-7. **Commit with conventional commits**: `feat(auth): add user registration`
-8. **Push to branch**: `git push origin feat/amazing-feature`
-9. **Create Pull Request**
+6. **Document APIs**: Add Swagger annotations for all new endpoints
+7. **Test Zustand stores**: Write tests for state management logic
+8. **Update documentation**: Keep Swagger docs up to date
+9. **Commit with conventional commits**: `feat(auth): add user registration`
+10. **Push to branch**: `git push origin feat/amazing-feature`
+11. **Create Pull Request**
 
 ### Code Review Checklist
 
@@ -682,9 +815,11 @@ We welcome contributions! Please follow these steps:
 - [ ] Business logic is in the correct layer (Clean Architecture)
 - [ ] Error handling is implemented properly
 - [ ] API endpoints follow camelCase JSON convention
+- [ ] **Swagger documentation is updated for new/changed endpoints**
 - [ ] TypeScript types are properly defined
 - [ ] Zustand stores are tested
 - [ ] Gin middleware is properly configured
+- [ ] **API examples work in Swagger UI**
 
 ## 📝 License
 
@@ -693,6 +828,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 - **Documentation**: [Wiki](https://github.com/your-username/gonsgarage/wiki)
+- **API Documentation**: [Swagger UI](http://localhost:8080/swagger/index.html)
 - **Issues**: [GitHub Issues](https://github.com/your-username/gonsgarage/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/your-username/gonsgarage/discussions)
 - **Email**: support@gonsgarage.com
@@ -704,8 +840,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Next.js team for the fantastic React framework
 - Gin framework for excellent Go HTTP middleware support
 - Zustand community for simple and effective state management
+- Swagger/OpenAPI community for API documentation standards
 - All contributors who help improve this project
 
 ---
 
-**Built with ❤️ for the auto repair industry using Go + Gin + Next.js + TypeScript + Zustand**
+**Built with ❤️ for the auto repair industry using Go + Gin + Next.js + TypeScript + Zustand + Swagger**

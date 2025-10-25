@@ -8,6 +8,7 @@
 - **Backend**: Go 1.21+ with Gin framework and middleware
 - **Frontend**: Next.js 15 (TypeScript) with Zustand for state management
 - **Database**: PostgreSQL 15+ with Redis caching
+- **API Documentation**: Swagger/OpenAPI 3.0 with automated generation
 - **Development**: Docker-based local environment
 - **Testing**: Test-Driven Development (TDD)
 
@@ -97,6 +98,9 @@ backend/
 │       │   └── middleware/        # Gin Middleware (Auth, CORS, etc.)
 │       └── repository/
 │           └── postgres/          # Data persistence
+├── docs/                          # ✅ Swagger/OpenAPI documentation
+│   ├── swagger.yaml              # OpenAPI 3.0 specification
+│   └── swagger.json              # Generated JSON docs
 ├── pkg/                           # Shared utilities
 └── tests/                         # Integration tests
 ```
@@ -250,7 +254,7 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 }
 ```
 
-### ✅ Handler Implementation
+### ✅ Handler Implementation with Swagger Documentation
 ```go
 // handlers/user_handler.go
 type UserHandler struct {
@@ -261,6 +265,19 @@ func NewUserHandler(userService ports.UserService) *UserHandler {
     return &UserHandler{userService: userService}
 }
 
+// CreateUser creates a new user
+// @Summary Create a new user
+// @Description Create a new user in the system (admin only)
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param user body CreateUserRequest true "User data"
+// @Success 201 {object} domain.User "User created successfully"
+// @Failure 400 {object} ErrorResponse "Invalid request body"
+// @Failure 401 {object} ErrorResponse "Unauthorized"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /api/v1/users [post]
 func (h *UserHandler) CreateUser(c *gin.Context) {
     var req CreateUserRequest
     if err := c.ShouldBindJSON(&req); err != nil {
@@ -288,7 +305,105 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 
 ---
 
-## 6️⃣ Frontend Patterns (Next.js + Zustand)
+## 6️⃣ Swagger/OpenAPI Documentation Standards
+
+### ✅ API Documentation Structure
+```go
+// handlers/swagger_types.go - Swagger response types
+
+// CreateUserRequest represents the request body for creating a user
+type CreateUserRequest struct {
+    FirstName string `json:"firstName" binding:"required" example:"John"`
+    LastName  string `json:"lastName" binding:"required" example:"Doe"`
+    Email     string `json:"email" binding:"required,email" example:"john.doe@example.com"`
+    Password  string `json:"password" binding:"required,min=8" example:"securepassword123"`
+    Role      string `json:"role" binding:"required" enums:"client,employee,admin" example:"client"`
+}
+
+// ErrorResponse represents an error response
+type ErrorResponse struct {
+    Error   string            `json:"error" example:"validation_failed"`
+    Message string            `json:"message" example:"Invalid input data"`
+    Details map[string]string `json:"details,omitempty"`
+}
+
+// SuccessResponse represents a generic success response
+type SuccessResponse struct {
+    Message string `json:"message" example:"Operation completed successfully"`
+}
+```
+
+### ✅ Swagger Annotations Guidelines
+```go
+// ✅ Complete handler documentation
+// @Summary Short description of the endpoint
+// @Description Detailed description of what the endpoint does
+// @Tags group-name
+// @Accept json
+// @Produce json
+// @Security BearerAuth (for protected endpoints)
+// @Param paramName path/query/body type required "Description" 
+// @Success 200 {object} ResponseType "Success description"
+// @Failure 400 {object} ErrorResponse "Error description"
+// @Router /api/v1/endpoint [method]
+
+// Example for car endpoints:
+// GetCars retrieves user's cars
+// @Summary Get user's cars
+// @Description Retrieve all cars owned by the authenticated user
+// @Tags cars
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {array} domain.Car "List of user's cars"
+// @Failure 401 {object} ErrorResponse "Unauthorized"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /api/v1/cars [get]
+func (h *CarHandler) GetCars(c *gin.Context) {
+    // Implementation
+}
+```
+
+### ✅ OpenAPI Configuration
+```go
+// cmd/server/main.go - Swagger setup
+import (
+    "github.com/gin-gonic/gin"
+    swaggerFiles "github.com/swaggo/files"
+    ginSwagger "github.com/swaggo/gin-swagger"
+    _ "github.com/your-org/gonsgarage/docs" // Import generated docs
+)
+
+// @title GonsGarage API
+// @version 1.0
+// @description Auto repair shop management system API
+// @termsOfService https://gonsgarage.com/terms
+// @contact.name API Support
+// @contact.url https://gonsgarage.com/support
+// @contact.email support@gonsgarage.com
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+// @host localhost:8080
+// @BasePath /api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token
+func main() {
+    r := gin.Default()
+    
+    // Swagger endpoint
+    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+    
+    // API routes
+    setupRoutes(r)
+    
+    r.Run(":8080")
+}
+```
+
+---
+
+## 7️⃣ Frontend Patterns (Next.js + Zustand)
 
 ### ✅ Zustand Store Definition
 ```typescript
@@ -380,7 +495,7 @@ export default function UserList() {
 
 ---
 
-## 7️⃣ Testing Patterns
+## 8️⃣ Testing Patterns
 
 ### ✅ Backend Testing (TDD)
 ```go
@@ -439,7 +554,7 @@ describe('UserStore', () => {
 
 ---
 
-## 8️⃣ API Design Standards
+## 9️⃣ API Design Standards
 
 ### ✅ RESTful Endpoints
 ```
@@ -454,6 +569,8 @@ GET    /api/v1/cars                # List user's cars
 POST   /api/v1/cars               # Create car
 GET    /api/v1/employees           # List employees
 POST   /api/v1/employees          # Create employee profile
+GET    /swagger/index.html         # Swagger UI documentation
+GET    /swagger/doc.json          # OpenAPI JSON specification
 ```
 
 ### ✅ Standard Error Responses
@@ -470,7 +587,7 @@ POST   /api/v1/employees          # Create employee profile
 
 ---
 
-## 9️⃣ Development Guidelines
+## 🔟 Development Guidelines
 
 ### Context Management
 - **Backend**: Use `"userID"` as standard context key (camelCase)
@@ -491,9 +608,15 @@ POST   /api/v1/employees          # Create employee profile
 - **Validation**: Validate all inputs at multiple layers
 - **Authorization**: Role-based access control with middleware
 
+### API Documentation
+- **Swagger**: Use swaggo for automatic documentation generation
+- **Annotations**: Document all public endpoints with comprehensive annotations
+- **Examples**: Provide request/response examples for all endpoints
+- **Security**: Document authentication requirements clearly
+
 ---
 
-## 🔟 Key Architectural Decisions
+## 1️⃣1️⃣ Key Architectural Decisions
 
 1. **✅ Unified User Entity**: Single User table with roles instead of separate Client entity
 2. **✅ Services over UseCases**: Renamed usecases to services for clarity
@@ -502,5 +625,6 @@ POST   /api/v1/employees          # Create employee profile
 5. **✅ TypeScript First**: Full TypeScript adoption in frontend
 6. **✅ camelCase JSON**: Consistent camelCase for all API JSON fields
 7. **✅ Structured Logging**: slog for backend, console.error for frontend development
+8. **✅ Swagger/OpenAPI**: Automated API documentation with comprehensive annotations
 
 This guide ensures consistency, maintainability, and scalability across the entire GonsGarage project.
