@@ -3,48 +3,53 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 [![Go Version](https://img.shields.io/badge/go-1.21+-blue.svg)]()
 [![Next.js](https://img.shields.io/badge/Next.js-15.0+-black.svg)]()
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 
 A comprehensive auto repair shop management system built with modern technologies and clean architecture principles. GonsGarage provides a complete solution for managing clients, vehicles, repairs, appointments, and employees in an auto repair business.
 
 ## 🚀 Features
 
-### For Clients
+### For Clients (Users with Client Role)
 - ✅ **Vehicle Management**: Register and manage personal vehicles
 - ✅ **Appointment Scheduling**: Book repair services online
 - ✅ **Repair History**: View complete repair history for each vehicle
 - ✅ **Real-time Updates**: Track repair progress and status
-- ✅ **Invoicing**: View and download repair invoices
+- ✅ **Profile Management**: Update personal information and preferences
 
-### For Employees
+### For Employees (Users with Employee Role)
 - ✅ **Work Order Management**: Manage assigned repair tasks
 - ✅ **Client Communication**: Update clients on repair progress
 - ✅ **Inventory Tracking**: Track parts and materials usage
 - ✅ **Time Tracking**: Log work hours for accurate billing
+- ✅ **Employee Profile**: Manage position, hourly rate, and schedule
 
-### For Administrators
-- ✅ **Employee Management**: Manage staff accounts and permissions
+### For Administrators (Users with Admin Role)
+- ✅ **User Management**: Manage all users (clients, employees, admins)
+- ✅ **Employee Profiles**: Create and manage employee profiles
 - ✅ **Business Analytics**: View performance metrics and reports
-- ✅ **Inventory Management**: Manage parts inventory and suppliers
+- ✅ **System Configuration**: Manage application settings and permissions
 - ✅ **Financial Reporting**: Generate financial reports and insights
 
 ## 🏗️ Architecture
 
-GonsGarage follows **Clean Architecture** principles with clear separation of concerns:
+GonsGarage follows **Clean Architecture** principles with unified domain entities:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Frontend (Next.js)                   │
+│           Frontend (Next.js + TypeScript + Zustand)         │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │    Pages    │  │ Components  │  │    API Client       │  │
+│  │    Pages    │  │ Components  │  │   Zustand Stores    │  │
+│  │ (App Router)│  │   (TSX)     │  │  (State Mgmt)       │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 └─────────────────────┬───────────────────────────────────────┘
-                      │ HTTP/REST API
+                      │ HTTP/REST API (camelCase JSON)
 ┌─────────────────────▼───────────────────────────────────────┐
-│                     Backend (Go)                            │
+│              Backend (Go + Gin Framework)                   │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │  Handlers   │  │   Services  │  │    Repositories     │  │
-│  │  (HTTP)     │  │ (Business)  │  │   (Data Access)     │  │
+│  │   Handlers  │  │   Services  │  │   Repositories      │  │
+│  │ (Gin HTTP)  │  │ (Business)  │  │   (Data Access)     │  │
+│  │ + Middleware│  │             │  │                     │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 └─────────────────────┬───────────────────────────────────────┘
                       │
@@ -61,21 +66,21 @@ GonsGarage follows **Clean Architecture** principles with clear separation of co
 
 ### Backend
 - **Language**: Go 1.21+
-- **Framework**: Gin HTTP framework
+- **Framework**: Gin HTTP framework with native middleware support
 - **Database**: PostgreSQL 15+
 - **Cache**: Redis 7+
-- **Authentication**: JWT tokens
-- **Migration**: Custom SQL migrations
-- **Testing**: Go testing + testify
-- **Documentation**: Swagger/OpenAPI
+- **Authentication**: JWT tokens with Gin middleware
+- **Architecture**: Clean Architecture with unified domain entities
+- **Logging**: Structured logging with slog
+- **Testing**: Go testing + testify (TDD approach)
 
 ### Frontend
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript 5+
+- **State Management**: Zustand for global state management
 - **Styling**: Tailwind CSS + CSS Modules
-- **State Management**: React Context + Custom Hooks
 - **Testing**: Jest + React Testing Library
-- **HTTP Client**: Fetch API with custom wrapper
+- **HTTP Client**: Fetch API with TypeScript wrappers
 
 ### Infrastructure
 - **Containerization**: Docker + Docker Compose
@@ -167,30 +172,32 @@ After successful setup, access the application at:
 - **Backend API**: http://localhost:8080
 - **API Documentation**: http://localhost:8080/swagger/index.html
 
-### Default Admin Credentials
+### Default Admin User
 ```
 Email: admin@gonsgarage.com
 Password: admin123
+Role: admin
 ```
 
-## 📊 Database Schema
+## 📊 Unified Database Schema
 
-### Core Entities
+### Core Entities (Simplified Architecture)
 
 ```sql
--- Users (base for all user types)
+-- Unified Users table (replaces separate Client table)
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
-    role VARCHAR(50) NOT NULL DEFAULT 'client',
+    role VARCHAR(50) NOT NULL DEFAULT 'client',  -- 'client', 'employee', 'admin'
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP NULL
 );
 
--- Employee profiles
+-- Employee profiles (only for users with role='employee')
 CREATE TABLE employees (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -198,10 +205,11 @@ CREATE TABLE employees (
     hourly_rate DECIMAL(10,2),
     hire_date DATE NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP NULL
 );
 
--- Client vehicles
+-- Cars (owned by users with role='client')
 CREATE TABLE cars (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -213,7 +221,8 @@ CREATE TABLE cars (
     color VARCHAR(50) NOT NULL,
     mileage INTEGER,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP NULL
 );
 
 -- Repair orders
@@ -228,7 +237,8 @@ CREATE TABLE repairs (
     started_at TIMESTAMP,
     completed_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP NULL
 );
 
 -- Appointment scheduling
@@ -241,13 +251,14 @@ CREATE TABLE appointments (
     status VARCHAR(50) DEFAULT 'scheduled',
     notes TEXT,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP NULL
 );
 ```
 
 ## 🧪 Testing
 
-### Backend Testing
+### Backend Testing (TDD Approach)
 
 ```bash
 cd backend
@@ -258,14 +269,14 @@ go test ./...
 # Run tests with coverage
 go test -cover ./...
 
-# Run specific test package
+# Run specific service tests
 go test ./internal/core/services/...
 
 # Run tests with verbose output
 go test -v ./...
 ```
 
-### Frontend Testing
+### Frontend Testing (TypeScript + Jest)
 
 ```bash
 cd frontend
@@ -279,57 +290,73 @@ npm run test:watch
 # Run tests with coverage
 npm run test:coverage
 
-# Run E2E tests (if configured)
-npm run test:e2e
+# Type checking
+npm run type-check
 ```
 
-### Test Structure Example
+### Test Structure Examples
 
 ```go
-// Backend test example
-func TestCarService_CreateCar(t *testing.T) {
+// Backend service test example
+func TestUserService_CreateUser(t *testing.T) {
     // Arrange
-    mockRepo := &MockCarRepository{}
-    service := NewCarService(mockRepo, nil)
+    mockRepo := mocks.NewMockUserRepository(t)
+    logger := slog.Default()
+    service := NewUserService(mockRepo, logger)
     
-    req := CreateCarRequest{
-        Make:         "Toyota",
-        Model:        "Camry",
-        Year:         2023,
-        LicensePlate: "ABC-123",
-        Color:        "Blue",
+    user := &domain.User{
+        FirstName: "John",
+        LastName:  "Doe",
+        Email:     "john@example.com", 
+        Role:      domain.RoleClient,
     }
     
+    mockRepo.EXPECT().CreateUser(mock.Anything, user).Return(user, nil)
+    
     // Act
-    car, err := service.CreateCar(context.Background(), req, userID)
+    result, err := service.CreateUser(context.Background(), user)
     
     // Assert
     assert.NoError(t, err)
-    assert.Equal(t, req.Make, car.Make)
+    assert.Equal(t, user.Email, result.Email)
+    assert.Equal(t, domain.RoleClient, result.Role)
     mockRepo.AssertExpectations(t)
 }
 ```
 
 ```typescript
-// Frontend test example
-describe('CarForm', () => {
-  it('should create car when form is submitted', async () => {
+// Frontend Zustand store test example
+describe('UserStore', () => {
+  beforeEach(() => {
+    useUserStore.getState().users = [];
+    useUserStore.getState().error = null;
+  });
+
+  it('should create user successfully', async () => {
     // Arrange
-    const mockCreateCar = jest.fn().mockResolvedValue(true);
-    render(<CarForm onCreate={mockCreateCar} />);
+    const mockUser: User = {
+      id: '1', 
+      firstName: 'John', 
+      lastName: 'Doe',
+      email: 'john@example.com',
+      role: 'client'
+    };
+    
+    jest.spyOn(userApi, 'createUser').mockResolvedValue(mockUser);
     
     // Act
-    await user.type(screen.getByLabelText('Make'), 'Toyota');
-    await user.type(screen.getByLabelText('Model'), 'Camry');
-    await user.click(screen.getByText('Create Car'));
+    await useUserStore.getState().createUser({
+      firstName: 'John',
+      lastName: 'Doe', 
+      email: 'john@example.com',
+      role: 'client'
+    });
     
     // Assert
-    await waitFor(() => {
-      expect(mockCreateCar).toHaveBeenCalledWith({
-        make: 'Toyota',
-        model: 'Camry'
-      });
-    });
+    const state = useUserStore.getState();
+    expect(state.users).toContain(mockUser);
+    expect(state.loading).toBe(false);
+    expect(state.error).toBeNull();
   });
 });
 ```
@@ -339,200 +366,229 @@ describe('CarForm', () => {
 ### Authentication Endpoints
 
 ```http
-POST /api/v1/auth/register
-POST /api/v1/auth/login
-POST /api/v1/auth/refresh
-POST /api/v1/auth/logout
+POST /api/v1/auth/register    # User registration (any role)
+POST /api/v1/auth/login       # User authentication  
+POST /api/v1/auth/refresh     # Token refresh
+POST /api/v1/auth/logout      # User logout
+```
+
+### User Management Endpoints (Unified)
+
+```http
+GET    /api/v1/users          # List users (admin only)
+POST   /api/v1/users          # Create user (admin only)
+GET    /api/v1/users/:id      # Get user details
+PUT    /api/v1/users/:id      # Update user
+DELETE /api/v1/users/:id      # Delete user (admin only)
 ```
 
 ### Car Management Endpoints
 
 ```http
-GET    /api/v1/cars              # List user's cars
-POST   /api/v1/cars              # Create new car
-GET    /api/v1/cars/:id          # Get car details
-PUT    /api/v1/cars/:id          # Update car
-DELETE /api/v1/cars/:id          # Delete car
+GET    /api/v1/cars           # List user's cars
+POST   /api/v1/cars           # Create new car
+GET    /api/v1/cars/:id       # Get car details
+PUT    /api/v1/cars/:id       # Update car
+DELETE /api/v1/cars/:id       # Delete car
 ```
 
-### Example API Request/Response
+### Employee Management Endpoints
+
+```http
+GET    /api/v1/employees      # List employees (admin only)
+POST   /api/v1/employees      # Create employee profile (admin only)
+GET    /api/v1/employees/:id  # Get employee details
+PUT    /api/v1/employees/:id  # Update employee
+DELETE /api/v1/employees/:id  # Delete employee (admin only)
+```
+
+### Example API Request/Response (camelCase JSON)
 
 ```bash
-# Create a new car
-curl -X POST http://localhost:8080/api/v1/cars \
+# Create a new user
+curl -X POST http://localhost:8080/api/v1/users \
   -H "Authorization: Bearer your-jwt-token" \
   -H "Content-Type: application/json" \
   -d '{
-    "make": "Toyota",
-    "model": "Camry",
-    "year": 2023,
-    "licensePlate": "ABC-123",
-    "color": "Blue",
-    "mileage": 15000
+    "firstName": "John",
+    "lastName": "Doe", 
+    "email": "john@example.com",
+    "password": "securepassword",
+    "role": "client"
   }'
 ```
 
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "make": "Toyota",
-  "model": "Camry",
-  "year": 2023,
-  "licensePlate": "ABC-123",
-  "color": "Blue",
-  "mileage": 15000,
-  "ownerId": "user-uuid",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com", 
+  "role": "client",
   "createdAt": "2024-01-15T10:30:00Z",
   "updatedAt": "2024-01-15T10:30:00Z"
 }
 ```
 
-## 🐳 Docker Configuration
+## 🎯 Frontend State Management (Zustand)
 
-### Development Environment
+### User Store Example
 
-```yaml
-# docker-compose.yml
-version: '3.8'
-services:
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: gonsgarage
-      POSTGRES_USER: admindb
-      POSTGRES_PASSWORD: gonsgarage123
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+```typescript
+// stores/user.store.ts
+interface UserStore {
+  // State
+  users: User[];
+  currentUser: User | null;
+  loading: boolean;
+  error: string | null;
+  
+  // Actions  
+  fetchUsers: () => Promise<void>;
+  createUser: (userData: CreateUserRequest) => Promise<void>;
+  updateUser: (id: string, userData: UpdateUserRequest) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
+  setCurrentUser: (user: User | null) => void;
+  clearError: () => void;
+}
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+export const useUserStore = create<UserStore>((set, get) => ({
+  // Initial state
+  users: [],
+  currentUser: null,
+  loading: false,
+  error: null,
 
-  backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      DATABASE_URL: postgres://admindb:gonsgarage123@postgres:5432/gonsgarage?sslmode=disable
-      REDIS_URL: redis://redis:6379
-      JWT_SECRET: your-super-secret-jwt-key
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - ./backend:/app
-    command: air # Hot reload in development
+  // Actions implementation
+  fetchUsers: async () => {
+    set({ loading: true, error: null });
+    try {
+      const users = await userApi.getUsers();
+      set({ users, loading: false });
+    } catch (error) {
+      set({ error: (error as Error).message, loading: false });
+    }
+  },
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8080
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: npm run dev
+  createUser: async (userData) => {
+    set({ loading: true, error: null });
+    try {
+      const newUser = await userApi.createUser(userData);
+      set(state => ({ 
+        users: [...state.users, newUser], 
+        loading: false 
+      }));
+    } catch (error) {
+      set({ error: (error as Error).message, loading: false });
+    }
+  },
 
-volumes:
-  postgres_data:
-  redis_data:
+  // ... other actions
+}));
 ```
 
-### Production Dockerfile Examples
+### Component Usage
 
-```dockerfile
-# Backend Dockerfile
-FROM golang:1.21-alpine AS builder
+```typescript
+// components/UserList.tsx
+import { useUserStore } from '@/stores/user.store';
 
-WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
+export default function UserList() {
+  const { 
+    users, 
+    loading, 
+    error, 
+    fetchUsers, 
+    clearError 
+  } = useUserStore();
 
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/server/main.go
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=builder /app/main .
-EXPOSE 8080
-CMD ["./main"]
+  if (loading) return <div>Loading users...</div>;
+  if (error) {
+    return (
+      <div className="error">
+        <p>Error: {error}</p>
+        <button onClick={clearError}>Dismiss</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="user-list">
+      <h2>Users ({users.length})</h2>
+      {users.map(user => (
+        <div key={user.id} className="user-card">
+          <h3>{user.firstName} {user.lastName}</h3>
+          <p>Email: {user.email}</p>
+          <p>Role: {user.role}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
 ```
 
-```dockerfile
-# Frontend Dockerfile
-FROM node:18-alpine AS builder
+## 🔧 Gin Middleware Configuration
 
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
+### Authentication Middleware
 
-COPY . .
-RUN npm run build
+```go
+// middleware/auth_middleware.go
+func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        token := c.GetHeader("Authorization")
+        if token == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{
+                "error": "missing authorization header"
+            })
+            c.Abort()
+            return
+        }
 
-FROM node:18-alpine
-WORKDIR /app
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+        // JWT validation...
+        userID, err := m.validateToken(token)
+        if err != nil {
+            c.JSON(http.StatusUnauthorized, gin.H{
+                "error": "invalid token"
+            })
+            c.Abort()
+            return
+        }
 
-EXPOSE 3000
-CMD ["npm", "start"]
+        // Set user context with standard key
+        c.Set("userID", userID)
+        c.Next()
+    }
+}
+```
+
+### CORS Middleware
+
+```go
+// middleware/cors_middleware.go
+func CORSMiddleware() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        c.Header("Access-Control-Allow-Origin", "*")
+        c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        c.Header("Access-Control-Allow-Credentials", "true")
+
+        if c.Request.Method == "OPTIONS" {
+            c.AbortWithStatus(204)
+            return
+        }
+
+        c.Next()
+    }
+}
 ```
 
 ## 🚀 Deployment
 
-### Production Environment Setup
-
-1. **Server Requirements**:
-   - 2+ CPU cores
-   - 4GB+ RAM
-   - 50GB+ storage
-   - Ubuntu 20.04+ or similar
-
-2. **Install Dependencies**:
-```bash
-# Install Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-```
-
-3. **Deploy Application**:
-```bash
-# Clone repository
-git clone https://github.com/your-username/gonsgarage.git
-cd gonsgarage
-
-# Set production environment variables
-cp .env.production.example .env.production
-# Edit .env.production with your production values
-
-# Start production services
-docker-compose -f docker-compose.prod.yml up -d
-
-# Run database migrations
-docker-compose exec backend go run cmd/migrate/main.go up
-
-# Set up SSL with Let's Encrypt (optional)
-sudo apt install certbot
-sudo certbot --nginx -d yourdomain.com
-```
-
-### Environment Variables for Production
+### Environment Variables
 
 ```bash
 # Backend (.env)
@@ -544,99 +600,66 @@ PORT=8080
 
 # Frontend (.env.local)
 NEXT_PUBLIC_API_URL=https://api.yourdomain.com
-NEXTAUTH_SECRET=your-nextauth-secret
-NEXTAUTH_URL=https://yourdomain.com
+NODE_ENV=production
 ```
 
-## 🔧 Development Workflow
+### Docker Compose Production
 
-### Setting up Development Environment
+```yaml
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: gonsgarage
+      POSTGRES_USER: admindb
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-1. **Clone and Setup**:
-```bash
-git clone https://github.com/your-username/gonsgarage.git
-cd gonsgarage
-make setup # Runs all setup commands
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    environment:
+      DATABASE_URL: postgres://admindb:${DB_PASSWORD}@postgres:5432/gonsgarage?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      GIN_MODE: release
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8080
+      NODE_ENV: production
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
 ```
-
-2. **Database Operations**:
-```bash
-# Create new migration
-make migration name=add_new_table
-
-# Run migrations
-make migrate-up
-
-# Rollback migration
-make migrate-down
-
-# Reset database
-make db-reset
-```
-
-3. **Development Commands**:
-```bash
-# Start development environment
-make dev
-
-# Run tests
-make test
-
-# Run linting
-make lint
-
-# Build for production
-make build
-```
-
-### Code Quality Tools
-
-```bash
-# Backend linting
-golangci-lint run
-
-# Frontend linting
-npm run lint
-npm run type-check
-
-# Format code
-gofmt -w .
-npm run format
-```
-
-## 📈 Monitoring and Logging
-
-### Application Metrics
-
-The application includes built-in monitoring endpoints:
-
-- **Health Check**: `GET /health`
-- **Metrics**: `GET /metrics` (Prometheus format)
-- **Debug Info**: `GET /debug/pprof/` (development only)
-
-### Logging Configuration
-
-```go
-// Structured logging example
-logger.Info("car created successfully",
-    "user_id", userID,
-    "car_id", car.ID,
-    "make", car.Make,
-    "model", car.Model)
-
-logger.Error("database operation failed",
-    "operation", "CreateCar",
-    "error", err,
-    "user_id", userID)
-```
-
-### Production Monitoring Stack
-
-For production, consider setting up:
-- **Prometheus** for metrics collection
-- **Grafana** for visualization
-- **Jaeger** for distributed tracing
-- **ELK Stack** for log aggregation
 
 ## 🤝 Contributing
 
@@ -646,18 +669,22 @@ We welcome contributions! Please follow these steps:
 2. **Create a feature branch**: `git checkout -b feat/amazing-feature`
 3. **Follow TDD**: Write tests first, then implementation
 4. **Follow coding standards**: See [Agent.md](Agent.md) for detailed guidelines
-5. **Commit with conventional commits**: `feat(auth): add user registration`
-6. **Push to branch**: `git push origin feat/amazing-feature`
-7. **Create Pull Request**
+5. **Use TypeScript**: Ensure type safety in frontend code
+6. **Test Zustand stores**: Write tests for state management logic
+7. **Commit with conventional commits**: `feat(auth): add user registration`
+8. **Push to branch**: `git push origin feat/amazing-feature`
+9. **Create Pull Request**
 
 ### Code Review Checklist
 
-- [ ] Tests pass locally
-- [ ] Code follows naming conventions (camelCase/PascalCase)
+- [ ] Tests pass locally (both Go and TypeScript)
+- [ ] Code follows naming conventions (PascalCase/camelCase)
 - [ ] Business logic is in the correct layer (Clean Architecture)
 - [ ] Error handling is implemented properly
-- [ ] API endpoints are documented
-- [ ] Database migrations are provided (if needed)
+- [ ] API endpoints follow camelCase JSON convention
+- [ ] TypeScript types are properly defined
+- [ ] Zustand stores are tested
+- [ ] Gin middleware is properly configured
 
 ## 📝 License
 
@@ -673,10 +700,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - Clean Architecture principles by Robert C. Martin
-- Go community for excellent libraries and tools
+- Go community for excellent libraries and tools  
 - Next.js team for the fantastic React framework
+- Gin framework for excellent Go HTTP middleware support
+- Zustand community for simple and effective state management
 - All contributors who help improve this project
 
 ---
 
-**Built with ❤️ for the auto repair industry**
+**Built with ❤️ for the auto repair industry using Go + Gin + Next.js + TypeScript + Zustand**

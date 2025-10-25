@@ -1,15 +1,13 @@
-# GonsGarage Development Agent
+# GonsGarage Development Guide
 
-This agent file defines the coding standards, conventions, and guidelines for the GonsGarage project. All contributors and AI assistants must follow these rules when generating, refactoring, or testing code.
+## 🎯 Project Overview
 
-## 🧩 Project Overview
+**GonsGarage** is a comprehensive auto repair shop management system built with Clean Architecture principles.
 
-**GonsGarage** is a comprehensive auto repair shop management system built with modern technologies and clean architecture principles.
-
-### Tech Stack
-- **Backend**: Go (Golang) with Clean Architecture
-- **Frontend**: Next.js 15 (React + TypeScript)
-- **Database**: PostgreSQL (primary), Redis (caching/sessions)
+### Technology Stack
+- **Backend**: Go 1.21+ with Gin framework and middleware
+- **Frontend**: Next.js 15 (TypeScript) with Zustand for state management
+- **Database**: PostgreSQL 15+ with Redis caching
 - **Development**: Docker-based local environment
 - **Testing**: Test-Driven Development (TDD)
 
@@ -19,195 +17,168 @@ This agent file defines the coding standards, conventions, and guidelines for th
 
 ### Naming Conventions
 ```go
-// Go - Correct
-type UserService struct {}        // PascalCase for structs
+// Go - Correct (Backend Services - Exported Structs)
+type UserService struct {}        // PascalCase for exported structs
+type carService struct {}         // camelCase for unexported implementations
 func (s *UserService) CreateUser() // PascalCase for exported methods
 var userName string               // camelCase for variables
 const maxRetries = 3             // camelCase for constants
 
 // Go - Incorrect
-type userService struct {}        // ❌ should be PascalCase
+type userService struct {}        // ❌ exported should be PascalCase
 func (s *UserService) create_user() // ❌ should be camelCase
 var UserName string               // ❌ unexported should be camelCase
 ```
 
 ```typescript
-// TypeScript - Correct
+// TypeScript - Correct (Frontend with Zustand)
 interface UserProps {             // PascalCase for interfaces
   firstName: string;              // camelCase for properties
 }
 
-function UserComponent({ firstName }: UserProps) { // PascalCase for components
-  const [isLoading, setIsLoading] = useState(false); // camelCase for variables
-  
-  const handleSubmit = () => {};  // camelCase for functions
+// Zustand Store
+interface UserStore {
+  users: User[];
+  createUser: (user: User) => void;
+  fetchUsers: () => Promise<void>;
 }
 
-// TypeScript - Incorrect
-interface userProps {             // ❌ should be PascalCase
-  first_name: string;             // ❌ should be camelCase
-}
+const useUserStore = create<UserStore>((set, get) => ({
+  users: [],
+  createUser: (user) => set(state => ({ users: [...state.users, user] })),
+  fetchUsers: async () => { /* implementation */ }
+}));
 ```
 
-### Code Quality Rules
-- ✅ Keep functions small (max 20-30 lines)
-- ✅ Single responsibility principle
-- ✅ Explicit return types
-- ✅ No magic numbers/strings - use constants
-- ✅ Consistent error handling
-- ✅ Meaningful variable names
-
+### JSON API Conventions
 ```go
-// Good
-const (
-    defaultTimeout = 30 * time.Second
-    maxRetryAttempts = 3
-)
-
-func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (*User, error) {
-    if err := req.Validate(); err != nil {
-        return nil, fmt.Errorf("invalid request: %w", err)
-    }
-    // implementation
+// Go Structs - camelCase JSON tags
+type CreateUserRequest struct {
+    FirstName string `json:"firstName"`  // ✅ camelCase
+    LastName  string `json:"lastName"`   // ✅ camelCase
+    Email     string `json:"email"`
 }
 
-// Bad
-func CreateUser(req interface{}) interface{} { // ❌ no types, magic interface{}
-    time.Sleep(30000000000) // ❌ magic number
-    // implementation
+// ❌ Incorrect - snake_case
+type CreateUserRequest struct {
+    FirstName string `json:"first_name"` // ❌ should be camelCase
+    LastName  string `json:"last_name"`  // ❌ should be camelCase
 }
 ```
 
 ---
 
-## 2️⃣ Testing and TDD Rules
+## 2️⃣ Architecture Patterns
 
-### Testing Frameworks
-- **Go**: `testing` + `testify/assert` + `testify/mock`
-- **Next.js**: `Jest` + `React Testing Library`
-
-### TDD Workflow
-1. **Red**: Write a failing test
-2. **Green**: Write minimal code to pass
-3. **Refactor**: Improve code while keeping tests green
-
-### Test Structure (AAA Pattern)
-```go
-func TestUserService_CreateUser(t *testing.T) {
-    // Arrange
-    mockRepo := &MockUserRepository{}
-    service := NewUserService(mockRepo)
-    req := CreateUserRequest{
-        Email: "test@example.com",
-        FirstName: "John",
-        LastName: "Doe",
-    }
-    
-    // Act
-    user, err := service.CreateUser(context.Background(), req)
-    
-    // Assert
-    assert.NoError(t, err)
-    assert.Equal(t, req.Email, user.Email)
-    mockRepo.AssertExpectations(t)
-}
-```
-
-```typescript
-describe('UserComponent', () => {
-  it('should display user name when provided', () => {
-    // Arrange
-    const props: UserProps = {
-      firstName: 'John',
-      lastName: 'Doe'
-    };
-    
-    // Act
-    render(<UserComponent {...props} />);
-    
-    // Assert
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
-  });
-});
-```
-
-### Test File Naming
-- Go: `filename_test.go`
-- TypeScript: `filename.test.tsx` or `filename.test.ts`
-
----
-
-## 3️⃣ Backend Conventions (Go)
-
-### Project Structure
+### Backend Structure (Clean Architecture)
 ```
 backend/
 ├── cmd/
-│   └── server/
-│       └── main.go
+│   └── server/main.go              # Application entry point
 ├── internal/
 │   ├── core/
-│   │   ├── domain/           # Entities, value objects
-│   │   ├── ports/            # Interfaces/contracts
-│   │   └── services/         # Business logic
-│   ├── adapters/
-│   │   ├── http/            # HTTP handlers
-│   │   ├── repository/      # Database implementations
-│   │   └── thirdparty/      # External service clients
-│   └── pkg/                 # Shared utilities
-├── migrations/              # Database migrations
-├── docker/
-└── .env.example
+│   │   ├── domain/                 # Business entities (unified)
+│   │   │   ├── user.go            # Single User entity with roles
+│   │   │   ├── employee.go        # Employee profile (extends User)
+│   │   │   ├── car.go
+│   │   │   ├── repair.go
+│   │   │   └── appointment.go
+│   │   ├── ports/                 # Interfaces/Contracts
+│   │   │   ├── repositories.go    # Data layer interfaces
+│   │   │   └── services.go        # Business layer interfaces
+│   │   └── services/              # ✅ Business Logic (renamed from usecases)
+│   │       ├── auth/auth_service.go
+│   │       ├── user/user_service.go    # ✅ Unified user management
+│   │       ├── car/car_service.go
+│   │       └── employee/employee_service.go
+│   └── adapters/
+│       ├── http/
+│       │   ├── handlers/          # HTTP Controllers (Gin)
+│       │   └── middleware/        # Gin Middleware (Auth, CORS, etc.)
+│       └── repository/
+│           └── postgres/          # Data persistence
+├── pkg/                           # Shared utilities
+└── tests/                         # Integration tests
 ```
 
-### Clean Architecture Layers
+### Frontend Structure (Next.js + TypeScript + Zustand)
+```
+frontend/
+├── src/
+│   ├── app/                       # Next.js App Router (TypeScript)
+│   ├── components/                # Reusable UI components
+│   ├── stores/                    # ✅ Zustand state management
+│   │   ├── auth.store.ts         # Authentication state
+│   │   ├── user.store.ts         # User management state  
+│   │   ├── car.store.ts          # Car management state
+│   │   └── index.ts              # Store exports
+│   ├── lib/
+│   │   └── api/                  # API clients (TypeScript)
+│   ├── types/                    # TypeScript type definitions
+│   └── hooks/                    # Custom React hooks
+├── __tests__/                    # Jest + React Testing Library
+└── package.json
+```
 
-#### Domain Layer
+---
+
+## 3️⃣ Unified Domain Model
+
+### ✅ User Entity (Single Source of Truth)
 ```go
-// internal/core/domain/user.go
+// domain/user.go - Unified user entity
 type User struct {
-    ID        string    `json:"id"`
-    Email     string    `json:"email"`
-    FirstName string    `json:"first_name"`
-    LastName  string    `json:"last_name"`
-    Role      string    `json:"role"`
-    CreatedAt time.Time `json:"created_at"`
-    UpdatedAt time.Time `json:"updated_at"`
+    ID        uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+    Email     string     `json:"email" gorm:"uniqueIndex;not null"`
+    Password  string     `json:"-" gorm:"not null"`
+    FirstName string     `json:"firstName" gorm:"not null"`
+    LastName  string     `json:"lastName" gorm:"not null"`
+    Role      UserRole   `json:"role" gorm:"not null;default:'client'"`
+    CreatedAt time.Time  `json:"createdAt"`
+    UpdatedAt time.Time  `json:"updatedAt"`
+    DeletedAt *time.Time `json:"-" gorm:"index"`
 }
 
-func (u *User) Validate() error {
-    if u.Email == "" {
-        return errors.New("email is required")
-    }
-    return nil
+type UserRole string
+const (
+    RoleClient      UserRole = "client"
+    RoleEmployee    UserRole = "employee"
+    RoleAdmin       UserRole = "admin"
+)
+
+// Helper methods for role checking
+func (u *User) IsClient() bool { return u.Role == RoleClient }
+func (u *User) IsEmployee() bool { return u.Role == RoleEmployee }
+func (u *User) IsAdmin() bool { return u.Role == RoleAdmin }
+func (u *User) CanManageUsers() bool { return u.Role == RoleAdmin }
+```
+
+### ✅ Employee Profile (Extension, not separate entity)
+```go
+// domain/employee.go - Profile for employee users only
+type Employee struct {
+    ID         uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+    UserID     uuid.UUID `json:"userId" gorm:"type:uuid;not null"`
+    User       User      `json:"user" gorm:"foreignKey:UserID"`
+    Position   string    `json:"position" gorm:"not null"`
+    HourlyRate *float64  `json:"hourlyRate"`
+    HireDate   time.Time `json:"hireDate" gorm:"not null"`
+    CreatedAt  time.Time `json:"createdAt"`
+    UpdatedAt  time.Time `json:"updatedAt"`
+    DeletedAt  *time.Time `json:"-" gorm:"index"`
 }
 ```
 
-#### Ports Layer
-```go
-// internal/core/ports/repositories.go
-type UserRepository interface {
-    Create(ctx context.Context, user *domain.User) error
-    GetByID(ctx context.Context, id string) (*domain.User, error)
-    GetByEmail(ctx context.Context, email string) (*domain.User, error)
-    Update(ctx context.Context, user *domain.User) error
-    Delete(ctx context.Context, id string) error
-}
+---
 
-// internal/core/ports/services.go
-type UserService interface {
-    CreateUser(ctx context.Context, req CreateUserRequest) (*domain.User, error)
-    GetUser(ctx context.Context, id string) (*domain.User, error)
-    AuthenticateUser(ctx context.Context, email, password string) (*domain.User, error)
-}
-```
+## 4️⃣ Service Layer Patterns
 
-#### Services Layer
+### ✅ Service Implementation (Gin-ready)
 ```go
-// internal/core/services/user_service.go
-type userService struct {
-    userRepo ports.UserRepository
-    logger   *slog.Logger
+// services/user/user_service.go
+type userService struct {  // ✅ unexported implementation
+    userRepo  ports.UserRepository
+    logger    *slog.Logger
 }
 
 func NewUserService(userRepo ports.UserRepository, logger *slog.Logger) ports.UserService {
@@ -217,447 +188,319 @@ func NewUserService(userRepo ports.UserRepository, logger *slog.Logger) ports.Us
     }
 }
 
-func (s *userService) CreateUser(ctx context.Context, req CreateUserRequest) (*domain.User, error) {
-    if err := req.Validate(); err != nil {
-        return nil, fmt.Errorf("invalid request: %w", err)
+func (s *userService) CreateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
+    s.logger.Info("creating user", "email", user.Email, "role", user.Role)
+    
+    // Business logic here
+    if err := user.Validate(); err != nil {
+        return nil, fmt.Errorf("invalid user data: %w", err)
     }
     
-    user := &domain.User{
-        ID:        generateID(),
-        Email:     req.Email,
-        FirstName: req.FirstName,
-        LastName:  req.LastName,
-        Role:      req.Role,
-        CreatedAt: time.Now(),
-        UpdatedAt: time.Now(),
-    }
-    
-    if err := s.userRepo.Create(ctx, user); err != nil {
-        s.logger.Error("failed to create user", "error", err, "email", req.Email)
-        return nil, fmt.Errorf("failed to create user: %w", err)
-    }
-    
-    return user, nil
+    return s.userRepo.CreateUser(ctx, user)
 }
 ```
 
-### Go Best Practices
-- ✅ Always pass `context.Context` for I/O operations
-- ✅ Use dependency injection
-- ✅ Structured logging (slog)
-- ✅ Explicit error wrapping
-- ✅ Interface segregation
-
+### ✅ Interface Definitions
 ```go
-// Good
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-    ctx := r.Context()
-    
-    var req CreateUserRequest
-    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-        h.respondError(w, http.StatusBadRequest, "invalid JSON")
-        return
-    }
-    
-    user, err := h.userService.CreateUser(ctx, req)
-    if err != nil {
-        h.logger.Error("failed to create user", "error", err)
-        h.respondError(w, http.StatusInternalServerError, "failed to create user")
-        return
-    }
-    
-    h.respondJSON(w, http.StatusCreated, user)
+// ports/services.go
+type UserService interface {
+    CreateUser(ctx context.Context, user *domain.User) (*domain.User, error)
+    GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
+    UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error)
+    DeleteUser(ctx context.Context, id uuid.UUID) error
+    ListUsersByRole(ctx context.Context, role string) ([]*domain.User, error)
+}
+
+type AuthService interface {
+    Login(ctx context.Context, email, password string) (*domain.User, string, error)
+    Register(ctx context.Context, user *domain.User) (*domain.User, error)
+    ValidateToken(ctx context.Context, token string) (*domain.User, error)
 }
 ```
 
 ---
 
-## 4️⃣ Frontend Conventions (Next.js 15)
+## 5️⃣ Gin Framework Patterns
 
-### Project Structure
-```
-frontend/
-├── src/
-│   ├── app/                 # App Router pages
-│   │   ├── (auth)/
-│   │   ├── dashboard/
-│   │   └── layout.tsx
-│   ├── components/          # Reusable components
-│   │   ├── ui/             # Basic UI components
-│   │   └── features/       # Feature-specific components
-│   ├── contexts/           # React contexts
-│   ├── hooks/              # Custom hooks
-│   ├── lib/                # Utilities and API clients
-│   ├── types/              # TypeScript type definitions
-│   └── styles/             # Global styles
-├── public/
-└── __tests__/              # Test setup files
-```
-
-### Component Conventions
-```typescript
-// components/ui/Button/Button.tsx
-interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  disabled?: boolean;
-  children: React.ReactNode;
-  onClick?: () => void;
+### ✅ Middleware Implementation
+```go
+// middleware/auth_middleware.go
+type AuthMiddleware struct {
+    jwtSecret string
 }
 
-export default function Button({
-  variant = 'primary',
-  size = 'md',
-  disabled = false,
-  children,
-  onClick
-}: ButtonProps) {
-  const className = `btn btn--${variant} btn--${size}`;
-  
+func NewAuthMiddleware(jwtSecret string) *AuthMiddleware {
+    return &AuthMiddleware{jwtSecret: jwtSecret}
+}
+
+// Gin-native middleware
+func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        token := c.GetHeader("Authorization")
+        if token == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
+            c.Abort()
+            return
+        }
+        
+        // JWT validation logic...
+        c.Set("userID", userID)  // ✅ Standard context key
+        c.Next()
+    }
+}
+```
+
+### ✅ Handler Implementation
+```go
+// handlers/user_handler.go
+type UserHandler struct {
+    userService ports.UserService
+}
+
+func NewUserHandler(userService ports.UserService) *UserHandler {
+    return &UserHandler{userService: userService}
+}
+
+func (h *UserHandler) CreateUser(c *gin.Context) {
+    var req CreateUserRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+        return
+    }
+    
+    userID := c.GetString("userID")  // ✅ Get from Gin context
+    
+    user, err := h.userService.CreateUser(c.Request.Context(), &domain.User{
+        FirstName: req.FirstName,
+        LastName:  req.LastName,
+        Email:     req.Email,
+        Role:      domain.UserRole(req.Role),
+    })
+    
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+    
+    c.JSON(http.StatusCreated, user)
+}
+```
+
+---
+
+## 6️⃣ Frontend Patterns (Next.js + Zustand)
+
+### ✅ Zustand Store Definition
+```typescript
+// stores/user.store.ts
+interface UserState {
+  users: User[];
+  currentUser: User | null;
+  loading: boolean;
+  error: string | null;
+}
+
+interface UserActions {
+  fetchUsers: () => Promise<void>;
+  createUser: (userData: CreateUserRequest) => Promise<void>;
+  updateUser: (id: string, userData: UpdateUserRequest) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
+  setCurrentUser: (user: User | null) => void;
+  clearError: () => void;
+}
+
+type UserStore = UserState & UserActions;
+
+export const useUserStore = create<UserStore>((set, get) => ({
+  // State
+  users: [],
+  currentUser: null,
+  loading: false,
+  error: null,
+
+  // Actions
+  fetchUsers: async () => {
+    set({ loading: true, error: null });
+    try {
+      const users = await userApi.getUsers();
+      set({ users, loading: false });
+    } catch (error) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  createUser: async (userData) => {
+    set({ loading: true, error: null });
+    try {
+      const newUser = await userApi.createUser(userData);
+      set(state => ({ 
+        users: [...state.users, newUser], 
+        loading: false 
+      }));
+    } catch (error) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  // ... other actions
+}));
+```
+
+### ✅ Component Integration
+```typescript
+// components/UserList.tsx
+import { useUserStore } from '@/stores/user.store';
+
+export default function UserList() {
+  const { 
+    users, 
+    loading, 
+    error, 
+    fetchUsers, 
+    createUser,
+    clearError 
+  } = useUserStore();
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorAlert message={error} onClose={clearError} />;
+
   return (
-    <button
-      className={className}
-      disabled={disabled}
-      onClick={onClick}
-      type="button"
-    >
-      {children}
-    </button>
+    <div>
+      {users.map(user => (
+        <UserCard key={user.id} user={user} />
+      ))}
+    </div>
   );
 }
 ```
 
-### API Client Pattern
-```typescript
-// lib/api/client.ts
-class ApiClient {
-  private baseURL: string;
-  private token: string | null = null;
-
-  constructor(baseURL: string) {
-    this.baseURL = baseURL;
-  }
-
-  setToken(token: string) {
-    this.token = token;
-  }
-
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<{ data: T | null; error: string | null }> {
-    try {
-      const url = `${this.baseURL}${endpoint}`;
-      const headers = {
-        'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-        ...options.headers,
-      };
-
-      const response = await fetch(url, { ...options, headers });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        return { data: null, error: errorText };
-      }
-
-      const data = await response.json();
-      return { data, error: null };
-    } catch (error) {
-      return { 
-        data: null, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      };
-    }
-  }
-
-  async getUsers(): Promise<{ data: User[] | null; error: string | null }> {
-    return this.request<User[]>('/api/v1/users');
-  }
-
-  async createUser(user: CreateUserRequest): Promise<{ data: User | null; error: string | null }> {
-    return this.request<User>('/api/v1/users', {
-      method: 'POST',
-      body: JSON.stringify(user),
-    });
-  }
-}
-
-export const apiClient = new ApiClient(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
-```
-
-### State Management
-```typescript
-// contexts/AuthContext.tsx
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
-}
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Implementation...
-
-  const value = {
-    user,
-    isAuthenticated,
-    isLoading,
-    login,
-    logout,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-```
-
 ---
 
-## 5️⃣ Database Layer
+## 7️⃣ Testing Patterns
 
-### Environment Variables
-```bash
-# .env.local (frontend)
-NEXT_PUBLIC_API_URL=http://localhost:8080
-
-# .env (backend)
-DATABASE_URL=postgres://admindb:password@localhost:5432/gonsgarage?sslmode=disable
-REDIS_URL=redis://localhost:6379
-JWT_SECRET=your-secret-key
-PORT=8080
-```
-
-### Migration Files
-```sql
--- migrations/001_create_users_table.up.sql
-CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    role VARCHAR(50) NOT NULL DEFAULT 'client',
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role ON users(role);
-```
-
-### Repository Implementation
+### ✅ Backend Testing (TDD)
 ```go
-// internal/adapters/repository/user_repository.go
-type userRepository struct {
-    db *sql.DB
-}
-
-func NewUserRepository(db *sql.DB) ports.UserRepository {
-    return &userRepository{db: db}
-}
-
-func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
-    query := `
-        INSERT INTO users (id, email, password_hash, first_name, last_name, role, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+// services/user/user_service_test.go
+func TestUserService_CreateUser(t *testing.T) {
+    // Arrange
+    mockRepo := mocks.NewMockUserRepository(t)
+    logger := slog.Default()
+    service := NewUserService(mockRepo, logger)
     
-    _, err := r.db.ExecContext(ctx, query,
-        user.ID, user.Email, user.PasswordHash, user.FirstName, 
-        user.LastName, user.Role, user.CreatedAt, user.UpdatedAt)
-    
-    if err != nil {
-        return fmt.Errorf("failed to create user: %w", err)
-    }
-    
-    return nil
-}
-```
-
----
-
-## 6️⃣ Error Handling and Logging
-
-### Go Error Handling
-```go
-// Good - Wrapped errors with context
-func (s *userService) GetUser(ctx context.Context, id string) (*domain.User, error) {
-    user, err := s.userRepo.GetByID(ctx, id)
-    if err != nil {
-        if errors.Is(err, sql.ErrNoRows) {
-            return nil, fmt.Errorf("user not found: %w", err)
-        }
-        return nil, fmt.Errorf("failed to get user %s: %w", id, err)
-    }
-    return user, nil
-}
-
-// Structured logging
-s.logger.Error("database operation failed",
-    "operation", "GetUser",
-    "user_id", id,
-    "error", err)
-```
-
-### TypeScript Error Handling
-```typescript
-// Error boundary component
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(_: Error) {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error boundary caught an error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <div>Something went wrong. Please refresh the page.</div>;
-    }
-
-    return this.props.children;
-  }
-}
-
-// API error handling
-async function handleApiCall<T>(apiCall: () => Promise<{ data: T | null; error: string | null }>) {
-  try {
-    const result = await apiCall();
-    if (result.error) {
-      throw new Error(result.error);
-    }
-    return result.data;
-  } catch (error) {
-    console.error('API call failed:', error);
-    throw new Error('Operation failed. Please try again.');
-  }
-}
-```
-
----
-
-## 7️⃣ Commit and Workflow Rules
-
-### Conventional Commits
-```bash
-# Format: <type>(<scope>): <description>
-
-# Examples:
-feat(auth): add user registration endpoint
-fix(ui): resolve button styling issue
-refactor(database): optimize user queries
-test(services): add user service unit tests
-docs(api): update authentication documentation
-```
-
-### Git Workflow
-1. Create feature branch: `git checkout -b feat/user-authentication`
-2. Write tests first (TDD)
-3. Implement feature
-4. Run tests: `go test ./...` and `npm test`
-5. Lint code: `golangci-lint run` and `npm run lint`
-6. Create PR with:
-   - Clear description
-   - Test results
-   - Screenshots (if UI changes)
-
----
-
-## 8️⃣ Agent Behaviors
-
-### Code Generation Rules
-When generating code, AI assistants must:
-
-1. **Follow TDD**: Always write tests before implementation
-2. **Respect architecture**: No business logic in adapters layer
-3. **Use proper naming**: camelCase/PascalCase as specified
-4. **Add documentation**: All exported functions need comments
-5. **Handle errors**: Proper error wrapping and user-friendly messages
-6. **Validate inputs**: Check data at API boundaries
-
-### Example Generated Code
-```go
-// CreateUser creates a new user in the system
-// It validates the input, checks for duplicates, and stores the user
-func (s *userService) CreateUser(ctx context.Context, req CreateUserRequest) (*domain.User, error) {
-    // Validate input
-    if err := req.Validate(); err != nil {
-        return nil, fmt.Errorf("invalid user data: %w", err)
-    }
-    
-    // Check for existing user
-    existing, err := s.userRepo.GetByEmail(ctx, req.Email)
-    if err != nil && !errors.Is(err, sql.ErrNoRows) {
-        return nil, fmt.Errorf("failed to check existing user: %w", err)
-    }
-    if existing != nil {
-        return nil, fmt.Errorf("user with email %s already exists", req.Email)
-    }
-    
-    // Create user domain object
     user := &domain.User{
-        ID:        generateID(),
-        Email:     req.Email,
-        FirstName: req.FirstName,
-        LastName:  req.LastName,
-        Role:      req.Role,
-        CreatedAt: time.Now(),
-        UpdatedAt: time.Now(),
+        FirstName: "John",
+        LastName:  "Doe", 
+        Email:     "john@example.com",
+        Role:      domain.RoleClient,
     }
     
-    // Store in database
-    if err := s.userRepo.Create(ctx, user); err != nil {
-        s.logger.Error("failed to create user", "email", req.Email, "error", err)
-        return nil, fmt.Errorf("failed to create user: %w", err)
-    }
+    mockRepo.EXPECT().CreateUser(mock.Anything, user).Return(user, nil)
     
-    s.logger.Info("user created successfully", "user_id", user.ID, "email", user.Email)
-    return user, nil
+    // Act
+    result, err := service.CreateUser(context.Background(), user)
+    
+    // Assert
+    assert.NoError(t, err)
+    assert.Equal(t, user.Email, result.Email)
+    mockRepo.AssertExpectations(t)
+}
+```
+
+### ✅ Frontend Testing (Jest + RTL)
+```typescript
+// __tests__/stores/user.store.test.ts
+describe('UserStore', () => {
+  beforeEach(() => {
+    useUserStore.getState().users = [];
+  });
+
+  it('should create user successfully', async () => {
+    // Arrange
+    const mockUser = { id: '1', firstName: 'John', lastName: 'Doe' };
+    jest.spyOn(userApi, 'createUser').mockResolvedValue(mockUser);
+    
+    // Act
+    await useUserStore.getState().createUser({
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com'
+    });
+    
+    // Assert
+    expect(useUserStore.getState().users).toContain(mockUser);
+    expect(useUserStore.getState().loading).toBe(false);
+  });
+});
+```
+
+---
+
+## 8️⃣ API Design Standards
+
+### ✅ RESTful Endpoints
+```
+POST   /api/v1/auth/login           # Authentication
+POST   /api/v1/auth/register        # User registration
+GET    /api/v1/users               # List users (admin only)
+POST   /api/v1/users               # Create user (admin only)
+GET    /api/v1/users/:id           # Get user details
+PUT    /api/v1/users/:id           # Update user
+DELETE /api/v1/users/:id           # Delete user
+GET    /api/v1/cars                # List user's cars
+POST   /api/v1/cars               # Create car
+GET    /api/v1/employees           # List employees
+POST   /api/v1/employees          # Create employee profile
+```
+
+### ✅ Standard Error Responses
+```json
+{
+  "error": "validation_failed",
+  "message": "Invalid input data",
+  "details": {
+    "firstName": "required field",
+    "email": "invalid format"
+  }
 }
 ```
 
 ---
 
-## 🧠 Additional Guidelines
+## 9️⃣ Development Guidelines
 
-### Configuration Management
-- Use environment variables for all configuration
-- Provide `.env.example` files
-- Never commit secrets or credentials
-- Use different configs for different environments
+### Context Management
+- **Backend**: Use `"userID"` as standard context key (camelCase)
+- **Frontend**: Use Zustand for global state, React Context for component-scoped state
 
-### Performance Considerations
-- Use database indexes appropriately
-- Implement caching with Redis for expensive operations
-- Use React.memo for expensive components
-- Implement pagination for large data sets
+### Database Patterns
+- **Entities**: Unified User entity with roles, avoid redundant entities
+- **Migrations**: Use descriptive names, always include rollback
+- **Indexing**: Index all foreign keys and frequently queried columns
 
-### Security Best Practices
-- Validate all inputs
-- Use prepared statements for SQL queries
-- Implement proper authentication and authorization
-- Use HTTPS in production
-- Sanitize user inputs to prevent XSS
+### Error Handling
+- **Backend**: Use structured logging with slog
+- **Frontend**: Centralized error handling in Zustand stores
+- **API**: Consistent error response format
 
-### Documentation Requirements
-- All public APIs must have OpenAPI/Swagger documentation
-- Complex business logic needs inline comments
-- README files for each major component
-- Architecture decision records (ADRs) for significant changes
+### Security
+- **JWT**: Use secure secrets, implement token refresh
+- **Validation**: Validate all inputs at multiple layers
+- **Authorization**: Role-based access control with middleware
 
 ---
 
-This agent file serves as the single source of truth for all development practices in the GonsGarage project. All contributors and AI assistants must adhere to these guidelines to ensure code quality, maintainability, and consistency across the entire codebase.
+## 🔟 Key Architectural Decisions
+
+1. **✅ Unified User Entity**: Single User table with roles instead of separate Client entity
+2. **✅ Services over UseCases**: Renamed usecases to services for clarity
+3. **✅ Gin Middleware**: Native Gin middleware for authentication and CORS
+4. **✅ Zustand over Context**: Zustand for complex state, React Context for simple cases
+5. **✅ TypeScript First**: Full TypeScript adoption in frontend
+6. **✅ camelCase JSON**: Consistent camelCase for all API JSON fields
+7. **✅ Structured Logging**: slog for backend, console.error for frontend development
+
+This guide ensures consistency, maintainability, and scalability across the entire GonsGarage project.
