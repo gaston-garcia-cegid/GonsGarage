@@ -2,7 +2,6 @@ package ports
 
 import (
 	"context"
-	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/google/uuid"
@@ -118,34 +117,4 @@ type RepairRepository interface {
 type Logger interface {
 	Info(msg string, keysAndValues ...interface{})
 	Error(msg string, keysAndValues ...interface{})
-}
-
-type ClientRepository interface {
-	Create(ctx context.Context, client *domain.Client) error
-	GetByEmail(ctx context.Context, email string) (*domain.Client, error)
-	GetByID(ctx context.Context, id uuid.UUID) (*domain.Client, error)
-	GetWithCars(ctx context.Context, id uuid.UUID) (*domain.Client, error)
-	List(ctx context.Context) ([]*domain.Client, error)
-	Search(ctx context.Context, name string, limit int) ([]*domain.Client, error)
-	Update(ctx context.Context, client *domain.Client) (*domain.Client, error)
-	Delete(ctx context.Context, id uuid.UUID) error
-	Count(ctx context.Context) (int64, error)
-	GetActiveClients(ctx context.Context) ([]*domain.Client, error)
-	DeactivateClient(ctx context.Context, id uuid.UUID) error
-	ActivateClient(ctx context.Context, id uuid.UUID) error
-	ExistsByEmail(ctx context.Context, email string) (bool, error)
-	GetClientsByDateRange(ctx context.Context, startDate, endDate time.Time) ([]*domain.Client, error)
-}
-
-// ClientUseCase defines the business logic interface for clients
-type ClientUseCase interface {
-	CreateClient(ctx context.Context, client *domain.Client) (*domain.Client, error)
-	GetClient(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) (*domain.Client, error)
-	GetClientProfile(ctx context.Context, clientID uuid.UUID) (*domain.Client, error)
-	UpdateClient(ctx context.Context, client *domain.Client, requestingUserID uuid.UUID) (*domain.Client, error)
-	UpdateClientProfile(ctx context.Context, clientID uuid.UUID, client *domain.Client) (*domain.Client, error)
-	DeleteClient(ctx context.Context, clientID uuid.UUID) error
-	ListClients(ctx context.Context) ([]*domain.Client, error)
-	GetClientCars(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Car, error)
-	GetClientRepairs(ctx context.Context, clientID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Repair, error)
 }

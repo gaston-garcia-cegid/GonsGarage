@@ -10,21 +10,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type RepairUseCase struct {
+type RepairService struct {
 	repairRepo ports.RepairRepository
 	carRepo    ports.CarRepository
 	userRepo   ports.UserRepository
 }
 
-func NewRepairUseCase(repairRepo ports.RepairRepository, carRepo ports.CarRepository, userRepo ports.UserRepository) *RepairUseCase {
-	return &RepairUseCase{
+func NewRepairService(repairRepo ports.RepairRepository, carRepo ports.CarRepository, userRepo ports.UserRepository) *RepairService {
+	return &RepairService{
 		repairRepo: repairRepo,
 		carRepo:    carRepo,
 		userRepo:   userRepo,
 	}
 }
 
-func (uc *RepairUseCase) CreateRepair(ctx context.Context, repair *domain.Repair, userID uuid.UUID) (*domain.Repair, error) {
+func (uc *RepairService) CreateRepair(ctx context.Context, repair *domain.Repair, userID uuid.UUID) (*domain.Repair, error) {
 	// Get user to check permissions
 	user, err := uc.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -80,7 +80,7 @@ func (uc *RepairUseCase) CreateRepair(ctx context.Context, repair *domain.Repair
 	return repair, nil
 }
 
-func (uc *RepairUseCase) GetRepair(ctx context.Context, repairID uuid.UUID, userID uuid.UUID) (*domain.Repair, error) {
+func (uc *RepairService) GetRepair(ctx context.Context, repairID uuid.UUID, userID uuid.UUID) (*domain.Repair, error) {
 	// Get user to check permissions
 	user, err := uc.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -106,7 +106,7 @@ func (uc *RepairUseCase) GetRepair(ctx context.Context, repairID uuid.UUID, user
 	return repair, nil
 }
 
-func (uc *RepairUseCase) GetRepairsByCarID(ctx context.Context, carID uuid.UUID, userID uuid.UUID) ([]*domain.Repair, error) {
+func (uc *RepairService) GetRepairsByCarID(ctx context.Context, carID uuid.UUID, userID uuid.UUID) ([]*domain.Repair, error) {
 	// Get user to check permissions
 	user, err := uc.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -127,7 +127,7 @@ func (uc *RepairUseCase) GetRepairsByCarID(ctx context.Context, carID uuid.UUID,
 	return uc.repairRepo.GetByCarID(ctx, carID)
 }
 
-func (uc *RepairUseCase) UpdateRepair(ctx context.Context, repair *domain.Repair, userID uuid.UUID) (*domain.Repair, error) {
+func (uc *RepairService) UpdateRepair(ctx context.Context, repair *domain.Repair, userID uuid.UUID) (*domain.Repair, error) {
 	// Get user to check permissions
 	user, err := uc.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -168,7 +168,7 @@ func (uc *RepairUseCase) UpdateRepair(ctx context.Context, repair *domain.Repair
 	return repair, nil
 }
 
-func (uc *RepairUseCase) validateRepair(repair *domain.Repair) error {
+func (uc *RepairService) validateRepair(repair *domain.Repair) error {
 	if repair.Description == "" {
 		return fmt.Errorf("description is required")
 	}

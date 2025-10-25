@@ -10,18 +10,18 @@ import (
 	"github.com/google/uuid"
 )
 
-type CarUseCase struct {
+type CarService struct {
 	carRepo   ports.CarRepository
 	userRepo  ports.UserRepository
 	logger    ports.Logger
 	cacheRepo ports.CacheRepository
 }
 
-func NewCarUseCase(
+func NewCarService(
 	carRepo ports.CarRepository,
 	userRepo ports.UserRepository,
-	cacheRepo ports.CacheRepository) *CarUseCase {
-	return &CarUseCase{
+	cacheRepo ports.CacheRepository) *CarService {
+	return &CarService{
 		carRepo:   carRepo,
 		userRepo:  userRepo,
 		cacheRepo: cacheRepo,
@@ -29,11 +29,11 @@ func NewCarUseCase(
 }
 
 // CreateCar creates a new car for a client
-func (uc *CarUseCase) CreateCar(ctx context.Context, car *domain.Car, requestingUserID uuid.UUID) (*domain.Car, error) {
+func (uc *CarService) CreateCar(ctx context.Context, car *domain.Car, requestingUserID uuid.UUID) (*domain.Car, error) {
 	// Get the requesting user to check permissions
 	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
 	if err != nil {
-		uc.logger.Error("failed to get requesting user", "user_id", requestingUserID, "error", err)
+		uc.logger.Error("failed to get requesting user", "userID", requestingUserID, "error", err)
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
@@ -83,7 +83,7 @@ func (uc *CarUseCase) CreateCar(ctx context.Context, car *domain.Car, requesting
 }
 
 // GetCar retrieves a car by ID with permission checks
-func (uc *CarUseCase) GetCar(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) (*domain.Car, error) {
+func (uc *CarService) GetCar(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) (*domain.Car, error) {
 	// Get the requesting user
 	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
 	if err != nil {
@@ -109,7 +109,7 @@ func (uc *CarUseCase) GetCar(ctx context.Context, carID uuid.UUID, requestingUse
 }
 
 // GetCarsByOwner retrieves all cars owned by a specific user
-func (uc *CarUseCase) GetCarsByOwner(ctx context.Context, ownerID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Car, error) {
+func (uc *CarService) GetCarsByOwner(ctx context.Context, ownerID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Car, error) {
 	// Get the requesting user
 	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
 	if err != nil {
@@ -136,7 +136,7 @@ func (uc *CarUseCase) GetCarsByOwner(ctx context.Context, ownerID uuid.UUID, req
 }
 
 // UpdateCar updates an existing car
-func (uc *CarUseCase) UpdateCar(ctx context.Context, car *domain.Car, requestingUserID uuid.UUID) (*domain.Car, error) {
+func (uc *CarService) UpdateCar(ctx context.Context, car *domain.Car, requestingUserID uuid.UUID) (*domain.Car, error) {
 	// Get the requesting user
 	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
 	if err != nil {
@@ -181,7 +181,7 @@ func (uc *CarUseCase) UpdateCar(ctx context.Context, car *domain.Car, requesting
 }
 
 // DeleteCar deletes a car (soft delete)
-func (uc *CarUseCase) DeleteCar(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) error {
+func (uc *CarService) DeleteCar(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) error {
 	// Get the requesting user
 	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
 	if err != nil {
@@ -215,7 +215,7 @@ func (uc *CarUseCase) DeleteCar(ctx context.Context, carID uuid.UUID, requesting
 }
 
 // GetCarWithRepairs retrieves a car with its repair history
-func (uc *CarUseCase) GetCarWithRepairs(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) (*domain.Car, error) {
+func (uc *CarService) GetCarWithRepairs(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) (*domain.Car, error) {
 	// Get the requesting user
 	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
 	if err != nil {

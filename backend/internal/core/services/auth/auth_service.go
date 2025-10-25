@@ -12,21 +12,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type AuthUseCase struct {
+type AuthService struct {
 	userRepo   ports.UserRepository
 	jwtSecret  string
 	expireTime time.Duration
 }
 
-func NewAuthUseCase(userRepo ports.UserRepository, jwtSecret string, expireHours int) ports.AuthService {
-	return &AuthUseCase{
+func NewAuthService(userRepo ports.UserRepository, jwtSecret string, expireHours int) ports.AuthService {
+	return &AuthService{
 		userRepo:   userRepo,
 		jwtSecret:  jwtSecret,
 		expireTime: time.Duration(expireHours) * time.Hour,
 	}
 }
 
-func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (string, error) {
+func (uc *AuthService) Login(ctx context.Context, email, password string) (string, error) {
 	user, err := uc.userRepo.GetByEmail(ctx, email)
 	if err != nil || user == nil {
 		return "", errors.New("invalid credentials")
@@ -48,7 +48,7 @@ func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (strin
 	return token, nil
 }
 
-func (uc *AuthUseCase) Register(ctx context.Context, req ports.RegisterRequest) (*domain.User, error) {
+func (uc *AuthService) Register(ctx context.Context, req ports.RegisterRequest) (*domain.User, error) {
 	// Check if user already exists
 	existingUser, _ := uc.userRepo.GetByEmail(ctx, req.Email)
 	if existingUser != nil {
@@ -83,12 +83,12 @@ func (uc *AuthUseCase) Register(ctx context.Context, req ports.RegisterRequest) 
 	}
 
 	// Remove password from response
-	user.PasswordHash = ""
+	user.Password = ""
 
 	return user, nil
 }
 
-func (uc *AuthUseCase) GenerateToken(user *domain.User) (string, time.Time, error) {
+func (uc *AuthService) GenerateToken(user *domain.User) (string, time.Time, error) {
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
 		jwtSecret = "your-super-secret-jwt-key"
@@ -97,7 +97,7 @@ func (uc *AuthUseCase) GenerateToken(user *domain.User) (string, time.Time, erro
 	expiresAt := time.Now().Add(24 * time.Hour)
 
 	claims := jwt.MapClaims{
-		"user_id":    user.ID.String(),
+		"userID":     user.ID.String(),
 		"sub":        user.ID.String(),
 		"email":      user.Email,
 		"first_name": user.FirstName,
@@ -117,7 +117,7 @@ func (uc *AuthUseCase) GenerateToken(user *domain.User) (string, time.Time, erro
 	return tokenString, expiresAt, nil
 }
 
-func (uc *AuthUseCase) ValidateToken(tokenString string) (*domain.User, error) {
+func (uc *AuthService) ValidateToken(tokenString string) (*domain.User, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
@@ -130,7 +130,7 @@ func (uc *AuthUseCase) ValidateToken(tokenString string) (*domain.User, error) {
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		userIDStr, ok := claims["user_id"].(string)
+		userIDStr, ok := claims["userID"].(string)
 		if !ok {
 			return nil, errors.New("invalid token claims")
 		}
@@ -155,7 +155,7 @@ func (uc *AuthUseCase) ValidateToken(tokenString string) (*domain.User, error) {
 	return nil, errors.New("invalid token")
 }
 
-func (uc *AuthUseCase) RefreshToken(ctx context.Context, token string) (string, error) {
+func (uc *AuthService) RefreshToken(ctx context.Context, token string) (string, error) {
 	user, err := uc.ValidateToken(token)
 	if err != nil {
 		return "", err

@@ -16,18 +16,18 @@ var (
 )
 
 type User struct {
-	ID           uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	Email        string     `json:"email" gorm:"uniqueIndex;not null"`
-	PasswordHash string     `json:"-" gorm:"column:password_hash;not null"`
-	FirstName    string     `json:"first_name" gorm:"column:first_name;not null"`
-	LastName     string     `json:"last_name" gorm:"column:last_name;not null"`
-	Role         string     `json:"role" gorm:"not null;default:'employee'"`
-	IsActive     bool       `json:"is_active" gorm:"column:is_active;default:true"`
-	Phone        string     `json:"phone" gorm:"column:phone"`
-	Address      string     `json:"address" gorm:"column:address"`
-	CreatedAt    time.Time  `json:"created_at" gorm:"column:created_at;autoCreateTime"`
-	UpdatedAt    time.Time  `json:"updated_at" gorm:"column:updated_at;autoUpdateTime"`
-	DeletedAt    *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at;index"`
+	ID        uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	Email     string     `json:"email" gorm:"uniqueIndex;not null"`
+	Password  string     `json:"-" gorm:"not null"`
+	FirstName string     `json:"firstName" gorm:"not null"`             // ✅ camelCase JSON
+	LastName  string     `json:"lastName" gorm:"not null"`              // ✅ camelCase JSON
+	Role      string     `json:"role" gorm:"not null;default:'client'"` // client, employee, admin
+	IsActive  bool       `json:"isActive" gorm:"column:is_active;default:true"`
+	Phone     string     `json:"phone" gorm:"column:phone"`
+	Address   string     `json:"address" gorm:"column:address"`
+	CreatedAt time.Time  `json:"createdAt" gorm:"column:created_at;autoCreateTime"`
+	UpdatedAt time.Time  `json:"updatedAt" gorm:"column:updated_at;autoUpdateTime"`
+	DeletedAt *time.Time `json:"deletedAt,omitempty" gorm:"column:deleted_at;index"`
 
 	// Relationships - these will be ignored by GORM for auto-migration
 	Cars         []Car         `json:"cars,omitempty" gorm:"-"`
@@ -67,20 +67,20 @@ func NewUser(email, password, firstName, lastName, role string) (*User, error) {
 	}
 
 	return &User{
-		ID:           uuid.New(),
-		Email:        email,
-		PasswordHash: string(hashedPassword),
-		FirstName:    firstName,
-		LastName:     lastName,
-		Role:         role,
-		IsActive:     true,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+		ID:        uuid.New(),
+		Email:     email,
+		Password:  string(hashedPassword),
+		FirstName: firstName,
+		LastName:  lastName,
+		Role:      role,
+		IsActive:  true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}, nil
 }
 
 func (u *User) ValidatePassword(password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
+	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	return err == nil
 }
 

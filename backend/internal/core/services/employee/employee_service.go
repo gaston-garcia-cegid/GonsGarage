@@ -8,22 +8,22 @@ import (
 	"github.com/google/uuid"
 )
 
-type EmployeeUseCase struct {
+type EmployeeService struct {
 	employeeRepo ports.EmployeeRepository
 	cache        ports.CacheRepository
 }
 
-func NewEmployeeUseCase(
+func NewEmployeeService(
 	employeeRepo ports.EmployeeRepository,
 	cache ports.CacheRepository,
 ) ports.EmployeeService {
-	return &EmployeeUseCase{
+	return &EmployeeService{
 		employeeRepo: employeeRepo,
 		cache:        cache,
 	}
 }
 
-func (uc *EmployeeUseCase) CreateEmployee(ctx context.Context, req ports.CreateEmployeeRequest) (*domain.Employee, error) {
+func (uc *EmployeeService) CreateEmployee(ctx context.Context, req ports.CreateEmployeeRequest) (*domain.Employee, error) {
 	employee := domain.NewEmployee(
 		req.FirstName,
 		req.LastName,
@@ -48,11 +48,11 @@ func (uc *EmployeeUseCase) CreateEmployee(ctx context.Context, req ports.CreateE
 	return employee, nil
 }
 
-func (uc *EmployeeUseCase) GetEmployee(ctx context.Context, id uuid.UUID) (*domain.Employee, error) {
+func (uc *EmployeeService) GetEmployee(ctx context.Context, id uuid.UUID) (*domain.Employee, error) {
 	return uc.employeeRepo.FindByID(ctx, uint(id.ID()))
 }
 
-func (uc *EmployeeUseCase) ListEmployees(ctx context.Context, filters *ports.EmployeeFilters) ([]*domain.Employee, int64, error) {
+func (uc *EmployeeService) ListEmployees(ctx context.Context, filters *ports.EmployeeFilters) ([]*domain.Employee, int64, error) {
 	if filters == nil {
 		filters = &ports.EmployeeFilters{
 			Limit:     10,
@@ -78,7 +78,7 @@ func (uc *EmployeeUseCase) ListEmployees(ctx context.Context, filters *ports.Emp
 	return employees, total, err
 }
 
-func (uc *EmployeeUseCase) UpdateEmployee(ctx context.Context, id uuid.UUID, req ports.UpdateEmployeeRequest) (*domain.Employee, error) {
+func (uc *EmployeeService) UpdateEmployee(ctx context.Context, id uuid.UUID, req ports.UpdateEmployeeRequest) (*domain.Employee, error) {
 	employee, err := uc.employeeRepo.FindByID(ctx, uint(id.ID()))
 	if err != nil {
 		return nil, err
@@ -104,6 +104,6 @@ func (uc *EmployeeUseCase) UpdateEmployee(ctx context.Context, id uuid.UUID, req
 	return employee, nil
 }
 
-func (uc *EmployeeUseCase) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
+func (uc *EmployeeService) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
 	return uc.employeeRepo.Delete(ctx, uint(id.ID()))
 }

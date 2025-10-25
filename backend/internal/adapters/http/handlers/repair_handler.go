@@ -10,16 +10,16 @@ import (
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/middleware"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	repairUseCase "github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/repair"
+	repairService "github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/repair"
 )
 
 type RepairHandler struct {
-	repairUseCase *repairUseCase.RepairUseCase
+	repairService *repairService.RepairService
 }
 
-func NewRepairHandler(repairUseCase *repairUseCase.RepairUseCase) *RepairHandler {
+func NewRepairHandler(repairService *repairService.RepairService) *RepairHandler {
 	return &RepairHandler{
-		repairUseCase: repairUseCase,
+		repairService: repairService,
 	}
 }
 
@@ -106,7 +106,7 @@ func (h *RepairHandler) CreateRepair(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create repair using use case
-	createdRepair, err := h.repairUseCase.CreateRepair(r.Context(), repair, userID)
+	createdRepair, err := h.repairService.CreateRepair(r.Context(), repair, userID)
 	if err != nil {
 		if err == domain.ErrUnauthorizedAccess {
 			http.Error(w, "Unauthorized", http.StatusForbidden)
@@ -147,7 +147,7 @@ func (h *RepairHandler) GetRepair(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get repair using use case
-	repair, err := h.repairUseCase.GetRepair(r.Context(), repairID, userID)
+	repair, err := h.repairService.GetRepair(r.Context(), repairID, userID)
 	if err != nil {
 		if err == domain.ErrRepairNotFound {
 			http.Error(w, "Repair not found", http.StatusNotFound)
@@ -191,7 +191,7 @@ func (h *RepairHandler) GetRepairsByCarID(w http.ResponseWriter, r *http.Request
 	}
 
 	// Get repairs using use case
-	repairs, err := h.repairUseCase.GetRepairsByCarID(r.Context(), carID, userID)
+	repairs, err := h.repairService.GetRepairsByCarID(r.Context(), carID, userID)
 	if err != nil {
 		if err == domain.ErrUnauthorizedAccess {
 			http.Error(w, "Unauthorized", http.StatusForbidden)
@@ -243,7 +243,7 @@ func (h *RepairHandler) UpdateRepair(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get existing repair
-	existingRepair, err := h.repairUseCase.GetRepair(r.Context(), repairID, userID)
+	existingRepair, err := h.repairService.GetRepair(r.Context(), repairID, userID)
 	if err != nil {
 		if err == domain.ErrRepairNotFound {
 			http.Error(w, "Repair not found", http.StatusNotFound)
@@ -283,7 +283,7 @@ func (h *RepairHandler) UpdateRepair(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update repair using use case
-	updatedRepair, err := h.repairUseCase.UpdateRepair(r.Context(), repair, userID)
+	updatedRepair, err := h.repairService.UpdateRepair(r.Context(), repair, userID)
 	if err != nil {
 		if err == domain.ErrUnauthorizedAccess {
 			http.Error(w, "Unauthorized", http.StatusForbidden)

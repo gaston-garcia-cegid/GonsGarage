@@ -18,7 +18,7 @@ type carService struct {
 }
 
 // NewCarService creates a new car service instance
-func NewCarService(
+func NewCarServiceTest(
 	carRepo ports.CarRepository,
 	userRepo ports.UserRepository,
 ) ports.CarService {

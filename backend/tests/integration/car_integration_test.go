@@ -18,7 +18,7 @@ import (
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/handlers"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/postgres"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/car"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/car"
 )
 
 type CarIntegrationTestSuite struct {
@@ -44,7 +44,7 @@ func (suite *CarIntegrationTestSuite) SetupSuite() {
 	userRepo := postgres.NewPostgresUserRepository(db)
 
 	// ✅ Fixed: Create car service following Agent.md Clean Architecture
-	carService := car.NewCarUseCase(carRepo, userRepo, nil)
+	carService := car.NewCarService(carRepo, userRepo, nil)
 
 	// Setup handlers
 	carHandler := handlers.NewCarHandler(carService)
@@ -85,7 +85,7 @@ func (suite *CarIntegrationTestSuite) testAuthMiddleware() gin.HandlerFunc {
 		if userID != "" {
 			parsedID, err := uuid.Parse(userID)
 			if err == nil {
-				c.Set("user_id", parsedID)
+				c.Set("userID", parsedID)
 			}
 		}
 		c.Next()

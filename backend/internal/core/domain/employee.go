@@ -10,25 +10,25 @@ import (
 
 type Employee struct {
 	ID           uuid.UUID  `json:"id" gorm:"type:uuid;primary_key"`
-	UserID       uuid.UUID  `json:"user_id" gorm:"type:uuid;not null"`
-	FirstName    string     `json:"first_name" gorm:"not null"`
-	LastName     string     `json:"last_name" gorm:"not null"`
+	UserID       uuid.UUID  `json:"userID" gorm:"type:uuid;not null"`
+	FirstName    string     `json:"firstName" gorm:"not null"`
+	LastName     string     `json:"lastName" gorm:"not null"`
 	Email        string     `json:"email" gorm:"unique;not null"`
 	Phone        string     `json:"phone"`
 	Department   string     `json:"department" gorm:"not null"`
 	Position     string     `json:"position" gorm:"not null"`
-	HourlyRate   float64    `json:"hourly_rate" gorm:"not null"`
-	HoursWorked  float64    `json:"hours_worked" gorm:"default:0"`
-	IsActive     bool       `json:"is_active" gorm:"default:true"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
-	EmployeeCode string     `json:"employee_code"`
-	HireDate     time.Time  `json:"hire_date"`
+	HourlyRate   float64    `json:"hourlyRate" gorm:"not null"`
+	HoursWorked  float64    `json:"hoursWorked" gorm:"default:0"`
+	IsActive     bool       `json:"isActive" gorm:"default:true"`
+	CreatedAt    time.Time  `json:"createdAt"`
+	UpdatedAt    time.Time  `json:"updatedAt"`
+	EmployeeCode string     `json:"employeeCode" gorm:"uniqueIndex;not null"`
+	HireDate     time.Time  `json:"hireDate"`
 	Salary       float64    `json:"salary"`
-	HoursPerWeek int        `json:"hours_per_week"`
+	HoursPerWeek int        `json:"hoursPerWeek"`
 	Role         string     `json:"role"`
-	PhoneNumber  string     `json:"phone_number"`
-	DeletedAt    *time.Time `gorm:"index" json:"deleted_at,omitempty"`
+	PhoneNumber  string     `json:"phoneNumber"`
+	DeletedAt    *time.Time `gorm:"index" json:"deletedAt,omitempty"`
 
 	// Relationships
 	User *User `gorm:"foreignKey:UserID" json:"user,omitempty"`

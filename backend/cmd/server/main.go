@@ -24,10 +24,9 @@ import (
 	redisRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/redis"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/auth"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/car"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/client"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/usecases/employee"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/auth"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/car"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/employee"
 )
 
 func main() {
@@ -142,9 +141,7 @@ func main() {
 	// Initialize repositories
 	userRepo := postgresRepo.NewPostgresUserRepository(db)
 	employeeRepo := postgresRepo.NewPostgresEmployeeRepository(db)
-	clientRepo := postgresRepo.NewPostgresClientRepository(db)
 	carRepo := postgresRepo.NewPostgresCarRepository(db)
-	repairRepo := postgresRepo.NewPostgresRepairRepository(db)
 	log.Printf("Repositories initialized")
 
 	// Initialize use cases
@@ -154,10 +151,9 @@ func main() {
 		log.Printf("Warning: Using default JWT secret. Set JWT_SECRET environment variable in production.")
 	}
 
-	authUseCase := auth.NewAuthUseCase(userRepo, jwtSecret, 24)
-	employeeUseCase := employee.NewEmployeeUseCase(employeeRepo, cacheRepo)
-	clientUseCase := client.NewClientUseCase(clientRepo, userRepo, carRepo, repairRepo)
-	carUseCase := car.NewCarUseCase(carRepo, userRepo, cacheRepo)
+	authService := auth.NewAuthService(userRepo, jwtSecret, 24)
+	employeeService := employee.NewEmployeeService(employeeRepo, cacheRepo)
+	carService := car.NewCarService(carRepo, userRepo, cacheRepo)
 
 	log.Printf("Use cases initialized")
 
@@ -165,10 +161,9 @@ func main() {
 	authMiddleware := middleware.NewAuthMiddleware(jwtSecret)
 
 	// Initialize handlers
-	authHandler := handlers.NewAuthHandler(authUseCase)
-	employeeHandler := handlers.NewEmployeeHandler(employeeUseCase)
-	clientHandler := handlers.NewClientHandler(clientUseCase)
-	carHandler := handlers.NewCarHandler(carUseCase)
+	authHandler := handlers.NewAuthHandler(authService)
+	employeeHandler := handlers.NewEmployeeHandler(employeeService)
+	carHandler := handlers.NewCarHandler(carService)
 
 	log.Printf("Handlers initialized")
 
@@ -182,7 +177,7 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Setup routes
-	setupRoutes(router, authHandler, employeeHandler, clientHandler, carHandler, authMiddleware)
+	setupRoutes(router, authHandler, employeeHandler, carHandler, authMiddleware)
 
 	log.Printf("Routes set up")
 
@@ -271,7 +266,6 @@ func setupRoutes(
 	router *gin.Engine,
 	authHandler *handlers.AuthHandler,
 	employeeHandler *handlers.EmployeeHandler,
-	clientHandler *handlers.ClientHandler,
 	carHandler *handlers.CarHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) {
@@ -305,16 +299,6 @@ func setupRoutes(
 			employees.GET("/:id", employeeHandler.GetEmployee)
 			employees.PUT("/:id", employeeHandler.UpdateEmployee)
 			employees.DELETE("/:id", employeeHandler.DeleteEmployee)
-		}
-
-		// Client routes would go here
-		clients := protected.Group("/clients")
-		{
-			clients.POST("", gin.WrapF(clientHandler.CreateClient))
-			clients.GET("", gin.WrapF(clientHandler.ListClients))
-			clients.GET("/:id", gin.WrapF(clientHandler.GetClient))
-			clients.PUT("/:id", gin.WrapF(clientHandler.UpdateClient))
-			clients.DELETE("/:id", gin.WrapF(clientHandler.DeleteClient))
 		}
 
 		// Car routes would go here
@@ -386,11 +370,11 @@ func ginAuthMiddleware(authMiddleware *middleware.AuthMiddleware) gin.HandlerFun
 
 		// Extract user ID
 		var userIDStr string
-		if uid, exists := claims["user_id"]; exists {
+		if uid, exists := claims["userID"]; exists {
 			if uidStr, ok := uid.(string); ok {
 				userIDStr = uidStr
 			} else {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user_id in token"})
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid userID in token"})
 				c.Abort()
 				return
 			}
@@ -411,7 +395,7 @@ func ginAuthMiddleware(authMiddleware *middleware.AuthMiddleware) gin.HandlerFun
 		// Validate UUID format
 		userID, err := uuid.Parse(userIDStr)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user_id format"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid userID format"})
 			c.Abort()
 			return
 		}

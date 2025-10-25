@@ -28,7 +28,7 @@ func (suite *CarRepositoryTestSuite) SetupSuite() {
 	require.NoError(suite.T(), err)
 
 	// Auto-migrate tables
-	err = db.AutoMigrate(&CarModel{}, &ClientModel{})
+	err = db.AutoMigrate(&CarModel{}, &UserModel{})
 	require.NoError(suite.T(), err)
 
 	suite.db = db

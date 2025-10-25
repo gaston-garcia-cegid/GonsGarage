@@ -69,12 +69,12 @@ func (m *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 		}
 
 		var userIDStr string
-		if uid, exists := claims["user_id"]; exists {
+		if uid, exists := claims["userID"]; exists {
 			if uidStr, ok := uid.(string); ok {
 				userIDStr = uidStr
 			} else {
-				fmt.Printf("user_id claim is not a string: %T\n", uid)
-				http.Error(w, "Invalid user_id in token", http.StatusUnauthorized)
+				fmt.Printf("userID claim is not a string: %T\n", uid)
+				http.Error(w, "Invalid userID in token", http.StatusUnauthorized)
 				return
 			}
 		} else if sub, exists := claims["sub"]; exists {
@@ -86,7 +86,7 @@ func (m *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 				return
 			}
 		} else {
-			fmt.Printf("No user_id or sub claim found in token\n")
+			fmt.Printf("No userID or sub claim found in token\n")
 			http.Error(w, "Missing user identifier in token", http.StatusUnauthorized)
 			return
 		}
@@ -94,8 +94,8 @@ func (m *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 		// Validate UUID format
 		userID, err := uuid.Parse(userIDStr)
 		if err != nil {
-			fmt.Printf("Invalid UUID format for user_id: %s, error: %v\n", userIDStr, err)
-			http.Error(w, "Invalid user_id format", http.StatusUnauthorized)
+			fmt.Printf("Invalid UUID format for userID: %s, error: %v\n", userIDStr, err)
+			http.Error(w, "Invalid userID format", http.StatusUnauthorized)
 			return
 		}
 

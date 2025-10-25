@@ -20,8 +20,8 @@ type AuthService interface {
 type RegisterRequest struct {
 	Email     string `json:"email" binding:"required,email"`
 	Password  string `json:"password" binding:"required,min=6"`
-	FirstName string `json:"first_name" binding:"required"`
-	LastName  string `json:"last_name" binding:"required"`
+	FirstName string `json:"firstName" binding:"required"`
+	LastName  string `json:"lastName" binding:"required"`
 	Role      string `json:"role"`
 }
 
@@ -48,22 +48,22 @@ type EmployeeService interface {
 
 // CreateEmployeeRequest representa os dados para criar um funcionário
 type CreateEmployeeRequest struct {
-	UserID       uuid.UUID `json:"user_id" gorm:"type:uuid;not null"`
-	FirstName    string    `json:"first_name" gorm:"not null"`
-	LastName     string    `json:"last_name" gorm:"not null"`
+	UserID       uuid.UUID `json:"userId" gorm:"type:uuid;not null"`
+	FirstName    string    `json:"firstName" gorm:"not null"`
+	LastName     string    `json:"lastName" gorm:"not null"`
 	Email        string    `json:"email" binding:"required,email"`
 	Position     string    `json:"position" binding:"required"`
-	HourlyRate   float64   `json:"hourly_rate" gorm:"not null"`
-	HoursWorked  float64   `json:"hours_worked" gorm:"default:0"`
-	IsActive     bool      `json:"is_active" gorm:"default:true"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	EmployeeCode string    `json:"employee_code"`
+	HourlyRate   float64   `json:"hourlyRate" gorm:"not null"`
+	HoursWorked  float64   `json:"hoursWorked" gorm:"default:0"`
+	IsActive     bool      `json:"isActive" gorm:"default:true"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	EmployeeCode string    `json:"employeeCode" gorm:"uniqueIndex;not null"`
 	Department   string    `json:"department"`
-	HireDate     time.Time `json:"hire_date"`
+	HireDate     time.Time `json:"hireDate"`
 	Salary       float64   `json:"salary"`
-	HoursPerWeek int       `json:"hours_per_week"`
-	PhoneNumber  string    `json:"phone_number"`
+	HoursPerWeek int       `json:"hoursPerWeek"`
+	PhoneNumber  string    `json:"phoneNumber"`
 	Role         string    `json:"role"`
 }
 
