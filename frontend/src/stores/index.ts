@@ -17,7 +17,6 @@ export {
 // ✅ Re-export types for convenience
 export type {
   User,
-  UserRole,
   RegisterRequest,
   LoginRequest,
   LoginResponse

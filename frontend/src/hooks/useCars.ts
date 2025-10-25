@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Car, CreateCarRequest } from '@/types/car';
 import { carApi } from '@/lib/api/carApi';
-import { useApiClient } from '@hooks/useApiClient';
 
 export interface UseCarsReturn {
   cars: Car[];
@@ -18,8 +17,6 @@ export function useCars(): UseCarsReturn {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const apiClient = useApiClient();
 
   // Fetch cars - following Agent.md error handling
   const fetchCars = useCallback(async () => {
@@ -35,7 +32,7 @@ export function useCars(): UseCarsReturn {
       }
 
       setCars(data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to fetch cars');
     } finally {
       setLoading(false);
@@ -58,7 +55,7 @@ export function useCars(): UseCarsReturn {
       }
 
       return false;
-    } catch (err) {
+    } catch {
       setError('Failed to create car');
       return false;
     }
@@ -85,7 +82,7 @@ export function useCars(): UseCarsReturn {
       }
 
       return false;
-    } catch (err) {
+    } catch {
       setError('Failed to update car');
       return false;
     }
@@ -103,7 +100,7 @@ export function useCars(): UseCarsReturn {
 
       setCars(prevCars => prevCars.filter(car => car.id !== id));
       return true;
-    } catch (err) {
+    } catch {
       setError('Failed to delete car');
       return false;
     }
