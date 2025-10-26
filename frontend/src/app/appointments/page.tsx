@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores';
 import { apiClient, Appointment, Car } from '@/lib/api';
 import styles from './appointments.module.css';
 
@@ -96,7 +96,7 @@ export default function AppointmentsPage() {
             </div>
           </div>
           <div className={styles.userSection}>
-            <span>Welcome, {user?.first_name} {user?.last_name}</span>
+            <span>Welcome, {user?.firstName} {user?.lastName}</span>
             <button onClick={logout} className={styles.logoutButton}>
               Logout
             </button>

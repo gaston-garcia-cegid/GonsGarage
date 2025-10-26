@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores';
 import { Car } from '@/types/car';
 import { useCars } from '@/hooks/useCars';
 import CarList from './components/CarList';

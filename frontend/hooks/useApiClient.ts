@@ -1,20 +1,19 @@
-import { useContext } from 'react';
-import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
-import { carApi } from '@/lib/api/carApi';
 import React from 'react';
+import { useAuthToken } from '@/stores';
+import { carApi } from '@/lib/api/carApi';
 
-// ✅ Hook to integrate API client with authentication context
+// ✅ Hook to integrate API client with authentication store (migrated from AuthContext)
 export function useApiClient() {
-  const authContext = useContext(AuthContext) as AuthContextType;
+  const token = useAuthToken();
 
-  // ✅ Sync token with API client when auth context changes
+  // ✅ Sync token with API client when auth token changes
   React.useEffect(() => {
-    if (authContext?.token) {
-      carApi.setAuthToken(authContext.token);
+    if (token) {
+      carApi.setAuthToken(token);
     } else {
       carApi.clearAuthToken();
     }
-  }, [authContext?.token]);
+  }, [token]);
 
   return carApi;
 }

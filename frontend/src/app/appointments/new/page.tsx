@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores';
 import { apiClient, Car, CreateAppointmentRequest } from '@/lib/api';
 import styles from '../appointments.module.css';
 

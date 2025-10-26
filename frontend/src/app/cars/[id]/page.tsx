@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores';
 import { apiClient, Car, Repair } from '@/lib/api';
 import styles from './car-details.module.css';
 

@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores';
 import Image from 'next/image';
 import styles from './DashboardLayout.module.css';
 
@@ -69,7 +69,7 @@ export default function DashboardLayout({
           </div>
           
           <div className={styles.userSection}>
-            <span>Welcome, {user?.first_name} {user?.last_name}</span>
+            <span>Welcome, {user?.firstName} {user?.lastName}</span>
             <button onClick={logout} className={styles.logoutButton}>
               Logout
             </button>

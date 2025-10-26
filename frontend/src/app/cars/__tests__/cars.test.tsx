@@ -1,12 +1,12 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores';
 import CarsPage from '../page';
 import { apiClient } from '@/lib/api';
 
 // Mock dependencies
 jest.mock('next/navigation');
-jest.mock('@/contexts/AuthContext');
+jest.mock('@/stores');
 jest.mock('@/lib/api');
 
 const mockRouter = {

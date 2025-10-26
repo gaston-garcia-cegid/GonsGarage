@@ -1,13 +1,13 @@
 // src/hooks/useAuthGuard.ts
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores';
 
 export function useAuthGuard(allowedRoles?: string | string[]) {
   const { user, isAuthenticated, isLoading } = useAuth();
   
   // Apenas verifica se está autorizado, SEM fazer redirecionamentos
-  // O AuthContext já cuida dos redirecionamentos
+  // O AuthStore já cuida dos redirecionamentos
   const isAuthorized = (() => {
     if (isLoading || !isAuthenticated || !user) return false;
     
