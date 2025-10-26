@@ -1,20 +1,28 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/stores';
-import { apiClient, Car, Repair, Appointment } from '@/lib/api';
+import { useAuth, useCars, useAppointments } from '@/stores';
+import { Repair } from '@/lib/api';
+import { useState } from 'react';
 import styles from './dashboard.module.css';
 
 export default function ClientDashboardPage() {
-  const [cars, setCars] = useState<Car[]>([]);
-  const [recentRepairs, setRecentRepairs] = useState<Repair[]>([]);
-  const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [recentRepairs] = useState<Repair[]>([]); // TODO: setRecentRepairs will be used when repair store is ready
 
   const { user, logout } = useAuth();
+  const { cars, isLoading: carsLoading, error: carsError, fetchCars } = useCars();
+  const { appointments, isLoading: appointmentsLoading, error: appointmentsError, fetchAppointments } = useAppointments();
   const router = useRouter();
+  
+  // Combined loading and error states
+  const loading = carsLoading || appointmentsLoading;
+  const error = carsError || appointmentsError;
+  
+  // Filter upcoming appointments
+  const upcomingAppointments = appointments.filter(appointment => 
+    new Date(appointment.scheduledAt) > new Date()
+  );
 
   useEffect(() => {
     if (!user) {
@@ -28,7 +36,11 @@ export default function ClientDashboardPage() {
       router.push('/auth/login');
       return;
     }
-  }, [user, router]);
+    
+    // Fetch data using stores
+    fetchCars();
+    fetchAppointments();
+  }, [user, router, fetchCars, fetchAppointments]);
 
   if (!user || user.role !== 'client') {
     return (
@@ -64,7 +76,7 @@ export default function ClientDashboardPage() {
             </div>
           </div>
           <div className={styles.userSection}>
-            <span>Welcome, {user?.first_name} {user?.last_name}</span>
+            <span>Welcome, {user?.firstName} {user?.lastName}</span>
             <button onClick={logout} className={styles.logoutButton}>
               Logout
             </button>
@@ -177,7 +189,7 @@ export default function ClientDashboardPage() {
                       </div>
                       <div className={styles.carInfo}>
                         <h4>{car.year} {car.make} {car.model}</h4>
-                        <p>{car.license_plate}</p>
+                        <p>{car.licensePlate}</p>
                       </div>
                       <button 
                         onClick={() => router.push(`/cars/${car.id}`)}

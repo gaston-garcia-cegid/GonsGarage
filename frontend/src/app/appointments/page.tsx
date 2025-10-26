@@ -2,55 +2,30 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/stores';
-import { apiClient, Appointment, Car } from '@/lib/api';
+import { useAuth, useAppointments, useCars } from '@/stores';
 import styles from './appointments.module.css';
 
 export default function AppointmentsPage() {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [cars, setCars] = useState<Car[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
   const { user, logout } = useAuth();
+  const { appointments, isLoading: appointmentsLoading, error: appointmentsError, fetchAppointments } = useAppointments();
+  const { cars, isLoading: carsLoading, error: carsError, fetchCars } = useCars();
   const router = useRouter();
+
+  // Combined loading and error states
+  const loading = appointmentsLoading || carsLoading;
+  const error = appointmentsError || carsError;
 
   useEffect(() => {
     if (!user) {
       router.push('/auth/login');
       return;
     }
-    fetchData();
-  }, [user, router]);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const [appointmentsResponse, carsResponse] = await Promise.all([
-        apiClient.getAppointments(),
-        apiClient.getCars(),
-      ]);
-
-      if (appointmentsResponse.data && !appointmentsResponse.error) {
-        setAppointments(appointmentsResponse.data);
-      }
-
-      if (carsResponse.data && !carsResponse.error) {
-        setCars(carsResponse.data);
-      }
-
-      if (appointmentsResponse.error || carsResponse.error) {
-        setError('Failed to load data');
-      }
-    } catch (err) {
-      setError('Network error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Fetch data using stores
+    fetchAppointments();
+    fetchCars();
+  }, [user, router, fetchAppointments, fetchCars]);
 
   const filteredAppointments = appointments.filter(appointment => 
     selectedStatus === 'all' || appointment.status === selectedStatus
@@ -185,14 +160,14 @@ export default function AppointmentsPage() {
         ) : (
           <div className={styles.appointmentsList}>
             {filteredAppointments.map((appointment) => {
-              const car = getCarInfo(appointment.car_id);
+              const car = getCarInfo(appointment.carId);
               return (
                 <div key={appointment.id} className={styles.appointmentCard}>
                   <div className={styles.appointmentHeader}>
                     <div className={styles.appointmentDate}>
                       <span className={styles.dateLabel}>Scheduled</span>
                       <span className={styles.dateValue}>
-                        {formatDate(appointment.scheduled_at)}
+                        {formatDate(appointment.scheduledAt)}
                       </span>
                     </div>
                     <span className={`${styles.statusBadge} ${styles[appointment.status]}`}>
@@ -202,7 +177,7 @@ export default function AppointmentsPage() {
                   
                   <div className={styles.appointmentBody}>
                     <div className={styles.serviceInfo}>
-                      <h3>{appointment.service_type}</h3>
+                      <h3>{appointment.serviceType}</h3>
                       {appointment.notes && (
                         <p className={styles.notes}>{appointment.notes}</p>
                       )}
@@ -213,7 +188,7 @@ export default function AppointmentsPage() {
                         <div className={styles.carIcon}>🚗</div>
                         <div>
                           <h4>{car.year} {car.make} {car.model}</h4>
-                          <p>{car.license_plate}</p>
+                          <p>{car.licensePlate}</p>
                         </div>
                       </div>
                     )}

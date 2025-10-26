@@ -3,7 +3,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { Car, CreateCarRequest } from '@/types/car';
-import { useCars } from '@/hooks/useCars';
+import { useCars } from '@/stores';
 import CarList from '@/app/cars/components/CarList';
 import CarModal from '@/app/cars/components/CarModal';
 import LoadingSpinner from '@/components/ui/Loading/LoadingSpinner';
@@ -29,7 +29,7 @@ export default function ClientCars({
   const [isCreating, setIsCreating] = useState(false);
   
   const router = useRouter();
-  const { cars, loading, error, createCar, updateCar, deleteCar, refreshCars } = useCars();
+  const { cars, isLoading: loading, error, createCar, updateCar, deleteCar, fetchCars } = useCars();
 
   // Enhanced create car handler - following Agent.md error handling
   const handleCreateCar = useCallback(async (carData: CreateCarRequest): Promise<boolean> => {
@@ -46,10 +46,10 @@ export default function ClientCars({
       
       if (success) {
         // Refresh cars to get the latest data with the new car
-        await refreshCars();
+        await fetchCars();
         
         // Get the newly created car (assuming it's the last one after refresh)
-        const updatedCars = await refreshCars();
+        await fetchCars();
         const newCar = cars.find(car => 
           car.make === carData.make && 
           car.model === carData.model && 
@@ -77,7 +77,7 @@ export default function ClientCars({
     } finally {
       setIsCreating(false);
     }
-  }, [createCar, refreshCars, cars, maxCars, onAddCar, onUpdateCar]);
+  }, [createCar, fetchCars, cars, maxCars, onAddCar, onUpdateCar]);
 
   // Enhanced update car handler - following Agent.md consistency
   const handleUpdateCar = useCallback(async (id: string, carData: Partial<CreateCarRequest>): Promise<boolean> => {
@@ -86,7 +86,7 @@ export default function ClientCars({
       
       if (success) {
         // Refresh cars to get updated data
-        await refreshCars();
+        await fetchCars();
         
         // Notify about cars list update
         if (onUpdateCar) {
@@ -102,7 +102,7 @@ export default function ClientCars({
       console.error('Failed to update car:', error);
       return false;
     }
-  }, [updateCar, refreshCars, cars, onUpdateCar]);
+  }, [updateCar, fetchCars, cars, onUpdateCar]);
 
   // Handle car operations following Agent.md clean patterns
   const handleDeleteCar = useCallback(async (id: string) => {

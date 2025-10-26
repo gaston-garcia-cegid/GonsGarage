@@ -1,54 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '@/stores';
-import { apiClient, Car, Repair } from '@/lib/api';
+import { useAuth, useCars } from '@/stores';
+import { apiClient, Repair } from '@/lib/api';
 import styles from './car-details.module.css';
 
 export default function CarDetailsPage() {
-  const [car, setCar] = useState<Car | null>(null);
   const [repairs, setRepairs] = useState<Repair[]>([]);
-  const [loading, setLoading] = useState(true);
   const [repairsLoading, setRepairsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const { user, logout } = useAuth();
+  const { selectedCar: car, isLoading: loading, error, fetchCarById } = useCars();
   const router = useRouter();
   const params = useParams();
   const carId = params.id as string;
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/auth/login');
-      return;
-    }
-    if (carId) {
-      fetchCarDetails();
-      fetchCarRepairs();
-    }
-  }, [user, router, carId]);
-
-  const fetchCarDetails = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { data, error: apiError } = await apiClient.getCar(carId);
-      
-      if (data && !apiError) {
-        setCar(data);
-      } else {
-        setError(apiError?.message || 'Failed to fetch car details');
-      }
-    } catch (err) {
-      setError('Network error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCarRepairs = async () => {
+  const fetchCarRepairs = useCallback(async () => {
     try {
       setRepairsLoading(true);
 
@@ -64,7 +32,18 @@ export default function CarDetailsPage() {
     } finally {
       setRepairsLoading(false);
     }
-  };
+  }, [carId]);
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/auth/login');
+      return;
+    }
+    if (carId) {
+      fetchCarById(carId);
+      fetchCarRepairs();
+    }
+  }, [user, router, carId, fetchCarById, fetchCarRepairs]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -135,7 +114,7 @@ export default function CarDetailsPage() {
             </div>
           </div>
           <div className={styles.userSection}>
-            <span>Welcome, {user?.first_name} {user?.last_name}</span>
+            <span>Welcome, {user?.firstName} {user?.lastName}</span>
             <button onClick={logout} className={styles.logoutButton}>
               Logout
             </button>
@@ -184,7 +163,7 @@ export default function CarDetailsPage() {
             <div className={styles.carIconLarge}>🚗</div>
             <div className={styles.carTitle}>
               <h2>{car.year} {car.make} {car.model}</h2>
-              <p className={styles.licensePlate}>{car.license_plate}</p>
+              <p className={styles.licensePlate}>{car.licensePlate}</p>
             </div>
             <div className={styles.carActions}>
               <button 
@@ -212,11 +191,11 @@ export default function CarDetailsPage() {
             )}
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Added</span>
-              <span className={styles.infoValue}>{formatDate(car.created_at)}</span>
+              <span className={styles.infoValue}>{formatDate(car.createdAt)}</span>
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Last Updated</span>
-              <span className={styles.infoValue}>{formatDate(car.updated_at)}</span>
+              <span className={styles.infoValue}>{formatDate(car.updatedAt)}</span>
             </div>
           </div>
         </div>

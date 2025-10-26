@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/stores';
-import { apiClient, Car, CreateAppointmentRequest } from '@/lib/api';
+import { useAuth, useCars, useAppointments } from '@/stores';
+import { CreateAppointmentRequest } from '@/lib/api';
 import styles from '../appointments.module.css';
 
 const SERVICE_TYPES = [
@@ -20,7 +20,6 @@ const SERVICE_TYPES = [
 
 // Separate component that uses useSearchParams
 function NewAppointmentForm() {
-  const [cars, setCars] = useState<Car[]>([]);
   const [formData, setFormData] = useState<CreateAppointmentRequest>({
     car_id: '',
     service_type: '',
@@ -29,13 +28,16 @@ function NewAppointmentForm() {
   });
   const [customServiceType, setCustomServiceType] = useState('');
   const [errors, setErrors] = useState<{[key: string]: string}>({});
-  const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { user, logout } = useAuth();
+  const { cars, isLoading: carsLoading, fetchCars } = useCars();
+  const { createAppointment, isCreating } = useAppointments();
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedCarId = searchParams.get('carId');
+  
+  const loading = carsLoading;
 
   useEffect(() => {
     if (!user) {
@@ -43,7 +45,7 @@ function NewAppointmentForm() {
       return;
     }
     fetchCars();
-  }, [user, router]);
+  }, [user, router, fetchCars]);
 
   useEffect(() => {
     if (preselectedCarId && cars.length > 0) {
@@ -52,24 +54,7 @@ function NewAppointmentForm() {
         car_id: preselectedCarId
       }));
     }
-  }, [preselectedCarId, cars]);
-
-  const fetchCars = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await apiClient.getCars();
-      
-      if (data && !error) {
-        setCars(data);
-      } else {
-        console.error('Failed to fetch cars:', error);
-      }
-    } catch (err) {
-      console.error('Network error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [preselectedCarId, cars.length]);
 
   const validateForm = (): boolean => {
     const newErrors: {[key: string]: string} = {};
@@ -108,21 +93,24 @@ function NewAppointmentForm() {
     setIsSubmitting(true);
 
     try {
-      const appointmentData: CreateAppointmentRequest = {
-        ...formData,
-        service_type: formData.service_type === 'other' ? customServiceType : formData.service_type,
+      // Convert to camelCase for store
+      const appointmentData = {
+        carId: formData.car_id,
+        serviceType: formData.service_type === 'other' ? customServiceType : formData.service_type,
+        scheduledAt: formData.scheduled_at,
+        notes: formData.notes,
       };
 
-      const { error } = await apiClient.createAppointment(appointmentData);
+      const success = await createAppointment(appointmentData);
       
-      if (error) {
-        alert('Failed to create appointment: ' + error.message);
+      if (!success) {
+        alert('Failed to create appointment');
         return;
       }
 
       // Success - redirect to appointments list
       router.push('/appointments?success=true');
-    } catch (err) {
+    } catch {
       alert('Network error occurred');
     } finally {
       setIsSubmitting(false);
@@ -190,7 +178,7 @@ function NewAppointmentForm() {
             </div>
           </div>
           <div className={styles.userSection}>
-            <span>Welcome, {user?.first_name} {user?.last_name}</span>
+            <span>Welcome, {user?.firstName} {user?.lastName}</span>
             <button onClick={logout} className={styles.logoutButton}>
               Logout
             </button>
@@ -253,7 +241,7 @@ function NewAppointmentForm() {
                   <option value="">Select a car...</option>
                   {cars.map((car) => (
                     <option key={car.id} value={car.id}>
-                      {car.year} {car.make} {car.model} - {car.license_plate}
+                      {car.year} {car.make} {car.model} - {car.licensePlate}
                     </option>
                   ))}
                 </select>
@@ -265,7 +253,7 @@ function NewAppointmentForm() {
                   <div className={styles.carIcon}>🚗</div>
                   <div className={styles.carDetails}>
                     <h4>{selectedCar.year} {selectedCar.make} {selectedCar.model}</h4>
-                    <p>{selectedCar.license_plate} • {selectedCar.color}</p>
+                    <p>{selectedCar.licensePlate} • {selectedCar.color}</p>
                   </div>
                 </div>
               )}
@@ -355,7 +343,7 @@ function NewAppointmentForm() {
                   <div className={styles.summaryItem}>
                     <span className={styles.summaryLabel}>Vehicle:</span>
                     <span className={styles.summaryValue}>
-                      {selectedCar.year} {selectedCar.make} {selectedCar.model} ({selectedCar.license_plate})
+                      {selectedCar.year} {selectedCar.make} {selectedCar.model} ({selectedCar.licensePlate})
                     </span>
                   </div>
                   <div className={styles.summaryItem}>

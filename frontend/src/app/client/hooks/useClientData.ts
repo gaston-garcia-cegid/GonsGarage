@@ -2,29 +2,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Car, Repair, Appointment } from '@/shared/types';
+import { useCars, useAppointments } from '@/stores';
+import { Repair } from '@/shared/types';
 
 export function useClientData() {
-  const [cars, setCars] = useState<Car[]>([]);
   const [repairs, setRepairs] = useState<Repair[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+  const { cars, isLoading: carsLoading, error: carsError, fetchCars } = useCars();
+  const { appointments, isLoading: appointmentsLoading, error: appointmentsError, fetchAppointments } = useAppointments();
+
+  // Combined loading and error states
+  const loading = carsLoading || appointmentsLoading;
+  const error = carsError || appointmentsError;
 
   useEffect(() => {
-    // Lógica específica para carregar dados do cliente
-    const loadClientData = async () => {
-      try {
-        // API calls específicas do domínio cliente
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to load client data');
-        setLoading(false);
-      }
-    };
-
-    loadClientData();
-  }, []);
+    // Fetch data from stores
+    fetchCars();
+    fetchAppointments();
+    
+    // TODO: Load repairs data when repair store is available
+    // For now keeping repairs empty
+    setRepairs([]);
+  }, [fetchCars, fetchAppointments]);
 
   return { cars, repairs, appointments, loading, error };
 }

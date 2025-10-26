@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/stores';
 import { Car } from '@/types/car';
-import { useCars } from '@/hooks/useCars';
+import { useCars } from '@/stores';
 import CarList from './components/CarList';
 import CarModal from './components/CarModal';
 import LoadingSpinner from '@/components/ui/Loading/LoadingSpinner';
@@ -19,15 +19,16 @@ export default function CarsPage() {
 
   const { user, logout } = useAuth();
   const router = useRouter();
-  const { cars, loading, error, createCar, updateCar, deleteCar } = useCars();
+  const { cars, isLoading: loading, error, createCar, updateCar, deleteCar, fetchCars } = useCars();
 
-  // Redirect if not authenticated - following Agent.md security practices
+  // Redirect if not authenticated and fetch cars - following Agent.md security practices
   React.useEffect(() => {
     if (!user) {
       router.push('/auth/login');
       return;
     }
-  }, [user, router]);
+    fetchCars();
+  }, [user, router, fetchCars]);
 
   // Handle car deletion - following Agent.md user experience
   const handleDeleteCar = async (id: string) => {
@@ -83,7 +84,7 @@ export default function CarsPage() {
             </div>
           </div>
           <div className={styles.userSection}>
-            <span>Welcome, {user?.first_name} {user?.last_name}</span>
+            <span>Welcome, {user?.firstName} {user?.lastName}</span>
             <button onClick={logout} className={styles.logoutButton}>
               Logout
             </button>
