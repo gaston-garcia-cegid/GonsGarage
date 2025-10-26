@@ -6,8 +6,7 @@ import { useAuthGuard } from '@hooks/useAuthGuard';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import ClientCars from './components/ClientCars';
 import { useClientData } from './hooks/useClientData';
-import { useRouter } from 'next/navigation';
-import { Car } from '@/types/car';
+import { Car } from '@/shared/types';
 import ClientDashboard from './components/ClientDashboard';
 import ClientAppointments from './components/ClientAppointments';
 
@@ -24,20 +23,10 @@ export default function ClientPage() {
 
   // Handle when a car is added - following Agent.md callback patterns
   const handleAddCar = useCallback((newCar: Car) => {
-    console.log('New car added:', newCar);
-
-    // Update local state
-    setUserCars(prevCars => [...prevCars, newCar]);
-
-    // Show success message
-    alert(`${newCar.year} ${newCar.make} ${newCar.model} has been added successfully!`);
-
-    // Optional: Navigate to car details
-    // router.push(`/cars/${newCar.id}`);
-
-    // Optional: Track analytics
-    // trackEvent('car_added', { make: newCar.make, model: newCar.model });
-  }, []);
+  console.log('New car added:', newCar);
+  setUserCars(prevCars => [...prevCars, newCar]);
+  alert(`${newCar.year} ${newCar.make} ${newCar.model} has been added successfully!`);
+}, []);
 
   // Handle when cars list is updated - following Agent.md state management
   const handleUpdateCar = useCallback((updatedCars: Car[]) => {
@@ -63,9 +52,11 @@ export default function ClientPage() {
         return (
           <ClientDashboard 
             error={error}
-            cars={cars}
+            cars={cars}  // ✅ Direct use, no mapping needed
             recentRepairs={repairs}
-            upcomingAppointments={appointments.filter(a => new Date(a.scheduled_at) > new Date())}
+            upcomingAppointments={appointments
+              .filter(a => new Date(a.scheduledAt) > new Date())
+            }
             onNavigate={(tab: string) => setActiveTab(tab as ActiveTab)}
           />
         );

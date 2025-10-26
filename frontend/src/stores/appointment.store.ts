@@ -2,7 +2,8 @@
 // Provides centralized appointment state management with CRUD operations
 
 import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
+import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/shared/types';
+import { appointmentApi } from '@/lib/api';
 
 // ✅ Appointment interfaces following Agent.md camelCase conventions
 export interface Appointment {
@@ -101,79 +102,6 @@ const initialState = {
   filters: { status: 'all' as const },
 };
 
-// ✅ Mock API service (to be replaced with real service)
-const mockAppointmentService = {
-  async getAppointments() {
-    // Simulate API call
-    return new Promise<{ success: boolean; data?: { appointments: Appointment[]; total: number }; error?: { message: string } }>((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            appointments: [],
-            total: 0
-          }
-        });
-      }, 500);
-    });
-  },
-  
-  async getAppointment(id: string) {
-    return new Promise<{ success: boolean; data?: Appointment; error?: { message: string } }>((resolve) => {
-      setTimeout(() => {
-        // TODO: Replace with real API call using id
-        console.log(`Fetching appointment ${id}`);
-        resolve({
-          success: false,
-          error: { message: 'Appointment not found' }
-        });
-      }, 300);
-    });
-  },
-  
-  async createAppointment(data: CreateAppointmentRequest) {
-    return new Promise<{ success: boolean; data?: Appointment; error?: { message: string } }>((resolve) => {
-      setTimeout(() => {
-        const newAppointment: Appointment = {
-          id: Math.random().toString(36).substr(2, 9),
-          customerId: 'current-user-id',
-          ...data,
-          status: 'scheduled',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        resolve({
-          success: true,
-          data: newAppointment
-        });
-      }, 800);
-    });
-  },
-  
-  async updateAppointment(id: string, updates: UpdateAppointmentRequest) {
-    return new Promise<{ success: boolean; data?: Appointment; error?: { message: string } }>((resolve) => {
-      setTimeout(() => {
-        // TODO: Replace with real API call using id and updates
-        console.log(`Updating appointment ${id} with:`, updates);
-        resolve({
-          success: false,
-          error: { message: 'Update not implemented' }
-        });
-      }, 500);
-    });
-  },
-  
-  async deleteAppointment(id: string) {
-    return new Promise<{ success: boolean; error?: { message: string } }>((resolve) => {
-      setTimeout(() => {
-        // TODO: Replace with real API call using id
-        console.log(`Deleting appointment ${id}`);
-        resolve({ success: true });
-      }, 400);
-    });
-  },
-};
-
 // ✅ Appointment store implementation with Zustand + Immer
 export const useAppointmentStore = create<AppointmentState>()(
   immer((set, get) => ({
@@ -191,7 +119,7 @@ export const useAppointmentStore = create<AppointmentState>()(
       });
       
       try {
-        const response = await mockAppointmentService.getAppointments();
+        const response = await appointmentApi.getAppointments();
         
         if (response.data) {
           set((state) => {
@@ -218,7 +146,7 @@ export const useAppointmentStore = create<AppointmentState>()(
       });
       
       try {
-        const response = await mockAppointmentService.getAppointment(id);
+        const response = await appointmentApi.getAppointment(id);
         
         if (response.data) {
           set((state) => {
@@ -244,7 +172,7 @@ export const useAppointmentStore = create<AppointmentState>()(
       });
       
       try {
-        const response = await mockAppointmentService.createAppointment(appointmentData);
+        const response = await appointmentApi.createAppointment(appointmentData);
         
         if (response.data) {
           set((state) => {
@@ -273,7 +201,7 @@ export const useAppointmentStore = create<AppointmentState>()(
       });
       
       try {
-        const response = await mockAppointmentService.updateAppointment(id, appointmentData);
+        const response = await appointmentApi.updateAppointment(id, appointmentData);
         
         if (response.data) {
           set((state) => {
@@ -322,7 +250,7 @@ export const useAppointmentStore = create<AppointmentState>()(
       });
       
       try {
-        const response = await mockAppointmentService.deleteAppointment(id);
+        const response = await appointmentApi.deleteAppointment(id);
         
         if (response.success) {
           set((state) => {

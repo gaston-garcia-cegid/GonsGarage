@@ -4,10 +4,10 @@ export interface Car {
   make: string;
   model: string;
   year: number;
-  license_plate: string;
+  licensePlate: string;
   vin?: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Repair {
@@ -22,10 +22,26 @@ export interface Repair {
 
 export interface Appointment {
   id: string;
-  car_id: string;
-  service_type: string;
-  scheduled_at: string;
+  customerId: string;
+  carId: string;
+  serviceType: string;
+  scheduledAt: string;
   status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   notes?: string;
-  created_at: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAppointmentRequest {
+  carId: string;         // ✅ camelCase
+  serviceType: string;   // ✅ camelCase
+  scheduledAt: string;   // ✅ camelCase
+  notes?: string;
+}
+
+export interface UpdateAppointmentRequest {
+  serviceType?: string;  // ✅ camelCase
+  scheduledAt?: string;  // ✅ camelCase
+  status?: 'scheduled' | 'in-progress' | 'completed' | 'cancelled';
+  notes?: string;
 }
