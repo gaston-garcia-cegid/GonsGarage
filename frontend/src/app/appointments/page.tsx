@@ -2,27 +2,36 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useAppointments, useCars } from '@/stores';
+import { useAuthStore } from '@/stores/auth.store';
+import { useAppointments } from '@/stores/appointment.store';
+import { useCarStore } from '@/stores/car.store';
+import { Appointment } from '@/shared/types';
 import styles from './appointments.module.css';
 
 export default function AppointmentsPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
-  const { user, logout } = useAuth();
-  const { appointments, isLoading: appointmentsLoading, error: appointmentsError, fetchAppointments } = useAppointments();
-  const { cars, isLoading: carsLoading, error: carsError, fetchCars } = useCars();
+  const { user } = useAuthStore();
+  const { 
+    appointments, 
+    isLoading: appointmentsLoading, 
+    error: appointmentsError, 
+    fetchAppointments,
+    cancelAppointment,
+    confirmAppointment,
+    completeAppointment
+  } = useAppointments();
+  const { cars, isLoading: carsLoading, fetchCars } = useCarStore();
   const router = useRouter();
 
-  // Combined loading and error states
   const loading = appointmentsLoading || carsLoading;
-  const error = appointmentsError || carsError;
+  const error = appointmentsError;
 
   useEffect(() => {
     if (!user) {
       router.push('/auth/login');
       return;
     }
-    // Fetch data using stores
     fetchAppointments();
     fetchCars();
   }, [user, router, fetchAppointments, fetchCars]);
@@ -45,6 +54,31 @@ export default function AppointmentsPage() {
     });
   };
 
+  const handleStatusChange = async (appointmentId: string, action: 'cancel' | 'confirm' | 'complete') => {
+    try {
+      let success = false;
+      
+      switch (action) {
+        case 'cancel':
+          success = await cancelAppointment(appointmentId);
+          break;
+        case 'confirm':
+          success = await confirmAppointment(appointmentId);
+          break;
+        case 'complete':
+          success = await completeAppointment(appointmentId);
+          break;
+      }
+
+      if (success) {
+        // Refresh appointments
+        fetchAppointments();
+      }
+    } catch (error) {
+      console.error(`Failed to ${action} appointment:`, error);
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -60,11 +94,7 @@ export default function AppointmentsPage() {
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.logoSection}>
-            <div className={styles.logoIcon}>
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
-              </svg>
-            </div>
+            <div className={styles.logoIcon}>🔧</div>
             <div>
               <h1>GonsGarage</h1>
               <p>Appointments</p>
@@ -72,7 +102,7 @@ export default function AppointmentsPage() {
           </div>
           <div className={styles.userSection}>
             <span>Welcome, {user?.firstName} {user?.lastName}</span>
-            <button onClick={logout} className={styles.logoutButton}>
+            <button onClick={() => router.push('/auth/login')} className={styles.logoutButton}>
               Logout
             </button>
           </div>
@@ -82,7 +112,7 @@ export default function AppointmentsPage() {
       {/* Navigation */}
       <nav className={styles.navigation}>
         <button 
-          onClick={() => router.push('/dashboard')}
+          onClick={() => router.push('/client')}
           className={styles.navButton}
         >
           Dashboard
@@ -94,7 +124,6 @@ export default function AppointmentsPage() {
           My Cars
         </button>
         <button 
-          onClick={() => router.push('/appointments')}
           className={`${styles.navButton} ${styles.active}`}
         >
           Appointments
@@ -124,6 +153,7 @@ export default function AppointmentsPage() {
               <option value="all">All Status</option>
               <option value="scheduled">Scheduled</option>
               <option value="confirmed">Confirmed</option>
+              <option value="in-progress">In Progress</option>
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
             </select>
@@ -131,10 +161,7 @@ export default function AppointmentsPage() {
               onClick={() => router.push('/appointments/new')}
               className={styles.addButton}
             >
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Schedule Service
+              ➕ Schedule Service
             </button>
           </div>
         </div>
@@ -159,25 +186,25 @@ export default function AppointmentsPage() {
           </div>
         ) : (
           <div className={styles.appointmentsList}>
-            {filteredAppointments.map((appointment) => {
-              const car = getCarInfo(appointment.carId);
+            {filteredAppointments.map((appointment: Appointment) => {
+              const car = getCarInfo(appointment.carId);  // ✅ camelCase per Agent.md
               return (
                 <div key={appointment.id} className={styles.appointmentCard}>
                   <div className={styles.appointmentHeader}>
                     <div className={styles.appointmentDate}>
                       <span className={styles.dateLabel}>Scheduled</span>
                       <span className={styles.dateValue}>
-                        {formatDate(appointment.scheduledAt)}
+                        {formatDate(appointment.scheduledAt)}  {/* ✅ camelCase per Agent.md */}
                       </span>
                     </div>
                     <span className={`${styles.statusBadge} ${styles[appointment.status]}`}>
-                      {appointment.status.replace('_', ' ')}
+                      {appointment.status.replace('_', ' ').replace('-', ' ')}
                     </span>
                   </div>
                   
                   <div className={styles.appointmentBody}>
                     <div className={styles.serviceInfo}>
-                      <h3>{appointment.serviceType}</h3>
+                      <h3>{appointment.serviceType}</h3>  {/* ✅ camelCase per Agent.md */}
                       {appointment.notes && (
                         <p className={styles.notes}>{appointment.notes}</p>
                       )}
@@ -188,7 +215,7 @@ export default function AppointmentsPage() {
                         <div className={styles.carIcon}>🚗</div>
                         <div>
                           <h4>{car.year} {car.make} {car.model}</h4>
-                          <p>{car.licensePlate}</p>
+                          <p>{car.licensePlate}</p>  {/* ✅ camelCase per Agent.md */}
                         </div>
                       </div>
                     )}
@@ -201,17 +228,37 @@ export default function AppointmentsPage() {
                     <div className={styles.appointmentActions}>
                       {appointment.status === 'scheduled' && (
                         <>
-                          <button className={styles.editButton}>
+                          <button 
+                            onClick={() => handleStatusChange(appointment.id, 'confirm')}
+                            className={styles.confirmButton}
+                          >
+                            Confirm
+                          </button>
+                          <button 
+                            onClick={() => router.push(`/appointments/${appointment.id}/edit`)}
+                            className={styles.editButton}
+                          >
                             Edit
                           </button>
-                          <button className={styles.cancelButton}>
+                          <button 
+                            onClick={() => handleStatusChange(appointment.id, 'cancel')}
+                            className={styles.cancelButton}
+                          >
                             Cancel
                           </button>
                         </>
                       )}
-                      {appointment.status === 'completed' && (
+                      {appointment.status === 'confirmed' && (
                         <button 
-                          onClick={() => car && router.push(`/cars/${car.id}`)}
+                          onClick={() => handleStatusChange(appointment.id, 'cancel')}
+                          className={styles.cancelButton}
+                        >
+                          Cancel
+                        </button>
+                      )}
+                      {appointment.status === 'completed' && car && (
+                        <button 
+                          onClick={() => router.push(`/cars/${car.id}`)}
                           className={styles.viewButton}
                         >
                           View Car

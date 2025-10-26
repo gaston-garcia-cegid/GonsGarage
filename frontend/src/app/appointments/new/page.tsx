@@ -2,42 +2,28 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth, useCars, useAppointments } from '@/stores';
-import { CreateAppointmentRequest } from '@/lib/api';
-import styles from '../appointments.module.css';
+import { useAuthStore } from '@/stores/auth.store';
+import { useCarStore } from '@/stores/car.store';
+import { useAppointments } from '@/stores/appointment.store';
+import { CreateAppointmentRequest, SERVICE_TYPES } from '@/shared/types';
+import styles from './new-appointment.module.css';
 
-const SERVICE_TYPES = [
-  { id: 'oil_change', name: 'Oil Change', description: 'Regular oil and filter change' },
-  { id: 'brake_service', name: 'Brake Service', description: 'Brake pads, rotors, and fluid' },
-  { id: 'tire_service', name: 'Tire Service', description: 'Tire rotation, alignment, replacement' },
-  { id: 'engine_diagnostic', name: 'Engine Diagnostic', description: 'Check engine light and diagnostics' },
-  { id: 'transmission_service', name: 'Transmission Service', description: 'Transmission fluid and inspection' },
-  { id: 'air_conditioning', name: 'Air Conditioning', description: 'A/C repair and maintenance' },
-  { id: 'battery_service', name: 'Battery Service', description: 'Battery testing and replacement' },
-  { id: 'general_maintenance', name: 'General Maintenance', description: 'Multi-point inspection' },
-  { id: 'other', name: 'Other', description: 'Custom service request' },
-];
-
-// Separate component that uses useSearchParams
 function NewAppointmentForm() {
   const [formData, setFormData] = useState<CreateAppointmentRequest>({
-    car_id: '',
-    service_type: '',
-    scheduled_at: '',
+    carId: '',           // ✅ camelCase per Agent.md
+    serviceType: '',     // ✅ camelCase per Agent.md
+    scheduledAt: '',     // ✅ camelCase per Agent.md
     notes: '',
   });
   const [customServiceType, setCustomServiceType] = useState('');
   const [errors, setErrors] = useState<{[key: string]: string}>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { user, logout } = useAuth();
-  const { cars, isLoading: carsLoading, fetchCars } = useCars();
-  const { createAppointment, isCreating } = useAppointments();
+  const { user } = useAuthStore();
+  const { cars, isLoading: carsLoading, fetchCars } = useCarStore();
+  const { createAppointment, isCreating, error } = useAppointments();
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedCarId = searchParams.get('carId');
-  
-  const loading = carsLoading;
 
   useEffect(() => {
     if (!user) {
@@ -51,7 +37,7 @@ function NewAppointmentForm() {
     if (preselectedCarId && cars.length > 0) {
       setFormData(prev => ({
         ...prev,
-        car_id: preselectedCarId
+        carId: preselectedCarId    // ✅ camelCase per Agent.md
       }));
     }
   }, [preselectedCarId, cars.length]);
@@ -59,25 +45,25 @@ function NewAppointmentForm() {
   const validateForm = (): boolean => {
     const newErrors: {[key: string]: string} = {};
 
-    if (!formData.car_id) {
-      newErrors.car_id = 'Please select a car';
+    if (!formData.carId) {
+      newErrors.carId = 'Please select a car';
     }
 
-    if (!formData.service_type) {
-      newErrors.service_type = 'Please select a service type';
+    if (!formData.serviceType) {
+      newErrors.serviceType = 'Please select a service type';
     }
 
-    if (formData.service_type === 'other' && !customServiceType.trim()) {
+    if (formData.serviceType === 'other' && !customServiceType.trim()) {
       newErrors.customServiceType = 'Please specify the service type';
     }
 
-    if (!formData.scheduled_at) {
-      newErrors.scheduled_at = 'Please select a date and time';
+    if (!formData.scheduledAt) {
+      newErrors.scheduledAt = 'Please select a date and time';
     } else {
-      const selectedDate = new Date(formData.scheduled_at);
+      const selectedDate = new Date(formData.scheduledAt);
       const now = new Date();
       if (selectedDate <= now) {
-        newErrors.scheduled_at = 'Please select a future date and time';
+        newErrors.scheduledAt = 'Please select a future date and time';
       }
     }
 
@@ -90,30 +76,22 @@ function NewAppointmentForm() {
 
     if (!validateForm()) return;
 
-    setIsSubmitting(true);
-
     try {
-      // Convert to camelCase for store
-      const appointmentData = {
-        carId: formData.car_id,
-        serviceType: formData.service_type === 'other' ? customServiceType : formData.service_type,
-        scheduledAt: formData.scheduled_at,
+      // ✅ Data already in camelCase format per Agent.md
+      const appointmentData: CreateAppointmentRequest = {
+        carId: formData.carId,
+        serviceType: formData.serviceType === 'other' ? customServiceType : formData.serviceType,
+        scheduledAt: formData.scheduledAt,
         notes: formData.notes,
       };
 
       const success = await createAppointment(appointmentData);
       
-      if (!success) {
-        alert('Failed to create appointment');
-        return;
+      if (success) {
+        router.push('/appointments?success=true');
       }
-
-      // Success - redirect to appointments list
-      router.push('/appointments?success=true');
-    } catch {
-      alert('Network error occurred');
-    } finally {
-      setIsSubmitting(false);
+    } catch (error) {
+      console.error('Failed to create appointment:', error);
     }
   };
 
@@ -133,26 +111,16 @@ function NewAppointmentForm() {
     }
   };
 
-  const handleCustomServiceTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCustomServiceType(e.target.value);
-    if (errors.customServiceType) {
-      setErrors(prev => ({
-        ...prev,
-        customServiceType: ''
-      }));
-    }
-  };
-
   const getMinDateTime = () => {
     const now = new Date();
-    now.setHours(now.getHours() + 1); // At least 1 hour from now
+    now.setHours(now.getHours() + 1);
     return now.toISOString().slice(0, 16);
   };
 
-  const selectedCar = cars.find(car => car.id === formData.car_id);
-  const selectedService = SERVICE_TYPES.find(service => service.id === formData.service_type);
+  const selectedCar = cars.find(car => car.id === formData.carId);
+  const selectedService = SERVICE_TYPES.find(service => service.id === formData.serviceType);
 
-  if (loading) {
+  if (carsLoading) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}></div>
@@ -167,11 +135,7 @@ function NewAppointmentForm() {
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.logoSection}>
-            <div className={styles.logoIcon}>
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
-              </svg>
-            </div>
+            <div className={styles.logoIcon}>🔧</div>
             <div>
               <h1>GonsGarage</h1>
               <p>Schedule Service</p>
@@ -179,34 +143,12 @@ function NewAppointmentForm() {
           </div>
           <div className={styles.userSection}>
             <span>Welcome, {user?.firstName} {user?.lastName}</span>
-            <button onClick={logout} className={styles.logoutButton}>
+            <button onClick={() => router.push('/auth/login')} className={styles.logoutButton}>
               Logout
             </button>
           </div>
         </div>
       </header>
-
-      {/* Navigation */}
-      <nav className={styles.navigation}>
-        <button 
-          onClick={() => router.push('/dashboard')}
-          className={styles.navButton}
-        >
-          Dashboard
-        </button>
-        <button 
-          onClick={() => router.push('/cars')}
-          className={styles.navButton}
-        >
-          My Cars
-        </button>
-        <button 
-          onClick={() => router.push('/appointments')}
-          className={`${styles.navButton} ${styles.active}`}
-        >
-          Appointments
-        </button>
-      </nav>
 
       {/* Main Content */}
       <main className={styles.main}>
@@ -216,45 +158,45 @@ function NewAppointmentForm() {
               onClick={() => router.back()}
               className={styles.backButton}
             >
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back
+              ← Back
             </button>
             <h2>Schedule a Service Appointment</h2>
             <p>Book an appointment for your vehicle maintenance</p>
           </div>
 
+          {error && (
+            <div className={styles.errorAlert}>
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className={styles.appointmentForm}>
             {/* Car Selection */}
             <div className={styles.section}>
-              <h3>Select Your Vehicle</h3>
+              <h3>Select Your Vehicle *</h3>
               <div className={styles.formGroup}>
-                <label htmlFor="car_id">Choose a car *</label>
                 <select
-                  id="car_id"
-                  name="car_id"
-                  value={formData.car_id}
+                  id="carId"
+                  name="carId"           // ✅ camelCase per Agent.md
+                  value={formData.carId}
                   onChange={handleChange}
-                  className={errors.car_id ? styles.inputError : ''}
+                  className={errors.carId ? styles.inputError : ''}
                 >
-                  <option value="">Select a car...</option>
-                  {cars.map((car) => (
+                  <option value="">Choose a vehicle...</option>
+                  {cars.map(car => (
                     <option key={car.id} value={car.id}>
                       {car.year} {car.make} {car.model} - {car.licensePlate}
                     </option>
                   ))}
                 </select>
-                {errors.car_id && <span className={styles.errorText}>{errors.car_id}</span>}
+                {errors.carId && <span className={styles.errorText}>{errors.carId}</span>}
               </div>
 
               {selectedCar && (
                 <div className={styles.selectedCarInfo}>
-                  <div className={styles.carIcon}>🚗</div>
-                  <div className={styles.carDetails}>
-                    <h4>{selectedCar.year} {selectedCar.make} {selectedCar.model}</h4>
-                    <p>{selectedCar.licensePlate} • {selectedCar.color}</p>
-                  </div>
+                  <h4>Selected Vehicle:</h4>
+                  <p>{selectedCar.year} {selectedCar.make} {selectedCar.model}</p>
+                  <p>License Plate: {selectedCar.licensePlate}</p>
                 </div>
               )}
             </div>
@@ -263,32 +205,32 @@ function NewAppointmentForm() {
             <div className={styles.section}>
               <h3>Service Type *</h3>
               <div className={styles.serviceGrid}>
-                {SERVICE_TYPES.map((service) => (
+                {SERVICE_TYPES.map(service => (
                   <label key={service.id} className={styles.serviceOption}>
                     <input
                       type="radio"
-                      name="service_type"
+                      name="serviceType"   // ✅ camelCase per Agent.md
                       value={service.id}
-                      checked={formData.service_type === service.id}
+                      checked={formData.serviceType === service.id}
                       onChange={handleChange}
                     />
-                    <div className={styles.serviceCard}>
+                    <div className={styles.serviceContent}>
                       <h4>{service.name}</h4>
                       <p>{service.description}</p>
                     </div>
                   </label>
                 ))}
               </div>
-              {errors.service_type && <span className={styles.errorText}>{errors.service_type}</span>}
+              {errors.serviceType && <span className={styles.errorText}>{errors.serviceType}</span>}
 
-              {formData.service_type === 'other' && (
+              {formData.serviceType === 'other' && (
                 <div className={styles.formGroup}>
-                  <label htmlFor="customServiceType">Specify service type *</label>
+                  <label htmlFor="customServiceType">Specify Service Type *</label>
                   <input
                     id="customServiceType"
                     type="text"
                     value={customServiceType}
-                    onChange={handleCustomServiceTypeChange}
+                    onChange={(e) => setCustomServiceType(e.target.value)}
                     placeholder="Describe the service you need..."
                     className={errors.customServiceType ? styles.inputError : ''}
                   />
@@ -301,20 +243,17 @@ function NewAppointmentForm() {
             <div className={styles.section}>
               <h3>Preferred Date & Time *</h3>
               <div className={styles.formGroup}>
-                <label htmlFor="scheduled_at">Select date and time</label>
+                <label htmlFor="scheduledAt">Date and Time</label>
                 <input
-                  id="scheduled_at"
-                  name="scheduled_at"
+                  id="scheduledAt"
+                  name="scheduledAt"     // ✅ camelCase per Agent.md
                   type="datetime-local"
-                  value={formData.scheduled_at}
+                  value={formData.scheduledAt}
                   onChange={handleChange}
                   min={getMinDateTime()}
-                  className={errors.scheduled_at ? styles.inputError : ''}
+                  className={errors.scheduledAt ? styles.inputError : ''}
                 />
-                {errors.scheduled_at && <span className={styles.errorText}>{errors.scheduled_at}</span>}
-                <small className={styles.helpText}>
-                  Please select a date and time at least 1 hour from now
-                </small>
+                {errors.scheduledAt && <span className={styles.errorText}>{errors.scheduledAt}</span>}
               </div>
             </div>
 
@@ -322,7 +261,7 @@ function NewAppointmentForm() {
             <div className={styles.section}>
               <h3>Additional Information</h3>
               <div className={styles.formGroup}>
-                <label htmlFor="notes">Special requests or notes (optional)</label>
+                <label htmlFor="notes">Notes</label>
                 <textarea
                   id="notes"
                   name="notes"
@@ -336,47 +275,33 @@ function NewAppointmentForm() {
             </div>
 
             {/* Summary */}
-            {selectedCar && selectedService && formData.scheduled_at && (
+            {selectedCar && selectedService && formData.scheduledAt && (
               <div className={styles.appointmentSummary}>
                 <h3>Appointment Summary</h3>
-                <div className={styles.summaryGrid}>
-                  <div className={styles.summaryItem}>
-                    <span className={styles.summaryLabel}>Vehicle:</span>
-                    <span className={styles.summaryValue}>
-                      {selectedCar.year} {selectedCar.make} {selectedCar.model} ({selectedCar.licensePlate})
-                    </span>
-                  </div>
-                  <div className={styles.summaryItem}>
-                    <span className={styles.summaryLabel}>Service:</span>
-                    <span className={styles.summaryValue}>
-                      {formData.service_type === 'other' ? customServiceType : selectedService.name}
-                    </span>
-                  </div>
-                  <div className={styles.summaryItem}>
-                    <span className={styles.summaryLabel}>Date & Time:</span>
-                    <span className={styles.summaryValue}>
-                      {new Date(formData.scheduled_at).toLocaleString()}
-                    </span>
-                  </div>
+                <div className={styles.summaryContent}>
+                  <p><strong>Vehicle:</strong> {selectedCar.year} {selectedCar.make} {selectedCar.model}</p>
+                  <p><strong>Service:</strong> {selectedService.name}</p>
+                  <p><strong>Date:</strong> {new Date(formData.scheduledAt).toLocaleDateString()}</p>
+                  <p><strong>Time:</strong> {new Date(formData.scheduledAt).toLocaleTimeString()}</p>
                 </div>
               </div>
             )}
 
             {/* Form Actions */}
             <div className={styles.formActions}>
-              <button
-                type="button"
-                onClick={() => router.push('/appointments')}
+              <button 
+                type="button" 
+                onClick={() => router.back()}
                 className={styles.cancelButton}
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
+              <button 
+                type="submit" 
+                disabled={isCreating}
                 className={styles.submitButton}
               >
-                {isSubmitting ? 'Scheduling...' : 'Schedule Appointment'}
+                {isCreating ? 'Scheduling...' : 'Schedule Appointment'}
               </button>
             </div>
           </form>
@@ -386,31 +311,15 @@ function NewAppointmentForm() {
   );
 }
 
-// Loading component
 function LoadingFallback() {
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '0.75rem'
-    }}>
-      <div style={{
-        width: '20px',
-        height: '20px',
-        border: '2px solid #e5e7eb',
-        borderTop: '2px solid #2563eb',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite'
-      }}></div>
+    <div className={styles.loadingFallback}>
+      <div className={styles.spinner}></div>
       <span>Loading...</span>
     </div>
   );
 }
 
-// Main component with Suspense boundary
 export default function NewAppointmentPage() {
   return (
     <Suspense fallback={<LoadingFallback />}>

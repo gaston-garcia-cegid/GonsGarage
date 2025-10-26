@@ -96,7 +96,7 @@ export default function ClientDashboard({
                     </div>
                     <div className={styles.carInfo}>
                       <h4>{car.year} {car.make} {car.model}</h4>
-                      <p>{car.license_plate}</p>
+                      <p>{car.licensePlate}</p>
                     </div>
                     <button 
                       onClick={() => onNavigate('cars')}

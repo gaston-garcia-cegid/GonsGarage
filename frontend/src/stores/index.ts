@@ -24,18 +24,13 @@ export {
 export {
   useAppointmentStore,
   useAppointments,
-  useAppointmentList,
-  useAppointmentDetails,
-  useAppointmentMutations,
-  useFilteredAppointments,
-  SERVICE_TYPES
 } from './appointment.store';
 
 export type {
   Appointment,
   CreateAppointmentRequest,
-  UpdateAppointmentRequest
-} from './appointment.store';
+  UpdateAppointmentRequest,
+} from '@/shared/types';
 
 // ✅ Store types available for advanced usage
 // Store types are internal to their implementations
