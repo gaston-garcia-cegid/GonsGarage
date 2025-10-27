@@ -77,8 +77,15 @@ export class VehicleService {
 
       const queryString = queryParams.toString();
       const endpoint = `/vehicles${queryString ? `?${queryString}` : ''}`;
+
+      const response = await apiClient.get<VehicleListResponse>(endpoint);
+      if (response.success) {
+        console.log('Vehicles:', response.data);
+      } else {
+        console.error('Error:', response.error?.message);
+      }
       
-      return await apiClient.get<VehicleListResponse>(endpoint);
+      return response;
     } catch {
       return {
         success: false,
