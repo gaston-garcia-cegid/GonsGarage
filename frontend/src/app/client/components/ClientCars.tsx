@@ -168,7 +168,7 @@ export default function ClientCars({
     <div className={styles.clientCarsContainer}>
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h2>Your Vehicles</h2>
+          <h2>Your Cars</h2>
           <p>
             {maxCars 
               ? `Manage your registered cars (${cars.length}/${maxCars})`

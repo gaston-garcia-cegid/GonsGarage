@@ -193,7 +193,7 @@ export default function LandingPage() {
             <h2>Your Trusted Auto Repair Shop</h2>
             <p>
               Expert mechanics, quality service, and fair prices. 
-              We keep your vehicle running at its best with professional care and attention.
+              We keep your car running at its best with professional care and attention.
             </p>
             <div className={styles.heroStats}>
               <div className={styles.stat}>

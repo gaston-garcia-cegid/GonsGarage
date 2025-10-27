@@ -4,21 +4,21 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { Car, CreateCarRequest } from '@/types/car';
-import { vehicleService, type Vehicle } from '@/lib/services/vehicle.service';
+import { carService, type Car as CarServiceType } from '@/lib/services/car.service';
 
-// ✅ Helper function to convert Vehicle to Car
-const vehicleToCar = (vehicle: Vehicle): Car => ({
-  id: vehicle.id,
-  make: vehicle.make,
-  model: vehicle.model,
-  year: vehicle.year,
-  licensePlate: vehicle.licensePlate,
-  vin: vehicle.vin || '',
-  color: vehicle.color || '',
-  mileage: vehicle.mileage || 0,
-  ownerId: vehicle.ownerId,
-  createdAt: vehicle.createdAt,
-  updatedAt: vehicle.updatedAt,
+// ✅ Helper function to convert CarServiceType to Car (same interface, just ensuring compatibility)
+const serviceCarToCar = (car: CarServiceType): Car => ({
+  id: car.id,
+  make: car.make,
+  model: car.model,
+  year: car.year,
+  licensePlate: car.licensePlate,
+  vin: car.vin || '',
+  color: car.color || '',
+  mileage: car.mileage || 0,
+  ownerId: car.ownerId,
+  createdAt: car.createdAt,
+  updatedAt: car.updatedAt,
 });
 
 // ✅ Car state interface following Agent.md conventions
@@ -90,7 +90,7 @@ export const useCarStore = create<CarState>()(
       });
       
       try {
-        const response = await vehicleService.getVehicles({
+        const response = await carService.getCars({
           ...get().filters,
           limit: get().pageSize,
           offset: (get().currentPage - 1) * get().pageSize,
@@ -98,7 +98,7 @@ export const useCarStore = create<CarState>()(
         
         if (response.data) {
           set((state) => {
-            state.cars = response.data!.vehicles.map(vehicleToCar);
+            state.cars = response.data!.cars.map(serviceCarToCar);
             state.totalCars = response.data!.total;
             state.isLoading = false;
           });
@@ -121,11 +121,11 @@ export const useCarStore = create<CarState>()(
       });
       
       try {
-        const response = await vehicleService.getVehicle(id);
+        const response = await carService.getCar(id);
         
         if (response.data) {
           set((state) => {
-            state.selectedCar = vehicleToCar(response.data!);
+            state.selectedCar = serviceCarToCar(response.data!);
             state.isLoading = false;
           });
         } else {
@@ -147,11 +147,11 @@ export const useCarStore = create<CarState>()(
       });
       
       try {
-        const response = await vehicleService.createVehicle(carData);
+        const response = await carService.createCar(carData);
         
         if (response.data) {
           set((state) => {
-            state.cars.unshift(vehicleToCar(response.data!)); // Add to beginning of list
+            state.cars.unshift(serviceCarToCar(response.data!)); // Add to beginning of list
             state.totalCars += 1;
             state.isCreating = false;
           });
@@ -176,16 +176,16 @@ export const useCarStore = create<CarState>()(
       });
       
       try {
-        const response = await vehicleService.updateVehicle(id, carData);
+        const response = await carService.updateCar(id, carData);
         
         if (response.data) {
           set((state) => {
             const index = state.cars.findIndex(car => car.id === id);
             if (index !== -1) {
-              state.cars[index] = vehicleToCar(response.data!);
+              state.cars[index] = serviceCarToCar(response.data!);
             }
             if (state.selectedCar?.id === id) {
-              state.selectedCar = vehicleToCar(response.data!);
+              state.selectedCar = serviceCarToCar(response.data!);
             }
             state.isUpdating = false;
           });
@@ -210,7 +210,7 @@ export const useCarStore = create<CarState>()(
       });
       
       try {
-        const response = await vehicleService.deleteVehicle(id);
+        const response = await carService.deleteCar(id);
         
         if (response.success) {
           set((state) => {

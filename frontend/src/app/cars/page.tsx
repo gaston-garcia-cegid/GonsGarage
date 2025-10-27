@@ -123,7 +123,7 @@ export default function CarsPage() {
         <div className={styles.controls}>
           <div className={styles.controlsLeft}>
             <h2>My Cars ({cars.length})</h2>
-            <p>Manage your registered vehicles</p>
+            <p>Manage your registered cars</p>
           </div>
           <button 
             onClick={() => setShowCreateModal(true)}

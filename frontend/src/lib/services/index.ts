@@ -2,7 +2,7 @@
 // Provides single entry point for all API services
 
 export { authService, AuthService } from './auth.service';
-export { vehicleService, VehicleService } from './vehicle.service';
+export { carService, CarService } from './car.service';
 
 // ✅ Export types for convenience
 export type { 
@@ -25,11 +25,11 @@ export type {
   RegisterRequest
 } from '@/types/auth';
 
-// ✅ Re-export vehicle types
+// ✅ Re-export car types
 export type {
-  Vehicle,
-  CreateVehicleRequest,
-  UpdateVehicleRequest,
-  VehicleFilters,
-  VehicleListResponse
-} from './vehicle.service';
+  Car,
+  CreateCarRequest,
+  UpdateCarRequest,
+  CarFilters,
+  CarListResponse
+} from './car.service';

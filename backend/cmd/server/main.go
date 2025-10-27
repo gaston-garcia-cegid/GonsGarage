@@ -315,11 +315,11 @@ func setupRoutes(
 		// Car routes would go here
 		cars := protected.Group("/cars")
 		{
-			cars.POST("", gin.WrapF(carHandler.CreateCar))
-			cars.GET("", gin.WrapF(carHandler.ListCars))
-			cars.GET("/:id", gin.WrapF(carHandler.GetCar))
-			cars.PUT("/:id", gin.WrapF(carHandler.UpdateCar))
-			cars.DELETE("/:id", gin.WrapF(carHandler.DeleteCar))
+			cars.POST("", carHandler.CreateCar)
+			cars.GET("", carHandler.ListCars)
+			cars.GET("/:id", carHandler.GetCar)
+			cars.PUT("/:id", carHandler.UpdateCar)
+			cars.DELETE("/:id", carHandler.DeleteCar)
 		}
 	}
 }

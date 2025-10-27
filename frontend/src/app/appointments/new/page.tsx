@@ -161,7 +161,7 @@ function NewAppointmentForm() {
               ← Back
             </button>
             <h2>Schedule a Service Appointment</h2>
-            <p>Book an appointment for your vehicle maintenance</p>
+            <p>Book an appointment for your car maintenance</p>
           </div>
 
           {error && (
@@ -173,7 +173,7 @@ function NewAppointmentForm() {
           <form onSubmit={handleSubmit} className={styles.appointmentForm}>
             {/* Car Selection */}
             <div className={styles.section}>
-              <h3>Select Your Vehicle *</h3>
+              <h3>Select Your Car *</h3>
               <div className={styles.formGroup}>
                 <select
                   id="carId"
@@ -182,7 +182,7 @@ function NewAppointmentForm() {
                   onChange={handleChange}
                   className={errors.carId ? styles.inputError : ''}
                 >
-                  <option value="">Choose a vehicle...</option>
+                  <option value="">Choose a car...</option>
                   {cars.map(car => (
                     <option key={car.id} value={car.id}>
                       {car.year} {car.make} {car.model} - {car.licensePlate}
@@ -194,7 +194,7 @@ function NewAppointmentForm() {
 
               {selectedCar && (
                 <div className={styles.selectedCarInfo}>
-                  <h4>Selected Vehicle:</h4>
+                  <h4>Selected Car:</h4>
                   <p>{selectedCar.year} {selectedCar.make} {selectedCar.model}</p>
                   <p>License Plate: {selectedCar.licensePlate}</p>
                 </div>
@@ -279,7 +279,7 @@ function NewAppointmentForm() {
               <div className={styles.appointmentSummary}>
                 <h3>Appointment Summary</h3>
                 <div className={styles.summaryContent}>
-                  <p><strong>Vehicle:</strong> {selectedCar.year} {selectedCar.make} {selectedCar.model}</p>
+                  <p><strong>Car:</strong> {selectedCar.year} {selectedCar.make} {selectedCar.model}</p>
                   <p><strong>Service:</strong> {selectedService.name}</p>
                   <p><strong>Date:</strong> {new Date(formData.scheduledAt).toLocaleDateString()}</p>
                   <p><strong>Time:</strong> {new Date(formData.scheduledAt).toLocaleTimeString()}</p>

@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"context"
-	"encoding/json"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
@@ -60,20 +58,24 @@ type CarResponse struct {
 }
 
 // CreateCar handles POST /api/v1/cars
-func (h *CarHandler) CreateCar(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+func (h *CarHandler) CreateCar(c *gin.Context) {
+	// Get user from Gin context
+	userIDStr, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
 
-	// Get user from middleware
-	userID, ok := getUserIDFromContext(ctx)
-	if !ok {
-		h.respondError(w, http.StatusUnauthorized, "unauthorized")
+	userID, err := uuid.Parse(userIDStr.(string))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
 		return
 	}
 
 	// Parse request
 	var req CreateCarRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		h.respondError(w, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
@@ -89,96 +91,95 @@ func (h *CarHandler) CreateCar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create car
-	createdCar, err := h.carService.CreateCar(ctx, car, userID)
+	createdCar, err := h.carService.CreateCar(c.Request.Context(), car, userID)
 	if err != nil {
 		if err == domain.ErrUnauthorizedAccess {
-			h.respondError(w, http.StatusForbidden, "forbidden")
+			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
 		if err == domain.ErrCarAlreadyExists {
-			h.respondError(w, http.StatusConflict, "car with this license plate already exists")
+			c.JSON(http.StatusConflict, gin.H{"error": "car with this license plate already exists"})
 			return
 		}
 		if err == domain.ErrInvalidCarData {
-			h.respondError(w, http.StatusBadRequest, "invalid car data")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car data"})
 			return
 		}
-
-		//h.logger.Error("failed to create car", "error", err, "userID", userID)
-		h.respondError(w, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 
 	// Convert to response
 	response := h.toCarResponse(createdCar)
 
-	h.respondJSON(w, http.StatusCreated, response)
+	c.JSON(http.StatusCreated, response)
 }
 
 // GetCar handles GET /api/v1/cars/{id}
-func (h *CarHandler) GetCar(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// Get user from middleware
-	userID, ok := getUserIDFromContext(ctx)
-	if !ok {
-		h.respondError(w, http.StatusUnauthorized, "unauthorized")
+func (h *CarHandler) GetCar(c *gin.Context) {
+	// Get user from Gin context
+	userIDStr, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
-	// Parse car ID
-	vars := mux.Vars(r)
-	carID, err := uuid.Parse(vars["id"])
+	userID, err := uuid.Parse(userIDStr.(string))
 	if err != nil {
-		h.respondError(w, http.StatusBadRequest, "invalid car ID")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
 		return
 	}
 
-	// Get car
-	car, err := h.carService.GetCar(ctx, carID, userID)
+	// Parse car ID from URL parameter
+	carIDStr := c.Param("id")
+	carID, err := uuid.Parse(carIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car ID"})
+		return
+	}
+
+	car, err := h.carService.GetCar(c.Request.Context(), carID, userID)
 	if err != nil {
 		if err == domain.ErrCarNotFound {
-			h.respondError(w, http.StatusNotFound, "car not found")
+			c.JSON(http.StatusNotFound, gin.H{"error": "car not found"})
 			return
 		}
 		if err == domain.ErrUnauthorizedAccess {
-			h.respondError(w, http.StatusForbidden, "forbidden")
+			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
-
-		//h.logger.Error("failed to get car", "error", err, "carID", carID, "userID", userID)
-		h.respondError(w, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 
-	// Convert to response
 	response := h.toCarResponse(car)
-
-	h.respondJSON(w, http.StatusOK, response)
+	c.JSON(http.StatusOK, response)
 }
 
 // ListCars handles GET /api/v1/cars
-func (h *CarHandler) ListCars(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+func (h *CarHandler) ListCars(c *gin.Context) {
+	// Get user from Gin context
+	userIDStr, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
 
-	// Get user from middleware
-	userID, ok := getUserIDFromContext(ctx)
-	if !ok {
-		h.respondError(w, http.StatusUnauthorized, "unauthorized")
+	userID, err := uuid.Parse(userIDStr.(string))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
 		return
 	}
 
 	// For clients, list their own cars
 	// For admins/managers, this could list all cars with pagination
-	cars, err := h.carService.GetCarsByOwner(ctx, userID, userID)
+	cars, err := h.carService.GetCarsByOwner(c.Request.Context(), userID, userID)
 	if err != nil {
 		if err == domain.ErrUnauthorizedAccess {
-			h.respondError(w, http.StatusForbidden, "forbidden")
+			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
-
-		//h.logger.Error("failed to list cars", "error", err, "userID", userID)
-		h.respondError(w, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 
@@ -188,32 +189,36 @@ func (h *CarHandler) ListCars(w http.ResponseWriter, r *http.Request) {
 		responses[i] = h.toCarResponse(car)
 	}
 
-	h.respondJSON(w, http.StatusOK, responses)
+	c.JSON(http.StatusOK, responses)
 }
 
 // UpdateCar handles PUT /api/v1/cars/{id}
-func (h *CarHandler) UpdateCar(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// Get user from middleware
-	userID, ok := getUserIDFromContext(ctx)
-	if !ok {
-		h.respondError(w, http.StatusUnauthorized, "unauthorized")
+func (h *CarHandler) UpdateCar(c *gin.Context) {
+	// Get user from Gin context
+	userIDStr, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
-	// Parse car ID
-	vars := mux.Vars(r)
-	carID, err := uuid.Parse(vars["id"])
+	userID, err := uuid.Parse(userIDStr.(string))
 	if err != nil {
-		h.respondError(w, http.StatusBadRequest, "invalid car ID")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
+		return
+	}
+
+	// Parse car ID from URL parameter
+	carIDStr := c.Param("id")
+	carID, err := uuid.Parse(carIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car ID"})
 		return
 	}
 
 	// Parse request
 	var req UpdateCarRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		h.respondError(w, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
@@ -230,69 +235,69 @@ func (h *CarHandler) UpdateCar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update car
-	updatedCar, err := h.carService.UpdateCar(ctx, car, userID)
+	updatedCar, err := h.carService.UpdateCar(c.Request.Context(), car, userID)
 	if err != nil {
 		if err == domain.ErrCarNotFound {
-			h.respondError(w, http.StatusNotFound, "car not found")
+			c.JSON(http.StatusNotFound, gin.H{"error": "car not found"})
 			return
 		}
 		if err == domain.ErrUnauthorizedAccess {
-			h.respondError(w, http.StatusForbidden, "forbidden")
+			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
 		if err == domain.ErrInvalidCarData {
-			h.respondError(w, http.StatusBadRequest, "invalid car data")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car data"})
 			return
 		}
-
-		//h.logger.Error("failed to update car", "error", err, "carID", carID, "userID", userID)
-		h.respondError(w, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 
 	// Convert to response
 	response := h.toCarResponse(updatedCar)
 
-	h.respondJSON(w, http.StatusOK, response)
+	c.JSON(http.StatusOK, response)
 }
 
 // DeleteCar handles DELETE /api/v1/cars/{id}
-func (h *CarHandler) DeleteCar(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// Get user from middleware
-	userID, ok := getUserIDFromContext(ctx)
-	if !ok {
-		h.respondError(w, http.StatusUnauthorized, "unauthorized")
+func (h *CarHandler) DeleteCar(c *gin.Context) {
+	// Get user from Gin context
+	userIDStr, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
-	// Parse car ID
-	vars := mux.Vars(r)
-	carID, err := uuid.Parse(vars["id"])
+	userID, err := uuid.Parse(userIDStr.(string))
 	if err != nil {
-		h.respondError(w, http.StatusBadRequest, "invalid car ID")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
+		return
+	}
+
+	// Parse car ID from URL parameter
+	carIDStr := c.Param("id")
+	carID, err := uuid.Parse(carIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car ID"})
 		return
 	}
 
 	// Delete car
-	err = h.carService.DeleteCar(ctx, carID, userID)
+	err = h.carService.DeleteCar(c.Request.Context(), carID, userID)
 	if err != nil {
 		if err == domain.ErrCarNotFound {
-			h.respondError(w, http.StatusNotFound, "car not found")
+			c.JSON(http.StatusNotFound, gin.H{"error": "car not found"})
 			return
 		}
 		if err == domain.ErrUnauthorizedAccess {
-			h.respondError(w, http.StatusForbidden, "forbidden")
+			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
-
-		//h.logger.Error("failed to delete car", "error", err, "carID", carID, "userID", userID)
-		h.respondError(w, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	c.Status(http.StatusNoContent)
 }
 
 // Helper methods
@@ -311,31 +316,4 @@ func (h *CarHandler) toCarResponse(car *domain.Car) CarResponse {
 		CreatedAt:    car.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:    car.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}
-}
-
-func (h *CarHandler) respondJSON(w http.ResponseWriter, status int, payload interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(payload)
-}
-
-func (h *CarHandler) respondError(w http.ResponseWriter, status int, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{"error": message})
-}
-
-// getUserIDFromContext extracts user ID from request context
-func getUserIDFromContext(ctx context.Context) (uuid.UUID, bool) {
-	userID, ok := ctx.Value("userID").(string)
-	if !ok {
-		return uuid.Nil, false
-	}
-
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return uuid.Nil, false
-	}
-
-	return id, true
 }
