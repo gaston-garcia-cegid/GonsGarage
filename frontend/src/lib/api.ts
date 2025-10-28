@@ -45,6 +45,8 @@ export interface LoginResponse {
   user: User;
   token: string;
   message: string;
+  success: boolean;
+  currentUser?: User;
 }
 
 export interface CreateEmployeeRequest {

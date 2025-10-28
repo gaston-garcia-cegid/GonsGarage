@@ -4,11 +4,18 @@ import React, { useEffect } from 'react';
 import { useAppointmentStore } from '@/stores/appointment.store';
 import { useCarStore } from '@/stores/car.store';
 import EmptyAppointmentState from '@/components/empty-states/EmptyAppointmentState';
-import AppointmentCard from '@/components/AppointmentCard';
+import AppointmentCard from '@/components/appointments/AppointmentCard';
 import Link from 'next/link';
 import styles from './appointments.module.css'; 
+import { useRouter } from 'next/dist/client/components/navigation';
+import { useAuthStore } from '@/stores/auth.store';
 
 export default function AppointmentsPage() {
+  const router = useRouter();
+  
+  // ✅ FIX: Use isAuthenticated instead of isAuthorized
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
+  
   const { 
     appointments, 
     isLoading: appointmentsLoading, 
@@ -22,10 +29,37 @@ export default function AppointmentsPage() {
     fetchCars 
   } = useCarStore();
 
+  // ✅ Redirect if not authenticated
   useEffect(() => {
-    fetchAppointments();
-    fetchCars();
-  }, [fetchAppointments, fetchCars]);
+    if (!authLoading && !isAuthenticated) {
+      router.push('/auth/login');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchAppointments();
+      fetchCars();
+    }
+  }, [isAuthenticated, fetchAppointments, fetchCars]);
+
+  // ✅ Show loading only during auth check
+  if (authLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner">Checking authentication...</div>
+      </div>
+    );
+  }
+
+  // ✅ Redirect in progress
+  if (!isAuthenticated) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner">Redirecting to login...</div>
+      </div>
+    );
+  }
 
   const isLoading = appointmentsLoading || carsLoading;
 

@@ -13,7 +13,7 @@ import ClientAppointments from './components/ClientAppointments';
 type ActiveTab = 'dashboard' | 'cars' | 'appointments';
 
 export default function ClientPage() {
-  const { isLoading: authLoading, isAuthorized } = useAuthGuard('client');
+  const { isLoading: authLoading, isAuthenticated } = useAuthGuard('client');
   const { cars, repairs, appointments, loading, error } = useClientData();
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
 
@@ -36,8 +36,8 @@ export default function ClientPage() {
     // updateUserCarsContext(updatedCars);
   }, []);
 
-  if (authLoading || loading || !isAuthorized) {
-    return <div>Loading...</div>;
+  if (authLoading || loading) {// || !isAuthenticated
+    return <div>Loading Client Page...</div>;
   }
 
   const navigationItems = [
