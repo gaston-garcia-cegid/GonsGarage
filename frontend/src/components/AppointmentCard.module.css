@@ -1,0 +1,272 @@
+/* AppointmentCard.module.css */
+
+.appointmentCard {
+  background-color: white;
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.appointmentCard:hover {
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+}
+
+/* Header */
+.appointmentHeader {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
+  background-color: var(--color-gray-50, #f9fafb);
+}
+
+.appointmentDate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dateLabel {
+  font-size: 0.75rem;
+  color: var(--color-gray-500, #6b7280);
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.dateValue {
+  font-size: 0.875rem;
+  color: var(--color-gray-900, #111827);
+  font-weight: 600;
+}
+
+/* Status Badge */
+.statusBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  letter-spacing: 0.025em;
+}
+
+.statusBadge.scheduled {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statusBadge.confirmed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.statusBadge.inProgress {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.statusBadge.completed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusBadge.cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Body */
+.appointmentBody {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.serviceInfo {
+  flex: 1;
+}
+
+.serviceType {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.notes {
+  font-size: 0.875rem;
+  color: var(--color-gray-600, #4b5563);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Car Info */
+.carInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: var(--color-gray-50, #f9fafb);
+  border-radius: var(--radius, 8px);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  min-width: 200px;
+}
+
+.carIcon {
+  font-size: 1.5rem;
+  opacity: 0.8;
+}
+
+.carDetails h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
+  margin: 0 0 0.25rem 0;
+}
+
+.carDetails p {
+  font-size: 0.75rem;
+  color: var(--color-gray-500, #6b7280);
+  margin: 0;
+  font-family: 'Courier New', monospace;
+}
+
+/* Footer */
+.appointmentFooter {
+  padding: 1rem;
+  border-top: 1px solid var(--color-gray-200, #e5e7eb);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-gray-50, #f9fafb);
+}
+
+.appointmentId {
+  font-size: 0.75rem;
+  color: var(--color-gray-400, #9ca3af);
+  font-family: 'Courier New', monospace;
+}
+
+/* Actions */
+.appointmentActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.appointmentActions button {
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius, 6px);
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.appointmentActions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Button Variants */
+.confirmButton {
+  background-color: #059669;
+  color: white;
+  border-color: #059669;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background-color: #047857;
+  border-color: #047857;
+}
+
+.editButton {
+  background-color: #0ea5e9;
+  color: white;
+  border-color: #0ea5e9;
+}
+
+.editButton:hover:not(:disabled) {
+  background-color: #0284c7;
+  border-color: #0284c7;
+}
+
+.cancelButton {
+  background-color: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.completeButton {
+  background-color: #7c3aed;
+  color: white;
+  border-color: #7c3aed;
+}
+
+.completeButton:hover:not(:disabled) {
+  background-color: #6d28d9;
+  border-color: #6d28d9;
+}
+
+.viewButton {
+  background-color: var(--color-gray-100, #f3f4f6);
+  color: var(--color-gray-700, #374151);
+  border-color: var(--color-gray-300, #d1d5db);
+}
+
+.viewButton:hover:not(:disabled) {
+  background-color: var(--color-gray-200, #e5e7eb);
+  border-color: var(--color-gray-400, #9ca3af);
+}
+
+.rescheduleButton {
+  background-color: #f59e0b;
+  color: white;
+  border-color: #f59e0b;
+}
+
+.rescheduleButton:hover:not(:disabled) {
+  background-color: #d97706;
+  border-color: #d97706;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .appointmentBody {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .carInfo {
+    min-width: unset;
+    width: 100%;
+  }
+  
+  .appointmentActions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .appointmentActions button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .appointmentFooter {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+}

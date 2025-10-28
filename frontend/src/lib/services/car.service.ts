@@ -78,15 +78,50 @@ export class CarService {
       const queryString = queryParams.toString();
       const endpoint = `/cars${queryString ? `?${queryString}` : ''}`;
 
-      const response = await apiClient.get<CarListResponse>(endpoint);
-      if (response.success) {
-        console.log('Cars:', response.data);
-      } else {
-        console.error('Error:', response.error?.message);
-      }
+      const response = await apiClient.get<CarListResponse>(endpoint); // ✅ Use 'any' to handle both formats
       
-      return response;
-    } catch {
+      if (response.success && response.data) {
+        // ✅ Handle both response formats
+        let carListResponse: CarListResponse;
+        
+        if (Array.isArray(response.data)) {
+          // ✅ Backend returns direct array
+          carListResponse = {
+            cars: response.data,
+            total: response.data.length,
+            limit: filters.limit || 10,
+            offset: filters.offset || 0,
+          };
+        } else if (response.data.cars && Array.isArray(response.data.cars)) {
+          // ✅ Backend returns wrapped object
+          carListResponse = {
+            cars: response.data.cars,
+            total: response.data.total || response.data.cars.length,
+            limit: response.data.limit || filters.limit || 10,
+            offset: response.data.offset || filters.offset || 0,
+          };
+        } else {
+          // ✅ Handle empty/invalid response
+          carListResponse = {
+            cars: [],
+            total: 0,
+            limit: filters.limit || 10,
+            offset: filters.offset || 0,
+          };
+        }
+        
+        console.log('✅ Cars fetched successfully:', carListResponse);
+        
+        return {
+          success: true,
+          data: carListResponse
+        };
+      } else {
+        console.error('❌ Cars API Error:', response.error);
+        return response;
+      }
+    } catch (error) {
+      console.error('❌ Cars Service Error:', error);
       return {
         success: false,
         error: {

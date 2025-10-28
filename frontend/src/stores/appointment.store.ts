@@ -74,9 +74,14 @@ export const useAppointmentStore = create<AppointmentStore>()(
         set((state) => {
           state.appointments = appointments;
           state.isLoading = false;
+          
+          // ✅ Log for debugging
+          console.log(`✅ Loaded ${appointments.length} appointments`);
         });
       } catch (error) {
+        console.error('❌ Unexpected error in fetchAppointments:', error);
         set((state) => {
+          state.appointments = []; // ✅ Set empty array instead of leaving undefined
           state.error = (error as Error).message;
           state.isLoading = false;
         });

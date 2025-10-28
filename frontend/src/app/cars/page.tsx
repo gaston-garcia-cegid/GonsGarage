@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/stores';
 import { Car } from '@/types/car';
@@ -11,6 +11,7 @@ import LoadingSpinner from '@/components/ui/Loading/LoadingSpinner';
 import ErrorAlert from '@/components/ui/Error/ErrorAlert';
 import Image from 'next/image';
 import styles from './cars.module.css';
+import EmptyCarState from '@/components/empty-states/EmptyCarState';
 
 // Main Cars page component following Agent.md component conventions
 export default function CarsPage() {
@@ -19,7 +20,7 @@ export default function CarsPage() {
 
   const { user, logout } = useAuth();
   const router = useRouter();
-  const { cars, isLoading: loading, error, createCar, updateCar, deleteCar, fetchCars } = useCars();
+  const { cars, isLoading, error, createCar, updateCar, deleteCar, fetchCars, totalCars } = useCars();
 
   // Redirect if not authenticated and fetch cars - following Agent.md security practices
   React.useEffect(() => {
@@ -54,13 +55,28 @@ export default function CarsPage() {
   };
 
   // Loading state - following Agent.md user experience
-  if (loading) {
+  if (isLoading) {
     return (
       <div className={styles.loadingContainer}>
         <LoadingSpinner />
-        <span>Loading cars...</span>
+        <span>Loading your cars...</span>
       </div>
     );
+  }
+
+  // Error state - following Agent.md error handling
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <p>Error loading cars: {error}</p>
+        <button onClick={() => fetchCars()}>Retry</button>
+      </div>
+    );
+  }
+
+  // Show empty state when no cars
+  if (!isLoading && cars.length === 0) {
+    return <EmptyCarState />;
   }
 
   return (
@@ -122,7 +138,7 @@ export default function CarsPage() {
         {/* Controls */}
         <div className={styles.controls}>
           <div className={styles.controlsLeft}>
-            <h2>My Cars ({cars.length})</h2>
+            <h2>My Cars ({totalCars})</h2>
             <p>Manage your registered cars</p>
           </div>
           <button 

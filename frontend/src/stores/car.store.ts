@@ -96,17 +96,30 @@ export const useCarStore = create<CarState>()(
           offset: (get().currentPage - 1) * get().pageSize,
         });
         
-        if (response.data) {
+        if (response.success && response.data) {
           set((state) => {
-            state.cars = response.data!.cars.map(serviceCarToCar);
+            state.cars = response.data!.cars.length > 0 ? response.data!.cars.map(serviceCarToCar) : [];
             state.totalCars = response.data!.total;
             state.isLoading = false;
+            
+            // ✅ Log for debugging
+            console.log(`✅ Loaded ${state.cars.length} cars (${state.totalCars} total)`);
           });
         } else {
-          throw new Error(response.error?.message || 'Failed to fetch cars');
+          // ✅ Handle API error but don't throw - set empty state
+          console.warn('⚠️ Cars API returned error, setting empty state');
+          set((state) => {
+            state.cars = [];
+            state.totalCars = 0;
+            state.isLoading = false;
+            state.error = response.error?.message || 'No cars found';
+          });
         }
       } catch (error) {
+        console.error('❌ Unexpected error in fetchCars:', error);
         set((state) => {
+          state.cars = [];
+          state.totalCars = 0;
           state.error = error instanceof Error ? error.message : 'Failed to fetch cars';
           state.isLoading = false;
         });
