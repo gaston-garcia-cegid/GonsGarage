@@ -26,6 +26,7 @@ import (
 	redisRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/redis"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/appointment"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/auth"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/car"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/employee"
@@ -152,6 +153,7 @@ func main() {
 	userRepo := postgresRepo.NewPostgresUserRepository(db)
 	employeeRepo := postgresRepo.NewPostgresEmployeeRepository(db)
 	carRepo := postgresRepo.NewPostgresCarRepository(db)
+	appointmentRepo := postgresRepo.NewPostgresAppointmentRepository(db)
 	log.Printf("Repositories initialized")
 
 	// Initialize use cases
@@ -164,6 +166,7 @@ func main() {
 	authService := auth.NewAuthService(userRepo, jwtSecret, 24)
 	employeeService := employee.NewEmployeeService(employeeRepo, cacheRepo)
 	carService := car.NewCarService(carRepo, userRepo, cacheRepo)
+	appointmentService := appointment.NewAppointmentService(appointmentRepo, userRepo, cacheRepo)
 
 	log.Printf("Use cases initialized")
 
@@ -174,6 +177,9 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService)
 	employeeHandler := handlers.NewEmployeeHandler(employeeService)
 	carHandler := handlers.NewCarHandler(carService)
+
+	// Initialize appointment handler
+	appointmentHandler := handlers.NewAppointmentHandler(appointmentService)
 
 	log.Printf("Handlers initialized")
 
@@ -188,7 +194,7 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Setup routes
-	setupRoutes(router, authHandler, employeeHandler, carHandler, authMiddleware)
+	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, authMiddleware)
 
 	log.Printf("Routes set up")
 
@@ -278,6 +284,7 @@ func setupRoutes(
 	authHandler *handlers.AuthHandler,
 	employeeHandler *handlers.EmployeeHandler,
 	carHandler *handlers.CarHandler,
+	appointmentHandler *handlers.AppointmentHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) {
 	// Health check
@@ -321,13 +328,28 @@ func setupRoutes(
 			cars.PUT("/:id", carHandler.UpdateCar)
 			cars.DELETE("/:id", carHandler.DeleteCar)
 		}
+
+		// Appointment routes would go here
+		appointments := protected.Group("/appointments")
+		{
+			appointments.POST("", appointmentHandler.CreateAppointment)
+			appointments.GET("", appointmentHandler.ListAppointments)
+			appointments.GET("/:id", appointmentHandler.GetAppointment)
+			appointments.PUT("/:id", appointmentHandler.UpdateAppointment)
+			appointments.DELETE("/:id", appointmentHandler.DeleteAppointment)
+		}
+
+		// Repair routes would go here
+		// repairs := protected.Group("/repairs")
+		// {
+		// 	repairs.POST("", repairHandler.CreateRepair)
+		// 	repairs.GET("", repairHandler.ListRepairs)
+		// 	repairs.GET("/:id", repairHandler.GetRepair)
+		// 	repairs.PUT("/:id", repairHandler.UpdateRepair)
+		// 	repairs.DELETE("/:id", repairHandler.DeleteRepair)
+		// }
 	}
 }
-
-// Convert http.HandlerFunc to gin.HandlerFunc
-// func ginHandler(h func(http.ResponseWriter, *http.Request)) gin.HandlerFunc {
-// 	return gin.WrapF(h)
-// }
 
 // Convert auth middleware to Gin middleware
 // ginAuthMiddleware converts the auth middleware to work properly with Gin

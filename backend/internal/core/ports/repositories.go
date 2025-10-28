@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/google/uuid"
@@ -117,4 +118,27 @@ type RepairRepository interface {
 type Logger interface {
 	Info(msg string, keysAndValues ...interface{})
 	Error(msg string, keysAndValues ...interface{})
+}
+
+// AppointmentRepository defines the interface for the appointment repository
+type AppointmentRepository interface {
+	Create(ctx context.Context, appointment *domain.Appointment) error
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Appointment, error)
+	Update(ctx context.Context, appointment *domain.Appointment) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	List(ctx context.Context, filters *AppointmentFilters) ([]*domain.Appointment, int64, error)
+}
+
+// AppointmentFilters represents filters for listing appointments
+type AppointmentFilters struct {
+	CustomerID  *uuid.UUID
+	EmployeeID  *uuid.UUID
+	CarID       *uuid.UUID
+	ScheduledAt *time.Time
+	Reason      *string
+	Status      *string
+	SortBy      string
+	SortOrder   string
+	Limit       int
+	Offset      int
 }

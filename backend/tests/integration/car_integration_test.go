@@ -60,11 +60,11 @@ func (suite *CarIntegrationTestSuite) SetupSuite() {
 	v1 := router.Group("/api/v1")
 	cars := v1.Group("/cars")
 	{
-		cars.POST("", ginHandler(carHandler.CreateCar))
-		cars.GET("", ginHandler(carHandler.ListCars))
-		cars.GET("/:id", ginHandler(carHandler.GetCar))
-		cars.PUT("/:id", ginHandler(carHandler.UpdateCar))
-		cars.DELETE("/:id", ginHandler(carHandler.DeleteCar))
+		cars.POST("", carHandler.CreateCar)
+		cars.GET("", carHandler.ListCars)
+		cars.GET("/:id", carHandler.GetCar)
+		cars.PUT("/:id", carHandler.UpdateCar)
+		cars.DELETE("/:id", carHandler.DeleteCar)
 	}
 
 	suite.app = router

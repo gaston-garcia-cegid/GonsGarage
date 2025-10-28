@@ -120,3 +120,17 @@ type CarService interface {
 	// GetCarWithRepairs retrieves a car with its repair history
 	GetCarWithRepairs(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) (*domain.Car, error)
 }
+
+// AppointmentService defines the contract for appointment business operations
+type AppointmentService interface {
+	// CreateAppointment schedules a new appointment with authorization checks
+	CreateAppointment(ctx context.Context, appointment *domain.Appointment, requestingUserID uuid.UUID) (*domain.Appointment, error)
+	// GetAppointment retrieves an appointment by ID with authorization checks
+	GetAppointment(ctx context.Context, appointmentID uuid.UUID, requestingUserID uuid.UUID) (*domain.Appointment, error)
+	// UpdateAppointment modifies an existing appointment with authorization checks
+	UpdateAppointment(ctx context.Context, appointment *domain.Appointment, requestingUserID uuid.UUID) (*domain.Appointment, error)
+	// DeleteAppointment removes an appointment with authorization checks
+	DeleteAppointment(ctx context.Context, appointmentID uuid.UUID, requestingUserID uuid.UUID) error
+	// ListAppointments lists appointments with optional filters and authorization checks
+	ListAppointments(ctx context.Context, filters *AppointmentFilters) ([]*domain.Appointment, int64, error)
+}
