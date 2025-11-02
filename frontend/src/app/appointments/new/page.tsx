@@ -5,15 +5,22 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
 import { useCarStore } from '@/stores/car.store';
 import { useAppointments } from '@/stores/appointment.store';
-import { CreateAppointmentRequest, SERVICE_TYPES } from '@/shared/types';
+import { CreateAppointmentRequest } from '@/types/appointment';
+import { SERVICE_TYPES } from '@/shared/types';
 import styles from './new-appointment.module.css';
 
 function NewAppointmentForm() {
   const [formData, setFormData] = useState<CreateAppointmentRequest>({
-    carId: '',           // ✅ camelCase per Agent.md
-    serviceType: '',     // ✅ camelCase per Agent.md
-    scheduledAt: '',     // ✅ camelCase per Agent.md
+    carId: '',
+    clientName: '',
+    service: '',
+    date: '',
+    time: '',
+    status: 'scheduled',
     notes: '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: undefined,
   });
   const [customServiceType, setCustomServiceType] = useState('');
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -49,21 +56,21 @@ function NewAppointmentForm() {
       newErrors.carId = 'Please select a car';
     }
 
-    if (!formData.serviceType) {
-      newErrors.serviceType = 'Please select a service type';
+    if (!formData.service) {
+      newErrors.service = 'Please select a service type';
     }
 
-    if (formData.serviceType === 'other' && !customServiceType.trim()) {
+    if (formData.service === 'other' && !customServiceType.trim()) {
       newErrors.customServiceType = 'Please specify the service type';
     }
 
-    if (!formData.scheduledAt) {
-      newErrors.scheduledAt = 'Please select a date and time';
+    if (!formData.date) {
+      newErrors.date = 'Please select a date and time';
     } else {
-      const selectedDate = new Date(formData.scheduledAt);
+      const selectedDate = new Date(formData.date);
       const now = new Date();
       if (selectedDate <= now) {
-        newErrors.scheduledAt = 'Please select a future date and time';
+        newErrors.date = 'Please select a future date and time';
       }
     }
 
@@ -80,9 +87,15 @@ function NewAppointmentForm() {
       // ✅ Data already in camelCase format per Agent.md
       const appointmentData: CreateAppointmentRequest = {
         carId: formData.carId,
-        serviceType: formData.serviceType === 'other' ? customServiceType : formData.serviceType,
-        scheduledAt: formData.scheduledAt,
+        clientName: formData.clientName,
+        service: formData.service === 'other' ? customServiceType : formData.service,
+        time: formData.time,
+        date: formData.date,
+        status: formData.status,
         notes: formData.notes,
+        createdAt: formData.createdAt,
+        updatedAt: formData.updatedAt,
+        deletedAt: formData.deletedAt,
       };
 
       const success = await createAppointment(appointmentData);
@@ -118,7 +131,7 @@ function NewAppointmentForm() {
   };
 
   const selectedCar = cars.find(car => car.id === formData.carId);
-  const selectedService = SERVICE_TYPES.find(service => service.id === formData.serviceType);
+  const selectedService = SERVICE_TYPES.find(service => service.id === formData.service);
 
   if (carsLoading) {
     return (
@@ -209,9 +222,9 @@ function NewAppointmentForm() {
                   <label key={service.id} className={styles.serviceOption}>
                     <input
                       type="radio"
-                      name="serviceType"   // ✅ camelCase per Agent.md
+                      name="service"   // ✅ camelCase per Agent.md
                       value={service.id}
-                      checked={formData.serviceType === service.id}
+                      checked={formData.service === service.id}
                       onChange={handleChange}
                     />
                     <div className={styles.serviceContent}>
@@ -221,9 +234,9 @@ function NewAppointmentForm() {
                   </label>
                 ))}
               </div>
-              {errors.serviceType && <span className={styles.errorText}>{errors.serviceType}</span>}
+              {errors.service && <span className={styles.errorText}>{errors.service}</span>}
 
-              {formData.serviceType === 'other' && (
+              {formData.service === 'other' && (
                 <div className={styles.formGroup}>
                   <label htmlFor="customServiceType">Specify Service Type *</label>
                   <input
@@ -248,12 +261,12 @@ function NewAppointmentForm() {
                   id="scheduledAt"
                   name="scheduledAt"     // ✅ camelCase per Agent.md
                   type="datetime-local"
-                  value={formData.scheduledAt}
+                  value={formData.date}
                   onChange={handleChange}
                   min={getMinDateTime()}
-                  className={errors.scheduledAt ? styles.inputError : ''}
+                  className={errors.date ? styles.inputError : ''}
                 />
-                {errors.scheduledAt && <span className={styles.errorText}>{errors.scheduledAt}</span>}
+                {errors.date && <span className={styles.errorText}>{errors.date}</span>}
               </div>
             </div>
 
@@ -275,14 +288,14 @@ function NewAppointmentForm() {
             </div>
 
             {/* Summary */}
-            {selectedCar && selectedService && formData.scheduledAt && (
+            {selectedCar && selectedService && formData.date && (
               <div className={styles.appointmentSummary}>
                 <h3>Appointment Summary</h3>
                 <div className={styles.summaryContent}>
                   <p><strong>Car:</strong> {selectedCar.year} {selectedCar.make} {selectedCar.model}</p>
                   <p><strong>Service:</strong> {selectedService.name}</p>
-                  <p><strong>Date:</strong> {new Date(formData.scheduledAt).toLocaleDateString()}</p>
-                  <p><strong>Time:</strong> {new Date(formData.scheduledAt).toLocaleTimeString()}</p>
+                  <p><strong>Date:</strong> {new Date(formData.date).toLocaleDateString()}</p>
+                  <p><strong>Time:</strong> {new Date(formData.date).toLocaleTimeString()}</p>
                 </div>
               </div>
             )}

@@ -52,10 +52,16 @@ func (r *PostgresUserRepository) Create(ctx context.Context, user *domain.User) 
 func (r *PostgresUserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	var dbUser UserModel
 
-	err := r.db.WithContext(ctx).Where("id = ? AND deleted_at IS NULL", id).First(&dbUser).Error
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	err := r.db.WithContext(queryCtx).Where("id = ? AND deleted_at IS NULL", id).First(&dbUser).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, domain.ErrUserNotFound
+		}
+		if err == context.Canceled || err == context.DeadlineExceeded {
+			return nil, fmt.Errorf("database query timeout: %w", err)
 		}
 		return nil, fmt.Errorf("failed to get user by ID: %w", err)
 	}
@@ -212,6 +218,10 @@ func (r *PostgresUserRepository) UpdatePassword(ctx context.Context, userID uuid
 
 // toDomainUser converts database model to domain entity
 func (r *PostgresUserRepository) toDomainUser(dbUser *UserModel) *domain.User {
+	if dbUser == nil {
+		return nil
+	}
+
 	return &domain.User{
 		ID:        dbUser.ID,
 		Email:     dbUser.Email,

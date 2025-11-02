@@ -1,0 +1,210 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideUp 0.3s ease-out;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Header */
+.header {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header.danger {
+  background-color: #fef2f2;
+  color: #991b1b;
+}
+
+.header.warning {
+  background-color: #fffbeb;
+  color: #92400e;
+}
+
+.header.info {
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.header.danger .iconWrapper {
+  background-color: #fee2e2;
+}
+
+.header.warning .iconWrapper {
+  background-color: #fef3c7;
+}
+
+.header.info .iconWrapper {
+  background-color: #dbeafe;
+}
+
+.iconWrapper svg {
+  width: 24px;
+  height: 24px;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Body */
+.body {
+  padding: 1.5rem;
+}
+
+.body p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Footer */
+.footer {
+  padding: 1rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cancelButton,
+.confirmButton {
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+}
+
+.cancelButton {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.cancelButton:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.cancelButton:active {
+  background-color: #f3f4f6;
+}
+
+.confirmButton {
+  color: white;
+  min-width: 100px;
+}
+
+.confirmButton.danger {
+  background-color: #dc2626;
+}
+
+.confirmButton.danger:hover {
+  background-color: #b91c1c;
+}
+
+.confirmButton.warning {
+  background-color: #f59e0b;
+}
+
+.confirmButton.warning:hover {
+  background-color: #d97706;
+}
+
+.confirmButton.info {
+  background-color: #2563eb;
+}
+
+.confirmButton.info:hover {
+  background-color: #1d4ed8;
+}
+
+.confirmButton:active {
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .modal {
+    width: 95%;
+    max-width: none;
+  }
+
+  .header {
+    padding: 1.25rem;
+  }
+
+  .body {
+    padding: 1.25rem;
+  }
+
+  .footer {
+    padding: 1rem 1.25rem;
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .confirmButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

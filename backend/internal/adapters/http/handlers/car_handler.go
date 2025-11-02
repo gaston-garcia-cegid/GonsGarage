@@ -79,8 +79,9 @@ func (h *CarHandler) CreateCar(c *gin.Context) {
 		return
 	}
 
-	// Convert to domain object
+	// ✅ Convert to domain object WITH OwnerID
 	car := &domain.Car{
+		OwnerID:      userID, // ✅ Set from authenticated user
 		Make:         req.Make,
 		Model:        req.Model,
 		Year:         req.Year,
@@ -90,7 +91,7 @@ func (h *CarHandler) CreateCar(c *gin.Context) {
 		Mileage:      req.Mileage,
 	}
 
-	// Create car
+	// Create car (service will validate permissions)
 	createdCar, err := h.carService.CreateCar(c.Request.Context(), car, userID)
 	if err != nil {
 		if err == domain.ErrUnauthorizedAccess {
@@ -111,7 +112,6 @@ func (h *CarHandler) CreateCar(c *gin.Context) {
 
 	// Convert to response
 	response := h.toCarResponse(createdCar)
-
 	c.JSON(http.StatusCreated, response)
 }
 

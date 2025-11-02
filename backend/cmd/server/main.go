@@ -69,9 +69,10 @@ func main() {
 	}
 
 	// Set connection pool settings
-	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetConnMaxIdleTime(10 * time.Minute)
 
 	// Test connection with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

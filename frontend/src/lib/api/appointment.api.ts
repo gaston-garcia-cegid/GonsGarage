@@ -1,4 +1,4 @@
-import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/shared/types';
+import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
 import { apiClient } from '@/lib/api-client';
 
 export const appointmentApi = {
@@ -45,8 +45,8 @@ export const appointmentApi = {
     try {
       const response = await apiClient.post<Appointment>('/appointments', {
         carId: data.carId,         // ✅ camelCase per Agent.md
-        serviceType: data.serviceType, // ✅ camelCase per Agent.md
-        scheduledAt: data.scheduledAt, // ✅ camelCase per Agent.md
+        serviceType: data.service, // ✅ camelCase per Agent.md
+        scheduledAt: data.date, // ✅ camelCase per Agent.md
         notes: data.notes,
       });
       return response.success ? response.data ?? null : null;
@@ -59,8 +59,8 @@ export const appointmentApi = {
   updateAppointment: async (id: string, data: UpdateAppointmentRequest): Promise<Appointment | null> => {
     try {
       const response = await apiClient.put<Appointment>(`/appointments/${id}`, {
-        serviceType: data.serviceType, // ✅ camelCase per Agent.md
-        scheduledAt: data.scheduledAt, // ✅ camelCase per Agent.md
+        serviceType: data.service, // ✅ camelCase per Agent.md
+        scheduledAt: data.date, // ✅ camelCase per Agent.md
         status: data.status,
         notes: data.notes,
       });

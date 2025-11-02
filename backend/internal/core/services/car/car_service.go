@@ -3,6 +3,7 @@ package car
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
@@ -30,55 +31,91 @@ func NewCarService(
 
 // CreateCar creates a new car for a client
 func (uc *CarService) CreateCar(ctx context.Context, car *domain.Car, requestingUserID uuid.UUID) (*domain.Car, error) {
-	// Get the requesting user to check permissions
-	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
+	// ✅ Get requesting user with timeout
+	queryCtx, cancel := context.WithTimeout(ctx, 10*time.Second) // ✅ Increase timeout
+	defer cancel()
+
+	requestingUser, err := uc.userRepo.GetByID(queryCtx, requestingUserID)
 	if err != nil {
-		uc.logger.Error("failed to get requesting user", "userID", requestingUserID, "error", err)
+		log.Printf("failed to get requesting user: userID=%s, error=%v", requestingUserID, err)
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	// Validate permissions: clients can only create cars for themselves
-	// Admins and managers can create cars for any client
-	if requestingUser.IsClient() {
-		car.OwnerID = requestingUserID // Force owner to be the requesting client
-	} else if !requestingUser.CanManageUsers() {
+	// ✅ Check if license plate already exists (only active cars)
+	existingCar, err := uc.carRepo.GetByLicensePlate(queryCtx, car.LicensePlate)
+	if err != nil {
+		log.Printf("error checking license plate: error=%v", err)
+		return nil, fmt.Errorf("failed to check license plate: %w", err)
+	}
+
+	// ✅ If active car with same plate exists, reject
+	if existingCar != nil {
+		log.Printf("license plate already exists: plate=%s, existing_car_id=%s", car.LicensePlate, existingCar.ID)
+		return nil, domain.ErrCarAlreadyExists
+	}
+
+	// ✅ License plate is available (either never used or previously deleted)
+	// ✅ Explicit nil check
+	if requestingUser == nil {
+		log.Printf("user not found: userID=%s", requestingUserID)
+		return nil, domain.ErrUserNotFound
+	}
+
+	// ✅ For clients, ALWAYS set owner to themselves
+	if requestingUser.Role == domain.RoleClient {
+		car.OwnerID = requestingUserID
+	} else if requestingUser.Role == domain.RoleAdmin || requestingUser.Role == domain.RoleEmployee {
+		if car.OwnerID == uuid.Nil {
+			return nil, fmt.Errorf("owner ID is required for admin/employee")
+		}
+	} else {
 		return nil, domain.ErrUnauthorizedAccess
 	}
 
-	// Validate that the owner exists and is a client
-	owner, err := uc.userRepo.GetByID(ctx, car.OwnerID)
-	if err != nil {
-		uc.logger.Error("failed to get car owner", "owner_id", car.OwnerID, "error", err)
-		return nil, fmt.Errorf("car owner not found: %w", err)
+	// ✅ OPTIMIZATION: Reuse requestingUser if owner is same user
+	var owner *domain.User
+	if car.OwnerID == requestingUserID {
+		owner = requestingUser // ✅ No second query needed!
+	} else {
+		// ✅ Only query if owner is different user
+		owner, err = uc.userRepo.GetByID(queryCtx, car.OwnerID)
+		if err != nil {
+			log.Printf("failed to get car owner: owner_id=%s, error=%v", car.OwnerID, err)
+			return nil, fmt.Errorf("car owner not found: %w", err)
+		}
+		if owner == nil {
+			return nil, fmt.Errorf("car owner not found")
+		}
 	}
 
-	if !owner.IsClient() {
+	// ✅ Validate owner is a client
+	if owner.Role != domain.RoleClient {
 		return nil, fmt.Errorf("car owner must be a client")
 	}
 
-	// Check if license plate already exists
-	existingCar, err := uc.carRepo.GetByLicensePlate(ctx, car.LicensePlate)
+	// ✅ Check if license plate already exists
+	existingCar, err = uc.carRepo.GetByLicensePlate(queryCtx, car.LicensePlate)
 	if err == nil && existingCar != nil {
 		return nil, domain.ErrCarAlreadyExists
 	}
 
-	// Validate car data
+	// ✅ Validate car data
 	if err := car.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid car data: %w", err)
 	}
 
-	// Set metadata
+	// ✅ Set metadata
 	car.ID = uuid.New()
 	car.CreatedAt = time.Now()
 	car.UpdatedAt = time.Now()
 
-	// Create the car
+	// ✅ Create the car
 	if err := uc.carRepo.Create(ctx, car); err != nil {
-		uc.logger.Error("failed to create car", "car", car, "error", err)
+		log.Printf("failed to create car: car=%+v, error=%v", car, err)
 		return nil, fmt.Errorf("failed to create car: %w", err)
 	}
 
-	uc.logger.Info("car created successfully", "car_id", car.ID, "owner_id", car.OwnerID)
+	log.Printf("car created successfully: car_id=%s, owner_id=%s", car.ID, car.OwnerID)
 	return car, nil
 }
 
@@ -128,7 +165,7 @@ func (uc *CarService) GetCarsByOwner(ctx context.Context, ownerID uuid.UUID, req
 
 	cars, err := uc.carRepo.GetByOwnerID(ctx, ownerID)
 	if err != nil {
-		uc.logger.Error("failed to get cars by owner", "owner_id", ownerID, "error", err)
+		log.Printf("failed to get cars by owner", "owner_id", ownerID, "error", err)
 		return nil, fmt.Errorf("failed to get cars: %w", err)
 	}
 
@@ -172,11 +209,11 @@ func (uc *CarService) UpdateCar(ctx context.Context, car *domain.Car, requesting
 
 	// Update the car
 	if err := uc.carRepo.Update(ctx, car); err != nil {
-		uc.logger.Error("failed to update car", "car_id", car.ID, "error", err)
+		log.Printf("failed to update car", "car_id", car.ID, "error", err)
 		return nil, fmt.Errorf("failed to update car: %w", err)
 	}
 
-	uc.logger.Info("car updated successfully", "car_id", car.ID)
+	log.Printf("car updated successfully", "car_id", car.ID)
 	return car, nil
 }
 
@@ -206,11 +243,11 @@ func (uc *CarService) DeleteCar(ctx context.Context, carID uuid.UUID, requesting
 
 	// Delete the car
 	if err := uc.carRepo.Delete(ctx, carID); err != nil {
-		uc.logger.Error("failed to delete car", "car_id", carID, "error", err)
+		log.Printf("failed to delete car", "car_id", carID, "error", err)
 		return fmt.Errorf("failed to delete car: %w", err)
 	}
 
-	uc.logger.Info("car deleted successfully", "car_id", carID)
+	log.Printf("car deleted successfully", "car_id", carID)
 	return nil
 }
 

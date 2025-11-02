@@ -103,6 +103,8 @@ type CarRepository interface {
 	Update(ctx context.Context, car *domain.Car) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetWithRepairs(ctx context.Context, id uuid.UUID) (*domain.Car, error)
+	GetDeletedByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error)
+	Restore(ctx context.Context, id uuid.UUID) error
 }
 
 // RepairRepository defines the interface for the repair repository

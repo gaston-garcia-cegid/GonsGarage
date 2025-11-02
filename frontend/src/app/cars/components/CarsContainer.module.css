@@ -1,0 +1,128 @@
+/* Container */
+.container {
+  width: 100%;
+}
+
+/* Header Section */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.headerContent h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.headerContent p {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Add Button */
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.addButton:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+.addButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.addButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.addButton svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Max Cars Message */
+.maxCarsMessage {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1rem;
+}
+
+.loadingContainer span {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* Empty State Wrapper */
+.emptyStateWrapper {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .headerContent h2 {
+    font-size: 1.25rem;
+  }
+
+  .headerContent p {
+    font-size: 0.875rem;
+  }
+}

@@ -1,21 +1,34 @@
 // src/components/client/ClientAppointments.tsx
 'use client';
 
+import { Appointment } from '@/types/appointment';
 import styles from '../client.module.css';
+import AppointmentsContainer from '@/app/appointments/components/AppointmentContainer';
 
-export default function ClientAppointments(
-  { onScheduleService }: { onScheduleService: () => void }) {
+interface ClientAppointmentsProps {
+  appointments: Appointment[];
+  onAddAppointment?: (appointment: Appointment) => void;
+  onUpdateAppointment?: (appointments: Appointment[]) => void;
+  showAddButton?: boolean;
+  maxAppointments?: number;
+  onScheduleService: (id: string) => void;
+}
+
+export default function ClientAppointments({ 
+  appointments,
+  onAddAppointment, 
+  onUpdateAppointment, 
+  showAddButton = true, 
+  maxAppointments,
+  onScheduleService
+}: ClientAppointmentsProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold">Your Appointments</h3>
-        <button 
-          onClick={onScheduleService}
-          className={styles.primaryButton}>
-          Schedule Service
-        </button>
-      </div>
-      <p>Your appointments will be listed here...</p>
-    </div>
+    <AppointmentsContainer
+      onAddAppointment={onAddAppointment}
+      onUpdateAppointment={onUpdateAppointment}
+      maxAppointments={maxAppointments}
+      headerTitle="Your Appointments"
+      addButtonText="Add New Appointment"
+    />
   );
 }

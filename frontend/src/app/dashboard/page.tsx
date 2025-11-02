@@ -21,7 +21,7 @@ export default function ClientDashboardPage() {
   
   // Filter upcoming appointments
   const upcomingAppointments = appointments.filter(appointment => 
-    new Date(appointment.scheduledAt) > new Date()
+    new Date(appointment.date) > new Date()
   );
 
   useEffect(() => {

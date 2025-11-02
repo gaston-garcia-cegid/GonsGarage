@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Appointment } from '@/shared/types';
+import { Appointment } from '@/types/appointment';
 import { useCarStore } from '@/stores/car.store';
 import { useAppointmentStore } from '@/stores/appointment.store';
 import styles from './AppointmentCard.module.css';
@@ -86,7 +86,7 @@ export default function AppointmentCard({ appointment, onStatusChange }: Appoint
         <div className={styles.appointmentDate}>
           <span className={styles.dateLabel}>Scheduled</span>
           <span className={styles.dateValue}>
-            {formatDate(appointment.scheduledAt)}
+            {formatDate(appointment.date)}
           </span>
         </div>
         <span className={`${styles.statusBadge} ${getStatusClass(appointment.status)}`}>
@@ -97,7 +97,7 @@ export default function AppointmentCard({ appointment, onStatusChange }: Appoint
       {/* Body with service info and car details */}
       <div className={styles.appointmentBody}>
         <div className={styles.serviceInfo}>
-          <h3 className={styles.serviceType}>{appointment.serviceType}</h3>
+          <h3 className={styles.serviceType}>{appointment.service}</h3>
           {appointment.notes && (
             <p className={styles.notes}>{appointment.notes}</p>
           )}

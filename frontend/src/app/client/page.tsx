@@ -6,7 +6,7 @@ import { useAuthGuard } from '@hooks/useAuthGuard';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import ClientCars from './components/ClientCars';
 import { useClientData } from './hooks/useClientData';
-import { Car } from '@/shared/types';
+import { Car } from '@/types/car';
 import ClientDashboard from './components/ClientDashboard';
 import ClientAppointments from './components/ClientAppointments';
 
@@ -55,7 +55,7 @@ export default function ClientPage() {
             cars={cars}  // ✅ Direct use, no mapping needed
             recentRepairs={repairs}
             upcomingAppointments={appointments
-              .filter(a => new Date(a.scheduledAt) > new Date())
+              .filter(a => new Date(a.date) > new Date())
             }
             onNavigate={(tab: string) => setActiveTab(tab as ActiveTab)}
           />
@@ -67,7 +67,7 @@ export default function ClientPage() {
         showAddButton={true}
         maxCars={5} />;
       case 'appointments':
-        return <ClientAppointments onScheduleService={() => {}} />;
+        return <ClientAppointments onScheduleService={() => { } } appointments={[]} />;
     }
   };
 

@@ -371,157 +371,256 @@
   background-color: #059669;
 }
 
-/* Modal Styles */
+/* ========================================
+   MODAL STYLES
+   ======================================== */
+
+/* Modal Overlay - Full screen backdrop */
 .modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: var(--space-4);
-}
-
-.modal {
-  background-color: white;
-  border-radius: var(--radius-lg);
-  max-width: 500px;
-  width: 100%;
-  max-height: 90vh;
+  z-index: 9999;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
   overflow-y: auto;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Container */
+.modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideUp 0.3s ease-out;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Modal Header */
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-6) var(--space-6) var(--space-4) var(--space-6);
-  border-bottom: 1px solid var(--color-gray-200);
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
 }
 
 .modalHeader h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-gray-900);
   margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .closeButton {
-  width: 32px;
-  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #6b7280;
+  transition: color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: none;
-  color: var(--color-gray-400);
-  cursor: pointer;
-  border-radius: var(--radius);
-  transition: all var(--transition-fast);
+  border-radius: 6px;
 }
 
 .closeButton:hover {
-  color: var(--color-gray-600);
-  background-color: var(--color-gray-100);
+  color: #1f2937;
+  background-color: #f3f4f6;
 }
 
 .closeButton svg {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
 
+/* Modal Form */
 .modalForm {
-  padding: var(--space-6);
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
 }
 
+/* Form Grid */
 .formGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
+/* Form Group */
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 0.5rem;
 }
 
 .formGroup label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: #374151;
 }
 
 .formGroup input,
 .formGroup select {
-  padding: var(--space-3);
-  border: 1px solid var(--color-gray-300);
-  border-radius: var(--radius);
-  font-size: 0.875rem;
-  transition: border-color var(--transition-fast);
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  outline: none;
 }
 
 .formGroup input:focus,
 .formGroup select:focus {
-  outline: none;
-  border-color: var(--color-primary);
+  border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+.formGroup input:disabled,
+.formGroup select:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.formGroup input::placeholder {
+  color: #9ca3af;
+}
+
+/* Input Error State */
 .inputError {
   border-color: #dc2626 !important;
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
 }
 
 .errorText {
   font-size: 0.75rem;
   color: #dc2626;
+  margin-top: 0.25rem;
 }
 
+/* Modal Actions */
 .modalActions {
   display: flex;
+  gap: 0.75rem;
   justify-content: flex-end;
-  gap: var(--space-3);
-  margin-top: var(--space-6);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-gray-200);
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 1rem;
+}
+
+.cancelButton,
+.submitButton {
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
 }
 
 .cancelButton {
-  padding: var(--space-3) var(--space-4);
-  background-color: transparent;
-  border: 1px solid var(--color-gray-300);
-  color: var(--color-gray-700);
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-fast);
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
 }
 
-.cancelButton:hover {
-  background-color: var(--color-gray-50);
+.cancelButton:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .submitButton {
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  background-color: #2563eb;
   color: white;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
+  min-width: 120px;
 }
 
 .submitButton:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .submitButton:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .modalOverlay {
+    padding: 0;
+    align-items: flex-start;
+  }
+
+  .modal {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    min-height: 100vh;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .modalActions {
+    flex-direction: column-reverse;
+  }
+
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+    justify-content: center;
+  }
 }

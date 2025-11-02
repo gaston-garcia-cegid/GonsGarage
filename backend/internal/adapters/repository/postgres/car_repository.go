@@ -32,7 +32,7 @@ type CarModel struct {
 	VIN          string     `gorm:"column:vin"`
 	Color        string     `gorm:"not null"`
 	Mileage      int        `gorm:"not null;default:0"`
-	OwnerID      uuid.UUID  `gorm:"type:uuid;column:owner_id;not null;index"`
+	OwnerID      uuid.UUID  `gorm:"type:uuid;column:client_id;not null;index"`
 	CreatedAt    time.Time  `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt    time.Time  `gorm:"column:updated_at;autoUpdateTime"`
 	DeletedAt    *time.Time `gorm:"column:deleted_at;index"`
@@ -82,7 +82,7 @@ func (r *postgresCarRepository) GetByOwnerID(ctx context.Context, ownerID uuid.U
 	var dbCars []CarModel
 
 	err := r.db.WithContext(ctx).
-		Where("owner_id = ? AND deleted_at IS NULL", ownerID).
+		Where("client_id = ? AND deleted_at IS NULL", ownerID).
 		Preload("Owner").
 		Order("created_at DESC").
 		Find(&dbCars).Error
@@ -103,14 +103,19 @@ func (r *postgresCarRepository) GetByOwnerID(ctx context.Context, ownerID uuid.U
 func (r *postgresCarRepository) GetByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error) {
 	var dbCar CarModel
 
-	err := r.db.WithContext(ctx).
+	// ✅ Add timeout
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	// ✅ Only check active (non-deleted) cars
+	err := r.db.WithContext(queryCtx).
 		Where("license_plate = ? AND deleted_at IS NULL", licensePlate).
 		Preload("Owner").
 		First(&dbCar).Error
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, nil // Not finding a license plate is not an error
+			return nil, nil // Not an error - license plate is available
 		}
 		return nil, fmt.Errorf("failed to get car by license plate: %w", err)
 	}
@@ -163,8 +168,14 @@ func (r *postgresCarRepository) Update(ctx context.Context, car *domain.Car) err
 
 // Delete removes a car using soft delete
 func (r *postgresCarRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	result := r.db.WithContext(ctx).
-		Where("id = ?", id).
+	// ✅ Add query timeout
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	// ✅ Option 1: Use Model() to specify the table
+	result := r.db.WithContext(queryCtx).
+		Model(&CarModel{}). // ✅ Tells GORM which table to update
+		Where("id = ? AND deleted_at IS NULL", id).
 		Update("deleted_at", time.Now())
 
 	if result.Error != nil {
@@ -196,6 +207,51 @@ func (r *postgresCarRepository) GetWithRepairs(ctx context.Context, id uuid.UUID
 	}
 
 	return r.toDomainCarWithRepairs(&dbCar), nil
+}
+
+// GetDeletedByLicensePlate retrieves a soft-deleted car by license plate
+func (r *postgresCarRepository) GetDeletedByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error) {
+	var dbCar CarModel
+
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	err := r.db.WithContext(queryCtx).
+		Unscoped(). // ✅ Include soft-deleted rows
+		Where("license_plate = ? AND deleted_at IS NOT NULL", licensePlate).
+		Preload("Owner").
+		First(&dbCar).Error
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get deleted car: %w", err)
+	}
+
+	return r.toDomainCar(&dbCar), nil
+}
+
+// Restore undeletes a soft-deleted car
+func (r *postgresCarRepository) Restore(ctx context.Context, id uuid.UUID) error {
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	result := r.db.WithContext(queryCtx).
+		Model(&CarModel{}).
+		Unscoped().
+		Where("id = ? AND deleted_at IS NOT NULL", id).
+		Update("deleted_at", nil)
+
+	if result.Error != nil {
+		return fmt.Errorf("failed to restore car: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return domain.ErrCarNotFound
+	}
+
+	return nil
 }
 
 // Conversion methods following Clean Architecture principles

@@ -3,7 +3,7 @@
 
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/shared/types';
+import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
 import { appointmentApi } from '@/lib/api/appointment.api';
 
 // ✅ Appointment state interface following Agent.md conventions

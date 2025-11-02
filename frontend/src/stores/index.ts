@@ -30,7 +30,7 @@ export type {
   Appointment,
   CreateAppointmentRequest,
   UpdateAppointmentRequest,
-} from '@/shared/types';
+} from '@/types/appointment';
 
 // ✅ Store types available for advanced usage
 // Store types are internal to their implementations

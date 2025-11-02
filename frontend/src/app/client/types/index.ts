@@ -1,6 +1,8 @@
 // src/app/client/types/index.ts
 
-import { Car, Repair, Appointment } from '@/shared/types';
+import {Repair } from '@/shared/types';
+import { Appointment } from '@/types/appointment';
+import { Car } from '@/types/car';
 
 // Types específicos do domínio cliente
 export interface ClientDashboardProps {

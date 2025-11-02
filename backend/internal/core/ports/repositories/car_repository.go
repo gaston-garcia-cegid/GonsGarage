@@ -15,6 +15,8 @@ type CarRepository interface {
 	Update(ctx context.Context, car *domain.Car) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error)
+	GetDeletedByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error)
+	Restore(ctx context.Context, id uuid.UUID) error
 }
 
 type RepairRepository interface {

@@ -397,17 +397,24 @@
 }
 
 .clientCarsContainer {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-  background: #fff;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Ensure proper spacing in client dashboard */
+.clientCarsContainer > * {
+  background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 600px) {
   .clientCarsContainer {
-    padding: 1rem 0.25rem;
+    padding: 0;
   }
   .header {
     flex-direction: column;
