@@ -303,7 +303,7 @@ func (h *AppointmentHandler) toAppointmentResponse(appointment *domain.Appointme
 		//EmployeeID:  appointment.EmployeeID.String(),
 		CarID:       appointment.CarID.String(),
 		ScheduledAt: appointment.ScheduledAt.Format("2006-01-02T15:04:05Z07:00"),
-		//Reason:      appointment.Reason,
-		Status: string(appointment.Status),
+		Reason:      appointment.Notes,
+		Status:      string(appointment.Status),
 	}
 }

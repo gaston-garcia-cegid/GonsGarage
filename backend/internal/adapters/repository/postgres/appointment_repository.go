@@ -25,11 +25,11 @@ func NewPostgresAppointmentRepository(db *gorm.DB) ports.AppointmentRepository {
 type AppointmentModel struct {
 	ID            uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	CustomerID    uuid.UUID `gorm:"type:uuid"`
-	EmployeeID    uuid.UUID `gorm:"type:uuid"`
 	CarID         uuid.UUID `gorm:"type:uuid"`
-	ScheduledTime time.Time `gorm:"type:timestamptz"`
-	Reason        string    `gorm:"type:text"`
+	ScheduledTime time.Time `gorm:"column:scheduled_at;type:timestamptz"`
+	Notes         string    `gorm:"column:notes;type:text"`
 	Status        string    `gorm:"type:text"`
+	ServiceType   string    `gorm:"column:service_type;type:text"`
 }
 
 // TableName specifies the database table name
@@ -53,6 +53,7 @@ func (r *postgresAppointmentRepository) toAppointmentModel(appointment *domain.A
 		CustomerID:    appointment.CustomerID,
 		CarID:         appointment.CarID,
 		ScheduledTime: appointment.ScheduledAt,
+		Notes:         appointment.Notes,
 		Status:        string(appointment.Status),
 	}
 }
@@ -64,6 +65,7 @@ func (r *postgresAppointmentRepository) toDomainAppointment(model *AppointmentMo
 		CustomerID:  model.CustomerID,
 		CarID:       model.CarID,
 		ScheduledAt: model.ScheduledTime,
+		Notes:       model.Notes,
 		Status:      domain.AppointmentStatus(model.Status),
 	}
 }

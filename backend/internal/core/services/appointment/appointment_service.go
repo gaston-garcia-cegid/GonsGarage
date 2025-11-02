@@ -2,6 +2,9 @@ package appointment
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
@@ -30,6 +33,26 @@ func (s *AppointmentService) CreateAppointment(
 	ctx context.Context,
 	appointment *domain.Appointment,
 	requestingUserID uuid.UUID) (*domain.Appointment, error) {
+
+	queryCtx, cancel := context.WithTimeout(ctx, 10*time.Second) // ✅ Increase timeout
+	defer cancel()
+
+	requestingUser, err := s.userRepo.GetByID(queryCtx, requestingUserID)
+	if err != nil {
+		log.Printf("failed to get requesting user: userID=%s, error=%v", requestingUserID, err)
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	if requestingUser == nil {
+		log.Printf("user not found: userID=%s", requestingUserID)
+		return nil, domain.ErrUserNotFound
+	}
+
+	// ✅ Set metadata
+	appointment.ID = uuid.New()
+	appointment.CreatedAt = time.Now()
+	appointment.UpdatedAt = time.Now()
+
 	// Get the requesting user to check permissions
 	// requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
 	// if err != nil {

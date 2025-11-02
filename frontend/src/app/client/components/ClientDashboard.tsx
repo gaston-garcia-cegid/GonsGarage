@@ -116,7 +116,7 @@ export default function ClientDashboard({
           <div className={styles.cardHeader}>
             <h3>Recent Repairs</h3>
             <button 
-              onClick={() => onNavigate('cars')}
+              onClick={() => onNavigate('appointments')}
               className={styles.linkButton}
             >
               View All
