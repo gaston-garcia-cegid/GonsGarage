@@ -1,64 +1,32 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
+import styles from './EmptyState.module.css';
 
 interface EmptyAppointmentStateProps {
-  hasNoCars?: boolean;
-  onScheduleAppointment?: () => void;
+  onSchedule?: () => void;
 }
 
-export default function EmptyAppointmentState({ 
-  hasNoCars = false, 
-  onScheduleAppointment 
-}: EmptyAppointmentStateProps) {
-  if (hasNoCars) {
-    return (
-      <div className="empty-state">
-        <div className="empty-state-content">
-          <div className="empty-state-icon">
-            📅
-          </div>
-          <h3>No Cars Available</h3>
-          <p>
-            You need to add a car before you can schedule appointments.
-          </p>
-          <div className="empty-state-actions">
-            <Link href="/cars/new" className="btn-primary">
-              Add a Car First
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+export default function EmptyAppointmentState({ onSchedule }: EmptyAppointmentStateProps) {
   return (
-    <div className="empty-state">
-      <div className="empty-state-content">
-        <div className="empty-state-icon">
-          📅
-        </div>
-        <h3>No Appointments Scheduled</h3>
-        <p>
-          You don&apos;t have any appointments scheduled yet. 
-          Book your first service appointment.
-        </p>
-        <div className="empty-state-actions">
-          {onScheduleAppointment ? (
-            <button 
-              onClick={onScheduleAppointment}
-              className="btn-primary"
-            >
-              Schedule Appointment
-            </button>
-          ) : (
-            <Link href="/appointments/new" className="btn-primary">
-              Schedule Appointment
-            </Link>
-          )}
-        </div>
+    <div className={styles.emptyState}>
+      <div className={styles.emptyStateIcon}>
+        📅
       </div>
+      <h3 className={styles.emptyStateTitle}>No Appointments Yet</h3>
+      <p className={styles.emptyStateDescription}>
+        You haven&apos;t scheduled any service appointments. 
+        Book your first appointment to keep your vehicle in top condition.
+      </p>
+      {onSchedule && (
+        <button onClick={onSchedule} className={styles.emptyStateButton}>
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Schedule First Appointment
+        </button>
+      )}
     </div>
   );
 }

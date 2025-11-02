@@ -2,15 +2,26 @@
   width: 100%;
 }
 
+/* Container */
+.container {
+  width: 100%;
+}
+
+/* Header Section - Matches Cars */
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 1.5rem;
   margin-bottom: 2rem;
   padding: 1.5rem;
   background: white;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+  flex: 1;
 }
 
 .headerContent h2 {
@@ -21,11 +32,13 @@
 }
 
 .headerContent p {
+  font-size: 0.95rem;
   color: #6b7280;
   margin: 0;
 }
 
-.primaryButton {
+/* Add Button - Matches Cars */
+.addButton {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -34,34 +47,47 @@
   color: white;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
+  font-size: 0.95rem;
   font-weight: 500;
-  transition: background 0.2s;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.primaryButton:hover:not(:disabled) {
+.addButton svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.addButton:hover:not(:disabled) {
   background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
 }
 
-.primaryButton:disabled {
+.addButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.addButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.primaryButton svg {
-  width: 20px;
-  height: 20px;
-}
-
-.maxCarsMessage {
+/* Max Appointments Message */
+.maxAppointmentsMessage {
+  width: 100%;
   padding: 0.75rem 1rem;
   background: #fef3c7;
   color: #92400e;
   border-radius: 8px;
   font-size: 0.875rem;
-  margin-top: 1rem;
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
+/* Loading State */
 .loadingContainer {
   display: flex;
   flex-direction: column;
@@ -71,25 +97,36 @@
   gap: 1rem;
 }
 
-.addButton {
+.loadingContainer span {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* Empty State Wrapper */
+.emptyStateWrapper {
+  min-height: 400px;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  background-color: var(--color-primary);
-  color: white;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius);
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
+  justify-content: center;
 }
 
-.addButton svg {
-  width: 16px;
-  height: 16px;
-}
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.addButton:hover {
-  background-color: var(--color-primary-hover);
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .headerContent h2 {
+    font-size: 1.25rem;
+  }
+
+  .headerContent p {
+    font-size: 0.875rem;
+  }
 }

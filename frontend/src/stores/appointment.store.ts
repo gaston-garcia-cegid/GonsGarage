@@ -321,5 +321,16 @@ export const useAppointments = () => {
     setFilters: store.setFilters,
     clearError: store.clearError,
     reset: store.reset,
+
+    /*fetchCars: (filters?: CarState['filters']) => Promise<void>;
+      fetchCarById: (id: string) => Promise<void>;
+      createCar: (carData: CreateCarRequest) => Promise<boolean>;
+      updateCar: (id: string, carData: Partial<CreateCarRequest>) => Promise<boolean>;
+      deleteCar: (id: string) => Promise<boolean>;
+      selectCar: (car: Car | null) => void;
+      setFilters: (filters: Partial<CarState['filters']>) => void;
+      setPage: (page: number) => void;
+      clearError: () => void;
+      reset: () => void; */
   };
 };

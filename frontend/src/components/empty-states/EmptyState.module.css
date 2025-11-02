@@ -1,0 +1,87 @@
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 400px;
+}
+
+.emptyStateIcon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.emptyStateTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.75rem 0;
+}
+
+.emptyStateDescription {
+  font-size: 1rem;
+  color: #6b7280;
+  max-width: 400px;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+}
+
+.emptyStateButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.emptyStateButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.emptyStateButton:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+.emptyStateButton:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .emptyState {
+    padding: 2rem 1rem;
+    min-height: 300px;
+  }
+
+  .emptyStateIcon {
+    font-size: 3rem;
+  }
+
+  .emptyStateTitle {
+    font-size: 1.25rem;
+  }
+
+  .emptyStateDescription {
+    font-size: 0.95rem;
+  }
+
+  .emptyStateButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

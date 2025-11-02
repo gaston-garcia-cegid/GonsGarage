@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
 import AppointmentList from '@/app/appointments/components/AppointmentList';
-import AppointmentModal from '@/app/appointments/components/AppointmentModal';
+import AppointmentModal from './AppointmentModal';
 import LoadingSpinner from '@/components/ui/Loading/LoadingSpinner';
 import ErrorAlert from '@/components/ui/Error/ErrorAlert';
 import ConfirmModal from '@/components/ui/Modal/ConfirmModal';
@@ -211,7 +211,44 @@ export default function AppointmentsContainer({
 
   // Empty state
   if (!isLoading && appointments.length === 0) {
-    return renderEmptyState ? renderEmptyState() : <EmptyAppointmentState />;
+    return (
+      <div className={`${styles.container} ${className}`}>
+        {/* Show header even when empty */}
+        {showHeader && (
+          <div className={styles.header}>
+            <div className={styles.headerContent}>
+              <h2>{headerTitle}</h2>
+              <p>Start scheduling your vehicle maintenance</p>
+            </div>
+            <button 
+              onClick={handleAddAppointmentClick}
+              className={styles.addButton}
+            >
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              {addButtonText}
+            </button>
+          </div>
+        )}
+        
+        {/* Empty state */}
+        {renderEmptyState ? (
+          renderEmptyState()
+        ) : (
+          <EmptyAppointmentState onSchedule={handleAddAppointmentClick} />
+        )}
+
+        {/* Modal still accessible from empty state */}
+        {showCreateModal && (
+          <AppointmentModal
+            onClose={handleModalClose}
+            onCreate={handleCreateAppointment}
+          />
+        )}
+      </div>
+    );
   }
 
   const canAddAppointments = !maxAppointments || appointments.length < maxAppointments;
@@ -222,35 +259,36 @@ export default function AppointmentsContainer({
   );
 
   return (
-    <div className={className}>
+    <div className={`${styles.container} ${className}`}>
       {/* Custom header or default */}
       {renderHeader ? (
         renderHeader()
       ) : showHeader ? (
-        <div className={`${styles.carsContainer} ${className}`}>
-          <div className={styles.header}>
+        <div className={styles.header}>
+          <div className={styles.headerContent}>
             <h2>{headerTitle}</h2>
             <p>{computedSubtitle}</p>
           </div>
           <button 
             onClick={handleAddAppointmentClick}
-            className="primary-button"
+            className={styles.addButton}
             disabled={isCreating || !canAddAppointments}
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            {isCreating ? 'Adding...' : addButtonText}
+            {isCreating ? 'Scheduling...' : addButtonText}
           </button>
-
-          {maxAppointments && appointments.length >= maxAppointments && (
-            <div className="max-cars-message">
-              <span>Maximum cars limit reached</span>
-            </div>
-          )}
         </div>
       ) : null}
+
+      {/* Max appointments warning */}
+      {maxAppointments && appointments.length >= maxAppointments && (
+        <div className={styles.maxAppointmentsMessage}>
+          <span>⚠️ Maximum appointments limit reached ({appointments.length}/{maxAppointments})</span>
+        </div>
+      )}
 
       {/* Error display */}
       {error && <ErrorAlert message={error} />}
@@ -264,21 +302,21 @@ export default function AppointmentsContainer({
         onScheduleService={(id) => router.push(`/appointments/new?appointmentId=${id}`)}
       />
 
-      {/* Car Modal */}
-      {/* {(showCreateModal || editingCar) && (
-        <CarModal
-          car={editingCar}
+      {/* Appointment Modal */}
+      {(showCreateModal || editingAppointment) && (
+        <AppointmentModal
+          appointment={editingAppointment}
           onClose={handleModalClose}
-          onCreate={handleCreateCar}
-          onUpdate={handleUpdateCar}
+          onCreate={handleCreateAppointment}
+          onUpdate={handleUpdateAppointment}
         />
-      )} */}
+      )}
 
       {/* Confirmation Modal */}
       <ConfirmModal
         isOpen={deleteConfirmation.isOpen}
-        title="Delete Car"
-        message={`Are you sure you want to delete ${deleteConfirmation.carName}? This action cannot be undone.`}
+        title="Delete Appointment"
+        message={`Are you sure you want to delete the appointment for ${deleteConfirmation.clientName}? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"

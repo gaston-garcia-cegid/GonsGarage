@@ -1,248 +1,313 @@
-import React, { useState } from 'react';
-import { Car, CreateCarRequest, CarFormData } from '@/types/car';
-import { useCarValidation } from '@/hooks/useCarValidation';
-import styles from '../cars.module.css';
+'use client';
 
-interface CarModalProps {
-  car: Car | null;
+import React, { useState, useEffect } from 'react';
+import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
+import { SERVICE_TYPES } from '@/shared/types';
+import { useCarStore } from '@/stores/car.store';
+import styles from '../appointments.module.css';
+
+interface AppointmentModalProps {
+  appointment?: Appointment | null;
   onClose: () => void;
-  onCreate: (carData: CreateCarRequest) => Promise<boolean>;
-  onUpdate: (id: string, carData: Partial<CreateCarRequest>) => Promise<boolean>;
+  onCreate: (data: CreateAppointmentRequest) => Promise<boolean>;
+  onUpdate?: (id: string, data: Partial<UpdateAppointmentRequest>) => Promise<boolean>;
+  preSelectedCarId?: string;
 }
 
-// Car modal component following Agent.md modal patterns
-export default function CarModal({ 
-  car, 
-  onClose, 
-  onCreate, 
-  onUpdate 
-}: CarModalProps) {
-  const [formData, setFormData] = useState<CarFormData>({
-    make: car?.make || '',
-    model: car?.model || '',
-    year: car?.year || new Date().getFullYear(),
-    licensePlate: car?.licensePlate || '',
-    vin: car?.vin || '',
-    color: car?.color || '',
-    mileage: car?.mileage || 0,
-  });
+interface FormData {
+  carId: string;
+  service: string;
+  date: string;
+  time: string;
+  notes: string;
+}
+
+export default function AppointmentModal({
+  appointment,
+  onClose,
+  onCreate,
+  onUpdate,
+  preSelectedCarId,
+}: AppointmentModalProps) {
+  const { cars } = useCarStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
 
-  const { errors, validateCar, clearFieldError } = useCarValidation();
+  const [formData, setFormData] = useState<FormData>({
+    carId: appointment?.carId || preSelectedCarId || '',
+    service: appointment?.service || '',
+    date: appointment?.date ? appointment.date.split('T')[0] : '',
+    time: appointment?.date ? new Date(appointment.date).toTimeString().slice(0, 5) : '',
+    notes: appointment?.notes || '',
+  });
 
-  // Handle form field changes - following Agent.md form handling
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const selectedCar = cars.find(c => c.id === formData.carId);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'year' || name === 'mileage' ? parseInt(value) || 0 : value
-    }));
-
-    // Clear field error when user starts typing
-    if (errors[name as keyof typeof errors]) {
-      clearFieldError(name as keyof typeof errors);
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setError('');
   };
 
-  // Handle form submission - following Agent.md error handling
+  const handleServiceSelect = (serviceId: string) => {
+    setFormData(prev => ({ ...prev, service: serviceId }));
+    setError('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateCar(formData)) {
+    // Validation
+    if (!formData.carId) {
+      setError('Please select a car');
+      return;
+    }
+
+    if (!formData.service) {
+      setError('Please select a service');
+      return;
+    }
+
+    if (!formData.date || !formData.time) {
+      setError('Please select date and time');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const carData: CreateCarRequest = {
-        make: formData.make,
-        model: formData.model,
-        year: formData.year,
-        licensePlate: formData.licensePlate,
-        vin: formData.vin || undefined,
-        color: formData.color,
-        mileage: formData.mileage || undefined,
+      const appointmentData: CreateAppointmentRequest = {
+        clientName: selectedCar ? `${selectedCar.make} ${selectedCar.model}` : 'Unknown',
+        carId: formData.carId,
+        service: formData.service,
+        date: `${formData.date}T${formData.time}:00`,
+        notes: formData.notes || undefined,
+        status: 'scheduled',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        time: ''
       };
 
       let success = false;
 
-      if (car) {
-        // Update existing car
-        success = await onUpdate(car.id, carData);
+      if (appointment && onUpdate) {
+        const appointmentUpdateData: UpdateAppointmentRequest = {
+              service: formData.service,
+              date: `${formData.date}T${formData.time}:00`,
+              notes: formData.notes || undefined,
+            };
+
+        success = await onUpdate(appointment.id, appointmentUpdateData);
       } else {
-        // Create new car
-        success = await onCreate(carData);
+        success = await onCreate(appointmentData);
       }
 
       if (success) {
         onClose();
       } else {
-        errors.general = 'Failed to save car. Please try again.';
-        //alert('Failed to save car. Please try again.');
+        setError('Failed to save appointment. Please try again.');
       }
     } catch (err) {
-      console.log(err);
-      alert('An error occurred. Please try again.');
+      console.error('Error saving appointment:', err);
+      setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle modal backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
+  // Get minimum date (today)
+  const today = new Date().toISOString().split('T')[0];
+
   return (
     <div className={styles.modalOverlay} onClick={handleBackdropClick}>
       <div className={styles.modal}>
+        {/* Header */}
         <div className={styles.modalHeader}>
-          <h3>{car ? 'Edit Car' : 'Add New Car'}</h3>
-          <button 
-            onClick={onClose} 
+          <h3>{appointment ? 'Edit Appointment' : 'Schedule Appointment'}</h3>
+          <button
+            onClick={onClose}
             className={styles.closeButton}
             aria-label="Close modal"
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.modalForm}>
-            {errors.general && (
-              <div style={{
-                backgroundColor: '#fef2f2',
-                border: '1px solid #fecaca',
-                color: '#dc2626',
-                padding: 'var(--space-3)',
-                borderRadius: 'var(--radius)',
-                marginBottom: 'var(--space-4)',
-                fontSize: '0.875rem',
-              }}>
-                {errors.general}
+        {/* Body */}
+        <form onSubmit={handleSubmit}>
+          <div className={styles.modalBody}>
+            {error && (
+              <div className={styles.errorAlert}>
+                {error}
               </div>
             )}
-          <div className={styles.formGrid}>
-            {/* Make Field */}
-            <div className={styles.formGroup}>
-              <label htmlFor="make">Make *</label>
-              <input
-                id="make"
-                name="make"
-                type="text"
-                value={formData.make}
-                onChange={handleChange}
-                placeholder="e.g., Toyota"
-                className={errors.make ? styles.inputError : ''}
-                disabled={isLoading}
-              />
-              {errors.make && <span className={styles.errorText}>{errors.make}</span>}
+
+            {/* Car Selection */}
+            <div className={styles.section}>
+              <h3>Select Vehicle</h3>
+              {selectedCar ? (
+                <div className={styles.selectedCarInfo}>
+                  <div className={styles.carIcon}>🚗</div>
+                  <div className={styles.carDetails}>
+                    <h4>{selectedCar.year} {selectedCar.make} {selectedCar.model}</h4>
+                    <p>{selectedCar.licensePlate} • {selectedCar.color}</p>
+                  </div>
+                  {!appointment && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, carId: '' }))}
+                      className={styles.cancelButton}
+                      style={{ padding: '0.5rem 1rem' }}
+                    >
+                      Change
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className={styles.formGroup}>
+                  <select
+                    name="carId"
+                    value={formData.carId}
+                    onChange={handleChange}
+                    required
+                    disabled={isLoading}
+                  >
+                    <option value="">Select a car...</option>
+                    {cars.map(car => (
+                      <option key={car.id} value={car.id}>
+                        {car.year} {car.make} {car.model} - {car.licensePlate}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
-            {/* Model Field */}
-            <div className={styles.formGroup}>
-              <label htmlFor="model">Model *</label>
-              <input
-                id="model"
-                name="model"
-                type="text"
-                value={formData.model}
-                onChange={handleChange}
-                placeholder="e.g., Camry"
-                className={errors.model ? styles.inputError : ''}
-                disabled={isLoading}
-              />
-              {errors.model && <span className={styles.errorText}>{errors.model}</span>}
+            {/* Service Selection */}
+            <div className={styles.section}>
+              <h3>Select Service</h3>
+              <div className={styles.serviceGrid}>
+                {SERVICE_TYPES.map(service => (
+                  <label key={service.id} className={styles.serviceOption}>
+                    <input
+                      type="radio"
+                      name="service"
+                      value={service.id}
+                      checked={formData.service === service.id}
+                      onChange={handleChange}
+                      disabled={isLoading}
+                    />
+                    <div className={styles.serviceCard}>
+                      <h4>{service.name}</h4>
+                      <p>{service.description}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
             </div>
 
-            {/* Year Field */}
-            <div className={styles.formGroup}>
-              <label htmlFor="year">Year *</label>
-              <input
-                id="year"
-                name="year"
-                type="number"
-                value={formData.year}
-                onChange={handleChange}
-                min="1900"
-                max={new Date().getFullYear() + 2}
-                className={errors.year ? styles.inputError : ''}
-                disabled={isLoading}
-              />
-              {errors.year && <span className={styles.errorText}>{errors.year}</span>}
+            {/* Date & Time */}
+            <div className={styles.section}>
+              <h3>Select Date & Time</h3>
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="date">Date *</label>
+                  <input
+                    id="date"
+                    name="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    min={today}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="time">Time *</label>
+                  <input
+                    id="time"
+                    name="time"
+                    type="time"
+                    value={formData.time}
+                    onChange={handleChange}
+                    min="08:00"
+                    max="18:00"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Color Field */}
-            <div className={styles.formGroup}>
-              <label htmlFor="color">Color *</label>
-              <input
-                id="color"
-                name="color"
-                type="text"
-                value={formData.color}
-                onChange={handleChange}
-                placeholder="e.g., Blue"
-                className={errors.color ? styles.inputError : ''}
-                disabled={isLoading}
-              />
-              {errors.color && <span className={styles.errorText}>{errors.color}</span>}
+            {/* Notes */}
+            <div className={styles.section}>
+              <h3>Additional Notes (Optional)</h3>
+              <div className={styles.formGroup}>
+                <textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  placeholder="Any specific concerns or requests..."
+                  rows={3}
+                  disabled={isLoading}
+                />
+              </div>
             </div>
+
+            {/* Summary */}
+            {formData.carId && formData.service && formData.date && (
+              <div className={styles.appointmentSummary}>
+                <h3>Appointment Summary</h3>
+                <div className={styles.summaryGrid}>
+                  <div className={styles.summaryItem}>
+                    <span className={styles.summaryLabel}>Vehicle:</span>
+                    <span className={styles.summaryValue}>
+                      {selectedCar && `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}`}
+                    </span>
+                  </div>
+                  <div className={styles.summaryItem}>
+                    <span className={styles.summaryLabel}>Service:</span>
+                    <span className={styles.summaryValue}>
+                      {SERVICE_TYPES.find(s => s.id === formData.service)?.name}
+                    </span>
+                  </div>
+                  <div className={styles.summaryItem}>
+                    <span className={styles.summaryLabel}>Date:</span>
+                    <span className={styles.summaryValue}>
+                      {new Date(formData.date).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                  <div className={styles.summaryItem}>
+                    <span className={styles.summaryLabel}>Time:</span>
+                    <span className={styles.summaryValue}>{formData.time}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* License Plate Field */}
-          <div className={styles.formGroup}>
-            <label htmlFor="licensePlate">License Plate *</label>
-            <input
-              id="licensePlate"
-              name="licensePlate"
-              type="text"
-              value={formData.licensePlate}
-              onChange={handleChange}
-              placeholder="e.g., ABC-1234"
-              className={errors.licensePlate ? styles.inputError : ''}
-              disabled={isLoading}
-            />
-            {errors.licensePlate && <span className={styles.errorText}>{errors.licensePlate}</span>}
-          </div>
-
-          {/* VIN Field */}
-          <div className={styles.formGroup}>
-            <label htmlFor="vin">VIN (Optional)</label>
-            <input
-              id="vin"
-              name="vin"
-              type="text"
-              value={formData.vin}
-              onChange={handleChange}
-              placeholder="17-character VIN"
-              maxLength={17}
-              disabled={isLoading}
-            />
-          </div>
-
-          {/* Mileage Field */}
-          <div className={styles.formGroup}>
-            <label htmlFor="mileage">Mileage (Optional)</label>
-            <input
-              id="mileage"
-              name="mileage"
-              type="number"
-              value={formData.mileage}
-              onChange={handleChange}
-              min="0"
-              placeholder="Current mileage"
-              className={errors.mileage ? styles.inputError : ''}
-              disabled={isLoading}
-            />
-            {errors.mileage && <span className={styles.errorText}>{errors.mileage}</span>}
-          </div>
-
-          {/* Modal Actions */}
+          {/* Footer Actions */}
           <div className={styles.modalActions}>
             <button
               type="button"
@@ -254,10 +319,14 @@ export default function CarModal({
             </button>
             <button
               type="submit"
-              disabled={isLoading}
               className={styles.submitButton}
+              disabled={isLoading}
             >
-              {isLoading ? 'Saving...' : (car ? 'Update Car' : 'Add Car')}
+              {isLoading
+                ? 'Saving...'
+                : appointment
+                ? 'Update Appointment'
+                : 'Schedule Appointment'}
             </button>
           </div>
         </form>
