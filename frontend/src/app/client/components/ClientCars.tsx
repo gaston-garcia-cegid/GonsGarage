@@ -4,7 +4,6 @@
 import React from 'react';
 import { Car } from '@/types/car';
 import CarsContainer from '@/app/cars/components/CarsContainer';
-import styles from '../client.module.css';
 
 interface ClientCarsProps {
   onAddCar?: (car: Car) => void;
@@ -26,7 +25,6 @@ export default function ClientCars({
       maxCars={maxCars}
       headerTitle="Your Cars"
       addButtonText="Add New Car"
-      className={styles.clientCarsContainer}
       showHeader={showAddButton}
     />
   );

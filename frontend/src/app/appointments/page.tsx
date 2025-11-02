@@ -6,7 +6,6 @@ import { useCarStore } from '@/stores/car.store';
 import EmptyAppointmentState from '@/components/empty-states/EmptyAppointmentState';
 import AppointmentCard from '@/components/appointments/AppointmentCard';
 import Link from 'next/link';
-import styles from './appointments.module.css'; 
 import { useRouter } from 'next/dist/client/components/navigation';
 import { useAuthStore } from '@/stores/auth.store';
 
@@ -82,7 +81,7 @@ export default function AppointmentsPage() {
 
   // ✅ Show empty state based on data availability
   if (!isLoading && appointments.length === 0) {
-    return <EmptyAppointmentState hasNoCars={cars.length === 0} />;
+    return <EmptyAppointmentState onSchedule={() => {}} />;
   }
 
   return (

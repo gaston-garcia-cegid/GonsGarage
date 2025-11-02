@@ -7,7 +7,6 @@ import AppointmentModal from './AppointmentModal';
 import LoadingSpinner from '@/components/ui/Loading/LoadingSpinner';
 import ErrorAlert from '@/components/ui/Error/ErrorAlert';
 import ConfirmModal from '@/components/ui/Modal/ConfirmModal';
-import EmptyCarState from '@/components/empty-states/EmptyCarState';
 import { useRouter } from 'next/navigation';
 import styles from './AppointmentContainer.module.css';
 import { useAppointments } from '@/stores';

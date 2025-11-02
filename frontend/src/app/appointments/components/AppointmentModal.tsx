@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
 import { SERVICE_TYPES } from '@/shared/types';
 import { useCarStore } from '@/stores/car.store';
@@ -48,11 +48,6 @@ export default function AppointmentModal({
   ) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
-  };
-
-  const handleServiceSelect = (serviceId: string) => {
-    setFormData(prev => ({ ...prev, service: serviceId }));
     setError('');
   };
 

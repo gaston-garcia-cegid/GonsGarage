@@ -13,12 +13,10 @@ import ClientAppointments from './components/ClientAppointments';
 type ActiveTab = 'dashboard' | 'cars' | 'appointments';
 
 export default function ClientPage() {
-  const { isLoading: authLoading, isAuthenticated } = useAuthGuard('client');
+  const { isLoading: authLoading } = useAuthGuard('client');
   const { cars, repairs, appointments, loading, error } = useClientData();
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
 
-  // Move all hooks above any conditional returns
-  // Add missing userCars state for callbacks to work
   const [userCars, setUserCars] = useState<Car[]>([]);
 
   // Handle when a car is added - following Agent.md callback patterns

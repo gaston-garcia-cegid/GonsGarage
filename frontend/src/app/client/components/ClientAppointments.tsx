@@ -2,7 +2,6 @@
 'use client';
 
 import { Appointment } from '@/types/appointment';
-import styles from '../client.module.css';
 import AppointmentsContainer from '@/app/appointments/components/AppointmentContainer';
 
 interface ClientAppointmentsProps {
@@ -14,13 +13,10 @@ interface ClientAppointmentsProps {
   onScheduleService: (id: string) => void;
 }
 
-export default function ClientAppointments({ 
-  appointments,
+export default function ClientAppointments({
   onAddAppointment, 
-  onUpdateAppointment, 
-  showAddButton = true, 
+  onUpdateAppointment,
   maxAppointments,
-  onScheduleService
 }: ClientAppointmentsProps) {
   return (
     <AppointmentsContainer
