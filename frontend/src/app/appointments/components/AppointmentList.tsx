@@ -19,13 +19,12 @@ export default function AppointmentList({
   onViewDetails,
   onScheduleService
 }: AppointmentListProps) {
-  // Empty state - following Agent.md user experience
   if (appointments.length === 0) {
     return (
       <div className={styles.emptyState}>
-        <div className={styles.emptyIcon}>🚗</div>
-        <h3>No cars registered yet</h3>
-        <p>Add your first car to get started with our services</p>
+        <div className={styles.emptyIcon}>📅</div>
+        <h3>No appointments scheduled yet</h3>
+        <p>Book your first appointment to get started with our services</p>
       </div>
     );
   }

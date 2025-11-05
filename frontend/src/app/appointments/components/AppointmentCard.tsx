@@ -93,7 +93,7 @@ export default function AppointmentCard({
     <div className={styles.appointmentCard}>
       {/* Header with date and status */}
       <div className={styles.appointmentHeader}>
-        <div className={styles.carIcon}>🚗</div>
+        <div className={styles.carIcon}>📅</div>
         <div className={styles.appointmentDate}>
           <span className={styles.dateLabel}>Scheduled</span>
           <span className={styles.dateValue}>
@@ -124,6 +124,31 @@ export default function AppointmentCard({
             </div>
           </div>
         )}
+        {/*<div className={styles.carContent}>
+        <h3>{car.year} {car.make} {car.model}</h3>
+        <div className={styles.carDetails}>
+          <div className={styles.detail}>
+            <span className={styles.label}>License Plate:</span>
+            <span className={styles.value}>{car.licensePlate}</span>
+          </div>
+          <div className={styles.detail}>
+            <span className={styles.label}>Color:</span>
+            <span className={styles.value}>{car.color}</span>
+          </div>
+          {car.vin && (
+            <div className={styles.detail}>
+              <span className={styles.label}>VIN:</span>
+              <span className={styles.value}>{car.vin}</span>
+            </div>
+          )}
+          {car.mileage !== undefined && (
+            <div className={styles.detail}>
+              <span className={styles.label}>Mileage:</span>
+              <span className={styles.value}>{car.mileage.toLocaleString()} miles</span>
+            </div>
+          )}
+        </div>
+      </div>*/}
       </div>
       
       {/* Footer with ID and actions */}

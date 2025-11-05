@@ -46,13 +46,17 @@ type UpdateAppointmentRequest struct {
 
 // AppointmentResponse represents the response payload for an appointment
 type AppointmentResponse struct {
-	ID          string `json:"id"`
-	CustomerID  string `json:"customerID"`    // ✅ camelCase
-	EmployeeID  string `json:"employeeID"`    // ✅ camelCase
-	CarID       string `json:"carID"`         // ✅ camelCase
-	ScheduledAt string `json:"scheduledTime"` // ✅ camelCase
-	Reason      string `json:"reason"`
-	Status      string `json:"status"`
+	ID         string  `json:"id"`
+	ClientName string  `json:"clientName"`
+	CarID      string  `json:"carId"`
+	Service    string  `json:"service"`
+	Date       string  `json:"date"`
+	Time       string  `json:"time"`
+	Status     string  `json:"status"`
+	Notes      string  `json:"notes"`
+	CreatedAt  string  `json:"createdAt"`
+	UpdatedAt  string  `json:"updatedAt"`
+	DeletedAt  *string `json:"deletedAt,omitempty"`
 }
 
 // CreateAppointment handles POST /api/v1/appointments
@@ -315,13 +319,33 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) {
 // Helper methods
 
 func (h *AppointmentHandler) toAppointmentResponse(appointment *domain.Appointment) AppointmentResponse {
+	// Extrai nome do cliente (podes buscar do domínio ou da DB, ou deixar vazio se não existir)
+	clientName := "" // TODO: buscar nome do cliente se necessário
+
+	// Extrai service (pode ser appointment.ServiceType ou outro campo)
+	service := appointment.ServiceType
+
+	// Divide data/hora
+	date := appointment.ScheduledAt.Format("2006-01-02")
+	time := appointment.ScheduledAt.Format("15:04")
+
+	var deletedAt *string
+	if appointment.DeletedAt != nil {
+		s := appointment.DeletedAt.Format("2006-01-02T15:04:05Z07:00")
+		deletedAt = &s
+	}
+
 	return AppointmentResponse{
 		ID:         appointment.ID.String(),
-		CustomerID: appointment.CustomerID.String(),
-		//EmployeeID:  appointment.EmployeeID.String(),
-		CarID:       appointment.CarID.String(),
-		ScheduledAt: appointment.ScheduledAt.Format("2006-01-02T15:04:05Z07:00"),
-		Reason:      appointment.Notes,
-		Status:      string(appointment.Status),
+		ClientName: clientName,
+		CarID:      appointment.CarID.String(),
+		Service:    service,
+		Date:       date,
+		Time:       time,
+		Status:     string(appointment.Status),
+		Notes:      appointment.Notes,
+		CreatedAt:  appointment.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		UpdatedAt:  appointment.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		DeletedAt:  deletedAt,
 	}
 }

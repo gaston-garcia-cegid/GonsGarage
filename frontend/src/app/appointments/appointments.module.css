@@ -225,6 +225,10 @@
 .emptyState {
   text-align: center;
   padding: var(--space-16) var(--space-4);
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-top: var(--space-6);
 }
 
 .emptyIcon {
@@ -244,28 +248,7 @@
   margin-bottom: var(--space-6);
 }
 
-.primaryButton {
-  background-color: var(--color-primary);
-  color: white;
-  padding: var(--space-3) var(--space-6);
-  border-radius: var(--radius);
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-}
-
-.primaryButton:hover {
-  background-color: var(--color-primary-hover);
-}
-
-.appointmentsList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.appointmentGrid {
+.appointmentsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: var(--space-6);
@@ -273,138 +256,103 @@
 
 .appointmentCard {
   background-color: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  transition: box-shadow var(--transition-fast);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: var(--space-6) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 260px;
+  transition: box-shadow 0.2s;
 }
 
 .appointmentCard:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.08);
 }
 
 .appointmentHeader {
-  padding: var(--space-4);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--color-gray-200);
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
 }
 
 .carIcon {
   font-size: 2rem;
+  margin-right: var(--space-2);
 }
 
 .appointmentDate {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  align-items: flex-end;
 }
 
 .dateLabel {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   color: var(--color-gray-500);
-  text-transform: uppercase;
-  font-weight: 500;
 }
 
 .dateValue {
-  font-size: 0.875rem;
-  color: var(--color-gray-900);
+  font-size: 1rem;
   font-weight: 600;
+  color: var(--color-gray-900);
 }
 
 .statusBadge {
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
   font-weight: 500;
-  text-transform: capitalize;
-}
-
-.statusBadge.scheduled {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.statusBadge.confirmed {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-.statusBadge.completed {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.statusBadge.cancelled {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background: #f3f4f6;
+  color: #2563eb;
+  margin-left: var(--space-2);
 }
 
 .appointmentBody {
-  padding: var(--space-4);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-4);
-}
-
-.serviceInfo {
-  flex: 1;
+  margin-bottom: var(--space-4);
 }
 
 .serviceInfo h3 {
-  font-size: 1.125rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-gray-900);
-  margin-bottom: var(--space-2);
+  margin: 0 0 0.5rem 0;
 }
 
 .notes {
-  font-size: 0.875rem;
   color: var(--color-gray-600);
+  font-size: 0.95rem;
   margin: 0;
 }
 
 .carInfo {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  background-color: var(--color-gray-50);
-  border-radius: var(--radius);
+  margin-top: var(--space-2);
 }
 
-.carIcon {
-  font-size: 1.5rem;
-}
-
-.carInfo h4 {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-gray-900);
+.carDetails h4 {
+  font-size: 1rem;
+  font-weight: 500;
   margin: 0;
 }
 
-.carInfo p {
-  font-size: 0.75rem;
+.carDetails p {
+  font-size: 0.9rem;
   color: var(--color-gray-500);
   margin: 0;
 }
 
 .appointmentFooter {
-  padding: var(--space-4);
-  border-top: 1px solid var(--color-gray-200);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: var(--space-4);
 }
 
 .appointmentId {
-  font-size: 0.75rem;
-  color: var(--color-gray-500);
-  font-family: monospace;
+  font-size: 0.85rem;
+  color: var(--color-gray-400);
 }
 
 .appointmentActions {
@@ -414,179 +362,87 @@
 
 .editButton,
 .cancelButton,
-.viewButton {
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius);
-  font-size: 0.75rem;
+.confirmButton,
+.completeButton,
+.viewButton,
+.rescheduleButton {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  border: none;
+  outline: none;
+  transition: all 0.2s;
 }
 
 .editButton {
-  background-color: transparent;
-  border: 1px solid var(--color-primary);
-  color: var(--color-primary);
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
 }
+.editButton:hover { background-color: #dbeafe; border-color: #93c5fd; }
 
-.editButton:hover {
-  background-color: var(--color-primary);
-  color: white;
+.confirmButton {
+  background-color: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
 }
+.confirmButton:hover { background-color: #bbf7d0; border-color: #86efac; }
+
+.completeButton {
+  background-color: #d1fae5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+.completeButton:hover { background-color: #a7f3d0; border-color: #6ee7b7; }
 
 .cancelButton {
-  background-color: transparent;
-  border: 1px solid #dc2626;
+  background-color: #fee2e2;
   color: #dc2626;
+  border: 1px solid #fecaca;
 }
-
-.cancelButton:hover {
-  background-color: #dc2626;
-  color: white;
-}
+.cancelButton:hover { background-color: #fecaca; border-color: #fca5a5; }
 
 .viewButton {
-  background-color: var(--color-primary);
-  border: 1px solid var(--color-primary);
-  color: white;
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+.viewButton:hover { background-color: #e5e7eb; border-color: #9ca3af; }
+
+.rescheduleButton {
+  background-color: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+.rescheduleButton:hover { background-color: #fde68a; border-color: #fcd34d; }
+
+/* Empty state igual ao dos carros */
+.emptyState {
+  text-align: center;
+  padding: var(--space-16) var(--space-4);
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-top: var(--space-6);
 }
 
-.viewButton:hover {
-  background-color: var(--color-primary-hover);
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: var(--space-4);
 }
 
-.section {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.section:last-child {
-  border-bottom: none;
-}
-
-.section h3 {
-  font-size: 1.125rem;
+.emptyState h3 {
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
-  margin-bottom: 1rem;
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-2);
 }
 
-.selectedCarInfo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background-color: #f0f9ff;
-  border: 1px solid #0ea5e9;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
-}
-
-.selectedCarInfo .carIcon {
-  font-size: 1.5rem;
-}
-
-.carDetails h4 {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-}
-
-.carDetails p {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-.serviceGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.serviceOption {
-  cursor: pointer;
-}
-
-.serviceOption input[type="radio"] {
-  display: none;
-}
-
-.serviceCard {
-  padding: 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.5rem;
-  transition: all 0.15s ease-in-out;
-  background-color: white;
-}
-
-.serviceOption input[type="radio"]:checked + .serviceCard {
-  border-color: #2563eb;
-  background-color: #f0f9ff;
-}
-
-.serviceCard:hover {
-  border-color: #9ca3af;
-}
-
-.serviceOption input[type="radio"]:checked + .serviceCard:hover {
-  border-color: #2563eb;
-}
-
-.serviceCard h4 {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 0.25rem;
-}
-
-.serviceCard p {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-.appointmentSummary {
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-top: 1rem;
-}
-
-.appointmentSummary h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 1rem;
-}
-
-.summaryGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.summaryItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.summaryLabel {
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.summaryValue {
-  font-size: 0.875rem;
-  color: #111827;
-  font-weight: 600;
-  text-align: right;
+.emptyState p {
+  color: var(--color-gray-500);
+  margin-bottom: var(--space-6);
 }
 
 /* Responsive adjustments */
@@ -1024,129 +880,4 @@
     width: 100%;
     justify-content: center;
   }
-}
-
-/* ========================================
-   BUTTON CONSISTENCY (Match Cars)
-   ======================================== */
-
-/* Update existing .addButton to match cars style */
-.addButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.addButton svg {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-.addButton:hover:not(:disabled) {
-  background: #1d4ed8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-}
-
-.addButton:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.addButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Action Buttons in Cards */
-.editButton,
-.cancelButton,
-.confirmButton,
-.completeButton,
-.viewButton,
-.rescheduleButton {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  outline: none;
-}
-
-.editButton {
-  background-color: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #bfdbfe;
-}
-
-.editButton:hover {
-  background-color: #dbeafe;
-  border-color: #93c5fd;
-}
-
-.confirmButton {
-  background-color: #dcfce7;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
-}
-
-.confirmButton:hover {
-  background-color: #bbf7d0;
-  border-color: #86efac;
-}
-
-.completeButton {
-  background-color: #d1fae5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
-}
-
-.completeButton:hover {
-  background-color: #a7f3d0;
-  border-color: #6ee7b7;
-}
-
-.cancelButton {
-  background-color: #fee2e2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
-}
-
-.cancelButton:hover {
-  background-color: #fecaca;
-  border-color: #fca5a5;
-}
-
-.viewButton {
-  background-color: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
-}
-
-.viewButton:hover {
-  background-color: #e5e7eb;
-  border-color: #9ca3af;
-}
-
-.rescheduleButton {
-  background-color: #fef3c7;
-  color: #d97706;
-  border: 1px solid #fde68a;
-}
-
-.rescheduleButton:hover {
-  background-color: #fde68a;
-  border-color: #fcd34d;
 }
