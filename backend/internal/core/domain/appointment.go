@@ -23,7 +23,7 @@ type Appointment struct {
 	Status      AppointmentStatus `json:"status" gorm:"not null;default:'scheduled'"`
 	ScheduledAt time.Time         `json:"scheduled_at" gorm:"column:scheduled_at;not null"`
 	Notes       string            `json:"notes"`
-	CreatedAt   time.Time         `json:"created_at" gorm:"column:created_at;autoCreateTime"`
+	CreatedAt   time.Time         `json:"createdAt" gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt   time.Time         `json:"updated_at" gorm:"column:updated_at;autoUpdateTime"`
 	DeletedAt   *time.Time        `json:"deleted_at,omitempty" gorm:"column:deleted_at;index"`
 

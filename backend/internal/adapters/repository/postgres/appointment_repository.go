@@ -23,13 +23,16 @@ func NewPostgresAppointmentRepository(db *gorm.DB) ports.AppointmentRepository {
 
 // AppointmentModel represents the database table structure
 type AppointmentModel struct {
-	ID            uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	CustomerID    uuid.UUID `gorm:"type:uuid"`
-	CarID         uuid.UUID `gorm:"type:uuid"`
-	ScheduledTime time.Time `gorm:"column:scheduled_at;type:timestamptz"`
-	Notes         string    `gorm:"column:notes;type:text"`
-	Status        string    `gorm:"type:text"`
-	ServiceType   string    `gorm:"column:service_type;type:text"`
+	ID            uuid.UUID  `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	CustomerID    uuid.UUID  `gorm:"type:uuid"`
+	CarID         uuid.UUID  `gorm:"type:uuid"`
+	ScheduledTime time.Time  `gorm:"column:scheduled_at;type:timestamptz"`
+	Notes         string     `gorm:"column:notes;type:text"`
+	Status        string     `gorm:"type:text"`
+	ServiceType   string     `gorm:"column:service_type;type:text"`
+	CreatedAt     time.Time  `gorm:"column:created_at;autoCreateTime"`
+	UpdatedAt     time.Time  `gorm:"column:updated_at;autoUpdateTime"`
+	DeletedAt     *time.Time `gorm:"column:deleted_at;index"`
 }
 
 // TableName specifies the database table name
@@ -55,6 +58,10 @@ func (r *postgresAppointmentRepository) toAppointmentModel(appointment *domain.A
 		ScheduledTime: appointment.ScheduledAt,
 		Notes:         appointment.Notes,
 		Status:        string(appointment.Status),
+		ServiceType:   appointment.ServiceType,
+		CreatedAt:     appointment.CreatedAt,
+		UpdatedAt:     appointment.UpdatedAt,
+		DeletedAt:     appointment.DeletedAt,
 	}
 }
 

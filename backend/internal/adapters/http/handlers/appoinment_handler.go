@@ -27,8 +27,11 @@ type CreateAppointmentRequest struct {
 	EmployeeID    string `json:"employeeID"`    // ✅ camelCase
 	CarID         string `json:"carID"`         // ✅ camelCase
 	ScheduledTime string `json:"scheduledTime"` // ✅ camelCase
+	ScheduledAt   string `json:"scheduledAt"`   // ✅ camelCase
 	Reason        string `json:"reason"`
+	Notes         string `json:"notes"`
 	Status        string `json:"status"`
+	ServiceType   string `json:"serviceType"` // ✅ camelCase
 }
 
 // UpdateAppointmentRequest represents the request payload for updating an appointment
@@ -72,11 +75,26 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 		return
 	}
 
+	// Parse campos
+	carID, err := uuid.Parse(req.CarID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car ID"})
+		return
+	}
+	scheduledAt, err := time.Parse("2006-01-02T15:04:05Z07:00", req.ScheduledAt)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid scheduled time format"})
+		return
+	}
+
 	// Convert to domain object
 	appointment := &domain.Appointment{
-		CustomerID: userID,
-		CarID:      uuid.MustParse(req.CarID),
-		Status:     domain.AppointmentStatus(req.Status),
+		CustomerID:  userID,
+		CarID:       carID,
+		ScheduledAt: scheduledAt,
+		Status:      domain.AppointmentStatus(req.Status),
+		Notes:       req.Notes,
+		ServiceType: req.ServiceType,
 	}
 
 	// Create appointment

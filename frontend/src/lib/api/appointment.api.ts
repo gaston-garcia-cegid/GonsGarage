@@ -1,5 +1,6 @@
 import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
 import { apiClient } from '@/lib/api-client';
+import { stat } from 'fs';
 
 export const appointmentApi = {
   // ✅ Fix getAppointments to handle both response formats
@@ -48,6 +49,7 @@ export const appointmentApi = {
         serviceType: data.service, // ✅ camelCase per Agent.md
         scheduledAt: data.date, // ✅ camelCase per Agent.md
         notes: data.notes,
+        status: data.status,
       });
       return response.success ? response.data ?? null : null;
     } catch (error) {

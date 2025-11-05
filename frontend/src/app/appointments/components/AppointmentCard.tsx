@@ -93,6 +93,7 @@ export default function AppointmentCard({
     <div className={styles.appointmentCard}>
       {/* Header with date and status */}
       <div className={styles.appointmentHeader}>
+        <div className={styles.carIcon}>🚗</div>
         <div className={styles.appointmentDate}>
           <span className={styles.dateLabel}>Scheduled</span>
           <span className={styles.dateValue}>

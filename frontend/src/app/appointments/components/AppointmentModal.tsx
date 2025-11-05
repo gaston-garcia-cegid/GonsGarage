@@ -77,7 +77,7 @@ export default function AppointmentModal({
         clientName: selectedCar ? `${selectedCar.make} ${selectedCar.model}` : 'Unknown',
         carId: formData.carId,
         service: formData.service,
-        date: `${formData.date}T${formData.time}:00`,
+        date: `${formData.date}T${formData.time}:00Z`,
         notes: formData.notes || undefined,
         status: 'scheduled',
         createdAt: new Date().toISOString(),
