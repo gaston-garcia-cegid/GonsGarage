@@ -169,7 +169,7 @@ export default function AppointmentCard({
                 {isUpdating ? 'Updating...' : 'Confirm'}
               </button>
               <button 
-                onClick={() => router.push(`/appointments/${appointment.id}/edit`)}
+                onClick={onEdit}
                 className={styles.editButton}
               >
                 Edit
@@ -214,7 +214,7 @@ export default function AppointmentCard({
 
           {appointment.status === 'cancelled' && (
             <button 
-              onClick={() => router.push(`/appointments/new?carId=${appointment.carId}`)}
+              onClick={onDelete}
               className={styles.rescheduleButton}
             >
               Reschedule

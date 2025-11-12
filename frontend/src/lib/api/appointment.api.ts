@@ -61,10 +61,11 @@ export const appointmentApi = {
   updateAppointment: async (id: string, data: UpdateAppointmentRequest): Promise<Appointment | null> => {
     try {
       const response = await apiClient.put<Appointment>(`/appointments/${id}`, {
-        serviceType: data.service, // ✅ camelCase per Agent.md
-        scheduledAt: data.date, // ✅ camelCase per Agent.md
+        serviceType: data.service,
+        scheduledAt: data.date,
         status: data.status,
         notes: data.notes,
+        carId: data.carId,
       });
       return response.success ? response.data ?? null : null;
     } catch (error) {

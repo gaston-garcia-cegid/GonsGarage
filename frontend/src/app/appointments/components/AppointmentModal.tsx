@@ -89,9 +89,11 @@ export default function AppointmentModal({
 
       if (appointment && onUpdate) {
         const appointmentUpdateData: UpdateAppointmentRequest = {
+              carId: formData.carId,
               service: formData.service,
-              date: `${formData.date}T${formData.time}:00`,
+              date: `${formData.date}T${formData.time}:00Z`,
               notes: formData.notes || undefined,
+              status: 'scheduled',
             };
 
         success = await onUpdate(appointment.id, appointmentUpdateData);

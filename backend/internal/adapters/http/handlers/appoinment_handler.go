@@ -36,12 +36,15 @@ type CreateAppointmentRequest struct {
 
 // UpdateAppointmentRequest represents the request payload for updating an appointment
 type UpdateAppointmentRequest struct {
-	CustomerID    string `json:"customerID"`    // ✅ camelCase
-	EmployeeID    string `json:"employeeID"`    // ✅ camelCase
-	CarID         string `json:"carID"`         // ✅ camelCase
+	CustomerID    string `json:"customerID"`
+	EmployeeID    string `json:"employeeID"`
+	CarID         string `json:"carId"`         // ✅ camelCase
 	ScheduledTime string `json:"scheduledTime"` // ✅ camelCase
+	ScheduledAt   string `json:"scheduledAt"`   // ✅ camelCase
 	Reason        string `json:"reason"`
+	Notes         string `json:"notes"`
 	Status        string `json:"status"`
+	ServiceType   string `json:"serviceType"` // ✅ camelCase
 }
 
 // AppointmentResponse represents the response payload for an appointment
@@ -232,27 +235,32 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 	}
 
 	// Convert to domain object
-	customerUUID, err := uuid.Parse(req.CustomerID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid customer ID"})
-		return
-	}
-	scheduledAt, err := time.Parse("2006-01-02T15:04:05Z07:00", req.ScheduledTime)
+	// customerUUID, err := uuid.Parse(req.CustomerID)
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "invalid customer ID"})
+	// 	return
+	// }
+
+	scheduledAt, err := time.Parse("2006-01-02T15:04:05Z07:00", req.ScheduledAt)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid scheduled time format"})
 		return
 	}
+
 	carUUID, err := uuid.Parse(req.CarID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car ID"})
 		return
 	}
+
 	appointment := &domain.Appointment{
 		ID:          appointmentID,
-		CustomerID:  customerUUID,
+		CustomerID:  userID,
 		CarID:       carUUID,
 		ScheduledAt: scheduledAt,
 		Status:      domain.AppointmentStatus(req.Status),
+		Notes:       req.Notes,
+		ServiceType: req.ServiceType,
 	}
 
 	// Update appointment

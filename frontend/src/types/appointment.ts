@@ -20,21 +20,21 @@ export interface CreateAppointmentRequest {
   service: string;
   date: string;
   time: string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'in_progress' | 'confirmed'; // ✅ camelCase per Agent.md
+  status: 'scheduled' | 'completed' | 'cancelled' | 'in_progress' | 'confirmed';
   notes?: string;
-  createdAt: string; // ✅ camelCase per Agent.md
-  updatedAt: string; // ✅ camelCase per Agent.md
-  deletedAt?: string; // ✅ camelCase per Agent.md
-
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
 }
 
 export interface UpdateAppointmentRequest {
+  carId?: string;
   service?: string;
   date?: string;
   time?: string;
-  status?: 'scheduled' | 'completed' | 'cancelled'; // ✅ camelCase per Agent.md
-  createdAt?: string; // ✅ camelCase per Agent.md
-  updatedAt?: string; // ✅ camelCase per Agent.md
-  deletedAt?: string; // ✅ camelCase per Agent.md
+  status?: 'scheduled' | 'completed' | 'cancelled' | 'in_progress' | 'confirmed';
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
   notes?: string;
 }
