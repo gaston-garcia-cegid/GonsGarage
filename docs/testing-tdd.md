@@ -7,7 +7,7 @@
 ## Backend (Go)
 
 - Framework: `testing` + `testify` (`require` / `assert`).
-- **Unit tests**: servicios y dominio con dependencias sustituidas por stubs o mocks (ver `internal/core/services/auth`, `internal/core/services/car`).
+- **Unit tests**: servicios y dominio con dependencias sustituidas por stubs o mocks (ver `internal/core/services/auth`, `internal/core/services/car`, `internal/core/services/appointment`).
 - **Tests que usan SQLite (GORM + `go-sqlite3`)**: requieren **CGO** (`CGO_ENABLED=1`). En Windows sin toolchain C esos archivos llevan `//go:build cgo` y no se ejecutan localmente; en **CI (Ubuntu)** el workflow activa CGO para incluir esos paquetes cuando existan bajo el módulo.
 
 ## Frontend (Next.js + pnpm)

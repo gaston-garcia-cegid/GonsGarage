@@ -2,13 +2,13 @@
 
 Objetivo del MVP: **un taller puede registrar usuarios, clientes con coches, pedir citas y el personal puede ver/gestionar lo básico** con despliegue reproducible y calidad mínima aceptable.
 
-## Fase A — Base técnica (casi lista)
+## Fase A — Base técnica (cerrada)
 
-- Compose local (Postgres + Redis) y variables documentadas.
-- CI en GitHub (backend + frontend) verde.
-- Política **TDD** registrada y tests base en auth/cars/appointment (backend + stores/API frontend).
+- [x] Compose local (Postgres + Redis) y variables documentadas (`docker-compose.yml`, `backend/.env.example`, `frontend/.env.local.example`, `docs/development-guide.md`).
+- [x] CI en GitHub (backend + frontend) en `.github/workflows/ci.yml`.
+- [x] Política **TDD** en `docs/testing-tdd.md` y tests base: backend `auth`, `car`, `appointment` (`*_service_test.go`); frontend stores/API (`__tests__/auth.*`, `car.store`, `appointment.*`).
 
-**Criterio de salida:** `main` con CI verde; README y `docs/development-guide.md` reflejan pnpm y `go run ./cmd/api`.
+**Criterio de salida:** `main` con CI verde; README y `docs/development-guide.md` reflejan **pnpm** y **`go run ./cmd/api`**.
 
 ## Fase B — Identidad y datos coherentes
 
