@@ -172,6 +172,9 @@ func main() {
 	if strings.EqualFold(strings.TrimSpace(os.Getenv("GIN_MODE")), "release") && jwtSecret == defaultJWTSecret {
 		log.Fatal("Refusing to start with default JWT_SECRET when GIN_MODE=release; set JWT_SECRET in the environment.")
 	}
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("GIN_MODE")), "release") && strings.TrimSpace(os.Getenv("CORS_ALLOWED_ORIGINS")) == "" {
+		log.Printf("Warning: CORS_ALLOWED_ORIGINS is empty in release mode; only requests without Origin (e.g. curl) or same-site usage avoid browser CORS checks.")
+	}
 
 	authService := auth.NewAuthService(userRepo, jwtSecret, 24)
 	employeeService := employee.NewEmployeeService(employeeRepo, cacheRepo)
@@ -267,22 +270,52 @@ func createIndexes(db *gorm.DB) error {
 	return nil
 }
 
-// CORS middleware function
+// parseCORSAllowedOrigins construye el conjunto de orígenes permitidos (URLs exactas, sin barra final obligatoria).
+func parseCORSAllowedOrigins(raw string) map[string]struct{} {
+	out := make(map[string]struct{})
+	for _, part := range strings.Split(raw, ",") {
+		u := strings.TrimSpace(part)
+		if u != "" {
+			out[u] = struct{}{}
+		}
+	}
+	return out
+}
+
+// corsMiddleware: en GIN_MODE=release solo refleja Origin si está en CORS_ALLOWED_ORIGINS (coma-separada).
+// Fuera de release: permisivo (cualquier Origin no vacío) para desarrollo local.
 func corsMiddleware() gin.HandlerFunc {
+	release := strings.EqualFold(strings.TrimSpace(os.Getenv("GIN_MODE")), "release")
+	allowed := parseCORSAllowedOrigins(os.Getenv("CORS_ALLOWED_ORIGINS"))
+
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
 
-		// Allow specific origins or all origins for development
-		if origin == "http://localhost:3000" || origin == "http://localhost:3001" || os.Getenv("GIN_MODE") != "release" {
-			c.Header("Access-Control-Allow-Origin", origin)
+		if release {
+			if origin != "" {
+				if _, ok := allowed[origin]; !ok {
+					if c.Request.Method == http.MethodOptions {
+						c.AbortWithStatus(http.StatusForbidden)
+						return
+					}
+					// Petición “simple” con Origin no listado: sin cabecera CORS el navegador bloquea la lectura.
+					c.Next()
+					return
+				}
+				c.Header("Access-Control-Allow-Origin", origin)
+			}
+		} else {
+			if origin != "" {
+				c.Header("Access-Control-Allow-Origin", origin)
+			}
 		}
 
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		c.Header("Access-Control-Allow-Credentials", "true")
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
 

@@ -10,6 +10,11 @@ Objetivo: **secretos fuera del repositorio**, artefactos **Docker** reproducible
 | `DATABASE_URL` | Entorno del contenedor `api` | DSN PostgreSQL; en Compose el host suele ser el nombre del servicio (`postgres`). |
 | `POSTGRES_*` | `docker-compose.prod.yml` | Definen la base del contenedor Postgres; deben coincidir con el usuario/clave del `DATABASE_URL`. |
 | `NEXT_PUBLIC_API_URL` | Build args de `web` | URL **pública** del API (HTTPS recomendado detrás de proxy). |
+| `CORS_ALLOWED_ORIGINS` | Contenedor `api` | Con `GIN_MODE=release`, lista separada por **comas** de orígenes exactos del SPA (ej. `https://app.tudominio.com`). Vacío: solo encaja bien con clientes sin cabecera `Origin` (curl, server-to-server) o mismo sitio. |
+
+### CORS en `release`
+
+El middleware en `cmd/api/main.go` solo envía `Access-Control-Allow-Origin` si el `Origin` del navegador coincide con una entrada de `CORS_ALLOWED_ORIGINS`. Fuera de `release` el comportamiento sigue siendo permisivo para desarrollo local.
 
 Copia `deploy/.env.production.example` a **`.env` en la raíz del repo** (o al path que pases con `docker compose --env-file`) y rellena valores reales. **No subas `.env` a git.**
 

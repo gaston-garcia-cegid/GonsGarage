@@ -18,6 +18,7 @@ Definidas o usadas en `backend/cmd/api/main.go`:
 | `JWT_SECRET` | Firma JWT | Clave de desarrollo (log de advertencia) |
 | `SERVER_PORT` | Puerto HTTP | `8080` |
 | `GIN_MODE` | `release` desactiva modo debug Gin | — |
+| `CORS_ALLOWED_ORIGINS` | Con `GIN_MODE=release`, orígenes permitidos del navegador (coma-separada, URL exacta) | Vacío: ver advertencia al arrancar; navegador cross-origin fallará salvo mismo sitio |
 | `RESET_DATABASE` | `true` elimina tablas antes de migrar (solo desarrollo) | — |
 
 ## Levantar PostgreSQL y Redis (Docker)

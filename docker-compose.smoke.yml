@@ -40,6 +40,7 @@ services:
       - "8080:8080"
     environment:
       GIN_MODE: release
+      CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001
       JWT_SECRET: smoke_ci_jwt_secret_min_32_chars________
       DATABASE_URL: postgres://smoke:smoke_ci_only@postgres:5432/gonsgarage?sslmode=disable
       REDIS_URL: redis:6379
