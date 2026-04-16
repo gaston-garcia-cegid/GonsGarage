@@ -83,15 +83,15 @@ export interface Car {
 
 export interface Repair {
   id: string;
-  car_id: string;
-  technician_id: string;
+  carId: string;
+  technicianId: string;
   description: string;
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   cost: number;
-  started_at?: string;
-  completed_at?: string;
-  created_at: string;
-  updated_at: string;
+  startedAt?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
   car?: Car;
   technician?: User;
 }
@@ -120,10 +120,10 @@ export interface CreateCarRequest {
 }
 
 export interface CreateRepairRequest {
-  car_id: string;
+  carId: string;
   description: string;
   status?: string;
-  start_date: string;
+  startedAt?: string;
   cost: number;
 }
 
@@ -294,7 +294,7 @@ class ApiClient {
 
   // Repair endpoints
   async getRepairs(carId?: string): Promise<ApiResponse<Repair[]>> {
-    const url = carId ? `/repairs/car/${carId}` : '/repairs';
+    const url = carId ? `/cars/${carId}/repairs` : '/repairs';
     return this.request<Repair[]>(url);
   }
 

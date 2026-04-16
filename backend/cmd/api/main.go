@@ -30,13 +30,14 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/auth"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/car"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/employee"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/repair"
 
 	_ "github.com/gaston-garcia-cegid/gonsgarage/docs" // swagger (swag)
 )
 
 // @title           GonsGarage API
 // @version         1.0
-// @description     API de gestión de taller: autenticación JWT, coches, citas y empleados.
+// @description     API de gestión de taller: autenticación JWT, coches, citas, reparaciones y empleados.
 // @host            localhost:8080
 // @BasePath        /
 // @securityDefinitions.apikey BearerAuth
@@ -157,20 +158,26 @@ func main() {
 	userRepo := postgresRepo.NewPostgresUserRepository(db)
 	employeeRepo := postgresRepo.NewPostgresEmployeeRepository(db)
 	carRepo := postgresRepo.NewPostgresCarRepository(db)
+	repairRepo := postgresRepo.NewPostgresRepairRepository(db)
 	appointmentRepo := postgresRepo.NewPostgresAppointmentRepository(db)
 	log.Printf("Repositories initialized")
 
 	// Initialize use cases
-	jwtSecret := os.Getenv("JWT_SECRET")
+	jwtSecret := strings.TrimSpace(os.Getenv("JWT_SECRET"))
+	const defaultJWTSecret = "your-super-secret-jwt-key"
 	if jwtSecret == "" {
-		jwtSecret = "your-super-secret-jwt-key"
+		jwtSecret = defaultJWTSecret
 		log.Printf("Warning: Using default JWT secret. Set JWT_SECRET environment variable in production.")
+	}
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("GIN_MODE")), "release") && jwtSecret == defaultJWTSecret {
+		log.Fatal("Refusing to start with default JWT_SECRET when GIN_MODE=release; set JWT_SECRET in the environment.")
 	}
 
 	authService := auth.NewAuthService(userRepo, jwtSecret, 24)
 	employeeService := employee.NewEmployeeService(employeeRepo, cacheRepo)
 	carService := car.NewCarService(carRepo, userRepo, cacheRepo)
 	appointmentService := appointment.NewAppointmentService(appointmentRepo, userRepo, carRepo)
+	repairService := repair.NewRepairService(repairRepo, carRepo, userRepo)
 
 	log.Printf("Use cases initialized")
 
@@ -184,6 +191,7 @@ func main() {
 
 	// Initialize appointment handler
 	appointmentHandler := handlers.NewAppointmentHandler(appointmentService)
+	repairHandler := handlers.NewRepairHandler(repairService)
 
 	log.Printf("Handlers initialized")
 
@@ -198,7 +206,7 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Setup routes
-	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, authMiddleware)
+	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, repairHandler, authMiddleware)
 
 	log.Printf("Routes set up")
 
@@ -289,6 +297,7 @@ func setupRoutes(
 	employeeHandler *handlers.EmployeeHandler,
 	carHandler *handlers.CarHandler,
 	appointmentHandler *handlers.AppointmentHandler,
+	repairHandler *handlers.RepairHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) {
 	// Health check
@@ -331,6 +340,7 @@ func setupRoutes(
 		{
 			cars.POST("", carHandler.CreateCar)
 			cars.GET("", carHandler.ListCars)
+			cars.GET("/:id/repairs", repairHandler.ListRepairsByCar)
 			cars.GET("/:id", carHandler.GetCar)
 			cars.PUT("/:id", carHandler.UpdateCar)
 			cars.DELETE("/:id", carHandler.DeleteCar)
@@ -346,15 +356,12 @@ func setupRoutes(
 			appointments.DELETE("/:id", appointmentHandler.DeleteAppointment)
 		}
 
-		// Repair routes would go here
-		// repairs := protected.Group("/repairs")
-		// {
-		// 	repairs.POST("", repairHandler.CreateRepair)
-		// 	repairs.GET("", repairHandler.ListRepairs)
-		// 	repairs.GET("/:id", repairHandler.GetRepair)
-		// 	repairs.PUT("/:id", repairHandler.UpdateRepair)
-		// 	repairs.DELETE("/:id", repairHandler.DeleteRepair)
-		// }
+		repairs := protected.Group("/repairs")
+		{
+			repairs.POST("", repairHandler.CreateRepair)
+			repairs.GET("/:id", repairHandler.GetRepair)
+			repairs.PUT("/:id", repairHandler.UpdateRepair)
+		}
 	}
 }
 

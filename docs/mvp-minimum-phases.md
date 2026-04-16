@@ -27,20 +27,37 @@ Objetivo del MVP: **un taller puede registrar usuarios, clientes con coches, ped
 
 **Criterio de salida:** demo en local: cliente crea coche y cita; empleado/admin lista y actualiza estados básicos.
 
-## Fase C — Reparaciones (diferenciador de taller)
+## Fase C — Reparaciones (diferenciador de taller) (cerrada)
 
 - Exponer **repairs** en REST (hoy el dominio existe pero las rutas en `cmd/api` están comentadas) o recortar el alcance del MVP y documentar “sin repairs en API hasta vX”.
 - UI mínima: listado / detalle de reparación por coche (aunque sea solo lectura en MVP).
 
 **Criterio de salida:** historia de reparación visible para el cliente o decisión explícita de aplazar con issue enlazado.
 
-## Fase D — MVP en producción (mínimo viable “de verdad”)
+**Avances en código (iteración actual):**
+
+- [x] **API Gin:** `POST /api/v1/repairs` (personal del taller), `GET /api/v1/repairs/:id`, `PUT /api/v1/repairs/:id`, `GET /api/v1/cars/:id/repairs` (ruta anidada registrada antes de `GET /cars/:id`); JSON **camelCase**; OpenAPI regenerado con **swag**.
+- [x] **Persistencia:** `PostgresRepairRepository` alineado con `domain.Repair` y soft delete; permisos de creación para coches de clientes (técnico no tiene que ser dueño).
+- [x] **Dominio / tests:** `repair_service_test.go` (stubs); `go test ./...` en backend.
+- [x] **Frontend:** detalle de coche consume `GET .../cars/:id/repairs` y tipos camelCase en `api.ts` / vista de historial.
+
+## Fase D — MVP en producción (mínimo viable “de verdad”) (cerrada en repo)
 
 - **Secrets** fuera del repo; `JWT_SECRET` y DB en variables del entorno.
 - Imagen Docker o plataforma elegida (un solo `docker compose` de prod o PaaS).
 - **Deploy workflow** sustituyendo el placeholder `.github/workflows/deploy.yml` (migraciones, healthcheck, rollback básico).
 
 **Criterio de salida:** URL pública o entorno staging con HTTPS y backup de BD documentado.
+
+**Avances en código (iteración actual):**
+
+- [x] **Docker:** `backend/Dockerfile`, `frontend/Dockerfile` (Next **standalone**), `docker-compose.prod.yml`, `docker-compose.smoke.yml`, `deploy/.env.production.example`.
+- [x] **Secretos:** `JWT_SECRET` obligatorio distinto del default cuando `GIN_MODE=release` en `cmd/api/main.go`.
+- [x] **Deploy:** `.github/workflows/deploy.yml` — smoke con Compose + `/health`; job opcional **push a GHCR** (`push_ghcr`).
+- [x] **Documentación:** `docs/deployment-staging.md` (HTTPS vía proxy, backup, rollback básico) y enlace desde `docs/development-guide.md`.
+- [x] **Deuda:** dependencia `gorilla/mux` eliminada (`user_handler` migrado a Gin). Plantilla de issue en **`docs/github/issue-remove-gorilla-mux.md`** (crear en GitHub si se desea ticket formal).
+
+**Nota sobre el criterio “URL pública HTTPS”:** el repositorio entrega compose + reverse proxy documentado; la URL y certificados dependen del entorno del operador (DNS + Caddy/Traefik/nginx).
 
 ## Orden recomendado
 

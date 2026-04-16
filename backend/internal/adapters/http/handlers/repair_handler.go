@@ -1,342 +1,303 @@
 package handlers
 
 import (
-	"encoding/json"
+	"errors"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/middleware"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	repairService "github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/repair"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 )
 
-type RepairHandler struct {
-	repairService *repairService.RepairService
-}
-
-func NewRepairHandler(repairService *repairService.RepairService) *RepairHandler {
-	return &RepairHandler{
-		repairService: repairService,
+func parseOptionalRFC3339OrDate(s *string) (*time.Time, error) {
+	if s == nil {
+		return nil, nil
 	}
+	raw := strings.TrimSpace(*s)
+	if raw == "" {
+		return nil, nil
+	}
+	if t, err := time.Parse(time.RFC3339, raw); err == nil {
+		return &t, nil
+	}
+	if t, err := time.Parse("2006-01-02T15:04:05Z07:00", raw); err == nil {
+		return &t, nil
+	}
+	t, err := time.Parse("2006-01-02", raw)
+	if err != nil {
+		return nil, err
+	}
+	utc := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
+	return &utc, nil
 }
 
-// CreateRepairRequest represents the request payload for creating a repair
+// RepairHandler expone reparaciones (taller CRUD parcial; cliente lectura por coche).
+type RepairHandler struct {
+	repairService ports.RepairService
+}
+
+func NewRepairHandler(repairService ports.RepairService) *RepairHandler {
+	return &RepairHandler{repairService: repairService}
+}
+
+// CreateRepairRequest cuerpo POST /repairs.
 type CreateRepairRequest struct {
-	CarID       string  `json:"car_id"`
-	Description string  `json:"description"`
+	CarID       string  `json:"carId" binding:"required"`
+	Description string  `json:"description" binding:"required"`
 	Status      string  `json:"status,omitempty"`
-	StartDate   string  `json:"start_date"`
+	StartedAt   *string `json:"startedAt,omitempty"`
 	Cost        float64 `json:"cost"`
 }
 
-// UpdateRepairRequest represents the request payload for updating a repair
+// UpdateRepairRequest cuerpo PUT /repairs/:id (campos vacíos no sustituyen descripción/estado).
 type UpdateRepairRequest struct {
 	Description string  `json:"description"`
 	Status      string  `json:"status"`
-	EndDate     *string `json:"end_date,omitempty"`
 	Cost        float64 `json:"cost"`
+	StartedAt   *string `json:"startedAt,omitempty"`
+	CompletedAt *string `json:"completedAt,omitempty"`
 }
 
-// RepairResponse represents the response payload for repair data
+// RepairResponse respuesta JSON camelCase.
 type RepairResponse struct {
-	ID          string        `json:"id"`
-	CarID       string        `json:"car_id"`
-	EmployeeID  string        `json:"employee_id"`
-	Description string        `json:"description"`
-	Status      string        `json:"status"`
-	StartDate   string        `json:"start_date"`
-	EndDate     *string       `json:"end_date,omitempty"`
-	Cost        float64       `json:"cost"`
-	CreatedAt   string        `json:"created_at"`
-	UpdatedAt   string        `json:"updated_at"`
-	Car         *CarResponse  `json:"car,omitempty"`
-	Employee    *UserResponse `json:"employee,omitempty"`
+	ID             string  `json:"id"`
+	CarID          string  `json:"carId"`
+	TechnicianID   string  `json:"technicianId"`
+	Description    string  `json:"description"`
+	Status         string  `json:"status"`
+	Cost           float64 `json:"cost"`
+	StartedAt      *string `json:"startedAt,omitempty"`
+	CompletedAt    *string `json:"completedAt,omitempty"`
+	CreatedAt      string  `json:"createdAt"`
+	UpdatedAt      string  `json:"updatedAt"`
 }
 
-// UserResponse represents the response payload for user data (employee)
-type UserResponse struct {
-	ID        string `json:"id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
+func repairToResponse(r *domain.Repair) RepairResponse {
+	out := RepairResponse{
+		ID:           r.ID.String(),
+		CarID:        r.CarID.String(),
+		TechnicianID: r.TechnicianID.String(),
+		Description:  r.Description,
+		Status:       string(r.Status),
+		Cost:         r.Cost,
+		CreatedAt:    r.CreatedAt.UTC().Format(time.RFC3339),
+		UpdatedAt:    r.UpdatedAt.UTC().Format(time.RFC3339),
+	}
+	if r.StartedAt != nil {
+		s := r.StartedAt.UTC().Format(time.RFC3339)
+		out.StartedAt = &s
+	}
+	if r.CompletedAt != nil {
+		s := r.CompletedAt.UTC().Format(time.RFC3339)
+		out.CompletedAt = &s
+	}
+	return out
 }
 
-func (h *RepairHandler) CreateRepair(w http.ResponseWriter, r *http.Request) {
-	// Get user from middleware
-	userID, ok := middleware.GetUserIDFromContext(r.Context())
-	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+func writeRepairError(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, domain.ErrUnauthorizedAccess):
+		c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+	case errors.Is(err, domain.ErrRepairNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": "repair not found"})
+	case errors.Is(err, domain.ErrCarNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": "car not found"})
+	case errors.Is(err, domain.ErrInvalidRepairData):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid repair data"})
+	case errors.Is(err, domain.ErrUserNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+}
+
+// CreateRepair registra una reparación (solo personal del taller).
+// @Summary     Crear reparación
+// @Tags        repairs
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       body body CreateRepairRequest true "carId, description, cost; startedAt opcional (RFC3339)"
+// @Success     201 {object} RepairResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/repairs [post]
+func (h *RepairHandler) CreateRepair(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
 		return
 	}
 
 	var req CreateRepairRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
-	// Parse car ID
-	carID, err := uuid.Parse(req.CarID)
+	carID, err := uuid.Parse(strings.TrimSpace(req.CarID))
 	if err != nil {
-		http.Error(w, "Invalid car ID", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid carId"})
 		return
 	}
 
-	// Parse start date
-	startDate, err := time.Parse("2006-01-02T15:04:05Z", req.StartDate)
+	startedAt, err := parseOptionalRFC3339OrDate(req.StartedAt)
 	if err != nil {
-		// Try alternative format
-		startDate, err = time.Parse("2006-01-02", req.StartDate)
-		if err != nil {
-			http.Error(w, "Invalid start date format", http.StatusBadRequest)
-			return
-		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid startedAt format"})
+		return
 	}
 
-	// Create domain repair
 	repair := &domain.Repair{
 		CarID:       carID,
 		Description: req.Description,
 		Status:      domain.RepairStatus(req.Status),
-		StartedAt:   &startDate,
+		StartedAt:   startedAt,
 		Cost:        req.Cost,
 	}
 
-	// Create repair using use case
-	createdRepair, err := h.repairService.CreateRepair(r.Context(), repair, userID)
+	created, err := h.repairService.CreateRepair(c.Request.Context(), repair, userID)
 	if err != nil {
-		if err == domain.ErrUnauthorizedAccess {
-			http.Error(w, "Unauthorized", http.StatusForbidden)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		writeRepairError(c, err)
 		return
 	}
 
-	// Convert to response
-	response := h.toRepairResponse(createdRepair)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
+	c.JSON(http.StatusCreated, repairToResponse(created))
 }
 
-func (h *RepairHandler) GetRepair(w http.ResponseWriter, r *http.Request) {
-	// Get user from middleware
-	userID, ok := middleware.GetUserIDFromContext(r.Context())
-	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	// Get repair ID from URL
-	vars := mux.Vars(r)
-	repairIDStr, exists := vars["id"]
-	if !exists {
-		http.Error(w, "Repair ID is required", http.StatusBadRequest)
-		return
-	}
-
-	repairID, err := uuid.Parse(repairIDStr)
+// ListRepairsByCar lista reparaciones de un coche (cliente: solo su coche; staff: cualquier coche).
+// @Summary     Listar reparaciones por coche
+// @Tags        repairs
+// @Security    BearerAuth
+// @Produce     json
+// @Param       id path string true "ID del coche"
+// @Success     200 {array} RepairResponse
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/cars/{id}/repairs [get]
+func (h *RepairHandler) ListRepairsByCar(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
-		http.Error(w, "Invalid repair ID", http.StatusBadRequest)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
 		return
 	}
 
-	// Get repair using use case
-	repair, err := h.repairService.GetRepair(r.Context(), repairID, userID)
+	carID, err := uuid.Parse(strings.TrimSpace(c.Param("id")))
 	if err != nil {
-		if err == domain.ErrRepairNotFound {
-			http.Error(w, "Repair not found", http.StatusNotFound)
-			return
-		}
-		if err == domain.ErrUnauthorizedAccess {
-			http.Error(w, "Unauthorized", http.StatusForbidden)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car id"})
 		return
 	}
 
-	// Convert to response
-	response := h.toRepairResponse(repair)
+	repairs, err := h.repairService.GetRepairsByCarID(c.Request.Context(), carID, userID)
+	if err != nil {
+		writeRepairError(c, err)
+		return
+	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	out := make([]RepairResponse, 0, len(repairs))
+	for _, r := range repairs {
+		out = append(out, repairToResponse(r))
+	}
+	c.JSON(http.StatusOK, out)
 }
 
-func (h *RepairHandler) GetRepairsByCarID(w http.ResponseWriter, r *http.Request) {
-	// Get user from middleware
-	userID, ok := middleware.GetUserIDFromContext(r.Context())
-	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	// Get car ID from URL
-	vars := mux.Vars(r)
-	carIDStr, exists := vars["carId"]
-	if !exists {
-		http.Error(w, "Car ID is required", http.StatusBadRequest)
-		return
-	}
-
-	carID, err := uuid.Parse(carIDStr)
+// GetRepair obtiene una reparación por id.
+// @Summary     Obtener reparación
+// @Tags        repairs
+// @Security    BearerAuth
+// @Produce     json
+// @Param       id path string true "ID de la reparación"
+// @Success     200 {object} RepairResponse
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/repairs/{id} [get]
+func (h *RepairHandler) GetRepair(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
-		http.Error(w, "Invalid car ID", http.StatusBadRequest)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
 		return
 	}
 
-	// Get repairs using use case
-	repairs, err := h.repairService.GetRepairsByCarID(r.Context(), carID, userID)
+	repairID, err := uuid.Parse(strings.TrimSpace(c.Param("id")))
 	if err != nil {
-		if err == domain.ErrUnauthorizedAccess {
-			http.Error(w, "Unauthorized", http.StatusForbidden)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid repair id"})
 		return
 	}
 
-	// Convert to response
-	response := make([]*RepairResponse, len(repairs))
-	for i, repair := range repairs {
-		response[i] = h.toRepairResponse(repair)
+	repair, err := h.repairService.GetRepair(c.Request.Context(), repairID, userID)
+	if err != nil {
+		writeRepairError(c, err)
+		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"repairs": response,
-		"total":   len(response),
-	})
+	c.JSON(http.StatusOK, repairToResponse(repair))
 }
 
-func (h *RepairHandler) UpdateRepair(w http.ResponseWriter, r *http.Request) {
-	// Get user from middleware
-	userID, ok := middleware.GetUserIDFromContext(r.Context())
-	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	// Get repair ID from URL
-	vars := mux.Vars(r)
-	repairIDStr, exists := vars["id"]
-	if !exists {
-		http.Error(w, "Repair ID is required", http.StatusBadRequest)
-		return
-	}
-
-	repairID, err := uuid.Parse(repairIDStr)
+// UpdateRepair actualiza una reparación (solo personal del taller).
+// @Summary     Actualizar reparación
+// @Tags        repairs
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       id path string true "ID de la reparación"
+// @Param       body body UpdateRepairRequest true "Campos a actualizar"
+// @Success     200 {object} RepairResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/repairs/{id} [put]
+func (h *RepairHandler) UpdateRepair(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
-		http.Error(w, "Invalid repair ID", http.StatusBadRequest)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
+		return
+	}
+
+	repairID, err := uuid.Parse(strings.TrimSpace(c.Param("id")))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid repair id"})
 		return
 	}
 
 	var req UpdateRepairRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
-	// Get existing repair
-	existingRepair, err := h.repairService.GetRepair(r.Context(), repairID, userID)
+	startedAt, err := parseOptionalRFC3339OrDate(req.StartedAt)
 	if err != nil {
-		if err == domain.ErrRepairNotFound {
-			http.Error(w, "Repair not found", http.StatusNotFound)
-			return
-		}
-		if err == domain.ErrUnauthorizedAccess {
-			http.Error(w, "Unauthorized", http.StatusForbidden)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid startedAt format"})
 		return
 	}
-
-	// Create updated repair
-	repair := &domain.Repair{
-		ID:           repairID,
-		CarID:        existingRepair.CarID,
-		TechnicianID: existingRepair.TechnicianID,
-		Description:  req.Description,
-		Status:       domain.RepairStatus(req.Status),
-		StartedAt:    existingRepair.StartedAt,
-		Cost:         req.Cost,
-	}
-
-	// Parse end date if provided
-	if req.EndDate != nil {
-		endDate, err := time.Parse("2006-01-02T15:04:05Z", *req.EndDate)
-		if err != nil {
-			// Try alternative format
-			endDate, err = time.Parse("2006-01-02", *req.EndDate)
-			if err != nil {
-				http.Error(w, "Invalid end date format", http.StatusBadRequest)
-				return
-			}
-		}
-		repair.CompletedAt = &endDate
-	}
-
-	// Update repair using use case
-	updatedRepair, err := h.repairService.UpdateRepair(r.Context(), repair, userID)
+	completedAt, err := parseOptionalRFC3339OrDate(req.CompletedAt)
 	if err != nil {
-		if err == domain.ErrUnauthorizedAccess {
-			http.Error(w, "Unauthorized", http.StatusForbidden)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid completedAt format"})
 		return
 	}
 
-	// Convert to response
-	response := h.toRepairResponse(updatedRepair)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-}
-
-func (h *RepairHandler) toRepairResponse(repair *domain.Repair) *RepairResponse {
-	response := &RepairResponse{
-		ID:          repair.ID.String(),
-		CarID:       repair.CarID.String(),
-		EmployeeID:  repair.TechnicianID.String(),
-		Description: repair.Description,
-		Status:      string(repair.Status),
-		StartDate:   repair.StartedAt.Format("2006-01-02T15:04:05Z"),
-		Cost:        repair.Cost,
-		CreatedAt:   repair.CreatedAt.Format("2006-01-02T15:04:05Z"),
-		UpdatedAt:   repair.UpdatedAt.Format("2006-01-02T15:04:05Z"),
+	patch := &domain.Repair{
+		ID:          repairID,
+		Description: req.Description,
+		Status:      domain.RepairStatus(req.Status),
+		Cost:        req.Cost,
+		StartedAt:   startedAt,
+		CompletedAt: completedAt,
 	}
 
-	if repair.CompletedAt != nil {
-		endDate := repair.CompletedAt.Format("2006-01-02T15:04:05Z")
-		response.EndDate = &endDate
+	updated, err := h.repairService.UpdateRepair(c.Request.Context(), patch, userID)
+	if err != nil {
+		writeRepairError(c, err)
+		return
 	}
 
-	if repair.Car.ID != uuid.Nil {
-		response.Car = &CarResponse{
-			ID:           repair.Car.ID.String(),
-			Make:         repair.Car.Make,
-			Model:        repair.Car.Model,
-			Year:         repair.Car.Year,
-			LicensePlate: repair.Car.LicensePlate,
-			Color:        repair.Car.Color,
-		}
-	}
-
-	if repair.Technician.ID != uuid.Nil {
-		response.Employee = &UserResponse{
-			ID:        repair.Technician.ID.String(),
-			FirstName: repair.Technician.FirstName,
-			LastName:  repair.Technician.LastName,
-			Email:     repair.Technician.Email,
-		}
-	}
-
-	return response
+	c.JSON(http.StatusOK, repairToResponse(updated))
 }

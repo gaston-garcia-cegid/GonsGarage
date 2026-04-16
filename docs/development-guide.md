@@ -63,6 +63,12 @@ pnpm dev
 
 `NEXT_PUBLIC_API_URL` por defecto apunta a `http://localhost:8080` (coincide con el backend en el mismo host). El cliente en `src/lib/api` añade `/api/v1` donde corresponde.
 
+## Staging / Docker (Fase D)
+
+- Guía: **`docs/deployment-staging.md`** (secretos, HTTPS delante del proxy, backup `pg_dump`).
+- **Producción mínima:** `docker-compose.prod.yml` + variables desde `deploy/.env.production.example`.
+- **Smoke (CI o local):** `docker compose -f docker-compose.smoke.yml up --build` y comprobar `http://localhost:8080/health`.
+
 ## Tests (backend)
 
 ```powershell

@@ -7,7 +7,7 @@
 ## Backend (Go)
 
 - Framework: `testing` + `testify` (`require` / `assert`).
-- **Unit tests**: servicios y dominio con dependencias sustituidas por stubs o mocks (ver `internal/core/services/auth`, `internal/core/services/car`, `internal/core/services/appointment`).
+- **Unit tests**: servicios y dominio con dependencias sustituidas por stubs o mocks (ver `internal/core/services/auth`, `internal/core/services/car`, `internal/core/services/appointment`, `internal/core/services/repair`).
 - **Tests que usan SQLite (GORM + `go-sqlite3`)**: requieren **CGO** (`CGO_ENABLED=1`). En Windows sin toolchain C esos archivos llevan `//go:build cgo` y no se ejecutan localmente; en **CI (Ubuntu)** el workflow activa CGO para incluir esos paquetes cuando existan bajo el módulo.
 
 ## Frontend (Next.js + pnpm)
@@ -15,6 +15,7 @@
 - Gestor de paquetes: **pnpm** (ver `packageManager` en `frontend/package.json`).
 - Tests: **Jest** + Testing Library (`pnpm test`).
 - Typecheck: `pnpm typecheck` (TypeScript estricto).
+- Build producción con **standalone** (imagen Docker / CI): definir `NEXT_STANDALONE=true` (ver `next.config.ts`); en Windows sin permisos de symlink omitir esa variable para `pnpm build` local.
 
 ### Suites temporalmente excluidas de Jest
 
@@ -23,3 +24,5 @@ Algunas pruebas de página legacy (`__tests__/app/appointments/page.test.tsx`, `
 ## CI
 
 El workflow `.github/workflows/ci.yml` ejecuta `go test`, `pnpm lint`, `pnpm typecheck`, `pnpm test` y `pnpm build`. Debe permanecer verde en `main`.
+
+El workflow **`.github/workflows/deploy.yml`** (manual `workflow_dispatch`) construye la stack de **smoke** (`docker-compose.smoke.yml`), comprueba `GET /health` y opcionalmente publica la imagen del API en GHCR.

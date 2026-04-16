@@ -1,0 +1,6 @@
+__debug_bin.exe
+*.test
+.git
+.env
+.env.*
+!.env.example

@@ -1,227 +1,6 @@
 basePath: /
 definitions:
-  handlers.AppointmentResponse:
-    properties:
-      carId:
-        type: string
-      clientName:
-        type: string
-      createdAt:
-        type: string
-      date:
-        type: string
-      deletedAt:
-        type: string
-      id:
-        type: string
-      notes:
-        type: string
-      service:
-        type: string
-      status:
-        type: string
-      time:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  handlers.CarResponse:
-    properties:
-      color:
-        type: string
-      createdAt:
-        description: ✅ camelCase
-        type: string
-      id:
-        type: string
-      licensePlate:
-        description: ✅ camelCase
-        type: string
-      make:
-        type: string
-      mileage:
-        type: integer
-      model:
-        type: string
-      ownerID:
-        description: ✅ camelCase
-        type: string
-      updatedAt:
-        description: ✅ camelCase
-        type: string
-      vin:
-        type: string
-      year:
-        type: integer
-    type: object
-  handlers.CreateAppointmentRequest:
-    properties:
-      carID:
-        description: ✅ camelCase
-        type: string
-      customerID:
-        description: ✅ camelCase
-        type: string
-      employeeID:
-        description: ✅ camelCase
-        type: string
-      notes:
-        type: string
-      reason:
-        type: string
-      scheduledAt:
-        description: ✅ camelCase
-        type: string
-      scheduledTime:
-        description: ✅ camelCase
-        type: string
-      serviceType:
-        description: ✅ camelCase
-        type: string
-      status:
-        type: string
-    type: object
-  handlers.CreateCarRequest:
-    properties:
-      color:
-        type: string
-      licensePlate:
-        type: string
-      make:
-        type: string
-      mileage:
-        type: integer
-      model:
-        type: string
-      ownerID:
-        description: 'OwnerID optional: solo personal del taller (admin/manager/employee)
-          asigna el cliente dueño.'
-        type: string
-      vin:
-        type: string
-      year:
-        type: integer
-    type: object
-  handlers.LoginRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  handlers.SwaggerLoginOK:
-    properties:
-      message:
-        type: string
-      token:
-        type: string
-    type: object
-  handlers.SwaggerMeOK:
-    properties:
-      user:
-        $ref: '#/definitions/handlers.SwaggerMeUser'
-    type: object
-  handlers.SwaggerMeUser:
-    properties:
-      createdAt:
-        type: string
-      email:
-        type: string
-      firstName:
-        type: string
-      id:
-        type: string
-      isActive:
-        type: boolean
-      lastName:
-        type: string
-      role:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  handlers.SwaggerMessage:
-    properties:
-      details:
-        type: string
-      error:
-        type: string
-      message:
-        type: string
-    type: object
-  handlers.SwaggerRegisterOK:
-    properties:
-      message:
-        type: string
-      user:
-        $ref: '#/definitions/handlers.SwaggerRegisterUser'
-    type: object
-  handlers.SwaggerRegisterUser:
-    properties:
-      createdAt:
-        type: string
-      email:
-        type: string
-      firstName:
-        type: string
-      id:
-        type: string
-      isActive:
-        type: boolean
-      lastName:
-        type: string
-      role:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  handlers.UpdateAppointmentRequest:
-    properties:
-      carId:
-        description: ✅ camelCase
-        type: string
-      customerID:
-        type: string
-      employeeID:
-        type: string
-      notes:
-        type: string
-      reason:
-        type: string
-      scheduledAt:
-        description: ✅ camelCase
-        type: string
-      scheduledTime:
-        description: ✅ camelCase
-        type: string
-      serviceType:
-        description: ✅ camelCase
-        type: string
-      status:
-        type: string
-    type: object
-  handlers.UpdateCarRequest:
-    properties:
-      color:
-        type: string
-      licensePlate:
-        description: ✅ camelCase
-        type: string
-      make:
-        type: string
-      mileage:
-        type: integer
-      model:
-        type: string
-      vin:
-        type: string
-      year:
-        type: integer
-    type: object
-  ports.CreateEmployeeRequest:
+  github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.CreateEmployeeRequest:
     properties:
       createdAt:
         type: string
@@ -261,7 +40,7 @@ definitions:
     - email
     - position
     type: object
-  ports.RegisterRequest:
+  github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.RegisterRequest:
     properties:
       email:
         type: string
@@ -280,7 +59,7 @@ definitions:
     - lastName
     - password
     type: object
-  ports.UpdateEmployeeRequest:
+  github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.UpdateEmployeeRequest:
     properties:
       department:
         type: string
@@ -293,10 +72,284 @@ definitions:
       position:
         type: string
     type: object
+  internal_adapters_http_handlers.AppointmentResponse:
+    properties:
+      carId:
+        type: string
+      clientName:
+        type: string
+      createdAt:
+        type: string
+      date:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      service:
+        type: string
+      status:
+        type: string
+      time:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  internal_adapters_http_handlers.CarResponse:
+    properties:
+      color:
+        type: string
+      createdAt:
+        description: ✅ camelCase
+        type: string
+      id:
+        type: string
+      licensePlate:
+        description: ✅ camelCase
+        type: string
+      make:
+        type: string
+      mileage:
+        type: integer
+      model:
+        type: string
+      ownerID:
+        description: ✅ camelCase
+        type: string
+      updatedAt:
+        description: ✅ camelCase
+        type: string
+      vin:
+        type: string
+      year:
+        type: integer
+    type: object
+  internal_adapters_http_handlers.CreateAppointmentRequest:
+    properties:
+      carID:
+        description: ✅ camelCase
+        type: string
+      customerID:
+        description: ✅ camelCase
+        type: string
+      employeeID:
+        description: ✅ camelCase
+        type: string
+      notes:
+        type: string
+      reason:
+        type: string
+      scheduledAt:
+        description: ✅ camelCase
+        type: string
+      scheduledTime:
+        description: ✅ camelCase
+        type: string
+      serviceType:
+        description: ✅ camelCase
+        type: string
+      status:
+        type: string
+    type: object
+  internal_adapters_http_handlers.CreateCarRequest:
+    properties:
+      color:
+        type: string
+      licensePlate:
+        type: string
+      make:
+        type: string
+      mileage:
+        type: integer
+      model:
+        type: string
+      ownerID:
+        description: 'OwnerID optional: solo personal del taller (admin/manager/employee)
+          asigna el cliente dueño.'
+        type: string
+      vin:
+        type: string
+      year:
+        type: integer
+    type: object
+  internal_adapters_http_handlers.CreateRepairRequest:
+    properties:
+      carId:
+        type: string
+      cost:
+        type: number
+      description:
+        type: string
+      startedAt:
+        type: string
+      status:
+        type: string
+    required:
+    - carId
+    - description
+    type: object
+  internal_adapters_http_handlers.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_adapters_http_handlers.RepairResponse:
+    properties:
+      carId:
+        type: string
+      completedAt:
+        type: string
+      cost:
+        type: number
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      startedAt:
+        type: string
+      status:
+        type: string
+      technicianId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  internal_adapters_http_handlers.SwaggerLoginOK:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  internal_adapters_http_handlers.SwaggerMeOK:
+    properties:
+      user:
+        $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMeUser'
+    type: object
+  internal_adapters_http_handlers.SwaggerMeUser:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      lastName:
+        type: string
+      role:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  internal_adapters_http_handlers.SwaggerMessage:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  internal_adapters_http_handlers.SwaggerRegisterOK:
+    properties:
+      message:
+        type: string
+      user:
+        $ref: '#/definitions/internal_adapters_http_handlers.SwaggerRegisterUser'
+    type: object
+  internal_adapters_http_handlers.SwaggerRegisterUser:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      lastName:
+        type: string
+      role:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  internal_adapters_http_handlers.UpdateAppointmentRequest:
+    properties:
+      carId:
+        description: ✅ camelCase
+        type: string
+      customerID:
+        type: string
+      employeeID:
+        type: string
+      notes:
+        type: string
+      reason:
+        type: string
+      scheduledAt:
+        description: ✅ camelCase
+        type: string
+      scheduledTime:
+        description: ✅ camelCase
+        type: string
+      serviceType:
+        description: ✅ camelCase
+        type: string
+      status:
+        type: string
+    type: object
+  internal_adapters_http_handlers.UpdateCarRequest:
+    properties:
+      color:
+        type: string
+      licensePlate:
+        description: ✅ camelCase
+        type: string
+      make:
+        type: string
+      mileage:
+        type: integer
+      model:
+        type: string
+      vin:
+        type: string
+      year:
+        type: integer
+    type: object
+  internal_adapters_http_handlers.UpdateRepairRequest:
+    properties:
+      completedAt:
+        type: string
+      cost:
+        type: number
+      description:
+        type: string
+      startedAt:
+        type: string
+      status:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
-  description: 'API de gestión de taller: autenticación JWT, coches, citas y empleados.'
+  description: 'API de gestión de taller: autenticación JWT, coches, citas, reparaciones
+    y empleados.'
   title: GonsGarage API
   version: "1.0"
 paths:
@@ -338,20 +391,20 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handlers.AppointmentResponse'
+              $ref: '#/definitions/internal_adapters_http_handlers.AppointmentResponse'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Listar citas
@@ -366,26 +419,26 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateAppointmentRequest'
+          $ref: '#/definitions/internal_adapters_http_handlers.CreateAppointmentRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.AppointmentResponse'
+            $ref: '#/definitions/internal_adapters_http_handlers.AppointmentResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Crear cita
@@ -405,19 +458,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Eliminar cita
@@ -436,23 +489,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AppointmentResponse'
+            $ref: '#/definitions/internal_adapters_http_handlers.AppointmentResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Obtener cita
@@ -472,30 +525,30 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.UpdateAppointmentRequest'
+          $ref: '#/definitions/internal_adapters_http_handlers.UpdateAppointmentRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AppointmentResponse'
+            $ref: '#/definitions/internal_adapters_http_handlers.AppointmentResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Actualizar cita
@@ -513,22 +566,22 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.LoginRequest'
+          $ref: '#/definitions/internal_adapters_http_handlers.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.SwaggerLoginOK'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerLoginOK'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       summary: Iniciar sesión
       tags:
       - auth
@@ -541,15 +594,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.SwaggerMeOK'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMeOK'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Perfil actual
@@ -566,22 +619,22 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/ports.RegisterRequest'
+          $ref: '#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.RegisterRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.SwaggerRegisterOK'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerRegisterOK'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       summary: Registro
       tags:
       - auth
@@ -607,20 +660,20 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handlers.CarResponse'
+              $ref: '#/definitions/internal_adapters_http_handlers.CarResponse'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Listar coches
@@ -635,30 +688,30 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateCarRequest'
+          $ref: '#/definitions/internal_adapters_http_handlers.CreateCarRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.CarResponse'
+            $ref: '#/definitions/internal_adapters_http_handlers.CarResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Crear coche
@@ -678,19 +731,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Eliminar coche
@@ -709,23 +762,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.CarResponse'
+            $ref: '#/definitions/internal_adapters_http_handlers.CarResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Obtener coche
@@ -745,35 +798,69 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.UpdateCarRequest'
+          $ref: '#/definitions/internal_adapters_http_handlers.UpdateCarRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.CarResponse'
+            $ref: '#/definitions/internal_adapters_http_handlers.CarResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Actualizar coche
       tags:
       - cars
+  /api/v1/cars/{id}/repairs:
+    get:
+      parameters:
+      - description: ID del coche
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_adapters_http_handlers.RepairResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Listar reparaciones por coche
+      tags:
+      - repairs
   /api/v1/employees:
     get:
       parameters:
@@ -800,11 +887,11 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Listar empleados
@@ -819,7 +906,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/ports.CreateEmployeeRequest'
+          $ref: '#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.CreateEmployeeRequest'
       produces:
       - application/json
       responses:
@@ -831,15 +918,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Crear empleado
@@ -859,19 +946,19 @@ paths:
         "200":
           description: message
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Eliminar empleado
@@ -895,19 +982,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Obtener empleado
@@ -927,7 +1014,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/ports.UpdateEmployeeRequest'
+          $ref: '#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.UpdateEmployeeRequest'
       produces:
       - application/json
       responses:
@@ -939,20 +1026,134 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Actualizar empleado
       tags:
       - employees
+  /api/v1/repairs:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: carId, description, cost; startedAt opcional (RFC3339)
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapters_http_handlers.CreateRepairRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.RepairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Crear reparación
+      tags:
+      - repairs
+  /api/v1/repairs/{id}:
+    get:
+      parameters:
+      - description: ID de la reparación
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.RepairResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Obtener reparación
+      tags:
+      - repairs
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID de la reparación
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Campos a actualizar
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapters_http_handlers.UpdateRepairRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.RepairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_adapters_http_handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Actualizar reparación
+      tags:
+      - repairs
   /health:
     get:
       description: Estado del proceso API (sin autenticación).

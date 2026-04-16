@@ -1,0 +1,46 @@
+# Smoke local / CI: API + Postgres + Redis con JWT y DSN explícitos (sin valores por defecto inseguros en GIN_MODE=release).
+# Uso local: docker compose -f docker-compose.smoke.yml up --build
+# CI:       .github/workflows/deploy.yml
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gonsgarage
+      POSTGRES_USER: smoke
+      POSTGRES_PASSWORD: smoke_ci_only
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smoke -d gonsgarage"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      GIN_MODE: release
+      JWT_SECRET: smoke_ci_jwt_secret_min_32_chars________
+      DATABASE_URL: postgres://smoke:smoke_ci_only@postgres:5432/gonsgarage?sslmode=disable
+      REDIS_URL: redis:6379
+      SERVER_PORT: "8080"

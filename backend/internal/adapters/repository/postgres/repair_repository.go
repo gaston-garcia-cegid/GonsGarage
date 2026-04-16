@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -20,27 +21,19 @@ func NewPostgresRepairRepository(db *gorm.DB) ports.RepairRepository {
 	return &PostgresRepairRepository{db: db}
 }
 
-// RepairModel represents the database table structure
+// RepairModel refleja la tabla repairs alineada con domain.Repair (migración GORM).
 type RepairModel struct {
 	ID           uuid.UUID  `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ClientID     uuid.UUID  `gorm:"type:uuid;not null;index"`
-	Make         string     `gorm:"not null"`
-	Model        string     `gorm:"not null"`
-	Year         int        `gorm:"not null"`
-	LicensePlate string     `gorm:"column:license_plate;not null;uniqueIndex"`
-	VIN          string     `gorm:"column:vin"`
-	Color        string     `gorm:"not null"`
-	Mileage      int        `gorm:"not null;default:0"`
+	CarID        uuid.UUID  `gorm:"column:car_id;type:uuid;not null;index"`
+	TechnicianID uuid.UUID  `gorm:"column:technician_id;type:uuid;not null;index"`
+	Description  string     `gorm:"not null"`
+	Status       string     `gorm:"not null;default:pending"`
+	Cost         float64    `gorm:"type:decimal(10,2);not null;default:0"`
+	StartedAt    *time.Time `gorm:"column:started_at"`
+	CompletedAt  *time.Time `gorm:"column:completed_at"`
 	CreatedAt    time.Time  `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt    time.Time  `gorm:"column:updated_at;autoUpdateTime"`
 	DeletedAt    *time.Time `gorm:"column:deleted_at;index"`
-	CarID        uuid.UUID  `gorm:"type:uuid;not null;index"`
-	TechnicianID uuid.UUID  `gorm:"type:uuid;not null;index"`
-	Description  string     `gorm:"not null"`
-	Status       string     `gorm:"not null;default:'pending'"`
-	Cost         float64    `gorm:"not null;default:0"`
-	StartedAt    time.Time  `gorm:"column:start_date"`
-	CompletedAt  *time.Time `gorm:"column:completed_at"`
 }
 
 func (RepairModel) TableName() string {
@@ -48,145 +41,103 @@ func (RepairModel) TableName() string {
 }
 
 func (r *PostgresRepairRepository) Create(ctx context.Context, repair *domain.Repair) error {
-	dbRepair := &RepairModel{
-		ID:        repair.ID,
-		CreatedAt: repair.CreatedAt,
-		UpdatedAt: repair.UpdatedAt,
-	}
-
-	if err := r.db.WithContext(ctx).Create(dbRepair).Error; err != nil {
+	m := r.fromDomain(repair)
+	if err := r.db.WithContext(ctx).Create(&m).Error; err != nil {
 		return fmt.Errorf("failed to create repair: %w", err)
 	}
-
 	return nil
 }
 
 func (r *PostgresRepairRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Repair, error) {
-	var dbRepair RepairModel
-
-	err := r.db.WithContext(ctx).Where("id = ? AND deleted_at IS NULL", id).First(&dbRepair).Error
+	var m RepairModel
+	err := r.db.WithContext(ctx).Where("id = ? AND deleted_at IS NULL", id).First(&m).Error
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, domain.ErrRepairNotFound
 		}
 		return nil, fmt.Errorf("failed to get repair by ID: %w", err)
 	}
-
-	return r.toDomainRepair(&dbRepair), nil
+	return r.toDomain(&m), nil
 }
 
-func (r *PostgresRepairRepository) GetByClientID(ctx context.Context, clientID uuid.UUID) ([]*domain.Repair, error) {
-	var dbRepairs []RepairModel
-
-	err := r.db.WithContext(ctx).Where("client_id = ? AND deleted_at IS NULL", clientID).
-		Order("created_at DESC").Find(&dbRepairs).Error
-	if err != nil {
-		return nil, fmt.Errorf("failed to get repairs by client ID: %w", err)
-	}
-
-	repairs := make([]*domain.Repair, len(dbRepairs))
-	for i, dbRepair := range dbRepairs {
-		repairs[i] = r.toDomainRepair(&dbRepair)
-	}
-
-	return repairs, nil
-}
-
-// GetByCarID implements ports.RepairRepository.
 func (r *PostgresRepairRepository) GetByCarID(ctx context.Context, carID uuid.UUID) ([]*domain.Repair, error) {
-	var dbRepairs []RepairModel
-
-	err := r.db.WithContext(ctx).Where("car_id = ? AND deleted_at IS NULL", carID).
-		Order("created_at DESC").Find(&dbRepairs).Error
+	var rows []RepairModel
+	err := r.db.WithContext(ctx).
+		Where("car_id = ? AND deleted_at IS NULL", carID).
+		Order("created_at DESC").
+		Find(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to get repairs by car ID: %w", err)
 	}
-
-	repairs := make([]*domain.Repair, len(dbRepairs))
-	for i, dbRepair := range dbRepairs {
-		repairs[i] = r.toDomainRepair(&dbRepair)
+	out := make([]*domain.Repair, 0, len(rows))
+	for i := range rows {
+		out = append(out, r.toDomain(&rows[i]))
 	}
-
-	return repairs, nil
-}
-
-func (r *PostgresRepairRepository) List(ctx context.Context, limit, offset int) ([]*domain.Repair, error) {
-	var dbRepairs []RepairModel
-
-	query := r.db.WithContext(ctx).Where("deleted_at IS NULL").
-		Order("created_at DESC")
-
-	if limit > 0 {
-		query = query.Limit(limit)
-	}
-	if offset > 0 {
-		query = query.Offset(offset)
-	}
-
-	err := query.Find(&dbRepairs).Error
-	if err != nil {
-		return nil, fmt.Errorf("failed to list repairs: %w", err)
-	}
-
-	repairs := make([]*domain.Repair, len(dbRepairs))
-	for i, dbRepair := range dbRepairs {
-		repairs[i] = r.toDomainRepair(&dbRepair)
-	}
-
-	return repairs, nil
+	return out, nil
 }
 
 func (r *PostgresRepairRepository) Update(ctx context.Context, repair *domain.Repair) error {
-	dbRepair := &RepairModel{
-		ID:        repair.ID,
-		CreatedAt: repair.CreatedAt,
-		UpdatedAt: repair.UpdatedAt,
+	var m RepairModel
+	if err := r.db.WithContext(ctx).Where("id = ? AND deleted_at IS NULL", repair.ID).First(&m).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return domain.ErrRepairNotFound
+		}
+		return fmt.Errorf("failed to load repair: %w", err)
 	}
+	m.CarID = repair.CarID
+	m.TechnicianID = repair.TechnicianID
+	m.Description = repair.Description
+	m.Status = string(repair.Status)
+	m.Cost = repair.Cost
+	m.StartedAt = repair.StartedAt
+	m.CompletedAt = repair.CompletedAt
+	m.UpdatedAt = repair.UpdatedAt
 
-	result := r.db.WithContext(ctx).Model(dbRepair).Where("id = ?", repair.ID).Updates(dbRepair)
-
-	if result.Error != nil {
-		return fmt.Errorf("failed to update repair: %w", result.Error)
+	if err := r.db.WithContext(ctx).Save(&m).Error; err != nil {
+		return fmt.Errorf("failed to update repair: %w", err)
 	}
-
-	if result.RowsAffected == 0 {
-		return domain.ErrRepairNotFound
-	}
-
 	return nil
 }
 
 func (r *PostgresRepairRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	result := r.db.WithContext(ctx).Model(&RepairModel{}).Where("id = ?", id).Update("deleted_at", time.Now())
-	if result.Error != nil {
-		return fmt.Errorf("failed to delete repair: %w", result.Error)
+	res := r.db.WithContext(ctx).Model(&RepairModel{}).Where("id = ? AND deleted_at IS NULL", id).Update("deleted_at", time.Now().UTC())
+	if res.Error != nil {
+		return fmt.Errorf("failed to delete repair: %w", res.Error)
 	}
-
-	if result.RowsAffected == 0 {
+	if res.RowsAffected == 0 {
 		return domain.ErrRepairNotFound
 	}
-
 	return nil
 }
 
-func (r *PostgresRepairRepository) GetByLicensePlate(ctx context.Context, licensePlate string) (*domain.Repair, error) {
-	var dbRepair RepairModel
-
-	err := r.db.WithContext(ctx).Where("license_plate = ? AND deleted_at IS NULL", licensePlate).First(&dbRepair).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, domain.ErrRepairNotFound
-		}
-		return nil, fmt.Errorf("failed to get repair by license plate: %w", err)
+func (r *PostgresRepairRepository) fromDomain(d *domain.Repair) RepairModel {
+	return RepairModel{
+		ID:           d.ID,
+		CarID:        d.CarID,
+		TechnicianID: d.TechnicianID,
+		Description:  d.Description,
+		Status:       string(d.Status),
+		Cost:         d.Cost,
+		StartedAt:    d.StartedAt,
+		CompletedAt:  d.CompletedAt,
+		CreatedAt:    d.CreatedAt,
+		UpdatedAt:    d.UpdatedAt,
+		DeletedAt:    d.DeletedAt,
 	}
-
-	return r.toDomainRepair(&dbRepair), nil
 }
 
-func (r *PostgresRepairRepository) toDomainRepair(dbRepair *RepairModel) *domain.Repair {
+func (r *PostgresRepairRepository) toDomain(m *RepairModel) *domain.Repair {
 	return &domain.Repair{
-		ID:        dbRepair.ID,
-		CreatedAt: dbRepair.CreatedAt,
-		UpdatedAt: dbRepair.UpdatedAt,
+		ID:           m.ID,
+		CarID:        m.CarID,
+		TechnicianID: m.TechnicianID,
+		Description:  m.Description,
+		Status:       domain.RepairStatus(m.Status),
+		Cost:         m.Cost,
+		StartedAt:    m.StartedAt,
+		CompletedAt:  m.CompletedAt,
+		CreatedAt:    m.CreatedAt,
+		UpdatedAt:    m.UpdatedAt,
+		DeletedAt:    m.DeletedAt,
 	}
 }

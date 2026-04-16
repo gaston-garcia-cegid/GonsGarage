@@ -1,0 +1,61 @@
+# Stack mínimo para staging / producción detrás de un reverse proxy (TLS terminado fuera del contenedor).
+# Copiar deploy/.env.production.example → .env en la raíz (no commitear) y ajustar secretos.
+#
+#   docker compose --env-file .env -f docker-compose.prod.yml up -d --build
+#
+# Backup BD: ver docs/deployment-staging.md
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gonsgarage}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - gonsgarage_pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - gonsgarage_redisdata_prod:/data
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${API_PUBLISH_PORT:-8080}:8080"
+    environment:
+      GIN_MODE: release
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL in .env}
+      REDIS_URL: ${REDIS_URL:-redis:6379}
+      SERVER_PORT: "8080"
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?set NEXT_PUBLIC_API_URL in .env}
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PUBLISH_PORT:-3000}:3000"
+
+volumes:
+  gonsgarage_pgdata_prod:
+  gonsgarage_redisdata_prod:

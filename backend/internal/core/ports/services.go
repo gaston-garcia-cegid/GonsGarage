@@ -138,3 +138,11 @@ type AppointmentService interface {
 	// ListAppointments lists appointments with optional filters and authorization checks
 	ListAppointments(ctx context.Context, requestingUserID uuid.UUID, filters *AppointmentFilters) ([]*domain.Appointment, int64, error)
 }
+
+// RepairService defines repair workshop operations and client read access by car.
+type RepairService interface {
+	CreateRepair(ctx context.Context, repair *domain.Repair, requestingUserID uuid.UUID) (*domain.Repair, error)
+	GetRepair(ctx context.Context, repairID uuid.UUID, requestingUserID uuid.UUID) (*domain.Repair, error)
+	GetRepairsByCarID(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Repair, error)
+	UpdateRepair(ctx context.Context, repair *domain.Repair, requestingUserID uuid.UUID) (*domain.Repair, error)
+}
