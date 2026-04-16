@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Structured HTTP access logs (`log/slog`), std `log` bridged to slog, `LOG_LEVEL` / `LOG_FORMAT`.
+- `GET /metrics` Prometheus endpoint (`prometheus/client_golang`).
+- `docs/observability.md` and Arnela **Fase 0** meeting checklist: `docs/specs/arnela/phase-0-team-review-checklist.md`.
 - `GET /ready` readiness probe (PostgreSQL ping).
 - `apiVersion` field on `GET /health` liveness response.
 - GitHub issue templates (bug / feature).

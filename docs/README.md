@@ -14,6 +14,7 @@
 | [api/versioning.md](./api/versioning.md) | Versionado del contrato HTTP (`/api/v1`, `apiVersion`, CHANGELOG). |
 | [deployment-staging.md](./deployment-staging.md) | Docker compose prod/smoke, secretos, CORS, probes `/health` y `/ready`, backup. |
 | [../CHANGELOG.md](../CHANGELOG.md) | Cambios notables del contrato y del producto (Keep a Changelog). |
+| [observability.md](./observability.md) | Logs estructurados (slog), `/metrics` Prometheus, notas OTel. |
 
 ## Documentación ya existente en el repo
 

@@ -18,7 +18,7 @@ El MVP mínimo descrito en [mvp-minimum-phases.md](./mvp-minimum-phases.md) est�
 
 - [x] Ruta local confirmada: **`D:\Repos\Arnela`** (README, `arnela-rules/`, `docs/DOCUMENTATION_INDEX.md`).
 - [x] Resumen en GonsGarage: [specs/arnela/ARNELA_SYNOPSIS.md](./specs/arnela/ARNELA_SYNOPSIS.md) e índice [specs/arnela/README.md](./specs/arnela/README.md); matriz en [arnela-specs.md](./arnela-specs.md).
-- [ ] Revisión conjunta con el equipo: priorizar filas de la matriz (compose, CI, auth, migraciones) y convertir en issues/tareas.
+- [ ] Revisión conjunta con el equipo: priorizar filas de la matriz (compose, CI, auth, migraciones) y convertir en issues/tareas. **Checklist:** [phase-0-team-review-checklist.md](./specs/arnela/phase-0-team-review-checklist.md).
 
 ## Fase 1 — Documentación y descubribilidad (este repo)
 
@@ -50,7 +50,7 @@ Ajustar según lo que marque la matriz Arnela vs GonsGarage. Candidatos típicos
 - [x] Plantilla de PR en [.github/pull_request_template.md](../.github/pull_request_template.md).
 - [x] Plantillas de issues: [.github/ISSUE_TEMPLATE/](../.github/ISSUE_TEMPLATE/) (`bug_report`, `feature_request`).
 - [x] Observabilidad mínima: `GET /health` (liveness + `apiVersion`) y `GET /ready` (readiness Postgres).
-- [ ] Observabilidad ampliada: logs estructurados, métricas (Prometheus/OpenTelemetry, etc.).
+- [x] Observabilidad ampliada (base): logs estructurados con **`log/slog`** (`LOG_FORMAT` / `LOG_LEVEL`, JSON en `release`), middleware de acceso, **`GET /metrics`** (Prometheus). Guía: [observability.md](./observability.md). OpenTelemetry / métricas de negocio: pendiente de priorizar.
 
 ## Fase 5 — Producción y seguridad
 
@@ -60,4 +60,4 @@ Ajustar según lo que marque la matriz Arnela vs GonsGarage. Candidatos típicos
 
 ---
 
-**Prioridad sugerida**: Fase 0 (priorización matriz) en paralelo con mejoras de Fase 4 (versionado, plantillas). Las fases 3–5 quedan refinadas con [arnela-specs.md](./arnela-specs.md) y el código en `D:\Repos\Arnela` cuando se persiga paridad visual/stack.
+**Prioridad sugerida:** ejecutar la **Fase 0** con la [checklist de reunión](./specs/arnela/phase-0-team-review-checklist.md); después, paridad visual/stack Arnela según [arnela-specs.md](./arnela-specs.md) y el código en `D:\Repos\Arnela`. La base de **observabilidad** (logs + `/metrics`) ya está en [observability.md](./observability.md); OpenTelemetry y métricas de negocio cuando el equipo las priorice.

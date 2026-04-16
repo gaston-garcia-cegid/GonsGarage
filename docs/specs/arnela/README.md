@@ -7,6 +7,7 @@ Las especificaciones oficiales están en el repositorio local:
 ## En este repo (GonsGarage)
 
 - **[ARNELA_SYNOPSIS.md](./ARNELA_SYNOPSIS.md)** — Resumen extraído para alinear documentación, DevOps y prácticas sin duplicar todo el árbol de Arnela.
+- **[phase-0-team-review-checklist.md](./phase-0-team-review-checklist.md)** — Checklist para la reunión de priorización (roadmap Fase 0).
 
 ## En el repo Arnela (lectura directa)
 

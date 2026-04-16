@@ -13,7 +13,7 @@ A comprehensive auto repair shop management system built with modern technologie
 
 Technical documentation (architecture analysis, dev setup, roadmap, and external spec placeholders such as Arnela) lives in **[docs/](docs/)**. Start at [docs/README.md](docs/README.md).
 
-- **TDD / tests:** [docs/testing-tdd.md](docs/testing-tdd.md) · **MVP phases:** [docs/mvp-minimum-phases.md](docs/mvp-minimum-phases.md) · **API versionado:** [docs/api/versioning.md](docs/api/versioning.md) · **Changelog:** [CHANGELOG.md](CHANGELOG.md) · **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
+- **TDD / tests:** [docs/testing-tdd.md](docs/testing-tdd.md) · **MVP phases:** [docs/mvp-minimum-phases.md](docs/mvp-minimum-phases.md) · **API versionado:** [docs/api/versioning.md](docs/api/versioning.md) · **Observabilidad:** [docs/observability.md](docs/observability.md) · **Changelog:** [CHANGELOG.md](CHANGELOG.md) · **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## 🚀 Features
 

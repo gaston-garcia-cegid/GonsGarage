@@ -19,6 +19,8 @@ Definidas o usadas en `backend/cmd/api/main.go`:
 | `SERVER_PORT` | Puerto HTTP | `8080` |
 | `GIN_MODE` | `release` desactiva modo debug Gin | — |
 | `CORS_ALLOWED_ORIGINS` | Con `GIN_MODE=release`, orígenes permitidos del navegador (coma-separada, URL exacta) | Vacío: ver advertencia al arrancar; navegador cross-origin fallará salvo mismo sitio |
+| `LOG_FORMAT` | `json` fuerza logs JSON (además de `GIN_MODE=release`, que ya usa JSON) | — |
+| `LOG_LEVEL` | `debug`, `info`, `warn`, `error` para `log/slog` | Por defecto `info` |
 | `RESET_DATABASE` | `true` elimina tablas antes de migrar (solo desarrollo) | — |
 
 ## Levantar PostgreSQL y Redis (Docker)
@@ -44,6 +46,7 @@ go run ./cmd/api
 - Swagger: `http://localhost:8080/swagger/index.html`
 - Health (liveness): `http://localhost:8080/health` — incluye `apiVersion` (ver [CHANGELOG.md](../CHANGELOG.md) y [docs/api/versioning.md](./api/versioning.md)).
 - Ready (readiness / Postgres): `http://localhost:8080/ready`
+- Métricas Prometheus: `http://localhost:8080/metrics` (ver [observability.md](./observability.md))
 - Perfil autenticado: `GET http://localhost:8080/api/v1/auth/me` con cabecera `Authorization: Bearer <token>`
 - Empleados: `GET/POST /api/v1/employees/...` solo para roles **admin** o **manager**
 

@@ -1169,6 +1169,20 @@ paths:
       summary: Comprobación de salud
       tags:
       - system
+  /metrics:
+    get:
+      description: Métricas de proceso y runtime (sin autenticación; restringir en
+        producción).
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: texto formato Prometheus
+          schema:
+            type: string
+      summary: Métricas Prometheus
+      tags:
+      - system
   /ready:
     get:
       description: PostgreSQL accesible (sin autenticación; usar en probes de despliegue).
@@ -1191,7 +1205,7 @@ paths:
 securityDefinitions:
   BearerAuth:
     description: 'JWT: cabecera Authorization con valor Bearer seguido del token (rutas
-      bajo /api/v1 salvo /health y /ready).'
+      bajo /api/v1 salvo /health, /ready y /metrics).'
     in: header
     name: Authorization
     type: apiKey

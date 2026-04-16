@@ -1297,6 +1297,26 @@ const docTemplate = `{
                 }
             }
         },
+        "/metrics": {
+            "get": {
+                "description": "Métricas de proceso y runtime (sin autenticación; restringir en producción).",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Métricas Prometheus",
+                "responses": {
+                    "200": {
+                        "description": "texto formato Prometheus",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/ready": {
             "get": {
                 "description": "PostgreSQL accesible (sin autenticación; usar en probes de despliegue).",
@@ -1844,7 +1864,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "BearerAuth": {
-            "description": "JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health y /ready).",
+            "description": "JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health, /ready y /metrics).",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

@@ -15,6 +15,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -46,8 +47,11 @@ const apiVersion = "1.0.0"
 // @securityDefinitions.apikey BearerAuth
 // @in              header
 // @name            Authorization
-// @description     JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health y /ready).
+// @description     JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health, /ready y /metrics).
 func main() {
+	initLogging()
+	bridgeStdLog()
+
 	log.Printf("/*************** Start Main ***************/")
 
 	// Database connection with timeout
@@ -205,7 +209,9 @@ func main() {
 	if os.Getenv("GIN_MODE") == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Recovery())
+	router.Use(middleware.SlogRequestLogger())
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// CORS middleware
@@ -366,6 +372,9 @@ func setupRoutes(
 		}
 		c.JSON(http.StatusOK, gin.H{"status": "ready", "checks": gin.H{"database": "ok"}})
 	})
+
+	// Métricas Prometheus (runtime Go + custom futuro). No exponer a Internet sin red/proxy restringido.
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// API v1 routes
 	api := router.Group("/api/v1")

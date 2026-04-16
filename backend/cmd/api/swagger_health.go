@@ -20,3 +20,13 @@ func healthCheckDoc() {}
 // @Failure 503 {object} map[string]interface{} "not_ready"
 // @Router /ready [get]
 func readyCheckDoc() {}
+
+// metricsDoc ancla /metrics para swag (handler real: promhttp en setupRoutes).
+//
+// @Summary Métricas Prometheus
+// @Description Métricas de proceso y runtime (sin autenticación; restringir en producción).
+// @Tags system
+// @Produce plain
+// @Success 200 {string} string "texto formato Prometheus"
+// @Router /metrics [get]
+func metricsDoc() {}

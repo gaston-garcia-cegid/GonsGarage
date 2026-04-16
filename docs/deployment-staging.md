@@ -22,6 +22,7 @@ El middleware en `cmd/api/main.go` solo envía `Access-Control-Allow-Origin` si 
 | ---- | --- |
 | `GET /health` | **Liveness**: el proceso responde; incluye `apiVersion` (contrato público, ver [CHANGELOG.md](../CHANGELOG.md)). |
 | `GET /ready` | **Readiness**: `Ping` a PostgreSQL; `503` si la BD no responde (Kubernetes `readinessProbe`, balanceadores, etc.). |
+| `GET /metrics` | **Prometheus**: métricas de proceso/runtime; **no** exponer a Internet sin restricción de red (ver [observability.md](./observability.md)). |
 
 Copia `deploy/.env.production.example` a **`.env` en la raíz del repo** (o al path que pases con `docker compose --env-file`) y rellena valores reales. **No subas `.env` a git.**
 
