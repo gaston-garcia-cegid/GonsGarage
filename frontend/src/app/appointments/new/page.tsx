@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, startTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
 import { useCarStore } from '@/stores/car.store';
@@ -41,13 +41,16 @@ function NewAppointmentForm() {
   }, [user, router, fetchCars]);
 
   useEffect(() => {
-    if (preselectedCarId && cars.length > 0) {
-      setFormData(prev => ({
-        ...prev,
-        carId: preselectedCarId    // ✅ camelCase per Agent.md
-      }));
+    if (!preselectedCarId || cars.length === 0) {
+      return;
     }
-  }, [preselectedCarId, cars.length]);
+    startTransition(() => {
+      setFormData((prev) => ({
+        ...prev,
+        carId: preselectedCarId,
+      }));
+    });
+  }, [preselectedCarId, cars]);
 
   const validateForm = (): boolean => {
     const newErrors: {[key: string]: string} = {};

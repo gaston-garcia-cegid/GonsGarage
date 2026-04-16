@@ -89,9 +89,9 @@ Regenerar tras cambiar anotaciones `// @Summary`, `// @Router`, etc.:
 
 ```powershell
 Set-Location backend
-go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports --parseInternal
+go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports,./internal/apidocs --parseInternal
 ```
 
 - El **general API** (título, `BasePath`, seguridad `BearerAuth`) está en `cmd/api/main.go`.
-- Las rutas documentadas están en `internal/adapters/http/handlers` y el ancla de **`/health`** en `cmd/api/swagger_health.go`.
+- Las rutas documentadas están en `internal/adapters/http/handlers` y los anclas de **`/health`**, **`/ready`** y **`/metrics`** en `internal/apidocs/swag_system.go`.
 - Tipos de petición compartidos (`ports.RegisterRequest`, empleados, etc.) requieren incluir **`internal/core/ports`** en `-d`.

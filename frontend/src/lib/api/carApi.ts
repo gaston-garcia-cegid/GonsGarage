@@ -1,3 +1,4 @@
+import { getPublicApiV1BaseUrl } from '@/lib/api-base-url';
 import { Car, CreateCarRequest, UpdateCarRequest } from '@/types/car';
 
 export interface ApiResponse<T> {
@@ -11,8 +12,8 @@ export interface ApiResponse<T> {
 class CarApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080') {
-    this.baseUrl = `${baseUrl}/api/v1`;
+  constructor(baseUrl: string = getPublicApiV1BaseUrl()) {
+    this.baseUrl = baseUrl;
   }
 
   // ✅ Fixed: Safe token retrieval that works in both client and server

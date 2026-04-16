@@ -35,6 +35,9 @@ jobs:
       - name: Build API
         run: go build -o /tmp/gonsgarage-api ./cmd/api
 
+      - name: Build worker
+        run: go build -o /tmp/gonsgarage-worker ./cmd/worker
+
   frontend:
     name: Frontend (Next.js + pnpm)
     runs-on: ubuntu-latest

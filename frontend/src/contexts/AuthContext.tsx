@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient, User } from '@/lib/api';
+import { getPublicApiV1BaseUrl } from '@/lib/api-base-url';
 
 interface RegisterData {
   email: string;
@@ -23,8 +24,6 @@ export interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -105,7 +104,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+      const response = await fetch(`${getPublicApiV1BaseUrl()}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -179,7 +178,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const register = async (data: RegisterData): Promise<{ success: boolean; error?: string }> => {
     try {
-      const requestUrl = `${API_BASE_URL}/api/v1/auth/register`;
+      const requestUrl = `${getPublicApiV1BaseUrl()}/auth/register`;
       const requestBody = {
         email: data.email,
         password: data.password,

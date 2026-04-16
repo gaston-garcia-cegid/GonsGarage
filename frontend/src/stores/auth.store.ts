@@ -1,8 +1,11 @@
+"use client";
+
 // AuthStore using Zustand following Agent.md patterns
 
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
+import { getPublicApiV1BaseUrl } from '@/lib/api-base-url';
 import { User, UserRole, RegisterRequest } from '@/types';
 
 // ✅ Store state interface following Agent.md
@@ -37,9 +40,6 @@ interface AuthActions {
 
 // ✅ Complete store type
 type AuthStore = AuthState & AuthActions;
-
-// ✅ API configuration per Agent.md
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 // ✅ Helper function for role-based redirects (maintain existing behavior)
 const redirectBasedOnRole = (userData: User) => {
@@ -85,14 +85,20 @@ function mapMeUser(raw: Record<string, unknown>): User {
 }
 
 async function fetchCurrentUser(token: string): Promise<User> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
+  const base = getPublicApiV1BaseUrl();
+  const response = await fetch(`${base}/auth/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
   });
   if (!response.ok) {
-    throw new Error(`auth/me failed (${response.status})`);
+    const ct = response.headers.get("content-type") || "";
+    const hint =
+      response.status === 404 && ct.includes("text/plain")
+        ? ` (404 texto plano: suele ser API desactualizada u otro proceso en el puerto. Recompilá/reiniciá backend/cmd/api y comprobá GET ${base.replace("/api/v1", "")}/health)`
+        : "";
+    throw new Error(`auth/me failed (${response.status})${hint}`);
   }
   const body = await response.json();
   const userPayload = (body as { user?: Record<string, unknown> }).user;
@@ -149,7 +155,8 @@ const storage = {
 // ✅ API functions following Agent.md
 const authAPI = {
   login: async (email: string, password: string) => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+    const base = getPublicApiV1BaseUrl();
+    const response = await fetch(`${base}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -175,7 +182,8 @@ const authAPI = {
   },
 
   register: async (data: RegisterRequest) => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
+    const base = getPublicApiV1BaseUrl();
+    const response = await fetch(`${base}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

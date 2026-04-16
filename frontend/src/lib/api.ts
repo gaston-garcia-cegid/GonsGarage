@@ -1,3 +1,5 @@
+import { getPublicApiV1BaseUrl } from '@/lib/api-base-url';
+
 interface ApiError {
   message: string;
   status: number;
@@ -134,14 +136,12 @@ export interface CreateAppointmentRequest {
   notes?: string;
 }
 
-//const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
 class ApiClient {
   private baseURL: string;
   private token: string | null = null;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+    this.baseURL = getPublicApiV1BaseUrl();
     if (typeof window !== 'undefined') {
       this.token = localStorage.getItem('token');
     }

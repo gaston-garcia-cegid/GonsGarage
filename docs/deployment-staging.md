@@ -28,7 +28,7 @@ Copia `deploy/.env.production.example` a **`.env` en la raíz del repo** (o al p
 
 ## TLS (HTTPS)
 
-Los contenedores exponen HTTP. En producción se recomienda **Caddy**, **Traefik** o **nginx** delante como reverse proxy con certificados (Let’s Encrypt u otro). La “URL pública con HTTPS” es responsabilidad de ese proxy y del DNS.
+Los contenedores exponen HTTP. `docker-compose.prod.yml` incluye un servicio **Nginx** (`edge`) con `deploy/nginx-gonsgarage.conf` delante de `api` y `web` (puerto host `HTTP_PUBLISH_PORT`). Para HTTPS delante puedes usar **Caddy**, **Traefik** o un balanceador con certificados (Let’s Encrypt u otro). La “URL pública con HTTPS” es responsabilidad de ese proxy y del DNS.
 
 ## Backup de PostgreSQL
 
@@ -52,7 +52,7 @@ Automatiza copias (cron, volúmenes snapshot, PaaS managed) según tu plataforma
 
 - `backend/Dockerfile` — imagen API.
 - `frontend/Dockerfile` — Next.js **standalone** (`NEXT_STANDALONE=true` en la etapa de build; en Windows local sin symlinks dejar `pnpm build` sin esa variable, ver `next.config.ts`).
-- `docker-compose.prod.yml` — API + Postgres + Redis + frontend.
+- `docker-compose.prod.yml` — Postgres + Redis + API + frontend + **worker** (Redis) + **Nginx** edge.
 - `docker-compose.smoke.yml` — mismo patrón con credenciales fijas solo para CI / pruebas locales.
 - `.github/workflows/deploy.yml` — build + smoke; opcional push a GHCR.
 

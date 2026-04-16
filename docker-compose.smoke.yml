@@ -45,3 +45,6 @@ services:
       DATABASE_URL: postgres://smoke:smoke_ci_only@postgres:5432/gonsgarage?sslmode=disable
       REDIS_URL: redis:6379
       SERVER_PORT: "8080"
+      MIGRATIONS_DIR: /app/db/migrations
+      ENABLE_SQL_MIGRATIONS: "true"
+      AUTH_RATE_LIMIT_DISABLED: "true"

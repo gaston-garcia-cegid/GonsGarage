@@ -169,9 +169,10 @@ cd backend
 go mod tidy
 
 # Generar Swagger (no hace falta instalar swag globalmente)
-go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports --parseInternal
+go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports,./internal/apidocs --parseInternal
 
-# Schema: GORM AutoMigrate runs on startup (no separate migrate command required)
+# Schema: GORM AutoMigrate runs on startup; además golang-migrate aplica SQL en db/migrations (tabla gon_golang_migrate).
+# Si tras un fallo ves "Dirty database version": en local, una vez `export MIGRATE_AUTO_FIX_DIRTY=true` (Windows: `$env:MIGRATE_AUTO_FIX_DIRTY="true"`) con GIN_MODE≠release, o SQL: UPDATE gon_golang_migrate SET dirty=false WHERE dirty=true;
 
 # Start the server
 go run ./cmd/api
@@ -679,7 +680,7 @@ go get github.com/swaggo/files
 
 ```bash
 cd backend
-go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports --parseInternal
+go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports,./internal/apidocs --parseInternal
 ```
 
 ### 3. Integration Example

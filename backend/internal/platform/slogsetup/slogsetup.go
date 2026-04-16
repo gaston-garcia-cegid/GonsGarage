@@ -1,4 +1,6 @@
-package main
+// Package slogsetup configura slog y redirige el logger estándar log → slog.
+// Vive en internal/ para mantener cmd/api delgado (un solo main.go).
+package slogsetup
 
 import (
 	"context"
@@ -8,7 +10,6 @@ import (
 	"strings"
 )
 
-// logLineBridge envía líneas del paquete `log` al logger slog por defecto (misma salida JSON/texto).
 type logLineBridge struct{}
 
 func (*logLineBridge) Write(p []byte) (n int, err error) {
@@ -20,7 +21,8 @@ func (*logLineBridge) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func initLogging() {
+// InitFromEnv configura el slog default según LOG_LEVEL, LOG_FORMAT y GIN_MODE.
+func InitFromEnv() {
 	level := slog.LevelInfo
 	switch strings.ToLower(strings.TrimSpace(os.Getenv("LOG_LEVEL"))) {
 	case "debug":
@@ -44,7 +46,8 @@ func initLogging() {
 	slog.SetDefault(slog.New(h))
 }
 
-func bridgeStdLog() {
+// BridgeStdLog hace que log.Print vaya al slog configurado.
+func BridgeStdLog() {
 	log.SetFlags(0)
 	log.SetOutput(&logLineBridge{})
 }

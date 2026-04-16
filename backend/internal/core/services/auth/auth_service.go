@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"errors"
-	"os"
 	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
@@ -101,11 +100,6 @@ func (uc *AuthService) CurrentUser(ctx context.Context, userID uuid.UUID) (*doma
 }
 
 func (uc *AuthService) GenerateToken(user *domain.User) (string, time.Time, error) {
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		jwtSecret = "your-super-secret-jwt-key"
-	}
-
 	expiresAt := time.Now().Add(uc.expireTime)
 
 	claims := jwt.MapClaims{
@@ -121,7 +115,7 @@ func (uc *AuthService) GenerateToken(user *domain.User) (string, time.Time, erro
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(jwtSecret))
+	tokenString, err := token.SignedString([]byte(uc.jwtSecret))
 	if err != nil {
 		return "", time.Time{}, err
 	}

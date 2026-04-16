@@ -12,15 +12,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
 	postgresRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/postgres"
+	_ "github.com/gaston-garcia-cegid/gonsgarage/internal/apidocs" // anclas swag /health, /ready, /metrics
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/platform/slogsetup"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/sqlmigrate"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/handlers"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/middleware"
@@ -49,8 +52,8 @@ const apiVersion = "1.0.0"
 // @name            Authorization
 // @description     JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health, /ready y /metrics).
 func main() {
-	initLogging()
-	bridgeStdLog()
+	slogsetup.InitFromEnv()
+	slogsetup.BridgeStdLog()
 
 	log.Printf("/*************** Start Main ***************/")
 
@@ -104,34 +107,49 @@ func main() {
 		}
 	}
 
-	// Auto-migrate tables in correct order (dependencies first)
-	log.Printf("Starting database migration...")
-
-	// Migrate tables one by one in dependency order
-	models := []interface{}{
-		&domain.User{},
-		&domain.Employee{},
-		&domain.Car{},
-		&domain.Repair{},
-		&domain.Appointment{},
+	migrationsDir := strings.TrimSpace(os.Getenv("MIGRATIONS_DIR"))
+	if migrationsDir == "" {
+		migrationsDir = "db/migrations"
 	}
-
-	for _, model := range models {
-		log.Printf("Migrating %T...", model)
-		if err := db.AutoMigrate(model); err != nil {
-			log.Printf("Migration error for %T: %v", model, err)
-			// Continue with other migrations instead of failing completely
-			continue
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("ENABLE_SQL_MIGRATIONS")), "false") {
+		log.Printf("ENABLE_SQL_MIGRATIONS=false, skipping golang-migrate SQL chain")
+	} else {
+		log.Printf("Applying golang-migrate SQL revisions from %s", migrationsDir)
+		if err := sqlmigrate.Up(dsn, migrationsDir); err != nil {
+			log.Fatalf("SQL migrations failed: %v", err)
 		}
-		log.Printf("Successfully migrated %T", model)
+		log.Printf("SQL migrations completed (or no pending revisions)")
 	}
 
-	// Create indexes manually if they don't exist
-	if err := createIndexes(db); err != nil {
-		log.Printf("Warning: Failed to create some indexes: %v", err)
-	}
+	// Auto-migrate tables in correct order (dependencies first), unless disabled for SQL-only schema workflows.
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("SKIP_GORM_AUTOMIGRATE")), "true") {
+		log.Printf("SKIP_GORM_AUTOMIGRATE=true, skipping GORM AutoMigrate and manual indexes")
+	} else {
+		log.Printf("Starting GORM database migration...")
 
-	log.Printf("Database migration completed successfully")
+		models := []interface{}{
+			&domain.User{},
+			&domain.Employee{},
+			&domain.Car{},
+			&domain.Repair{},
+			&domain.Appointment{},
+		}
+
+		for _, model := range models {
+			log.Printf("Migrating %T...", model)
+			if err := db.AutoMigrate(model); err != nil {
+				log.Printf("Migration error for %T: %v", model, err)
+				continue
+			}
+			log.Printf("Successfully migrated %T", model)
+		}
+
+		if err := createIndexes(db); err != nil {
+			log.Printf("Warning: Failed to create some indexes: %v", err)
+		}
+
+		log.Printf("GORM database migration completed successfully")
+	}
 
 	// Redis connection with timeout
 	redisAddr := os.Getenv("REDIS_URL")
@@ -379,19 +397,26 @@ func setupRoutes(
 	// API v1 routes
 	api := router.Group("/api/v1")
 
-	// Public auth routes
+	// Public auth routes (per-IP rate limit unless AUTH_RATE_LIMIT_DISABLED=true).
+	authLimiter := middleware.IPRateLimiterFromEnv()
+	authRate := middleware.RateLimitAuth(authLimiter)
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("AUTH_RATE_LIMIT_DISABLED")), "true") {
+		authRate = func(c *gin.Context) { c.Next() }
+	}
 	auth := api.Group("/auth")
+	auth.Use(authRate)
 	{
 		auth.POST("/register", authHandler.Register)
 		auth.POST("/login", authHandler.Login)
 	}
 
+	// Perfil JWT: registro explícito (evita conflictos con dos RouterGroup bajo "/auth" en algunas versiones de Gin).
+	api.GET("/auth/me", ginAuthMiddleware(authMiddleware), authHandler.Me)
+
 	// Protected routes
 	protected := api.Group("/")
 	protected.Use(ginAuthMiddleware(authMiddleware))
 	{
-		protected.GET("/auth/me", authHandler.Me)
-
 		// Employee routes (admin / manager only)
 		employees := protected.Group("/employees")
 		employees.Use(middleware.RequireStaffManagers())

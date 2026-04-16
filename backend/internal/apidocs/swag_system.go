@@ -1,6 +1,10 @@
-package main
+// Package apidocs contiene anclas solo para swag (sin lógica en runtime).
+// Los handlers reales están en cmd/api (main) y en handlers.
+//
+// Incluir este directorio en: swag init -d ...,./internal/apidocs,...
+package apidocs
 
-// healthCheckDoc ancla /health para swag (el handler real está en setupRoutes).
+// healthCheckDoc ancla /health para swag (el handler real está en setupRoutes de main).
 //
 // @Summary Comprobación de salud
 // @Description Estado del proceso API (sin autenticación).
@@ -10,7 +14,7 @@ package main
 // @Router /health [get]
 func healthCheckDoc() {}
 
-// readyCheckDoc ancla /ready para swag (el handler real está en setupRoutes).
+// readyCheckDoc ancla /ready para swag.
 //
 // @Summary Comprobación de readiness
 // @Description PostgreSQL accesible (sin autenticación; usar en probes de despliegue).
@@ -21,7 +25,7 @@ func healthCheckDoc() {}
 // @Router /ready [get]
 func readyCheckDoc() {}
 
-// metricsDoc ancla /metrics para swag (handler real: promhttp en setupRoutes).
+// metricsDoc ancla /metrics para swag.
 //
 // @Summary Métricas Prometheus
 // @Description Métricas de proceso y runtime (sin autenticación; restringir en producción).

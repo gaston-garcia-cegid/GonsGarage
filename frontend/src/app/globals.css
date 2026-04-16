@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* Reset and base styles */
 *,
 *::before,
@@ -276,15 +278,15 @@ a:hover {
 
 /* Button variants */
 .btn-primary {
-  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus-outline;
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
 }
 
 .btn-secondary {
-  @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus-outline;
+  @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
 }
 
 .btn-danger {
-  @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus-outline;
+  @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
 }
 
 /* Form inputs */
@@ -298,12 +300,12 @@ a:hover {
 
 /* Table styles */
 .table-responsive {
-  @apply overflow-x-auto shadow ring-1 ring-black ring-opacity-5 md:rounded-lg;
+  @apply overflow-x-auto shadow ring-1 ring-black/5 md:rounded-lg;
 }
 
 /* Modal backdrop */
 .modal-backdrop {
-  @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50;
+  @apply fixed inset-0 bg-gray-600/50 overflow-y-auto h-full w-full z-50;
 }
 
 /* Card styles */

@@ -14,7 +14,9 @@ FROM alpine:3.21
 RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /app
 COPY --from=build /out/api .
+COPY db/migrations ./db/migrations
 USER nobody:nobody
 EXPOSE 8080
 ENV GIN_MODE=release
+ENV MIGRATIONS_DIR=/app/db/migrations
 ENTRYPOINT ["/app/api"]
