@@ -30,16 +30,19 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/auth"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/car"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/employee"
+
+	_ "github.com/gaston-garcia-cegid/gonsgarage/docs" // swagger (swag)
 )
 
-// @title GonsGarage API
-// @version 1.0
-// @description Auto repair shop management API
-// @host localhost:8080
-// @BasePath /api/v1
-// @securityDefinitions.apikey Bearer
-// @in header
-// @name Authorization
+// @title           GonsGarage API
+// @version         1.0
+// @description     API de gestión de taller: autenticación JWT, coches, citas y empleados.
+// @host            localhost:8080
+// @BasePath        /
+// @securityDefinitions.apikey BearerAuth
+// @in              header
+// @name            Authorization
+// @description     JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health).
 func main() {
 	log.Printf("/*************** Start Main ***************/")
 

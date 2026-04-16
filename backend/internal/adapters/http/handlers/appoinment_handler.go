@@ -76,7 +76,18 @@ type AppointmentResponse struct {
 	DeletedAt  *string `json:"deletedAt,omitempty"`
 }
 
-// CreateAppointment handles POST /api/v1/appointments
+// CreateAppointment agenda una cita (cliente: para sí; taller: customerID opcional).
+// @Summary     Crear cita
+// @Tags        appointments
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       body body CreateAppointmentRequest true "carID, scheduledAt (RFC3339), serviceType, etc."
+// @Success     201 {object} AppointmentResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Router      /api/v1/appointments [post]
 func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
 	if !exists {
@@ -154,7 +165,18 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
-// GetAppointment handles GET /api/v1/appointments/{id}
+// GetAppointment obtiene una cita por ID.
+// @Summary     Obtener cita
+// @Tags        appointments
+// @Security    BearerAuth
+// @Produce     json
+// @Param       id path string true "UUID de la cita"
+// @Success     200 {object} AppointmentResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/appointments/{id} [get]
 func (h *AppointmentHandler) GetAppointment(c *gin.Context) {
 	// Get user from Gin context
 	userIDStr, exists := c.Get("userID")
@@ -198,7 +220,23 @@ func (h *AppointmentHandler) GetAppointment(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// ListAppointments handles GET /api/v1/appointments
+// ListAppointments lista citas (cliente: solo las suyas; taller: filtros opcionales).
+// @Summary     Listar citas
+// @Tags        appointments
+// @Security    BearerAuth
+// @Produce     json
+// @Param       customerId query string false "Filtro UUID cliente (staff)"
+// @Param       carId query string false "Filtro UUID coche"
+// @Param       status query string false "Estado (scheduled, confirmed, ...)"
+// @Param       limit query int false "Límite (default 10)"
+// @Param       offset query int false "Offset"
+// @Param       sortBy query string false "created_at o scheduled_at"
+// @Param       sortOrder query string false "ASC o DESC"
+// @Success     200 {array} AppointmentResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Router      /api/v1/appointments [get]
 func (h *AppointmentHandler) ListAppointments(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
 	if !exists {
@@ -257,7 +295,20 @@ func (h *AppointmentHandler) ListAppointments(c *gin.Context) {
 	c.JSON(http.StatusOK, responses)
 }
 
-// UpdateAppointment handles PUT /api/v1/appointments/{id}
+// UpdateAppointment modifica una cita (scheduledAt/carId opcionales).
+// @Summary     Actualizar cita
+// @Tags        appointments
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       id path string true "UUID de la cita"
+// @Param       body body UpdateAppointmentRequest true "Campos a fusionar"
+// @Success     200 {object} AppointmentResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/appointments/{id} [put]
 func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 	// Get user from Gin context
 	userIDStr, exists := c.Get("userID")
@@ -346,7 +397,17 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// DeleteAppointment handles DELETE /api/v1/appointments/{id}
+// DeleteAppointment elimina una cita.
+// @Summary     Eliminar cita
+// @Tags        appointments
+// @Security    BearerAuth
+// @Param       id path string true "UUID de la cita"
+// @Success     204 "Sin cuerpo"
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/appointments/{id} [delete]
 func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) {
 	// Get user from Gin context
 	userIDStr, exists := c.Get("userID")

@@ -24,6 +24,17 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// Login autentica con email y contraseña.
+// @Summary     Iniciar sesión
+// @Description Devuelve un JWT (campo token). El cliente debe llamar después a GET /auth/me para el perfil completo.
+// @Tags        auth
+// @Accept      json
+// @Produce     json
+// @Param       body body LoginRequest true "Credenciales"
+// @Success     200 {object} SwaggerLoginOK
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Router      /api/v1/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -46,6 +57,17 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
+// Register crea una cuenta (rol por defecto client si no se envía role).
+// @Summary     Registro
+// @Description Registro público. Email único; 409 si el usuario ya existe.
+// @Tags        auth
+// @Accept      json
+// @Produce     json
+// @Param       body body ports.RegisterRequest true "Datos de registro"
+// @Success     201 {object} SwaggerRegisterOK
+// @Failure     400 {object} SwaggerMessage
+// @Failure     409 {object} SwaggerMessage
+// @Router      /api/v1/auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req ports.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -96,7 +118,16 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	})
 }
 
-// Me returns the authenticated user (JWT subject). Requires Authorization Bearer.
+// Me devuelve el usuario asociado al JWT.
+// @Summary     Perfil actual
+// @Description Requiere cabecera Authorization con esquema Bearer y el JWT.
+// @Tags        auth
+// @Produce     json
+// @Security    BearerAuth
+// @Success     200 {object} SwaggerMeOK
+// @Failure     401 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/auth/me [get]
 func (h *AuthHandler) Me(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
 	if !exists {

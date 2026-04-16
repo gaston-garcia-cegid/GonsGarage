@@ -14,7 +14,7 @@ Objetivo del MVP: **un taller puede registrar usuarios, clientes con coches, ped
 
 - Roles claros (`client` / `employee` / `admin` / `manager`) y comprobaciones en API alineadas con la UI.
 - Flujo **register + login + JWT** estable end-to-end.
-- **Coches y citas** CRUD coherentes con el contrato JSON camelCase y Swagger actualizado.
+- **Coches y citas** CRUD coherentes con el contrato JSON camelCase; **OpenAPI generado con swag** (`backend/docs/`, UI `/swagger/index.html`).
 
 **Avances en código (iteración actual):**
 

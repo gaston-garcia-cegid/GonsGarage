@@ -60,7 +60,19 @@ type CarResponse struct {
 	UpdatedAt    string `json:"updatedAt"` // ✅ camelCase
 }
 
-// CreateCar handles POST /api/v1/cars
+// CreateCar registra un coche (cliente: dueño automático; taller: ownerID opcional).
+// @Summary     Crear coche
+// @Tags        cars
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       body body CreateCarRequest true "Datos del vehículo"
+// @Success     201 {object} CarResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     409 {object} SwaggerMessage
+// @Router      /api/v1/cars [post]
 func (h *CarHandler) CreateCar(c *gin.Context) {
 	// Get user from Gin context
 	userIDStr, exists := c.Get("userID")
@@ -129,7 +141,18 @@ func (h *CarHandler) CreateCar(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
-// GetCar handles GET /api/v1/cars/{id}
+// GetCar obtiene un coche por ID (cliente: solo propios; taller: cualquiera).
+// @Summary     Obtener coche
+// @Tags        cars
+// @Security    BearerAuth
+// @Produce     json
+// @Param       id path string true "UUID del coche"
+// @Success     200 {object} CarResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/cars/{id} [get]
 func (h *CarHandler) GetCar(c *gin.Context) {
 	// Get user from Gin context
 	userIDStr, exists := c.Get("userID")
@@ -170,7 +193,19 @@ func (h *CarHandler) GetCar(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// ListCars handles GET /api/v1/cars
+// ListCars lista coches del cliente o inventario/por dueño para personal del taller.
+// @Summary     Listar coches
+// @Tags        cars
+// @Security    BearerAuth
+// @Produce     json
+// @Param       ownerId query string false "UUID del cliente dueño (solo staff)"
+// @Param       limit query int false "Límite (staff sin ownerId; default 50)"
+// @Param       offset query int false "Offset paginación"
+// @Success     200 {array} CarResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Router      /api/v1/cars [get]
 func (h *CarHandler) ListCars(c *gin.Context) {
 	// Get user from Gin context
 	userIDStr, exists := c.Get("userID")
@@ -224,7 +259,20 @@ func (h *CarHandler) ListCars(c *gin.Context) {
 	c.JSON(http.StatusOK, responses)
 }
 
-// UpdateCar handles PUT /api/v1/cars/{id}
+// UpdateCar actualiza un coche.
+// @Summary     Actualizar coche
+// @Tags        cars
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       id path string true "UUID del coche"
+// @Param       body body UpdateCarRequest true "Campos a actualizar"
+// @Success     200 {object} CarResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/cars/{id} [put]
 func (h *CarHandler) UpdateCar(c *gin.Context) {
 	// Get user from Gin context
 	userIDStr, exists := c.Get("userID")
@@ -291,7 +339,17 @@ func (h *CarHandler) UpdateCar(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// DeleteCar handles DELETE /api/v1/cars/{id}
+// DeleteCar elimina un coche (baja lógica según repositorio).
+// @Summary     Eliminar coche
+// @Tags        cars
+// @Security    BearerAuth
+// @Param       id path string true "UUID del coche"
+// @Success     204 "Sin cuerpo"
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/cars/{id} [delete]
 func (h *CarHandler) DeleteCar(c *gin.Context) {
 	// Get user from Gin context
 	userIDStr, exists := c.Get("userID")

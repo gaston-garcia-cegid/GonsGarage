@@ -168,11 +168,8 @@ cd backend
 # Install dependencies
 go mod tidy
 
-# Install Swagger CLI (for documentation generation)
-go install github.com/swaggo/swag/cmd/swag@latest
-
-# Generate Swagger documentation (entrypoint is cmd/api)
-swag init -g cmd/api/main.go -o docs
+# Generar Swagger (no hace falta instalar swag globalmente)
+go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports --parseInternal
 
 # Schema: GORM AutoMigrate runs on startup (no separate migrate command required)
 
@@ -681,9 +678,8 @@ go get github.com/swaggo/files
 ### 2. Generate Documentation
 
 ```bash
-# Generate Swagger docs from annotations
 cd backend
-swag init -g cmd/api/main.go -o docs
+go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports --parseInternal
 ```
 
 ### 3. Integration Example

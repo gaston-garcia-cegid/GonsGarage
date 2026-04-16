@@ -17,6 +17,18 @@ func NewEmployeeHandler(employeeService ports.EmployeeService) *EmployeeHandler 
 	return &EmployeeHandler{employeeService: employeeService}
 }
 
+// CreateEmployee registra un empleado (rutas protegidas: admin/manager).
+// @Summary     Crear empleado
+// @Tags        employees
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       body body ports.CreateEmployeeRequest true "Datos del empleado"
+// @Success     201 {object} map[string]interface{} "message y employee"
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Router      /api/v1/employees [post]
 func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
 	var req ports.CreateEmployeeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -36,6 +48,18 @@ func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
 	})
 }
 
+// GetEmployee obtiene un empleado por ID interno.
+// @Summary     Obtener empleado
+// @Tags        employees
+// @Security    BearerAuth
+// @Produce     json
+// @Param       id path string true "ID del empleado"
+// @Success     200 {object} map[string]interface{} "employee"
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     404 {object} SwaggerMessage
+// @Router      /api/v1/employees/{id} [get]
 func (h *EmployeeHandler) GetEmployee(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -53,6 +77,18 @@ func (h *EmployeeHandler) GetEmployee(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"employee": employee})
 }
 
+// ListEmployees lista empleados con paginación.
+// @Summary     Listar empleados
+// @Tags        employees
+// @Security    BearerAuth
+// @Produce     json
+// @Param       limit query int false "Límite (default 10)"
+// @Param       offset query int false "Offset"
+// @Param       department query string false "Filtro departamento"
+// @Success     200 {object} map[string]interface{} "employees, total, limit, offset"
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Router      /api/v1/employees [get]
 func (h *EmployeeHandler) ListEmployees(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "10")
 	offsetStr := c.DefaultQuery("offset", "0")
@@ -84,6 +120,19 @@ func (h *EmployeeHandler) ListEmployees(c *gin.Context) {
 	})
 }
 
+// UpdateEmployee actualiza un empleado.
+// @Summary     Actualizar empleado
+// @Tags        employees
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       id path string true "ID del empleado"
+// @Param       body body ports.UpdateEmployeeRequest true "Campos"
+// @Success     200 {object} map[string]interface{} "message y employee"
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Router      /api/v1/employees/{id} [put]
 func (h *EmployeeHandler) UpdateEmployee(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -110,6 +159,17 @@ func (h *EmployeeHandler) UpdateEmployee(c *gin.Context) {
 	})
 }
 
+// DeleteEmployee elimina un empleado.
+// @Summary     Eliminar empleado
+// @Tags        employees
+// @Security    BearerAuth
+// @Produce     json
+// @Param       id path string true "ID del empleado"
+// @Success     200 {object} SwaggerMessage "message"
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Router      /api/v1/employees/{id} [delete]
 func (h *EmployeeHandler) DeleteEmployee(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)

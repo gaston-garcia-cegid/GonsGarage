@@ -1,0 +1,978 @@
+basePath: /
+definitions:
+  handlers.AppointmentResponse:
+    properties:
+      carId:
+        type: string
+      clientName:
+        type: string
+      createdAt:
+        type: string
+      date:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      service:
+        type: string
+      status:
+        type: string
+      time:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  handlers.CarResponse:
+    properties:
+      color:
+        type: string
+      createdAt:
+        description: ✅ camelCase
+        type: string
+      id:
+        type: string
+      licensePlate:
+        description: ✅ camelCase
+        type: string
+      make:
+        type: string
+      mileage:
+        type: integer
+      model:
+        type: string
+      ownerID:
+        description: ✅ camelCase
+        type: string
+      updatedAt:
+        description: ✅ camelCase
+        type: string
+      vin:
+        type: string
+      year:
+        type: integer
+    type: object
+  handlers.CreateAppointmentRequest:
+    properties:
+      carID:
+        description: ✅ camelCase
+        type: string
+      customerID:
+        description: ✅ camelCase
+        type: string
+      employeeID:
+        description: ✅ camelCase
+        type: string
+      notes:
+        type: string
+      reason:
+        type: string
+      scheduledAt:
+        description: ✅ camelCase
+        type: string
+      scheduledTime:
+        description: ✅ camelCase
+        type: string
+      serviceType:
+        description: ✅ camelCase
+        type: string
+      status:
+        type: string
+    type: object
+  handlers.CreateCarRequest:
+    properties:
+      color:
+        type: string
+      licensePlate:
+        type: string
+      make:
+        type: string
+      mileage:
+        type: integer
+      model:
+        type: string
+      ownerID:
+        description: 'OwnerID optional: solo personal del taller (admin/manager/employee)
+          asigna el cliente dueño.'
+        type: string
+      vin:
+        type: string
+      year:
+        type: integer
+    type: object
+  handlers.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handlers.SwaggerLoginOK:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  handlers.SwaggerMeOK:
+    properties:
+      user:
+        $ref: '#/definitions/handlers.SwaggerMeUser'
+    type: object
+  handlers.SwaggerMeUser:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      lastName:
+        type: string
+      role:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  handlers.SwaggerMessage:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  handlers.SwaggerRegisterOK:
+    properties:
+      message:
+        type: string
+      user:
+        $ref: '#/definitions/handlers.SwaggerRegisterUser'
+    type: object
+  handlers.SwaggerRegisterUser:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      lastName:
+        type: string
+      role:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  handlers.UpdateAppointmentRequest:
+    properties:
+      carId:
+        description: ✅ camelCase
+        type: string
+      customerID:
+        type: string
+      employeeID:
+        type: string
+      notes:
+        type: string
+      reason:
+        type: string
+      scheduledAt:
+        description: ✅ camelCase
+        type: string
+      scheduledTime:
+        description: ✅ camelCase
+        type: string
+      serviceType:
+        description: ✅ camelCase
+        type: string
+      status:
+        type: string
+    type: object
+  handlers.UpdateCarRequest:
+    properties:
+      color:
+        type: string
+      licensePlate:
+        description: ✅ camelCase
+        type: string
+      make:
+        type: string
+      mileage:
+        type: integer
+      model:
+        type: string
+      vin:
+        type: string
+      year:
+        type: integer
+    type: object
+  ports.CreateEmployeeRequest:
+    properties:
+      createdAt:
+        type: string
+      department:
+        type: string
+      email:
+        type: string
+      employeeCode:
+        type: string
+      firstName:
+        type: string
+      hireDate:
+        type: string
+      hourlyRate:
+        type: number
+      hoursPerWeek:
+        type: integer
+      hoursWorked:
+        type: number
+      isActive:
+        type: boolean
+      lastName:
+        type: string
+      phoneNumber:
+        type: string
+      position:
+        type: string
+      role:
+        type: string
+      salary:
+        type: number
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    required:
+    - email
+    - position
+    type: object
+  ports.RegisterRequest:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        type: string
+    required:
+    - email
+    - firstName
+    - lastName
+    - password
+    type: object
+  ports.UpdateEmployeeRequest:
+    properties:
+      department:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone_number:
+        type: string
+      position:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: 'API de gestión de taller: autenticación JWT, coches, citas y empleados.'
+  title: GonsGarage API
+  version: "1.0"
+paths:
+  /api/v1/appointments:
+    get:
+      parameters:
+      - description: Filtro UUID cliente (staff)
+        in: query
+        name: customerId
+        type: string
+      - description: Filtro UUID coche
+        in: query
+        name: carId
+        type: string
+      - description: Estado (scheduled, confirmed, ...)
+        in: query
+        name: status
+        type: string
+      - description: Límite (default 10)
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      - description: created_at o scheduled_at
+        in: query
+        name: sortBy
+        type: string
+      - description: ASC o DESC
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.AppointmentResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Listar citas
+      tags:
+      - appointments
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: carID, scheduledAt (RFC3339), serviceType, etc.
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateAppointmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.AppointmentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Crear cita
+      tags:
+      - appointments
+  /api/v1/appointments/{id}:
+    delete:
+      parameters:
+      - description: UUID de la cita
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Sin cuerpo
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Eliminar cita
+      tags:
+      - appointments
+    get:
+      parameters:
+      - description: UUID de la cita
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AppointmentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Obtener cita
+      tags:
+      - appointments
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: UUID de la cita
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Campos a fusionar
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateAppointmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AppointmentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Actualizar cita
+      tags:
+      - appointments
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Devuelve un JWT (campo token). El cliente debe llamar después a
+        GET /auth/me para el perfil completo.
+      parameters:
+      - description: Credenciales
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.SwaggerLoginOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      summary: Iniciar sesión
+      tags:
+      - auth
+  /api/v1/auth/me:
+    get:
+      description: Requiere cabecera Authorization con esquema Bearer y el JWT.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMeOK'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Perfil actual
+      tags:
+      - auth
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Registro público. Email único; 409 si el usuario ya existe.
+      parameters:
+      - description: Datos de registro
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ports.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.SwaggerRegisterOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      summary: Registro
+      tags:
+      - auth
+  /api/v1/cars:
+    get:
+      parameters:
+      - description: UUID del cliente dueño (solo staff)
+        in: query
+        name: ownerId
+        type: string
+      - description: Límite (staff sin ownerId; default 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Offset paginación
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.CarResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Listar coches
+      tags:
+      - cars
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Datos del vehículo
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateCarRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.CarResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Crear coche
+      tags:
+      - cars
+  /api/v1/cars/{id}:
+    delete:
+      parameters:
+      - description: UUID del coche
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Sin cuerpo
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Eliminar coche
+      tags:
+      - cars
+    get:
+      parameters:
+      - description: UUID del coche
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CarResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Obtener coche
+      tags:
+      - cars
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: UUID del coche
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Campos a actualizar
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateCarRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CarResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Actualizar coche
+      tags:
+      - cars
+  /api/v1/employees:
+    get:
+      parameters:
+      - description: Límite (default 10)
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      - description: Filtro departamento
+        in: query
+        name: department
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: employees, total, limit, offset
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Listar empleados
+      tags:
+      - employees
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Datos del empleado
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ports.CreateEmployeeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: message y employee
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Crear empleado
+      tags:
+      - employees
+  /api/v1/employees/{id}:
+    delete:
+      parameters:
+      - description: ID del empleado
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Eliminar empleado
+      tags:
+      - employees
+    get:
+      parameters:
+      - description: ID del empleado
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: employee
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Obtener empleado
+      tags:
+      - employees
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID del empleado
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Campos
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ports.UpdateEmployeeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message y employee
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Actualizar empleado
+      tags:
+      - employees
+  /health:
+    get:
+      description: Estado del proceso API (sin autenticación).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: status, message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Comprobación de salud
+      tags:
+      - system
+securityDefinitions:
+  BearerAuth:
+    description: 'JWT: cabecera Authorization con valor Bearer seguido del token (rutas
+      bajo /api/v1 salvo /health).'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
