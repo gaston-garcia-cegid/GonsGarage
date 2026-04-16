@@ -1,6 +1,5 @@
 import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
 import { apiClient } from '@/lib/api-client';
-import { stat } from 'fs';
 
 export const appointmentApi = {
   // ✅ Fix getAppointments to handle both response formats

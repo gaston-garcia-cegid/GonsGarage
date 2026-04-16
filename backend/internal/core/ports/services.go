@@ -12,6 +12,7 @@ import (
 type AuthService interface {
 	Login(ctx context.Context, email, password string) (string, error)
 	Register(ctx context.Context, req RegisterRequest) (*domain.User, error)
+	CurrentUser(ctx context.Context, userID uuid.UUID) (*domain.User, error)
 	ValidateToken(token string) (*domain.User, error)
 	RefreshToken(ctx context.Context, token string) (string, error)
 }

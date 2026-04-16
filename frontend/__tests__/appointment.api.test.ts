@@ -1,147 +1,92 @@
 import { appointmentApi } from '@/lib/api/appointment.api';
-import { apiClient } from '@/lib/api/client';
-import { Appointment, CreateAppointmentRequest } from '@/shared/types';
+import { apiClient } from '@/lib/api-client';
+import type { Appointment, CreateAppointmentRequest } from '@/types/appointment';
 
-// Mock API client
-jest.mock('@/lib/api/client');
-const mockedApiClient = apiClient as jest.Mocked<typeof apiClient>;
+jest.mock('@/lib/api-client', () => ({
+  apiClient: {
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+    patch: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
+
+const mockedClient = apiClient as jest.Mocked<typeof apiClient>;
 
 describe('appointmentApi', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('getAppointments', () => {
-    it('should fetch appointments successfully', async () => {
-      // Arrange
-      const mockAppointments: Appointment[] = [
-        {
-          id: '1',
-          customerId: 'user1',
-          carId: 'car1',
-          serviceType: 'oil_change',
-          scheduledAt: '2024-12-15T10:00:00Z',
-          status: 'scheduled',
-          createdAt: '2024-12-01T10:00:00Z',
-          updatedAt: '2024-12-01T10:00:00Z',
-        },
-      ];
-
-      mockedApiClient.get.mockResolvedValueOnce({ data: mockAppointments });
-
-      // Act
-      const result = await appointmentApi.getAppointments();
-
-      // Assert
-      expect(result).toEqual(mockAppointments);
-      expect(mockedApiClient.get).toHaveBeenCalledWith('/appointments');
-    });
-  });
-
-  describe('createAppointment', () => {
-    it('should create appointment with camelCase properties', async () => {
-      // Arrange
-      const appointmentData: CreateAppointmentRequest = {
-        carId: 'car1',           // ✅ camelCase per Agent.md
-        serviceType: 'oil_change', // ✅ camelCase per Agent.md
-        scheduledAt: '2024-12-15T10:00:00Z', // ✅ camelCase per Agent.md
-        notes: 'Regular maintenance',
-      };
-
-      const createdAppointment: Appointment = {
+  it('getAppointments returns list when API succeeds', async () => {
+    const rows: Appointment[] = [
+      {
         id: '1',
-        customerId: 'user1',
-        ...appointmentData,
+        clientName: 'Jane',
+        carId: 'car1',
+        service: 'oil_change',
+        date: '2024-12-15',
+        time: '10:00',
         status: 'scheduled',
         createdAt: '2024-12-01T10:00:00Z',
         updatedAt: '2024-12-01T10:00:00Z',
-      };
+      },
+    ];
+    mockedClient.get.mockResolvedValueOnce({ success: true, data: rows });
 
-      mockedApiClient.post.mockResolvedValueOnce({ data: createdAppointment });
+    const result = await appointmentApi.getAppointments();
 
-      // Act
-      const result = await appointmentApi.createAppointment(appointmentData);
-
-      // Assert
-      expect(result).toEqual(createdAppointment);
-      expect(mockedApiClient.post).toHaveBeenCalledWith('/appointments', {
-        carId: 'car1',           // ✅ camelCase per Agent.md
-        serviceType: 'oil_change', // ✅ camelCase per Agent.md
-        scheduledAt: '2024-12-15T10:00:00Z', // ✅ camelCase per Agent.md
-        notes: 'Regular maintenance',
-      });
-    });
+    expect(result).toEqual(rows);
+    expect(mockedClient.get).toHaveBeenCalledWith('/appointments');
   });
 
-  describe('updateAppointment', () => {
-    it('should update appointment with camelCase properties', async () => {
-      // Arrange
-      const updateData = {
-        serviceType: 'brake_service', // ✅ camelCase per Agent.md
-        scheduledAt: '2024-12-16T10:00:00Z', // ✅ camelCase per Agent.md
-        notes: 'Updated notes',
-      };
-
-      const updatedAppointment: Appointment = {
-        id: '1',
-        customerId: 'user1',
-        carId: 'car1',
-        status: 'scheduled',
-        createdAt: '2024-12-01T10:00:00Z',
-        updatedAt: '2024-12-02T10:00:00Z',
-        ...updateData,
-      };
-
-      mockedApiClient.put.mockResolvedValueOnce({ data: updatedAppointment });
-
-      // Act
-      const result = await appointmentApi.updateAppointment('1', updateData);
-
-      // Assert
-      expect(result).toEqual(updatedAppointment);
-      expect(mockedApiClient.put).toHaveBeenCalledWith('/appointments/1', {
-        serviceType: 'brake_service', // ✅ camelCase per Agent.md
-        scheduledAt: '2024-12-16T10:00:00Z', // ✅ camelCase per Agent.md
-        notes: 'Updated notes',
-      });
+  it('getAppointments returns empty array when API reports failure', async () => {
+    mockedClient.get.mockResolvedValueOnce({
+      success: false,
+      error: { message: 'nope', status: 500 },
     });
+
+    const result = await appointmentApi.getAppointments();
+
+    expect(result).toEqual([]);
   });
 
-  describe('cancelAppointment', () => {
-    it('should cancel appointment successfully', async () => {
-      // Arrange
-      const cancelledAppointment: Appointment = {
-        id: '1',
-        customerId: 'user1',
-        carId: 'car1',
-        serviceType: 'oil_change',
-        scheduledAt: '2024-12-15T10:00:00Z',
-        status: 'cancelled',
-        createdAt: '2024-12-01T10:00:00Z',
-        updatedAt: '2024-12-02T10:00:00Z',
-      };
+  it('createAppointment sends camelCase body and returns entity', async () => {
+    const req: CreateAppointmentRequest = {
+      clientName: 'Jane',
+      carId: 'car1',
+      service: 'brake',
+      date: '2024-12-16',
+      time: '11:00',
+      status: 'scheduled',
+      notes: 'check pads',
+      createdAt: '2024-12-01T10:00:00Z',
+      updatedAt: '2024-12-01T10:00:00Z',
+    };
+    const created: Appointment = {
+      id: '99',
+      clientName: req.clientName,
+      carId: req.carId,
+      service: req.service,
+      date: req.date,
+      time: req.time,
+      status: req.status,
+      notes: req.notes,
+      createdAt: req.createdAt,
+      updatedAt: req.updatedAt,
+    };
+    mockedClient.post.mockResolvedValueOnce({ success: true, data: created });
 
-      mockedApiClient.patch.mockResolvedValueOnce({ data: cancelledAppointment });
+    const result = await appointmentApi.createAppointment(req);
 
-      // Act
-      const result = await appointmentApi.cancelAppointment('1');
-
-      // Assert
-      expect(result).toEqual(cancelledAppointment);
-      expect(mockedApiClient.patch).toHaveBeenCalledWith('/appointments/1/cancel');
-    });
-  });
-
-  describe('deleteAppointment', () => {
-    it('should delete appointment successfully', async () => {
-      // Arrange
-      mockedApiClient.delete.mockResolvedValueOnce({});
-
-      // Act
-      await appointmentApi.deleteAppointment('1');
-
-      // Assert
-      expect(mockedApiClient.delete).toHaveBeenCalledWith('/appointments/1');
+    expect(result).toEqual(created);
+    expect(mockedClient.post).toHaveBeenCalledWith('/appointments', {
+      carId: 'car1',
+      serviceType: 'brake',
+      scheduledAt: '2024-12-16',
+      notes: 'check pads',
+      status: 'scheduled',
     });
   });
 });

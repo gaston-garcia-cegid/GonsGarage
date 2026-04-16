@@ -1,0 +1,42 @@
+# Local development: PostgreSQL + Redis (defaults match backend/cmd/api/main.go when DATABASE_URL / REDIS_URL are unset).
+# From repository root:
+#   docker compose up -d
+#   docker compose logs -f
+#   docker compose down
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gonsgarage-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gonsgarage
+      POSTGRES_USER: admindb
+      POSTGRES_PASSWORD: gonsgarage123
+    ports:
+      - "5432:5432"
+    volumes:
+      - gonsgarage_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admindb -d gonsgarage"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: gonsgarage-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - gonsgarage_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  gonsgarage_pgdata:
+  gonsgarage_redisdata:

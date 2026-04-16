@@ -4,8 +4,7 @@ import { useAuth } from '@/stores';
 import CarsPage from '../page';
 import { apiClient } from '@/lib/api';
 
-// Mock dependencies
-jest.mock('next/navigation');
+// Mock dependencies (next/navigation mocked globally in __tests__/setup.ts)
 jest.mock('@/stores');
 jest.mock('@/lib/api');
 

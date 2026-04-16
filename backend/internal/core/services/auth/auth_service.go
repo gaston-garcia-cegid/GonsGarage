@@ -55,9 +55,9 @@ func (uc *AuthService) Register(ctx context.Context, req ports.RegisterRequest) 
 		return nil, domain.ErrUserAlreadyExists
 	}
 
-	// Validate role
+	// Default role for self-service registration (garage clients)
 	if req.Role == "" {
-		req.Role = "employee"
+		req.Role = domain.RoleClient
 	}
 
 	// Validate role is one of the allowed values
@@ -88,13 +88,25 @@ func (uc *AuthService) Register(ctx context.Context, req ports.RegisterRequest) 
 	return user, nil
 }
 
+func (uc *AuthService) CurrentUser(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
+	user, err := uc.userRepo.GetByID(ctx, userID)
+	if err != nil || user == nil {
+		return nil, domain.ErrUserNotFound
+	}
+	if !user.IsActive {
+		return nil, errors.New("user account is deactivated")
+	}
+	user.Password = ""
+	return user, nil
+}
+
 func (uc *AuthService) GenerateToken(user *domain.User) (string, time.Time, error) {
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
 		jwtSecret = "your-super-secret-jwt-key"
 	}
 
-	expiresAt := time.Now().Add(24 * time.Hour)
+	expiresAt := time.Now().Add(uc.expireTime)
 
 	claims := jwt.MapClaims{
 		"userID":     user.ID.String(),
@@ -104,7 +116,7 @@ func (uc *AuthService) GenerateToken(user *domain.User) (string, time.Time, erro
 		"last_name":  user.LastName,
 		"role":       user.Role,
 		"is_active":  user.IsActive,
-		"exp":        time.Now().Add(uc.expireTime).Unix(),
+		"exp":        expiresAt.Unix(),
 		"iat":        time.Now().Unix(),
 	}
 

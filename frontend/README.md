@@ -1,19 +1,19 @@
 # Gons Garage Frontend
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Next.js (App Router) UI for **GonsGarage**. API base URL is configured with `NEXT_PUBLIC_API_URL` (see `.env.local.example`).
+
+- **Monorepo docs:** [../docs/development-guide.md](../docs/development-guide.md)
+- **API client notes:** [docs/api-client.md](./docs/api-client.md)
+
+This project was bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app); the sections below are the upstream template.
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies and run the development server (**pnpm**):
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

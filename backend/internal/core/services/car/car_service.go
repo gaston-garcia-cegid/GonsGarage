@@ -165,7 +165,7 @@ func (uc *CarService) GetCarsByOwner(ctx context.Context, ownerID uuid.UUID, req
 
 	cars, err := uc.carRepo.GetByOwnerID(ctx, ownerID)
 	if err != nil {
-		log.Printf("failed to get cars by owner", "owner_id", ownerID, "error", err)
+		log.Printf("failed to get cars by owner: owner_id=%s error=%v", ownerID, err)
 		return nil, fmt.Errorf("failed to get cars: %w", err)
 	}
 
@@ -209,11 +209,11 @@ func (uc *CarService) UpdateCar(ctx context.Context, car *domain.Car, requesting
 
 	// Update the car
 	if err := uc.carRepo.Update(ctx, car); err != nil {
-		log.Printf("failed to update car", "car_id", car.ID, "error", err)
+		log.Printf("failed to update car: car_id=%s error=%v", car.ID, err)
 		return nil, fmt.Errorf("failed to update car: %w", err)
 	}
 
-	log.Printf("car updated successfully", "car_id", car.ID)
+	log.Printf("car updated successfully: car_id=%s", car.ID)
 	return car, nil
 }
 
@@ -243,11 +243,11 @@ func (uc *CarService) DeleteCar(ctx context.Context, carID uuid.UUID, requesting
 
 	// Delete the car
 	if err := uc.carRepo.Delete(ctx, carID); err != nil {
-		log.Printf("failed to delete car", "car_id", carID, "error", err)
+		log.Printf("failed to delete car: car_id=%s error=%v", carID, err)
 		return fmt.Errorf("failed to delete car: %w", err)
 	}
 
-	log.Printf("car deleted successfully", "car_id", carID)
+	log.Printf("car deleted successfully: car_id=%s", carID)
 	return nil
 }
 

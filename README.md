@@ -9,6 +9,12 @@
 
 A comprehensive auto repair shop management system built with modern technologies and clean architecture principles. GonsGarage provides a complete solution for managing clients, vehicles, repairs, appointments, and employees in an auto repair business.
 
+## Documentation hub
+
+Technical documentation (architecture analysis, dev setup, roadmap, and external spec placeholders such as Arnela) lives in **[docs/](docs/)**. Start at [docs/README.md](docs/README.md).
+
+- **TDD / tests:** [docs/testing-tdd.md](docs/testing-tdd.md) · **MVP phases:** [docs/mvp-minimum-phases.md](docs/mvp-minimum-phases.md) · **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
+
 ## 🚀 Features
 
 ### For Clients (Users with Client Role)
@@ -104,7 +110,8 @@ GonsGarage follows **Clean Architecture** principles with unified domain entitie
 
 Make sure you have the following installed on your system:
 
-- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **Node.js** 22+ ([Download](https://nodejs.org/))
+- **pnpm** 9+ (`corepack enable` recommended)
 - **Go** 1.21+ ([Download](https://golang.org/dl/))
 - **Docker** and **Docker Compose** ([Download](https://www.docker.com/))
 - **Git** ([Download](https://git-scm.com/))
@@ -132,23 +139,26 @@ cp frontend/.env.local.example frontend/.env.local
 
 ### 3. Start with Docker (Recommended)
 
+From the **repository root**, start PostgreSQL and Redis (credentials match `backend/.env.example` and the defaults in `backend/cmd/api/main.go`):
+
 ```bash
-# Start all services (database, redis, backend, frontend)
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
-# Stop all services
-docker-compose down
+# Stop services
+docker compose down
 ```
+
+Services: **`postgres`** and **`redis`**. Run the Go API and Next.js locally (see manual setup below) unless you add your own compose profiles for app containers.
 
 ### 4. Manual Setup (Alternative)
 
-#### Start Database Services
+#### Start database services
 ```bash
-# Start PostgreSQL and Redis
-docker-compose up -d postgres redis
+# From repository root
+docker compose up -d postgres redis
 ```
 
 #### Backend Setup
@@ -161,28 +171,27 @@ go mod tidy
 # Install Swagger CLI (for documentation generation)
 go install github.com/swaggo/swag/cmd/swag@latest
 
-# Generate Swagger documentation
-swag init -g cmd/server/main.go -o docs
+# Generate Swagger documentation (entrypoint is cmd/api)
+swag init -g cmd/api/main.go -o docs
 
-# Run database migrations
-go run cmd/migrate/main.go up
+# Schema: GORM AutoMigrate runs on startup (no separate migrate command required)
 
 # Start the server
-go run cmd/server/main.go
+go run ./cmd/api
 ```
 
 #### Frontend Setup
 ```bash
 cd frontend
 
-# Install dependencies
-npm install
+# Install dependencies (package manager: pnpm)
+pnpm install
 
 # Generate API types from Swagger (optional)
-npm run generate-types
+pnpm run generate-types
 
 # Start development server
-npm run dev
+pnpm dev
 ```
 
 ## 🌐 Access the Application
@@ -349,19 +358,19 @@ go tool cover -html=coverage.out
 cd frontend
 
 # Run all tests
-npm test
+pnpm test
 
 # Run tests in watch mode
-npm run test:watch
+pnpm test:watch
 
 # Run tests with coverage
-npm run test:coverage
+pnpm test:coverage
 
 # Type checking
-npm run type-check
+pnpm typecheck
 
 # Generate API types from Swagger
-npm run generate-types
+pnpm run generate-types
 ```
 
 ### Test Structure Examples
@@ -436,10 +445,11 @@ describe('UserStore', () => {
 ### Authentication Endpoints
 
 ```http
-POST /api/v1/auth/register    # User registration (any role)
-POST /api/v1/auth/login       # User authentication  
-POST /api/v1/auth/refresh     # Token refresh
-POST /api/v1/auth/logout      # User logout
+POST /api/v1/auth/register    # User registration (roles: admin, manager, employee, client; default client if role omitted)
+POST /api/v1/auth/login       # User authentication
+GET /api/v1/auth/me           # Current user (requires Bearer token; protected route)
+POST /api/v1/auth/refresh     # Token refresh (if implemented in client)
+POST /api/v1/auth/logout      # User logout (if implemented)
 ```
 
 ### User Management Endpoints (Unified)
@@ -673,13 +683,13 @@ go get github.com/swaggo/files
 ```bash
 # Generate Swagger docs from annotations
 cd backend
-swag init -g cmd/server/main.go -o docs
+swag init -g cmd/api/main.go -o docs
 ```
 
 ### 3. Integration Example
 
 ```go
-// cmd/server/main.go
+// cmd/api/main.go
 package main
 
 import (
@@ -720,10 +730,11 @@ func main() {
 ```bash
 # Backend (.env)
 DATABASE_URL=postgres://admindb:secure_password@localhost:5432/gonsgarage?sslmode=require
-REDIS_URL=redis://localhost:6379
+# REDIS_URL is host:port (e.g. localhost:6379), not a redis:// URL
+REDIS_URL=localhost:6379
 JWT_SECRET=your-very-secure-jwt-secret-key-here
 GIN_MODE=release
-PORT=8080
+SERVER_PORT=8080
 SWAGGER_ENABLED=true
 
 # Frontend (.env.local)
@@ -757,7 +768,7 @@ services:
       dockerfile: Dockerfile.prod
     environment:
       DATABASE_URL: postgres://admindb:${DB_PASSWORD}@postgres:5432/gonsgarage?sslmode=disable
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis:6379
       JWT_SECRET: ${JWT_SECRET}
       GIN_MODE: release
       SWAGGER_ENABLED: true
@@ -794,11 +805,11 @@ volumes:
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
+We welcome contributions! See **[CONTRIBUTING.md](CONTRIBUTING.md)** for setup (pnpm, Docker) and the **TDD** policy. Summary:
 
 1. **Fork the repository**
 2. **Create a feature branch**: `git checkout -b feat/amazing-feature`
-3. **Follow TDD**: Write tests first, then implementation
+3. **Follow TDD**: Write tests first, then implementation ([docs/testing-tdd.md](docs/testing-tdd.md))
 4. **Follow coding standards**: See [Agent.md](Agent.md) for detailed guidelines
 5. **Use TypeScript**: Ensure type safety in frontend code
 6. **Document APIs**: Add Swagger annotations for all new endpoints

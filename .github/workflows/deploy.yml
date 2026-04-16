@@ -1,0 +1,20 @@
+# Placeholder for deployment. Extend when you have a target (Docker registry, Fly.io, Azure, etc.).
+# Typical pattern: trigger on release or workflow_dispatch after CI passes (use workflow_run or reusable workflow).
+
+name: Deploy (placeholder)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ready:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: |
+          echo "Add deploy steps here (build/push images, migrate DB, promote release)."
+          echo "Recommended: require successful CI on main before allowing deploy."

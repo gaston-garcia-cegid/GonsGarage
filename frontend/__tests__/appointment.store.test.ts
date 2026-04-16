@@ -1,45 +1,42 @@
 import { renderHook, act } from '@testing-library/react';
 import { useAppointmentStore, useAppointments } from '@/stores/appointment.store';
 import { appointmentApi } from '@/lib/api/appointment.api';
-import { Appointment, CreateAppointmentRequest } from '@/shared/types';
+import type { Appointment, CreateAppointmentRequest } from '@/types/appointment';
 
-// Mock API
 jest.mock('@/lib/api/appointment.api');
 const mockedAppointmentApi = appointmentApi as jest.Mocked<typeof appointmentApi>;
 
+const sampleAppointment = (over: Partial<Appointment> = {}): Appointment => ({
+  id: '1',
+  clientName: 'Jane',
+  carId: 'car1',
+  service: 'oil_change',
+  date: '2024-12-15',
+  time: '10:00',
+  status: 'scheduled',
+  createdAt: '2024-12-01T10:00:00Z',
+  updatedAt: '2024-12-01T10:00:00Z',
+  ...over,
+});
+
 describe('AppointmentStore', () => {
   beforeEach(() => {
-    // Reset store state
     useAppointmentStore.getState().reset();
     jest.clearAllMocks();
   });
 
   describe('fetchAppointments', () => {
     it('should fetch appointments successfully', async () => {
-      // Arrange
-      const mockAppointments: Appointment[] = [
-        {
-          id: '1',
-          customerId: 'user1',
-          carId: 'car1',
-          serviceType: 'oil_change',
-          scheduledAt: '2024-12-15T10:00:00Z',
-          status: 'scheduled',
-          createdAt: '2024-12-01T10:00:00Z',
-          updatedAt: '2024-12-01T10:00:00Z',
-        },
-      ];
+      const mockAppointments: Appointment[] = [sampleAppointment()];
 
       mockedAppointmentApi.getAppointments.mockResolvedValueOnce(mockAppointments);
 
       const { result } = renderHook(() => useAppointments());
 
-      // Act
       await act(async () => {
         await result.current.fetchAppointments();
       });
 
-      // Assert
       expect(result.current.appointments).toEqual(mockAppointments);
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeNull();
@@ -47,18 +44,15 @@ describe('AppointmentStore', () => {
     });
 
     it('should handle fetch appointments error', async () => {
-      // Arrange
       const errorMessage = 'Failed to fetch appointments';
       mockedAppointmentApi.getAppointments.mockRejectedValueOnce(new Error(errorMessage));
 
       const { result } = renderHook(() => useAppointments());
 
-      // Act
       await act(async () => {
         await result.current.fetchAppointments();
       });
 
-      // Assert
       expect(result.current.appointments).toEqual([]);
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBe(errorMessage);
@@ -67,47 +61,57 @@ describe('AppointmentStore', () => {
 
   describe('createAppointment', () => {
     it('should create appointment successfully', async () => {
-      // Arrange
       const newAppointmentData: CreateAppointmentRequest = {
+        clientName: 'Jane',
         carId: 'car1',
-        serviceType: 'oil_change',
-        scheduledAt: '2024-12-15T10:00:00Z',
+        service: 'oil_change',
+        date: '2024-12-15',
+        time: '10:00',
+        status: 'scheduled',
         notes: 'Regular maintenance',
+        createdAt: '2024-12-01T10:00:00Z',
+        updatedAt: '2024-12-01T10:00:00Z',
       };
 
       const createdAppointment: Appointment = {
         id: '1',
-        customerId: 'user1',
-        ...newAppointmentData,
+        clientName: newAppointmentData.clientName,
+        carId: newAppointmentData.carId,
+        service: newAppointmentData.service,
+        date: newAppointmentData.date,
+        time: newAppointmentData.time,
         status: 'scheduled',
-        createdAt: '2024-12-01T10:00:00Z',
-        updatedAt: '2024-12-01T10:00:00Z',
+        notes: newAppointmentData.notes,
+        createdAt: newAppointmentData.createdAt,
+        updatedAt: newAppointmentData.updatedAt,
       };
 
       mockedAppointmentApi.createAppointment.mockResolvedValueOnce(createdAppointment);
 
       const { result } = renderHook(() => useAppointments());
 
-      // Act
-      let success: boolean = false;
+      let success = false;
       await act(async () => {
         success = await result.current.createAppointment(newAppointmentData);
       });
 
-      // Assert
       expect(success).toBe(true);
-      expect(result.current.appointments).toContain(createdAppointment);
+      expect(result.current.appointments).toContainEqual(createdAppointment);
       expect(result.current.isCreating).toBe(false);
       expect(result.current.error).toBeNull();
       expect(mockedAppointmentApi.createAppointment).toHaveBeenCalledWith(newAppointmentData);
     });
 
     it('should handle create appointment error', async () => {
-      // Arrange
       const newAppointmentData: CreateAppointmentRequest = {
+        clientName: 'Jane',
         carId: 'car1',
-        serviceType: 'oil_change',
-        scheduledAt: '2024-12-15T10:00:00Z',
+        service: 'oil_change',
+        date: '2024-12-15',
+        time: '10:00',
+        status: 'scheduled',
+        createdAt: '2024-12-01T10:00:00Z',
+        updatedAt: '2024-12-01T10:00:00Z',
       };
 
       const errorMessage = 'Failed to create appointment';
@@ -115,13 +119,11 @@ describe('AppointmentStore', () => {
 
       const { result } = renderHook(() => useAppointments());
 
-      // Act
-      let success: boolean = true;
+      let success = true;
       await act(async () => {
         success = await result.current.createAppointment(newAppointmentData);
       });
 
-      // Assert
       expect(success).toBe(false);
       expect(result.current.appointments).toEqual([]);
       expect(result.current.isCreating).toBe(false);
@@ -131,18 +133,7 @@ describe('AppointmentStore', () => {
 
   describe('cancelAppointment', () => {
     it('should cancel appointment successfully', async () => {
-      // Arrange
-      const appointment: Appointment = {
-        id: '1',
-        customerId: 'user1',
-        carId: 'car1',
-        serviceType: 'oil_change',
-        scheduledAt: '2024-12-15T10:00:00Z',
-        status: 'scheduled',
-        createdAt: '2024-12-01T10:00:00Z',
-        updatedAt: '2024-12-01T10:00:00Z',
-      };
-
+      const appointment = sampleAppointment();
       const cancelledAppointment: Appointment = {
         ...appointment,
         status: 'cancelled',
@@ -153,18 +144,15 @@ describe('AppointmentStore', () => {
 
       const { result } = renderHook(() => useAppointments());
 
-      // Set initial state
       act(() => {
         useAppointmentStore.setState({ appointments: [appointment] });
       });
 
-      // Act
-      let success: boolean = false;
+      let success = false;
       await act(async () => {
         success = await result.current.cancelAppointment('1');
       });
 
-      // Assert
       expect(success).toBe(true);
       expect(result.current.appointments[0].status).toBe('cancelled');
       expect(mockedAppointmentApi.cancelAppointment).toHaveBeenCalledWith('1');
@@ -173,15 +161,12 @@ describe('AppointmentStore', () => {
 
   describe('setFilters', () => {
     it('should update filters correctly', () => {
-      // Arrange
       const { result } = renderHook(() => useAppointments());
 
-      // Act
       act(() => {
         result.current.setFilters({ status: 'completed', carId: 'car1' });
       });
 
-      // Assert
       expect(result.current.filters).toEqual({
         status: 'completed',
         carId: 'car1',
@@ -191,57 +176,38 @@ describe('AppointmentStore', () => {
 
   describe('clearError', () => {
     it('should clear error state', () => {
-      // Arrange
       const { result } = renderHook(() => useAppointments());
 
-      // Set error state
       act(() => {
         useAppointmentStore.setState({ error: 'Some error' });
       });
 
       expect(result.current.error).toBe('Some error');
 
-      // Act
       act(() => {
         result.current.clearError();
       });
 
-      // Assert
       expect(result.current.error).toBeNull();
     });
   });
 
   describe('reset', () => {
     it('should reset store to initial state', () => {
-      // Arrange
       const { result } = renderHook(() => useAppointments());
 
-      // Set some state
       act(() => {
         useAppointmentStore.setState({
-          appointments: [
-            {
-              id: '1',
-              customerId: 'user1',
-              carId: 'car1',
-              serviceType: 'oil_change',
-              scheduledAt: '2024-12-15T10:00:00Z',
-              status: 'scheduled',
-              createdAt: '2024-12-01T10:00:00Z',
-              updatedAt: '2024-12-01T10:00:00Z',
-            },
-          ],
+          appointments: [sampleAppointment()],
           error: 'Some error',
           isLoading: true,
         });
       });
 
-      // Act
       act(() => {
         result.current.reset();
       });
 
-      // Assert
       expect(result.current.appointments).toEqual([]);
       expect(result.current.error).toBeNull();
       expect(result.current.isLoading).toBe(false);

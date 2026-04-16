@@ -6,8 +6,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useAppointments } from '@/stores/appointment.store';
 import { useCarStore } from '@/stores/car.store';
 
-// Mock dependencies
-jest.mock('next/navigation');
+// Mock dependencies (next/navigation mocked globally in __tests__/setup.ts)
 jest.mock('@/stores/auth.store');
 jest.mock('@/stores/appointment.store');
 jest.mock('@/stores/car.store');

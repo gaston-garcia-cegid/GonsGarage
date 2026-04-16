@@ -24,24 +24,18 @@ jest.mock('next/router', () => ({
   },
 }));
 
-// Mock Next.js navigation (App Router)
+// Mock Next.js navigation (App Router) — useRouter must be a jest.fn so tests can mockReturnValue.
 jest.mock('next/navigation', () => ({
-  useRouter() {
-    return {
-      push: jest.fn(),
-      replace: jest.fn(),
-      prefetch: jest.fn(),
-      back: jest.fn(),
-      forward: jest.fn(),
-      refresh: jest.fn(),
-    };
-  },
-  useSearchParams() {
-    return new URLSearchParams();
-  },
-  usePathname() {
-    return '/';
-  },
+  useRouter: jest.fn().mockImplementation(() => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    refresh: jest.fn(),
+  })),
+  useSearchParams: jest.fn(() => new URLSearchParams()),
+  usePathname: jest.fn(() => '/'),
 }));
 
 // Global test configuration

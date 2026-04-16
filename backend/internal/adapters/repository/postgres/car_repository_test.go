@@ -1,3 +1,7 @@
+//go:build cgo
+
+// SQLite driver (go-sqlite3) requires CGO. CI sets CGO_ENABLED=1 on Linux.
+
 package postgres
 
 import (

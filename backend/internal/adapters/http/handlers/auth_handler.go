@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AuthHandler struct {
@@ -19,12 +22,6 @@ func NewAuthHandler(authService ports.AuthService) *AuthHandler {
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
-}
-
-type RegisterRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-	Role     string `json:"role" binding:"required,oneof=admin manager employee"`
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
@@ -74,7 +71,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		log.Printf("/******************************************/")
 
 		statusCode := http.StatusBadRequest
-		if err.Error() == "user already exists" {
+		if errors.Is(err, domain.ErrUserAlreadyExists) {
 			statusCode = http.StatusConflict
 		}
 
@@ -87,13 +84,51 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User registered successfully",
 		"user": gin.H{
-			"id":         user.ID,
-			"email":      user.Email,
-			"first_name": user.FirstName,
-			"last_name":  user.LastName,
-			"role":       user.Role,
-			"is_active":  user.IsActive,
-			"created_at": user.CreatedAt,
+			"id":        user.ID,
+			"email":     user.Email,
+			"firstName": user.FirstName,
+			"lastName":  user.LastName,
+			"role":      user.Role,
+			"isActive":  user.IsActive,
+			"createdAt": user.CreatedAt,
+			"updatedAt": user.UpdatedAt,
+		},
+	})
+}
+
+// Me returns the authenticated user (JWT subject). Requires Authorization Bearer.
+func (h *AuthHandler) Me(c *gin.Context) {
+	userIDStr, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	userID, err := uuid.Parse(userIDStr.(string))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
+		return
+	}
+
+	user, err := h.authService.CurrentUser(c.Request.Context(), userID)
+	if err != nil {
+		if errors.Is(err, domain.ErrUserNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+			return
+		}
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": gin.H{
+			"id":        user.ID,
+			"email":     user.Email,
+			"firstName": user.FirstName,
+			"lastName":  user.LastName,
+			"role":      user.Role,
+			"isActive":  user.IsActive,
+			"createdAt": user.CreatedAt,
+			"updatedAt": user.UpdatedAt,
 		},
 	})
 }

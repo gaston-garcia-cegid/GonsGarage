@@ -10,7 +10,8 @@
 - **Database**: PostgreSQL 15+ with Redis caching
 - **API Documentation**: Swagger/OpenAPI 3.0 with automated generation
 - **Development**: Docker-based local environment
-- **Testing**: Test-Driven Development (TDD)
+- **Testing**: Test-Driven Development (TDD) — **mandatory for product code** (see [docs/testing-tdd.md](docs/testing-tdd.md) and [CONTRIBUTING.md](CONTRIBUTING.md))
+- **Frontend package manager**: **pnpm** (not npm)
 
 ---
 
@@ -75,7 +76,7 @@ type CreateUserRequest struct {
 ```
 backend/
 ├── cmd/
-│   └── server/main.go              # Application entry point
+│   └── api/main.go                 # Application entry point
 ├── internal/
 │   ├── core/
 │   │   ├── domain/                 # Business entities (unified)
@@ -365,7 +366,7 @@ func (h *CarHandler) GetCars(c *gin.Context) {
 
 ### ✅ OpenAPI Configuration
 ```go
-// cmd/server/main.go - Swagger setup
+// cmd/api/main.go - Swagger setup
 import (
     "github.com/gin-gonic/gin"
     swaggerFiles "github.com/swaggo/files"

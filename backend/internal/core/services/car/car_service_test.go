@@ -2,278 +2,174 @@ package car
 
 import (
 	"context"
-	"fmt"
-	"time"
+	"errors"
+	"testing"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-// carService implements the CarService interface
-type carService struct {
-	carRepo  ports.CarRepository
-	userRepo ports.UserRepository
-	logger   ports.Logger
+type carTestUserRepo struct {
+	users map[uuid.UUID]*domain.User
 }
 
-// NewCarService creates a new car service instance
-func NewCarServiceTest(
-	carRepo ports.CarRepository,
-	userRepo ports.UserRepository,
-) ports.CarService {
-	return &carService{
-		carRepo:  carRepo,
-		userRepo: userRepo,
+func (r *carTestUserRepo) Create(ctx context.Context, user *domain.User) error { return nil }
+func (r *carTestUserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	return nil, nil
+}
+func (r *carTestUserRepo) GetByRole(ctx context.Context, role string, limit, offset int) ([]*domain.User, error) {
+	return nil, nil
+}
+func (r *carTestUserRepo) List(ctx context.Context, limit, offset int) ([]*domain.User, error) {
+	return nil, nil
+}
+func (r *carTestUserRepo) Update(ctx context.Context, user *domain.User) error { return nil }
+func (r *carTestUserRepo) Delete(ctx context.Context, id uuid.UUID) error { return nil }
+func (r *carTestUserRepo) UpdatePassword(ctx context.Context, userID uuid.UUID, passwordHash string) error {
+	return nil
+}
+func (r *carTestUserRepo) GetActiveUsers(ctx context.Context, limit, offset int) ([]*domain.User, error) {
+	return nil, nil
+}
+
+func (r *carTestUserRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+	u, ok := r.users[id]
+	if !ok {
+		return nil, errors.New("not found")
+	}
+	return u, nil
+}
+
+type carTestCarRepo struct {
+	byPlate map[string]*domain.Car
+	byID    map[uuid.UUID]*domain.Car
+	created []*domain.Car
+}
+
+func newCarTestCarRepo() *carTestCarRepo {
+	return &carTestCarRepo{
+		byPlate: make(map[string]*domain.Car),
+		byID:    make(map[uuid.UUID]*domain.Car),
 	}
 }
 
-// CreateCar creates a new car with proper business rules and authorization
-func (s *carService) CreateCar(ctx context.Context, car *domain.Car, requestingUserID uuid.UUID) (*domain.Car, error) {
-	// Get requesting user to validate permissions
-	requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	if err != nil {
-		s.logger.Error("failed to get requesting user", "userID", requestingUserID, "error", err)
-		return nil, fmt.Errorf("failed to validate user: %w", err)
-	}
-
-	// Apply business rules based on user role
-	if err := s.validateCarCreationPermissions(requestingUser, car); err != nil {
-		return nil, err
-	}
-
-	// Validate car owner exists and is a client
-	if err := s.validateCarOwner(ctx, car.OwnerID); err != nil {
-		return nil, err
-	}
-
-	// Check for duplicate license plate
-	if err := s.checkDuplicateLicensePlate(ctx, car.LicensePlate); err != nil {
-		return nil, err
-	}
-
-	// Validate car domain rules
-	if err := car.Validate(); err != nil {
-		return nil, fmt.Errorf("car validation failed: %w", err)
-	}
-
-	// Set car metadata
-	car.ID = uuid.New()
-	car.CreatedAt = time.Now()
-	car.UpdatedAt = time.Now()
-
-	// Persist car
-	if err := s.carRepo.Create(ctx, car); err != nil {
-		s.logger.Error("failed to create car", "carID", car.ID, "error", err)
-		return nil, fmt.Errorf("failed to create car: %w", err)
-	}
-
-	s.logger.Info("car created successfully", "carID", car.ID, "ownerID", car.OwnerID)
-	return car, nil
-}
-
-// GetCar retrieves a car with authorization checks
-func (s *carService) GetCar(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) (*domain.Car, error) {
-	// Get requesting user
-	requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get requesting user: %w", err)
-	}
-
-	// Get car
-	car, err := s.carRepo.GetByID(ctx, carID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get car: %w", err)
-	}
-
-	if car == nil {
-		return nil, domain.ErrCarNotFound
-	}
-
-	// Check authorization
-	if err := s.validateCarAccess(requestingUser, car); err != nil {
-		return nil, err
-	}
-
-	return car, nil
-}
-
-// GetCarsByOwner retrieves cars for a specific owner with authorization
-func (s *carService) GetCarsByOwner(ctx context.Context, ownerID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Car, error) {
-	// Get requesting user
-	requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get requesting user: %w", err)
-	}
-
-	// Validate access permissions
-	if err := s.validateOwnerAccess(requestingUser, ownerID, requestingUserID); err != nil {
-		return nil, err
-	}
-
-	// Get cars
-	cars, err := s.carRepo.GetByOwnerID(ctx, ownerID)
-	if err != nil {
-		s.logger.Error("failed to get cars by owner", "ownerID", ownerID, "error", err)
-		return nil, fmt.Errorf("failed to get cars: %w", err)
-	}
-
-	return cars, nil
-}
-
-// UpdateCar updates an existing car with authorization
-func (s *carService) UpdateCar(ctx context.Context, car *domain.Car, requestingUserID uuid.UUID) (*domain.Car, error) {
-	// Get requesting user
-	requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get requesting user: %w", err)
-	}
-
-	// Get existing car
-	existingCar, err := s.carRepo.GetByID(ctx, car.ID)
-	if err != nil || existingCar == nil {
-		return nil, domain.ErrCarNotFound
-	}
-
-	// Check authorization
-	if err := s.validateCarAccess(requestingUser, existingCar); err != nil {
-		return nil, err
-	}
-
-	// Validate updated data
-	if err := car.Validate(); err != nil {
-		return nil, fmt.Errorf("car validation failed: %w", err)
-	}
-
-	// Preserve immutable fields
-	car.ID = existingCar.ID
-	car.OwnerID = existingCar.OwnerID
-	car.CreatedAt = existingCar.CreatedAt
-	car.UpdatedAt = time.Now()
-
-	// Update car
-	if err := s.carRepo.Update(ctx, car); err != nil {
-		s.logger.Error("failed to update car", "carID", car.ID, "error", err)
-		return nil, fmt.Errorf("failed to update car: %w", err)
-	}
-
-	s.logger.Info("car updated successfully", "carID", car.ID)
-	return car, nil
-}
-
-// DeleteCar removes a car with authorization
-func (s *carService) DeleteCar(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) error {
-	// Get requesting user
-	requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return fmt.Errorf("failed to get requesting user: %w", err)
-	}
-
-	// Get car
-	car, err := s.carRepo.GetByID(ctx, carID)
-	if err != nil || car == nil {
-		return domain.ErrCarNotFound
-	}
-
-	// Check authorization
-	if err := s.validateCarAccess(requestingUser, car); err != nil {
-		return err
-	}
-
-	// Delete car
-	if err := s.carRepo.Delete(ctx, carID); err != nil {
-		s.logger.Error("failed to delete car", "carID", carID, "error", err)
-		return fmt.Errorf("failed to delete car: %w", err)
-	}
-
-	s.logger.Info("car deleted successfully", "carID", carID)
+func (r *carTestCarRepo) Create(ctx context.Context, car *domain.Car) error {
+	r.created = append(r.created, car)
 	return nil
 }
 
-// GetCarWithRepairs retrieves a car with its repair history
-func (s *carService) GetCarWithRepairs(ctx context.Context, carID uuid.UUID, requestingUserID uuid.UUID) (*domain.Car, error) {
-	// Get requesting user
-	requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get requesting user: %w", err)
+func (r *carTestCarRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Car, error) {
+	c, ok := r.byID[id]
+	if !ok {
+		return nil, nil
 	}
-
-	// Get car with repairs
-	car, err := s.carRepo.GetWithRepairs(ctx, carID)
-	if err != nil || car == nil {
-		return nil, domain.ErrCarNotFound
-	}
-
-	// Check authorization
-	if err := s.validateCarAccess(requestingUser, car); err != nil {
-		return nil, err
-	}
-
-	return car, nil
+	return c, nil
 }
 
-// Helper methods for validation (following SRP)
-
-func (s *carService) validateCarCreationPermissions(user *domain.User, car *domain.Car) error {
-	if user.IsClient() {
-		// Clients can only create cars for themselves
-		car.OwnerID = user.ID
-		return nil
-	}
-
-	if !user.CanManageUsers() {
-		return domain.ErrUnauthorizedAccess
-	}
-
-	return nil
+func (r *carTestCarRepo) GetByOwnerID(ctx context.Context, ownerID uuid.UUID) ([]*domain.Car, error) {
+	return nil, nil
 }
 
-func (s *carService) validateCarOwner(ctx context.Context, ownerID uuid.UUID) error {
-	owner, err := s.userRepo.GetByID(ctx, ownerID)
-	if err != nil {
-		return fmt.Errorf("car owner not found: %w", err)
+func (r *carTestCarRepo) GetByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error) {
+	c, ok := r.byPlate[licensePlate]
+	if !ok {
+		return nil, nil
 	}
-
-	if !owner.IsClient() {
-		return fmt.Errorf("car owner must be a client")
-	}
-
-	return nil
+	return c, nil
 }
 
-func (s *carService) checkDuplicateLicensePlate(ctx context.Context, licensePlate string) error {
-	existingCar, err := s.carRepo.GetByLicensePlate(ctx, licensePlate)
-	if err != nil {
-		return nil // Error means not found, which is OK
-	}
-
-	if existingCar != nil {
-		return domain.ErrCarAlreadyExists
-	}
-
-	return nil
+func (r *carTestCarRepo) List(ctx context.Context, limit, offset int) ([]*domain.Car, error) {
+	return nil, nil
 }
 
-func (s *carService) validateCarAccess(user *domain.User, car *domain.Car) error {
-	if user.IsClient() && !car.IsOwnedBy(user.ID) {
-		return domain.ErrUnauthorizedAccess
-	}
+func (r *carTestCarRepo) Update(ctx context.Context, car *domain.Car) error { return nil }
 
-	if !user.IsClient() && !user.CanManageUsers() {
-		return domain.ErrUnauthorizedAccess
-	}
+func (r *carTestCarRepo) Delete(ctx context.Context, id uuid.UUID) error { return nil }
 
-	return nil
+func (r *carTestCarRepo) GetWithRepairs(ctx context.Context, id uuid.UUID) (*domain.Car, error) {
+	return nil, nil
 }
 
-func (s *carService) validateOwnerAccess(user *domain.User, ownerID uuid.UUID, requestingUserID uuid.UUID) error {
-	if user.IsClient() && ownerID != requestingUserID {
-		return domain.ErrUnauthorizedAccess
+func (r *carTestCarRepo) GetDeletedByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error) {
+	return nil, nil
+}
+
+func (r *carTestCarRepo) Restore(ctx context.Context, id uuid.UUID) error { return nil }
+
+type noopCache struct{}
+
+func (noopCache) Get(ctx context.Context, key string, dest interface{}) error { return nil }
+
+func (noopCache) Set(ctx context.Context, key string, value interface{}, ttl int) error { return nil }
+
+func (noopCache) Delete(ctx context.Context, key string) error { return nil }
+
+func TestCarService_CreateCar_ClientOwnsCar(t *testing.T) {
+	t.Parallel()
+	clientID := uuid.New()
+	client, err := domain.NewUser("c@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	client.ID = clientID
+
+	userRepo := &carTestUserRepo{users: map[uuid.UUID]*domain.User{clientID: client}}
+	carRepo := newCarTestCarRepo()
+	svc := NewCarService(carRepo, userRepo, noopCache{})
+
+	car := &domain.Car{
+		Make:         "Toyota",
+		Model:        "Corolla",
+		Year:         2020,
+		LicensePlate: "ABC-1234",
+		Color:        "Blue",
+		Mileage:      10000,
 	}
 
-	if !user.IsClient() && !user.CanManageUsers() {
-		return domain.ErrUnauthorizedAccess
-	}
+	out, err := svc.CreateCar(context.Background(), car, clientID)
+	require.NoError(t, err)
+	require.NotNil(t, out)
+	assert.Equal(t, clientID, out.OwnerID)
+	assert.NotEqual(t, uuid.Nil, out.ID)
+	assert.Len(t, carRepo.created, 1)
+}
 
-	return nil
+func TestCarService_CreateCar_DuplicatePlate(t *testing.T) {
+	t.Parallel()
+	clientID := uuid.New()
+	client, err := domain.NewUser("c2@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	client.ID = clientID
+
+	userRepo := &carTestUserRepo{users: map[uuid.UUID]*domain.User{clientID: client}}
+	carRepo := newCarTestCarRepo()
+	carRepo.byPlate["DUP-1"] = &domain.Car{ID: uuid.New(), LicensePlate: "DUP-1"}
+
+	svc := NewCarService(carRepo, userRepo, noopCache{})
+	_, err = svc.CreateCar(context.Background(), &domain.Car{
+		Make: "VW", Model: "Golf", Year: 2019, LicensePlate: "DUP-1", Color: "Red", Mileage: 1,
+	}, clientID)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, domain.ErrCarAlreadyExists)
+}
+
+func TestCarService_GetCar_ClientOtherOwnerDenied(t *testing.T) {
+	t.Parallel()
+	clientID := uuid.New()
+	otherID := uuid.New()
+	client, err := domain.NewUser("me@example.com", "pw", "M", "E", domain.RoleClient)
+	require.NoError(t, err)
+	client.ID = clientID
+
+	carID := uuid.New()
+	owned := &domain.Car{ID: carID, OwnerID: otherID, Make: "X", Model: "Y", Year: 2020, LicensePlate: "Z-1", Color: "Black", Mileage: 0}
+
+	userRepo := &carTestUserRepo{users: map[uuid.UUID]*domain.User{clientID: client}}
+	carRepo := newCarTestCarRepo()
+	carRepo.byID[carID] = owned
+
+	svc := NewCarService(carRepo, userRepo, noopCache{})
+	_, err = svc.GetCar(context.Background(), carID, clientID)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, domain.ErrUnauthorizedAccess)
 }

@@ -10,7 +10,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/backend/cmd/server/main.go",
+            "program": "${workspaceFolder}/backend/cmd/api/main.go",
             "cwd": "${workspaceFolder}/backend",
             "env": {
                 "DATABASE_URL": "postgres://admindb:gonsgarage123@localhost:5432/gonsgarage?sslmode=disable",
@@ -113,7 +113,7 @@
             "label": "Go: Build Backend",
             "type": "shell",
             "command": "go",
-            "args": ["build", "-o", "bin/server", "cmd/server/main.go"],
+            "args": ["build", "-o", "bin/server", "cmd/api/main.go"],
             "options": {
                 "cwd": "${workspaceFolder}/backend"
             },
@@ -133,11 +133,11 @@
             "label": "Go: Run Backend",
             "type": "shell",
             "command": "go",
-            "args": ["run", "cmd/server/main.go"],
+            "args": ["run", "cmd/api/main.go"],
             "options": {
                 "cwd": "${workspaceFolder}/backend",
                 "env": {
-                    "DATABASE_URL": "postgres://gonsgarage_user:secure_password@localhost:5432/gonsgarage?sslmode=disable",
+                    "DATABASE_URL": "postgres://admindb:gonsgarage123@localhost:5432/gonsgarage?sslmode=disable",
                     "REDIS_URL": "localhost:6379",
                     "JWT_SECRET": "your-super-secret-jwt-key",
                     "SERVER_PORT": "8080",
