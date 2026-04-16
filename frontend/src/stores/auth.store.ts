@@ -52,6 +52,9 @@ const redirectBasedOnRole = (userData: User) => {
       console.log('Redirecting to admin dashboard');
       window.location.href = '/admin/dashboard';
       break;
+    case UserRole.MANAGER:
+      window.location.href = '/dashboard';
+      break;
     case UserRole.EMPLOYEE:
       console.log('Redirecting to employee dashboard');  
       window.location.href = '/employee/dashboard';
@@ -65,6 +68,39 @@ const redirectBasedOnRole = (userData: User) => {
       window.location.href = '/';
   }
 };
+
+function mapMeUser(raw: Record<string, unknown>): User {
+  const u = raw as Record<string, unknown>;
+  const idVal = u.id;
+  const id = typeof idVal === 'string' ? idVal : idVal != null ? String(idVal) : '';
+  return {
+    id,
+    email: String(u.email ?? ''),
+    firstName: String(u.firstName ?? u.first_name ?? ''),
+    lastName: String(u.lastName ?? u.last_name ?? ''),
+    role: (u.role as UserRole) || UserRole.CLIENT,
+    createdAt: String(u.createdAt ?? u.created_at ?? new Date().toISOString()),
+    updatedAt: String(u.updatedAt ?? u.updated_at ?? new Date().toISOString()),
+  };
+}
+
+async function fetchCurrentUser(token: string): Promise<User> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`auth/me failed (${response.status})`);
+  }
+  const body = await response.json();
+  const userPayload = (body as { user?: Record<string, unknown> }).user;
+  if (!userPayload) {
+    throw new Error('auth/me: missing user');
+  }
+  return mapMeUser(userPayload);
+}
 
 // ✅ Helper function for localStorage operations
 const storage = {
@@ -84,8 +120,15 @@ const storage = {
       const token = localStorage.getItem('auth_token');
       const userData = localStorage.getItem('auth_user');
       
-      if (token && userData) {
-        const user = JSON.parse(userData);
+      if (token) {
+        let user: User | null = null;
+        if (userData) {
+          try {
+            user = JSON.parse(userData) as User;
+          } catch {
+            user = null;
+          }
+        }
         return { token, user };
       }
     } catch (error) {
@@ -186,35 +229,35 @@ export const useAuthStore = create<AuthStore>()(
           const data = await authAPI.login(email, password);
 
           if (data.token) {
-            // ✅ Create unified User object per Agent.md
-            const userData: User = {
-              id: data?.user?.id || '1',
-              email: data?.user?.email || email,
-              firstName: data?.user?.firstName || data?.user?.first_name || email.split('@')[0], // ✅ Handle both formats
-              lastName: data?.user?.lastName || data?.user?.last_name || 'User',  // ✅ Handle both formats
-              role: data?.user?.role || UserRole.CLIENT,
-              createdAt: data?.user?.createdAt || data?.user?.created_at || new Date().toISOString(), // ✅ Handle both formats
-              updatedAt: data?.user?.updatedAt || data?.user?.updated_at || new Date().toISOString(), // ✅ Handle both formats
-            };
+            try {
+              const userData = await fetchCurrentUser(data.token);
 
-            console.log('Setting user data:', userData);
+              console.log('Setting user data:', userData);
 
-            set((state) => {
-              state.token = data.token;
-              state.user = userData;
-              state.isAuthenticated = true;
-              state.isLoading = false;
-            });
+              set((state) => {
+                state.token = data.token;
+                state.user = userData;
+                state.isAuthenticated = true;
+                state.isLoading = false;
+              });
 
-            // Store in localStorage
-            storage.setAuthData(data.token, userData);
+              storage.setAuthData(data.token, userData);
 
-            // Redirect based on role
-            setTimeout(() => {
-              redirectBasedOnRole(userData);
-            }, 100);
+              setTimeout(() => {
+                redirectBasedOnRole(userData);
+              }, 100);
 
-            return { success: true };
+              return { success: true };
+            } catch (meErr) {
+              const msg =
+                meErr instanceof Error ? meErr.message : 'No se pudo validar la sesión con el servidor.';
+              set((state) => {
+                state.error = msg;
+                state.isLoading = false;
+                state.isAuthenticated = false;
+              });
+              return { success: false, error: msg };
+            }
           } else {
             set((state) => {
               state.error = data.error || 'Login failed';
@@ -313,14 +356,25 @@ export const useAuthStore = create<AuthStore>()(
             state.isLoading = true;
           });
 
-          const { token, user } = storage.getAuthData();
+          const { token } = storage.getAuthData();
 
-          if (token && user) {
-            set((state) => {
-              state.token = token;
-              state.user = user;
-              state.isAuthenticated = true;
-            });
+          if (token) {
+            try {
+              const user = await fetchCurrentUser(token);
+              set((state) => {
+                state.token = token;
+                state.user = user;
+                state.isAuthenticated = true;
+              });
+              storage.setAuthData(token, user);
+            } catch {
+              storage.clearAuthData();
+              set((state) => {
+                state.user = null;
+                state.token = null;
+                state.isAuthenticated = false;
+              });
+            }
           } else {
             set((state) => {
               state.isAuthenticated = false;

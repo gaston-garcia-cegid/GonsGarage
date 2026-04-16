@@ -167,7 +167,7 @@ func main() {
 	authService := auth.NewAuthService(userRepo, jwtSecret, 24)
 	employeeService := employee.NewEmployeeService(employeeRepo, cacheRepo)
 	carService := car.NewCarService(carRepo, userRepo, cacheRepo)
-	appointmentService := appointment.NewAppointmentService(appointmentRepo, userRepo, cacheRepo)
+	appointmentService := appointment.NewAppointmentService(appointmentRepo, userRepo, carRepo)
 
 	log.Printf("Use cases initialized")
 

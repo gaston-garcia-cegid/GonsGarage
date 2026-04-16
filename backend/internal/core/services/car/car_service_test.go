@@ -46,6 +46,7 @@ type carTestCarRepo struct {
 	byPlate map[string]*domain.Car
 	byID    map[uuid.UUID]*domain.Car
 	created []*domain.Car
+	listOut []*domain.Car
 }
 
 func newCarTestCarRepo() *carTestCarRepo {
@@ -81,6 +82,9 @@ func (r *carTestCarRepo) GetByLicensePlate(ctx context.Context, licensePlate str
 }
 
 func (r *carTestCarRepo) List(ctx context.Context, limit, offset int) ([]*domain.Car, error) {
+	if r.listOut != nil {
+		return r.listOut, nil
+	}
 	return nil, nil
 }
 
@@ -151,6 +155,48 @@ func TestCarService_CreateCar_DuplicatePlate(t *testing.T) {
 	}, clientID)
 	require.Error(t, err)
 	assert.ErrorIs(t, err, domain.ErrCarAlreadyExists)
+}
+
+func TestCarService_GetCar_EmployeeCanViewAnyCar(t *testing.T) {
+	t.Parallel()
+	empID := uuid.New()
+	emp, err := domain.NewUser("e@example.com", "pw", "E", "E", domain.RoleEmployee)
+	require.NoError(t, err)
+	emp.ID = empID
+
+	ownerID := uuid.New()
+	carID := uuid.New()
+	owned := &domain.Car{ID: carID, OwnerID: ownerID, Make: "X", Model: "Y", Year: 2020, LicensePlate: "E-1", Color: "Black", Mileage: 0}
+
+	userRepo := &carTestUserRepo{users: map[uuid.UUID]*domain.User{empID: emp}}
+	carRepo := newCarTestCarRepo()
+	carRepo.byID[carID] = owned
+
+	svc := NewCarService(carRepo, userRepo, noopCache{})
+	out, err := svc.GetCar(context.Background(), carID, empID)
+	require.NoError(t, err)
+	require.NotNil(t, out)
+	assert.Equal(t, carID, out.ID)
+}
+
+func TestCarService_ListCars_AdminUsesInventoryList(t *testing.T) {
+	t.Parallel()
+	adminID := uuid.New()
+	admin, err := domain.NewUser("a@example.com", "pw", "A", "D", domain.RoleAdmin)
+	require.NoError(t, err)
+	admin.ID = adminID
+
+	userRepo := &carTestUserRepo{users: map[uuid.UUID]*domain.User{adminID: admin}}
+	carRepo := newCarTestCarRepo()
+	carRepo.listOut = []*domain.Car{
+		{ID: uuid.New(), OwnerID: uuid.New(), Make: "VW", Model: "Golf", Year: 2019, LicensePlate: "L-99", Color: "Red", Mileage: 2},
+	}
+
+	svc := NewCarService(carRepo, userRepo, noopCache{})
+	out, err := svc.ListCars(context.Background(), adminID, nil, 10, 0)
+	require.NoError(t, err)
+	require.Len(t, out, 1)
+	assert.Equal(t, "L-99", out[0].LicensePlate)
 }
 
 func TestCarService_GetCar_ClientOtherOwnerDenied(t *testing.T) {

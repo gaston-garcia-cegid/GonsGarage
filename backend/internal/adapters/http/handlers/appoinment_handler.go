@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +13,17 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 )
+
+func parseAppointmentScheduledAt(raw string) (time.Time, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return time.Time{}, fmt.Errorf("scheduled time required")
+	}
+	if t, err := time.Parse(time.RFC3339, raw); err == nil {
+		return t, nil
+	}
+	return time.Parse("2006-01-02T15:04:05Z07:00", raw)
+}
 
 type AppointmentHandler struct {
 	appointmentService ports.AppointmentService
@@ -64,7 +78,6 @@ type AppointmentResponse struct {
 
 // CreateAppointment handles POST /api/v1/appointments
 func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
-	// Get user from Gin context
 	userIDStr, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
@@ -75,28 +88,39 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
 		return
 	}
-	// Parse request
+
 	var req CreateAppointmentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
-	// Parse campos
-	carID, err := uuid.Parse(req.CarID)
+	carID, err := uuid.Parse(strings.TrimSpace(req.CarID))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car ID"})
 		return
 	}
-	scheduledAt, err := time.Parse("2006-01-02T15:04:05Z07:00", req.ScheduledAt)
+	scheduledAt, err := parseAppointmentScheduledAt(req.ScheduledAt)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid scheduled time format"})
 		return
 	}
 
-	// Convert to domain object
+	customerID := userID
+	roleVal, _ := c.Get("userRole")
+	roleStr, _ := roleVal.(string)
+	if roleStr != "" && roleStr != domain.RoleClient {
+		if strings.TrimSpace(req.CustomerID) != "" {
+			customerID, err = uuid.Parse(strings.TrimSpace(req.CustomerID))
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid customerID"})
+				return
+			}
+		}
+	}
+
 	appointment := &domain.Appointment{
-		CustomerID:  userID,
+		CustomerID:  customerID,
 		CarID:       carID,
 		ScheduledAt: scheduledAt,
 		Status:      domain.AppointmentStatus(req.Status),
@@ -104,7 +128,6 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 		ServiceType: req.ServiceType,
 	}
 
-	// Create appointment
 	createdAppointment, err := h.appointmentService.CreateAppointment(c.Request.Context(), appointment, userID)
 	if err != nil {
 		if err == domain.ErrUnauthorizedAccess {
@@ -119,13 +142,15 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid appointment data"})
 			return
 		}
+		if err == domain.ErrUserNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 
-	// Convert to response
 	response := h.toAppointmentResponse(createdAppointment)
-
 	c.JSON(http.StatusCreated, response)
 }
 
@@ -149,7 +174,6 @@ func (h *AppointmentHandler) GetAppointment(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid appointment ID"})
 		return
 	}
-	// Get appointment
 	appointment, err := h.appointmentService.GetAppointment(c.Request.Context(), appointmentID, userID)
 	if err != nil {
 		if err == domain.ErrAppointmentNotFound {
@@ -158,6 +182,10 @@ func (h *AppointmentHandler) GetAppointment(c *gin.Context) {
 		}
 		if err == domain.ErrUnauthorizedAccess {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+			return
+		}
+		if err == domain.ErrUserNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
@@ -172,32 +200,57 @@ func (h *AppointmentHandler) GetAppointment(c *gin.Context) {
 
 // ListAppointments handles GET /api/v1/appointments
 func (h *AppointmentHandler) ListAppointments(c *gin.Context) {
-	// Get user from Gin context
-	// userIDStr, exists := c.Get("userID")
-	// if !exists {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-	// 	return
-	// }
-	// userID, err := uuid.Parse(userIDStr.(string))
-	// if err != nil {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
-	// 	return
-	// }
-	// Parse query parameters for filters (if any)
-	// For simplicity, we will not implement filters in this example
-	var filters *ports.AppointmentFilters = nil
-	// List appointments
-	appointments, _, err := h.appointmentService.ListAppointments(c.Request.Context(), filters)
+	userIDStr, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	userID, err := uuid.Parse(userIDStr.(string))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user ID"})
+		return
+	}
+
+	filters := &ports.AppointmentFilters{}
+	if cid := c.Query("customerId"); cid != "" {
+		id, perr := uuid.Parse(cid)
+		if perr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid customerId"})
+			return
+		}
+		filters.CustomerID = &id
+	}
+	if carIDStr := c.Query("carId"); carIDStr != "" {
+		id, perr := uuid.Parse(carIDStr)
+		if perr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid carId"})
+			return
+		}
+		filters.CarID = &id
+	}
+	if st := c.Query("status"); st != "" {
+		filters.Status = &st
+	}
+	filters.SortBy = c.DefaultQuery("sortBy", "created_at")
+	filters.SortOrder = c.DefaultQuery("sortOrder", "DESC")
+	filters.Limit, _ = strconv.Atoi(c.DefaultQuery("limit", "10"))
+	filters.Offset, _ = strconv.Atoi(c.DefaultQuery("offset", "0"))
+
+	appointments, _, err := h.appointmentService.ListAppointments(c.Request.Context(), userID, filters)
 	if err != nil {
 		if err == domain.ErrUnauthorizedAccess {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
+		if err == domain.ErrUserNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
-	// Convert to response
-	var responses []AppointmentResponse
+
+	responses := make([]AppointmentResponse, 0, len(appointments))
 	for _, appointment := range appointments {
 		responses = append(responses, h.toAppointmentResponse(appointment))
 	}
@@ -241,30 +294,32 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 	// 	return
 	// }
 
-	scheduledAt, err := time.Parse("2006-01-02T15:04:05Z07:00", req.ScheduledAt)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid scheduled time format"})
-		return
+	patch := &domain.Appointment{ID: appointmentID}
+	if strings.TrimSpace(req.ScheduledAt) != "" {
+		t, perr := parseAppointmentScheduledAt(req.ScheduledAt)
+		if perr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid scheduled time format"})
+			return
+		}
+		patch.ScheduledAt = t
+	}
+	if strings.TrimSpace(req.CarID) != "" {
+		carUUID, perr := uuid.Parse(strings.TrimSpace(req.CarID))
+		if perr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car ID"})
+			return
+		}
+		patch.CarID = carUUID
+	}
+	if req.Status != "" {
+		patch.Status = domain.AppointmentStatus(req.Status)
+	}
+	patch.Notes = req.Notes
+	if req.ServiceType != "" {
+		patch.ServiceType = req.ServiceType
 	}
 
-	carUUID, err := uuid.Parse(req.CarID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car ID"})
-		return
-	}
-
-	appointment := &domain.Appointment{
-		ID:          appointmentID,
-		CustomerID:  userID,
-		CarID:       carUUID,
-		ScheduledAt: scheduledAt,
-		Status:      domain.AppointmentStatus(req.Status),
-		Notes:       req.Notes,
-		ServiceType: req.ServiceType,
-	}
-
-	// Update appointment
-	appointment, err = h.appointmentService.UpdateAppointment(c.Request.Context(), appointment, userID)
+	appointment, err := h.appointmentService.UpdateAppointment(c.Request.Context(), patch, userID)
 	if err != nil {
 		if err == domain.ErrAppointmentNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "appointment not found"})
@@ -272,6 +327,14 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 		}
 		if err == domain.ErrUnauthorizedAccess {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+			return
+		}
+		if err == domain.ErrInvalidAppointmentData {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid appointment data"})
+			return
+		}
+		if err == domain.ErrUserNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})

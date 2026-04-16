@@ -57,22 +57,26 @@ describe('AuthStore', () => {
 
   describe('Login', () => {
     it('should login successfully', async () => {
-      // Mock successful login response
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({
-          token: 'test-token',
-          user: {
-            id: '1',
-            email: 'test@example.com',
-            firstName: 'John',
-            lastName: 'Doe',
-            role: UserRole.CLIENT,
-            createdAt: '2025-01-01T00:00:00Z',
-            updatedAt: '2025-01-01T00:00:00Z',
-          },
-        }),
-      });
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ token: 'test-token' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              user: {
+                id: '1',
+                email: 'test@example.com',
+                firstName: 'John',
+                lastName: 'Doe',
+                role: UserRole.CLIENT,
+                createdAt: '2025-01-01T00:00:00Z',
+                updatedAt: '2025-01-01T00:00:00Z',
+              },
+            }),
+        });
 
       const { result } = renderHook(() => useAuth());
 
@@ -244,7 +248,7 @@ describe('AuthStore', () => {
   });
 
   describe('Auth Status Check', () => {
-    it('should restore auth state from localStorage', async () => {
+    it('should restore auth state from localStorage via auth/me', async () => {
       const mockUser = {
         id: '1',
         email: 'test@example.com',
@@ -255,11 +259,15 @@ describe('AuthStore', () => {
         updatedAt: '2025-01-01T00:00:00Z',
       };
 
-      // Mock localStorage data
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === 'auth_token') return 'stored-token';
-        if (key === 'auth_user') return JSON.stringify(mockUser);
+        if (key === 'auth_user') return null;
         return null;
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ user: mockUser }),
       });
 
       const { result } = renderHook(() => useAuthStore());
@@ -273,12 +281,17 @@ describe('AuthStore', () => {
       expect(result.current.token).toBe('stored-token');
     });
 
-    it('should handle corrupted localStorage data', async () => {
-      // Mock corrupted localStorage data
+    it('should clear session when auth/me rejects the token', async () => {
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === 'auth_token') return 'stored-token';
         if (key === 'auth_user') return 'invalid-json';
         return null;
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        json: () => Promise.resolve({}),
       });
 
       const { result } = renderHook(() => useAuthStore());

@@ -45,6 +45,13 @@ go run ./cmd/api
 - Perfil autenticado: `GET http://localhost:8080/api/v1/auth/me` con cabecera `Authorization: Bearer <token>`
 - Empleados: `GET/POST /api/v1/employees/...` solo para roles **admin** o **manager**
 
+### Coches y citas (roles)
+
+- **GET /api/v1/cars** — si el JWT es **client**, solo devuelve sus coches. Si el rol es **employee**, **manager** o **admin**, admite `?ownerId=<uuid>` (coches de ese cliente) o, sin `ownerId`, lista paginada del taller (`limit` por defecto 50, `offset` 0).
+- **POST /api/v1/cars** — el cliente no envía `ownerID` (el dueño es siempre él). El taller puede enviar **`ownerID`** (UUID del usuario cliente) para registrar un coche a su nombre.
+- **GET /api/v1/appointments** — el cliente solo ve sus citas (el backend fuerza su `customer_id`). El taller puede usar `customerId`, `carId`, `status`, `limit`, `offset`, `sortBy`, `sortOrder`.
+- **POST /api/v1/appointments** — el cliente reserva para sí; el taller puede enviar **`customerID`** (camelCase) para crear la cita en nombre del cliente. El coche debe pertenecer a ese cliente.
+
 ## Frontend
 
 ```powershell

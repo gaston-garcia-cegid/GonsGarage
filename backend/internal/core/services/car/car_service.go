@@ -64,9 +64,9 @@ func (uc *CarService) CreateCar(ctx context.Context, car *domain.Car, requesting
 	// ✅ For clients, ALWAYS set owner to themselves
 	if requestingUser.Role == domain.RoleClient {
 		car.OwnerID = requestingUserID
-	} else if requestingUser.Role == domain.RoleAdmin || requestingUser.Role == domain.RoleEmployee {
+	} else if requestingUser.Role == domain.RoleAdmin || requestingUser.Role == domain.RoleManager || requestingUser.Role == domain.RoleEmployee {
 		if car.OwnerID == uuid.Nil {
-			return nil, fmt.Errorf("owner ID is required for admin/employee")
+			return nil, fmt.Errorf("owner ID is required for staff when creating a car for a client")
 		}
 	} else {
 		return nil, domain.ErrUnauthorizedAccess
@@ -137,8 +137,11 @@ func (uc *CarService) GetCar(ctx context.Context, carID uuid.UUID, requestingUse
 		return nil, domain.ErrCarNotFound
 	}
 
-	// Check permissions: clients can only see their own cars
+	// Clients only see their own cars; workshop staff can open any car record.
 	if requestingUser.IsClient() && !car.IsOwnedBy(requestingUserID) {
+		return nil, domain.ErrUnauthorizedAccess
+	}
+	if !requestingUser.IsClient() && !requestingUser.IsEmployee() {
 		return nil, domain.ErrUnauthorizedAccess
 	}
 
@@ -153,13 +156,12 @@ func (uc *CarService) GetCarsByOwner(ctx context.Context, ownerID uuid.UUID, req
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	// Check permissions: clients can only see their own cars
 	if requestingUser.IsClient() && ownerID != requestingUserID {
 		return nil, domain.ErrUnauthorizedAccess
 	}
 
-	// Admins and managers can see any user's cars
-	if !requestingUser.IsClient() && !requestingUser.CanManageUsers() {
+	// Workshop roles (employee / manager / admin) can list any client's garage.
+	if !requestingUser.IsClient() && !requestingUser.IsEmployee() {
 		return nil, domain.ErrUnauthorizedAccess
 	}
 
@@ -170,6 +172,44 @@ func (uc *CarService) GetCarsByOwner(ctx context.Context, ownerID uuid.UUID, req
 	}
 
 	return cars, nil
+}
+
+// ListCars lists cars for a client (always their own) or for staff (optional owner filter or paginated inventory).
+func (uc *CarService) ListCars(ctx context.Context, requestingUserID uuid.UUID, ownerID *uuid.UUID, limit, offset int) ([]*domain.Car, error) {
+	requestingUser, err := uc.userRepo.GetByID(ctx, requestingUserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+	if requestingUser == nil {
+		return nil, domain.ErrUserNotFound
+	}
+
+	if requestingUser.IsClient() {
+		if ownerID != nil && *ownerID != requestingUserID {
+			return nil, domain.ErrUnauthorizedAccess
+		}
+		return uc.carRepo.GetByOwnerID(ctx, requestingUserID)
+	}
+
+	if !requestingUser.IsEmployee() {
+		return nil, domain.ErrUnauthorizedAccess
+	}
+
+	if ownerID != nil {
+		return uc.carRepo.GetByOwnerID(ctx, *ownerID)
+	}
+
+	if limit <= 0 {
+		limit = 50
+	}
+	if limit > 200 {
+		limit = 200
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	return uc.carRepo.List(ctx, limit, offset)
 }
 
 // UpdateCar updates an existing car
@@ -265,8 +305,11 @@ func (uc *CarService) GetCarWithRepairs(ctx context.Context, carID uuid.UUID, re
 		return nil, domain.ErrCarNotFound
 	}
 
-	// Check permissions: clients can only see their own cars
+	// Clients only see their own cars; workshop staff can open any car record.
 	if requestingUser.IsClient() && !car.IsOwnedBy(requestingUserID) {
+		return nil, domain.ErrUnauthorizedAccess
+	}
+	if !requestingUser.IsClient() && !requestingUser.IsEmployee() {
 		return nil, domain.ErrUnauthorizedAccess
 	}
 

@@ -73,11 +73,11 @@ func (s *stubApptRepo) Create(ctx context.Context, a *domain.Appointment) error 
 
 func (s *stubApptRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Appointment, error) {
 	if s.byID == nil {
-		return nil, nil
+		return nil, domain.ErrAppointmentNotFound
 	}
 	a, ok := s.byID[id]
 	if !ok {
-		return nil, nil
+		return nil, domain.ErrAppointmentNotFound
 	}
 	return a, nil
 }
@@ -98,19 +98,43 @@ func (s *stubApptRepo) List(ctx context.Context, filters *ports.AppointmentFilte
 	return s.listApps, s.listTotal, nil
 }
 
-type noopCache struct{}
+type stubCarRepo struct {
+	byID map[uuid.UUID]*domain.Car
+}
 
-func (noopCache) Get(ctx context.Context, key string, dest interface{}) error { return nil }
-
-func (noopCache) Set(ctx context.Context, key string, value interface{}, ttl int) error { return nil }
-
-func (noopCache) Delete(ctx context.Context, key string) error { return nil }
+func (s *stubCarRepo) Create(ctx context.Context, car *domain.Car) error { return nil }
+func (s *stubCarRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Car, error) {
+	if s.byID == nil {
+		return nil, domain.ErrCarNotFound
+	}
+	c, ok := s.byID[id]
+	if !ok {
+		return nil, domain.ErrCarNotFound
+	}
+	return c, nil
+}
+func (s *stubCarRepo) GetByOwnerID(ctx context.Context, ownerID uuid.UUID) ([]*domain.Car, error) {
+	return nil, nil
+}
+func (s *stubCarRepo) GetByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error) {
+	return nil, nil
+}
+func (s *stubCarRepo) List(ctx context.Context, limit, offset int) ([]*domain.Car, error) { return nil, nil }
+func (s *stubCarRepo) Update(ctx context.Context, car *domain.Car) error { return nil }
+func (s *stubCarRepo) Delete(ctx context.Context, id uuid.UUID) error { return nil }
+func (s *stubCarRepo) GetWithRepairs(ctx context.Context, id uuid.UUID) (*domain.Car, error) {
+	return nil, nil
+}
+func (s *stubCarRepo) GetDeletedByLicensePlate(ctx context.Context, licensePlate string) (*domain.Car, error) {
+	return nil, nil
+}
+func (s *stubCarRepo) Restore(ctx context.Context, id uuid.UUID) error { return nil }
 
 func TestAppointmentService_CreateAppointment_UserNotFound(t *testing.T) {
 	t.Parallel()
 	userID := uuid.New()
-	svc := NewAppointmentService(&stubApptRepo{}, &apptTestUserRepo{users: map[uuid.UUID]*domain.User{}}, noopCache{})
-	appt := sampleAppointment(userID)
+	svc := NewAppointmentService(&stubApptRepo{}, &apptTestUserRepo{users: map[uuid.UUID]*domain.User{}}, &stubCarRepo{})
+	appt := sampleAppointment(userID, uuid.New())
 
 	out, err := svc.CreateAppointment(context.Background(), appt, userID)
 	require.ErrorIs(t, err, domain.ErrUserNotFound)
@@ -124,9 +148,9 @@ func TestAppointmentService_CreateAppointment_GetUserError(t *testing.T) {
 	svc := NewAppointmentService(
 		&stubApptRepo{},
 		&apptTestUserRepo{getErr: repoErr},
-		noopCache{},
+		&stubCarRepo{},
 	)
-	appt := sampleAppointment(userID)
+	appt := sampleAppointment(userID, uuid.New())
 
 	out, err := svc.CreateAppointment(context.Background(), appt, userID)
 	require.Error(t, err)
@@ -137,18 +161,22 @@ func TestAppointmentService_CreateAppointment_GetUserError(t *testing.T) {
 func TestAppointmentService_CreateAppointment_Success(t *testing.T) {
 	t.Parallel()
 	userID := uuid.New()
+	carID := uuid.New()
 	user, err := domain.NewUser("u@example.com", "pw", "U", "Ser", domain.RoleClient)
 	require.NoError(t, err)
 	user.ID = userID
 
 	apptRepo := &stubApptRepo{}
+	cars := &stubCarRepo{byID: map[uuid.UUID]*domain.Car{
+		carID: {ID: carID, OwnerID: userID},
+	}}
 	svc := NewAppointmentService(
 		apptRepo,
 		&apptTestUserRepo{users: map[uuid.UUID]*domain.User{userID: user}},
-		noopCache{},
+		cars,
 	)
-	in := sampleAppointment(userID)
-	in.ID = uuid.Nil // service assigns new ID
+	in := sampleAppointment(userID, carID)
+	in.ID = uuid.Nil
 
 	out, err := svc.CreateAppointment(context.Background(), in, userID)
 	require.NoError(t, err)
@@ -163,32 +191,40 @@ func TestAppointmentService_CreateAppointment_Success(t *testing.T) {
 func TestAppointmentService_CreateAppointment_RepoError(t *testing.T) {
 	t.Parallel()
 	userID := uuid.New()
+	carID := uuid.New()
 	user, err := domain.NewUser("u@example.com", "pw", "U", "Ser", domain.RoleClient)
 	require.NoError(t, err)
 	user.ID = userID
 
 	createErr := errors.New("insert failed")
+	cars := &stubCarRepo{byID: map[uuid.UUID]*domain.Car{carID: {ID: carID, OwnerID: userID}}}
 	svc := NewAppointmentService(
 		&stubApptRepo{createErr: createErr},
 		&apptTestUserRepo{users: map[uuid.UUID]*domain.User{userID: user}},
-		noopCache{},
+		cars,
 	)
 
-	out, err := svc.CreateAppointment(context.Background(), sampleAppointment(userID), userID)
+	out, err := svc.CreateAppointment(context.Background(), sampleAppointment(userID, carID), userID)
 	require.ErrorIs(t, err, createErr)
 	assert.Nil(t, out)
 }
 
 func TestAppointmentService_ListAppointments_DefaultFilters(t *testing.T) {
 	t.Parallel()
-	apptRepo := &stubApptRepo{listApps: []*domain.Appointment{}, listTotal: 0}
-	svc := NewAppointmentService(apptRepo, &apptTestUserRepo{}, noopCache{})
+	userID := uuid.New()
+	user, err := domain.NewUser("c@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	user.ID = userID
 
-	apps, total, err := svc.ListAppointments(context.Background(), nil)
+	apptRepo := &stubApptRepo{listApps: []*domain.Appointment{}, listTotal: 0}
+	svc := NewAppointmentService(apptRepo, &apptTestUserRepo{users: map[uuid.UUID]*domain.User{userID: user}}, &stubCarRepo{})
+
+	apps, total, err := svc.ListAppointments(context.Background(), userID, nil)
 	require.NoError(t, err)
 	assert.Empty(t, apps)
 	assert.Equal(t, int64(0), total)
 	require.NotNil(t, apptRepo.lastList)
+	assert.Equal(t, userID, *apptRepo.lastList.CustomerID)
 	assert.Equal(t, 10, apptRepo.lastList.Limit)
 	assert.Equal(t, 0, apptRepo.lastList.Offset)
 	assert.Equal(t, "created_at", apptRepo.lastList.SortBy)
@@ -197,13 +233,19 @@ func TestAppointmentService_ListAppointments_DefaultFilters(t *testing.T) {
 
 func TestAppointmentService_ListAppointments_FillsEmptySortAndLimit(t *testing.T) {
 	t.Parallel()
+	userID := uuid.New()
+	user, err := domain.NewUser("c@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	user.ID = userID
+
 	apptRepo := &stubApptRepo{}
-	svc := NewAppointmentService(apptRepo, &apptTestUserRepo{}, noopCache{})
+	svc := NewAppointmentService(apptRepo, &apptTestUserRepo{users: map[uuid.UUID]*domain.User{userID: user}}, &stubCarRepo{})
 
 	f := &ports.AppointmentFilters{Limit: 0, SortBy: "", SortOrder: ""}
-	_, _, err := svc.ListAppointments(context.Background(), f)
+	_, _, err = svc.ListAppointments(context.Background(), userID, f)
 	require.NoError(t, err)
 	require.NotNil(t, apptRepo.lastList)
+	assert.Equal(t, userID, *apptRepo.lastList.CustomerID)
 	assert.Equal(t, 10, apptRepo.lastList.Limit)
 	assert.Equal(t, "created_at", apptRepo.lastList.SortBy)
 	assert.Equal(t, "DESC", apptRepo.lastList.SortOrder)
@@ -212,47 +254,91 @@ func TestAppointmentService_ListAppointments_FillsEmptySortAndLimit(t *testing.T
 func TestAppointmentService_GetAppointment(t *testing.T) {
 	t.Parallel()
 	id := uuid.New()
-	expected := &domain.Appointment{ID: id, ServiceType: "oil"}
+	userID := uuid.New()
+	user, err := domain.NewUser("c@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	user.ID = userID
+
+	expected := &domain.Appointment{ID: id, CustomerID: userID, ServiceType: "oil"}
 	svc := NewAppointmentService(
 		&stubApptRepo{byID: map[uuid.UUID]*domain.Appointment{id: expected}},
-		&apptTestUserRepo{},
-		noopCache{},
+		&apptTestUserRepo{users: map[uuid.UUID]*domain.User{userID: user}},
+		&stubCarRepo{},
 	)
 
-	out, err := svc.GetAppointment(context.Background(), id, uuid.New())
+	out, err := svc.GetAppointment(context.Background(), id, userID)
 	require.NoError(t, err)
 	assert.Equal(t, expected, out)
 }
 
 func TestAppointmentService_UpdateAppointment_RepoError(t *testing.T) {
 	t.Parallel()
-	updErr := errors.New("update failed")
-	svc := NewAppointmentService(&stubApptRepo{updateErr: updErr}, &apptTestUserRepo{}, noopCache{})
-	appt := &domain.Appointment{ID: uuid.New()}
+	apptID := uuid.New()
+	userID := uuid.New()
+	user, err := domain.NewUser("c@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	user.ID = userID
 
-	out, err := svc.UpdateAppointment(context.Background(), appt, uuid.New())
+	existing := &domain.Appointment{
+		ID:          apptID,
+		CustomerID:  userID,
+		CarID:       uuid.New(),
+		Status:      domain.AppointmentStatusScheduled,
+		ServiceType: "svc",
+		ScheduledAt: time.Now().UTC(),
+	}
+	updErr := errors.New("update failed")
+	svc := NewAppointmentService(
+		&stubApptRepo{byID: map[uuid.UUID]*domain.Appointment{apptID: existing}, updateErr: updErr},
+		&apptTestUserRepo{users: map[uuid.UUID]*domain.User{userID: user}},
+		&stubCarRepo{},
+	)
+	patch := &domain.Appointment{ID: apptID, Notes: "n"}
+
+	out, err := svc.UpdateAppointment(context.Background(), patch, userID)
 	require.ErrorIs(t, err, updErr)
 	assert.Nil(t, out)
 }
 
 func TestAppointmentService_DeleteAppointment(t *testing.T) {
 	t.Parallel()
-	svc := NewAppointmentService(&stubApptRepo{}, &apptTestUserRepo{}, noopCache{})
-	err := svc.DeleteAppointment(context.Background(), uuid.New(), uuid.New())
+	apptID := uuid.New()
+	userID := uuid.New()
+	user, err := domain.NewUser("c@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	user.ID = userID
+	existing := &domain.Appointment{ID: apptID, CustomerID: userID}
+
+	svc := NewAppointmentService(
+		&stubApptRepo{byID: map[uuid.UUID]*domain.Appointment{apptID: existing}},
+		&apptTestUserRepo{users: map[uuid.UUID]*domain.User{userID: user}},
+		&stubCarRepo{},
+	)
+	err = svc.DeleteAppointment(context.Background(), apptID, userID)
 	require.NoError(t, err)
 }
 
 func TestAppointmentService_DeleteAppointment_RepoError(t *testing.T) {
 	t.Parallel()
-	delErr := errors.New("delete failed")
-	svc := NewAppointmentService(&stubApptRepo{deleteErr: delErr}, &apptTestUserRepo{}, noopCache{})
+	apptID := uuid.New()
+	userID := uuid.New()
+	user, err := domain.NewUser("c@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	user.ID = userID
+	existing := &domain.Appointment{ID: apptID, CustomerID: userID}
 
-	err := svc.DeleteAppointment(context.Background(), uuid.New(), uuid.New())
+	delErr := errors.New("delete failed")
+	svc := NewAppointmentService(
+		&stubApptRepo{byID: map[uuid.UUID]*domain.Appointment{apptID: existing}, deleteErr: delErr},
+		&apptTestUserRepo{users: map[uuid.UUID]*domain.User{userID: user}},
+		&stubCarRepo{},
+	)
+
+	err = svc.DeleteAppointment(context.Background(), apptID, userID)
 	require.ErrorIs(t, err, delErr)
 }
 
-func sampleAppointment(customerID uuid.UUID) *domain.Appointment {
-	carID := uuid.New()
+func sampleAppointment(customerID, carID uuid.UUID) *domain.Appointment {
 	return &domain.Appointment{
 		CustomerID:  customerID,
 		CarID:       carID,

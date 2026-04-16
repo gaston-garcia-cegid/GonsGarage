@@ -112,6 +112,9 @@ type CarService interface {
 	// GetCarsByOwner retrieves all cars for a specific owner with authorization
 	GetCarsByOwner(ctx context.Context, ownerID uuid.UUID, requestingUserID uuid.UUID) ([]*domain.Car, error)
 
+	// ListCars returns the caller's cars (client) or workshop inventory (staff): optional owner filter and pagination when listing all.
+	ListCars(ctx context.Context, requestingUserID uuid.UUID, ownerID *uuid.UUID, limit, offset int) ([]*domain.Car, error)
+
 	// UpdateCar modifies an existing car with authorization checks
 	UpdateCar(ctx context.Context, car *domain.Car, requestingUserID uuid.UUID) (*domain.Car, error)
 
@@ -133,5 +136,5 @@ type AppointmentService interface {
 	// DeleteAppointment removes an appointment with authorization checks
 	DeleteAppointment(ctx context.Context, appointmentID uuid.UUID, requestingUserID uuid.UUID) error
 	// ListAppointments lists appointments with optional filters and authorization checks
-	ListAppointments(ctx context.Context, filters *AppointmentFilters) ([]*domain.Appointment, int64, error)
+	ListAppointments(ctx context.Context, requestingUserID uuid.UUID, filters *AppointmentFilters) ([]*domain.Appointment, int64, error)
 }

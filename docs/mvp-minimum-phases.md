@@ -10,7 +10,7 @@ Objetivo del MVP: **un taller puede registrar usuarios, clientes con coches, ped
 
 **Criterio de salida:** `main` con CI verde; README y `docs/development-guide.md` reflejan **pnpm** y **`go run ./cmd/api`**.
 
-## Fase B — Identidad y datos coherentes
+## Fase B — Identidad y datos coherentes (cerrada)
 
 - Roles claros (`client` / `employee` / `admin` / `manager`) y comprobaciones en API alineadas con la UI.
 - Flujo **register + login + JWT** estable end-to-end.
@@ -21,7 +21,9 @@ Objetivo del MVP: **un taller puede registrar usuarios, clientes con coches, ped
 - [x] `GET /api/v1/auth/me` (JWT) — perfil del usuario autenticado; JSON **camelCase** en registro y en `me`.
 - [x] Registro público: rol por defecto **`client`** si no se envía `role`; conflicto con `409` usando `ErrUserAlreadyExists`.
 - [x] Rutas **`/employees/*`** restringidas a **admin** y **manager** (`RequireStaffManagers`).
-- [ ] Revisar el mismo criterio de roles en citas / coches si el negocio lo exige (hoy la lógica vive sobre todo en servicios de dominio).
+- [x] **Coches:** cliente solo su flota; personal (`employee` / `manager` / `admin`) puede **listar inventario** (`GET /cars?limit=&offset=&ownerId=`) y **crear coche para un cliente** (`ownerID` en el body si no es `client`). Lectura de cualquier coche para staff en servicio de dominio.
+- [x] **Citas:** listado acotado a **customer_id** del cliente; staff ve/filtra con query params; creación valida que el **coche pertenezca al cliente** de la cita; actualización conserva `customer_id` y admite `scheduledAt` opcional (RFC3339).
+- [x] **Frontend:** `UserRole.manager`, `canManageUsers` alineado con backend; **login** y **checkAuthStatus** validan sesión con **`/auth/me`**.
 
 **Criterio de salida:** demo en local: cliente crea coche y cita; empleado/admin lista y actualiza estados básicos.
 

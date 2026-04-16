@@ -2,7 +2,9 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
@@ -74,13 +76,23 @@ func (r *postgresAppointmentRepository) toDomainAppointment(model *AppointmentMo
 		ScheduledAt: model.ScheduledTime,
 		Notes:       model.Notes,
 		Status:      domain.AppointmentStatus(model.Status),
+		ServiceType: model.ServiceType,
+		CreatedAt:   model.CreatedAt,
+		UpdatedAt:   model.UpdatedAt,
+		DeletedAt:   model.DeletedAt,
 	}
 }
 
 // GetByID retrieves an appointment by its ID
 func (r *postgresAppointmentRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Appointment, error) {
 	var model AppointmentModel
-	if err := r.db.WithContext(ctx).First(&model, "id = ?", id).Error; err != nil {
+	err := r.db.WithContext(ctx).
+		Where("id = ? AND deleted_at IS NULL", id).
+		First(&model).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, domain.ErrAppointmentNotFound
+		}
 		return nil, fmt.Errorf("failed to get appointment: %w", err)
 	}
 	return r.toDomainAppointment(&model), nil
@@ -105,32 +117,65 @@ func (r *postgresAppointmentRepository) Delete(ctx context.Context, id uuid.UUID
 
 // List retrieves appointments with optional filters
 func (r *postgresAppointmentRepository) List(ctx context.Context, filters *ports.AppointmentFilters) ([]*domain.Appointment, int64, error) {
-	var models []AppointmentModel
-	query := r.db.WithContext(ctx).Model(&AppointmentModel{})
+	buildQuery := func() *gorm.DB {
+		q := r.db.WithContext(ctx).Model(&AppointmentModel{}).Where("deleted_at IS NULL")
+		if filters == nil {
+			return q
+		}
+		if filters.CustomerID != nil {
+			q = q.Where("customer_id = ?", *filters.CustomerID)
+		}
+		if filters.CarID != nil {
+			q = q.Where("car_id = ?", *filters.CarID)
+		}
+		if filters.Status != nil && *filters.Status != "" {
+			q = q.Where("status = ?", *filters.Status)
+		}
+		return q
+	}
+
 	var total int64
-
-	// Apply filters
-	if filters.CustomerID != nil {
-		query = query.Where("customer_id = ?", *filters.CustomerID)
-	}
-	if filters.EmployeeID != nil {
-		query = query.Where("employee_id = ?", *filters.EmployeeID)
-	}
-	if filters.CarID != nil {
-		query = query.Where("car_id = ?", *filters.CarID)
-	}
-
-	if err := query.Count(&total).Error; err != nil {
+	if err := buildQuery().Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to count appointments: %w", err)
 	}
 
-	if err := query.Find(&models).Error; err != nil {
+	orderCol := "created_at"
+	if filters != nil && filters.SortBy != "" {
+		switch filters.SortBy {
+		case "scheduled_at":
+			orderCol = "scheduled_at"
+		case "created_at":
+			orderCol = "created_at"
+		default:
+			orderCol = "created_at"
+		}
+	}
+	dir := "DESC"
+	if filters != nil && strings.ToUpper(filters.SortOrder) == "ASC" {
+		dir = "ASC"
+	}
+
+	limit := 10
+	offset := 0
+	if filters != nil {
+		if filters.Limit > 0 {
+			limit = filters.Limit
+		}
+		offset = filters.Offset
+	}
+
+	var models []AppointmentModel
+	if err := buildQuery().
+		Order(orderCol + " " + dir).
+		Limit(limit).
+		Offset(offset).
+		Find(&models).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to list appointments: %w", err)
 	}
 
-	var appointments []*domain.Appointment
-	for _, model := range models {
-		appointments = append(appointments, r.toDomainAppointment(&model))
+	appointments := make([]*domain.Appointment, 0, len(models))
+	for i := range models {
+		appointments = append(appointments, r.toDomainAppointment(&models[i]))
 	}
 	return appointments, total, nil
 }

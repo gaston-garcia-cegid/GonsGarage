@@ -2,6 +2,7 @@ package appointment
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -12,29 +13,41 @@ import (
 )
 
 type AppointmentService struct {
-	repo      ports.AppointmentRepository
-	userRepo  ports.UserRepository
-	cacheRepo ports.CacheRepository
+	repo     ports.AppointmentRepository
+	userRepo ports.UserRepository
+	carRepo  ports.CarRepository
 }
 
+// NewAppointmentService wires appointment persistence, users, and cars (car ownership is validated on create/update).
 func NewAppointmentService(
 	repo ports.AppointmentRepository,
 	userRepo ports.UserRepository,
-	cacheRepo ports.CacheRepository) *AppointmentService {
+	carRepo ports.CarRepository,
+) *AppointmentService {
 	return &AppointmentService{
-		repo:      repo,
-		userRepo:  userRepo,
-		cacheRepo: cacheRepo,
+		repo:     repo,
+		userRepo: userRepo,
+		carRepo:  carRepo,
 	}
 }
 
-// CreateAppointment creates a new appointment
+func canAccessAppointment(u *domain.User, appt *domain.Appointment, requestingUserID uuid.UUID) bool {
+	if u == nil || appt == nil {
+		return false
+	}
+	if u.IsClient() {
+		return appt.CustomerID == requestingUserID
+	}
+	return u.IsEmployee()
+}
+
+// CreateAppointment creates a new appointment (client: own cars only; staff: on behalf of customerID).
 func (s *AppointmentService) CreateAppointment(
 	ctx context.Context,
 	appointment *domain.Appointment,
-	requestingUserID uuid.UUID) (*domain.Appointment, error) {
-
-	queryCtx, cancel := context.WithTimeout(ctx, 10*time.Second) // ✅ Increase timeout
+	requestingUserID uuid.UUID,
+) (*domain.Appointment, error) {
+	queryCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	requestingUser, err := s.userRepo.GetByID(queryCtx, requestingUserID)
@@ -42,29 +55,45 @@ func (s *AppointmentService) CreateAppointment(
 		log.Printf("failed to get requesting user: userID=%s, error=%v", requestingUserID, err)
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
-
 	if requestingUser == nil {
-		log.Printf("user not found: userID=%s", requestingUserID)
 		return nil, domain.ErrUserNotFound
 	}
 
-	// ✅ Set metadata
+	customerID := appointment.CustomerID
+	if requestingUser.IsClient() {
+		customerID = requestingUserID
+	} else if !requestingUser.IsEmployee() {
+		return nil, domain.ErrUnauthorizedAccess
+	} else if customerID == uuid.Nil {
+		return nil, domain.ErrInvalidAppointmentData
+	}
+
+	car, err := s.carRepo.GetByID(queryCtx, appointment.CarID)
+	if err != nil {
+		if errors.Is(err, domain.ErrCarNotFound) {
+			return nil, domain.ErrInvalidAppointmentData
+		}
+		return nil, fmt.Errorf("failed to get car: %w", err)
+	}
+	if car == nil {
+		return nil, domain.ErrInvalidAppointmentData
+	}
+	if car.OwnerID != customerID {
+		return nil, domain.ErrUnauthorizedAccess
+	}
+
+	appointment.CustomerID = customerID
+	if appointment.Status == "" {
+		appointment.Status = domain.AppointmentStatusScheduled
+	}
+	if !domain.ValidateAppointmentStatus(appointment.Status) {
+		return nil, domain.ErrInvalidAppointmentData
+	}
+
 	appointment.ID = uuid.New()
 	appointment.CreatedAt = time.Now()
 	appointment.UpdatedAt = time.Now()
 
-	// Get the requesting user to check permissions
-	// requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// Check if the user has permission to create appointments
-	// if !requestingUser.HasPermission(domain.PermissionCreateAppointment) {
-	// 	return nil, domain.ErrPermissionDenied
-	// }
-
-	// Create the appointment
 	if err := s.repo.Create(ctx, appointment); err != nil {
 		return nil, err
 	}
@@ -72,83 +101,113 @@ func (s *AppointmentService) CreateAppointment(
 	return appointment, nil
 }
 
-// UpdateAppointment updates an existing appointment
+// UpdateAppointment updates an existing appointment; clients may only change their own rows.
 func (s *AppointmentService) UpdateAppointment(ctx context.Context, appointment *domain.Appointment, requestingUserID uuid.UUID) (*domain.Appointment, error) {
-	// Get the requesting user to check permissions
-	// requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// // Check if the user has permission to update appointments
-	// if !requestingUser.HasPermission(domain.PermissionUpdateAppointment) {
-	// 	return nil, domain.ErrPermissionDenied
-	// }
-
-	// Update the appointment
-	if err := s.repo.Update(ctx, appointment); err != nil {
-		return nil, err
+	requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+	if requestingUser == nil {
+		return nil, domain.ErrUserNotFound
 	}
 
-	return appointment, nil
+	existing, err := s.repo.GetByID(ctx, appointment.ID)
+	if err != nil {
+		if errors.Is(err, domain.ErrAppointmentNotFound) {
+			return nil, domain.ErrAppointmentNotFound
+		}
+		return nil, err
+	}
+	if existing == nil {
+		return nil, domain.ErrAppointmentNotFound
+	}
+
+	if !canAccessAppointment(requestingUser, existing, requestingUserID) {
+		return nil, domain.ErrUnauthorizedAccess
+	}
+
+	merged := *existing
+	if appointment.CarID != uuid.Nil {
+		car, err := s.carRepo.GetByID(ctx, appointment.CarID)
+		if err != nil {
+			if errors.Is(err, domain.ErrCarNotFound) {
+				return nil, domain.ErrInvalidAppointmentData
+			}
+			return nil, fmt.Errorf("failed to get car: %w", err)
+		}
+		if car == nil || car.OwnerID != merged.CustomerID {
+			return nil, domain.ErrInvalidAppointmentData
+		}
+		merged.CarID = appointment.CarID
+	}
+	if !appointment.ScheduledAt.IsZero() {
+		merged.ScheduledAt = appointment.ScheduledAt
+	}
+	if appointment.Status != "" {
+		if !domain.ValidateAppointmentStatus(appointment.Status) {
+			return nil, domain.ErrInvalidAppointmentData
+		}
+		merged.Status = appointment.Status
+	}
+	merged.Notes = appointment.Notes
+	if appointment.ServiceType != "" {
+		merged.ServiceType = appointment.ServiceType
+	}
+	merged.UpdatedAt = time.Now()
+
+	if err := s.repo.Update(ctx, &merged); err != nil {
+		return nil, err
+	}
+	return &merged, nil
 }
 
-// CancelAppointment cancels an existing appointment
-// func (s *AppointmentService) CancelAppointment(ctx context.Context, appointmentID uuid.UUID, requestingUserID uuid.UUID) error {
-// 	// Get the requesting user to check permissions
-// 	// requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-// 	// if err != nil {
-// 	// 	return err
-// 	// }
-
-// 	// // Check if the user has permission to cancel appointments
-// 	// if !requestingUser.HasPermission(domain.PermissionCancelAppointment) {
-// 	// 	return domain.ErrPermissionDenied
-// 	// }
-
-// 	// Cancel the appointment
-// 	err = s.repo.Cancel(ctx, appointmentID)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// GetAppointment retrieves an appointment by ID
+// GetAppointment retrieves an appointment by ID with authorization.
 func (s *AppointmentService) GetAppointment(ctx context.Context, appointmentID uuid.UUID, requestingUserID uuid.UUID) (*domain.Appointment, error) {
-	// Get the requesting user to check permissions
-	// requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+	if requestingUser == nil {
+		return nil, domain.ErrUserNotFound
+	}
 
-	// // Check if the user has permission to view appointments
-	// if !requestingUser.HasPermission(domain.PermissionViewAppointment) {
-	// 	return nil, domain.ErrPermissionDenied
-	// }
-
-	// Get the appointment
 	appointment, err := s.repo.GetByID(ctx, appointmentID)
 	if err != nil {
+		if errors.Is(err, domain.ErrAppointmentNotFound) {
+			return nil, domain.ErrAppointmentNotFound
+		}
 		return nil, err
+	}
+	if appointment == nil {
+		return nil, domain.ErrAppointmentNotFound
+	}
+
+	if !canAccessAppointment(requestingUser, appointment, requestingUserID) {
+		return nil, domain.ErrUnauthorizedAccess
 	}
 
 	return appointment, nil
 }
 
-// ListAppointments lists appointments with optional filters
-func (s *AppointmentService) ListAppointments(ctx context.Context, filters *ports.AppointmentFilters) ([]*domain.Appointment, int64, error) {
-	// Get the requesting user to check permissions
-	// requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	// if err != nil {
-	// 	return nil, 0, err
-	// }
+// ListAppointments lists appointments: clients are scoped to their customer_id; staff may filter.
+func (s *AppointmentService) ListAppointments(ctx context.Context, requestingUserID uuid.UUID, filters *ports.AppointmentFilters) ([]*domain.Appointment, int64, error) {
+	requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get user: %w", err)
+	}
+	if requestingUser == nil {
+		return nil, 0, domain.ErrUserNotFound
+	}
 
-	// // Check if the user has permission to view appointments
-	// if !requestingUser.HasPermission(domain.PermissionViewAppointment) {
-	// 	return nil, 0, domain.ErrPermissionDenied
-	// }
+	if requestingUser.IsClient() {
+		cid := requestingUserID
+		if filters == nil {
+			filters = &ports.AppointmentFilters{}
+		}
+		filters.CustomerID = &cid
+	} else if !requestingUser.IsEmployee() {
+		return nil, 0, domain.ErrUnauthorizedAccess
+	}
 
 	if filters == nil {
 		filters = &ports.AppointmentFilters{
@@ -171,7 +230,6 @@ func (s *AppointmentService) ListAppointments(ctx context.Context, filters *port
 		filters.SortOrder = "DESC"
 	}
 
-	// List the appointments
 	appointments, total, err := s.repo.List(ctx, filters)
 	if err != nil {
 		return nil, 0, err
@@ -180,23 +238,30 @@ func (s *AppointmentService) ListAppointments(ctx context.Context, filters *port
 	return appointments, total, nil
 }
 
-// DeleteAppointment deletes an appointment by ID
+// DeleteAppointment deletes an appointment by ID with authorization.
 func (s *AppointmentService) DeleteAppointment(ctx context.Context, appointmentID uuid.UUID, requestingUserID uuid.UUID) error {
-	// Get the requesting user to check permissions
-	// requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// // Check if the user has permission to delete appointments
-	// if !requestingUser.HasPermission(domain.PermissionDeleteAppointment) {
-	// 	return domain.ErrPermissionDenied
-	// }
-
-	// Delete the appointment
-	if err := s.repo.Delete(ctx, appointmentID); err != nil {
-		return err
+	requestingUser, err := s.userRepo.GetByID(ctx, requestingUserID)
+	if err != nil {
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+	if requestingUser == nil {
+		return domain.ErrUserNotFound
 	}
 
-	return nil
+	appt, err := s.repo.GetByID(ctx, appointmentID)
+	if err != nil {
+		if errors.Is(err, domain.ErrAppointmentNotFound) {
+			return domain.ErrAppointmentNotFound
+		}
+		return err
+	}
+	if appt == nil {
+		return domain.ErrAppointmentNotFound
+	}
+
+	if !canAccessAppointment(requestingUser, appt, requestingUserID) {
+		return domain.ErrUnauthorizedAccess
+	}
+
+	return s.repo.Delete(ctx, appointmentID)
 }

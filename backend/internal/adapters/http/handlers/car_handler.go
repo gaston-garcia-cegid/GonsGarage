@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -29,6 +30,8 @@ type CreateCarRequest struct {
 	VIN          string `json:"vin"`
 	Color        string `json:"color"`
 	Mileage      int    `json:"mileage"`
+	// OwnerID optional: solo personal del taller (admin/manager/employee) asigna el cliente dueño.
+	OwnerID string `json:"ownerID"`
 }
 
 // UpdateCarRequest represents the request payload for updating a car
@@ -79,9 +82,20 @@ func (h *CarHandler) CreateCar(c *gin.Context) {
 		return
 	}
 
-	// ✅ Convert to domain object WITH OwnerID
+	ownerID := userID
+	if roleVal, ok := c.Get("userRole"); ok {
+		if roleStr, ok := roleVal.(string); ok && roleStr != domain.RoleClient && req.OwnerID != "" {
+			parsed, perr := uuid.Parse(req.OwnerID)
+			if perr != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ownerID"})
+				return
+			}
+			ownerID = parsed
+		}
+	}
+
 	car := &domain.Car{
-		OwnerID:      userID, // ✅ Set from authenticated user
+		OwnerID:      ownerID,
 		Make:         req.Make,
 		Model:        req.Model,
 		Year:         req.Year,
@@ -171,9 +185,27 @@ func (h *CarHandler) ListCars(c *gin.Context) {
 		return
 	}
 
-	// For clients, list their own cars
-	// For admins/managers, this could list all cars with pagination
-	cars, err := h.carService.GetCarsByOwner(c.Request.Context(), userID, userID)
+	var cars []*domain.Car
+	if roleVal, ok := c.Get("userRole"); ok {
+		if roleStr, ok := roleVal.(string); ok && roleStr != domain.RoleClient {
+			var ownerFilter *uuid.UUID
+			if oid := c.Query("ownerId"); oid != "" {
+				parsed, perr := uuid.Parse(oid)
+				if perr != nil {
+					c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ownerId"})
+					return
+				}
+				ownerFilter = &parsed
+			}
+			limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+			offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+			cars, err = h.carService.ListCars(c.Request.Context(), userID, ownerFilter, limit, offset)
+		} else {
+			cars, err = h.carService.GetCarsByOwner(c.Request.Context(), userID, userID)
+		}
+	} else {
+		cars, err = h.carService.GetCarsByOwner(c.Request.Context(), userID, userID)
+	}
 	if err != nil {
 		if err == domain.ErrUnauthorizedAccess {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})

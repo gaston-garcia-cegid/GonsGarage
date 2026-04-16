@@ -47,9 +47,10 @@ export interface UserQueryParams {
 
 // Helper functions for role checking (Agent.md pattern)
 export const isClient = (user: User): boolean => user.role === UserRole.CLIENT;
-export const isEmployee = (user: User): boolean => user.role === UserRole.EMPLOYEE;  
+export const isEmployee = (user: User): boolean => user.role === UserRole.EMPLOYEE;
 export const isAdmin = (user: User): boolean => user.role === UserRole.ADMIN;
-export const canManageUsers = (user: User): boolean => user.role === UserRole.ADMIN;
+export const canManageUsers = (user: User): boolean =>
+  user.role === UserRole.ADMIN || user.role === UserRole.MANAGER;
 
 // Profile management for any user type
 export interface UserProfile {
