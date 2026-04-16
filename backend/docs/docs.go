@@ -1296,6 +1296,34 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/ready": {
+            "get": {
+                "description": "PostgreSQL accesible (sin autenticación; usar en probes de despliegue).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Comprobación de readiness",
+                "responses": {
+                    "200": {
+                        "description": "status, checks",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "503": {
+                        "description": "not_ready",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1816,7 +1844,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "BearerAuth": {
-            "description": "JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health).",
+            "description": "JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health y /ready).",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -1826,7 +1854,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "1.0.0",
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},

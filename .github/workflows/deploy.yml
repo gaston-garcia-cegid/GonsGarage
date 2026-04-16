@@ -26,17 +26,17 @@ jobs:
       - name: Up (build)
         run: docker compose -f docker-compose.smoke.yml up -d --build
 
-      - name: Wait for /health
+      - name: Wait for /health and /ready
         run: |
           set -e
           for i in $(seq 1 60); do
-            if curl -sf http://localhost:8080/health; then
-              echo "health OK"
+            if curl -sf http://localhost:8080/health && curl -sf http://localhost:8080/ready; then
+              echo "health + ready OK"
               exit 0
             fi
             sleep 2
           done
-          echo "::error::healthcheck timeout"
+          echo "::error::health/readiness timeout"
           docker compose -f docker-compose.smoke.yml logs
           exit 1
 

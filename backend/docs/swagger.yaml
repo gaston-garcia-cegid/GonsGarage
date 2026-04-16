@@ -351,7 +351,7 @@ info:
   description: 'API de gestión de taller: autenticación JWT, coches, citas, reparaciones
     y empleados.'
   title: GonsGarage API
-  version: "1.0"
+  version: 1.0.0
 paths:
   /api/v1/appointments:
     get:
@@ -1169,10 +1169,29 @@ paths:
       summary: Comprobación de salud
       tags:
       - system
+  /ready:
+    get:
+      description: PostgreSQL accesible (sin autenticación; usar en probes de despliegue).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: status, checks
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: not_ready
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Comprobación de readiness
+      tags:
+      - system
 securityDefinitions:
   BearerAuth:
     description: 'JWT: cabecera Authorization con valor Bearer seguido del token (rutas
-      bajo /api/v1 salvo /health).'
+      bajo /api/v1 salvo /health y /ready).'
     in: header
     name: Authorization
     type: apiKey

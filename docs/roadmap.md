@@ -46,10 +46,11 @@ Ajustar según lo que marque la matriz Arnela vs GonsGarage. Candidatos típicos
 
 - [x] Pipeline CI: `.github/workflows/ci.yml` (Go + vet + test con CGO; pnpm install + lint + typecheck + test + build frontend con `NEXT_STANDALONE` en Linux).
 - [x] Workflow deploy: `.github/workflows/deploy.yml` — smoke Docker Compose + `/health`, push opcional a GHCR (`push_ghcr`); ver [deployment-staging.md](./deployment-staging.md).
-- [ ] Política de versionado de API y changelog.
+- [x] Política de versionado de API y changelog: [docs/api/versioning.md](./api/versioning.md) y [CHANGELOG.md](../CHANGELOG.md) en la raíz; `apiVersion` en `GET /health`.
 - [x] Plantilla de PR en [.github/pull_request_template.md](../.github/pull_request_template.md).
-- [ ] Plantillas de issues (alinear con el proceso del equipo / Arnela si aplica).
-- [ ] Observabilidad: logs estructurados, health agregado, métricas (si aplica).
+- [x] Plantillas de issues: [.github/ISSUE_TEMPLATE/](../.github/ISSUE_TEMPLATE/) (`bug_report`, `feature_request`).
+- [x] Observabilidad mínima: `GET /health` (liveness + `apiVersion`) y `GET /ready` (readiness Postgres).
+- [ ] Observabilidad ampliada: logs estructurados, métricas (Prometheus/OpenTelemetry, etc.).
 
 ## Fase 5 — Producción y seguridad
 

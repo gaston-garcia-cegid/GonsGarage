@@ -35,15 +35,18 @@ import (
 	_ "github.com/gaston-garcia-cegid/gonsgarage/docs" // swagger (swag)
 )
 
+// apiVersion es la versión de contrato público documentada en CHANGELOG.md y en GET /health.
+const apiVersion = "1.0.0"
+
 // @title           GonsGarage API
-// @version         1.0
+// @version         1.0.0
 // @description     API de gestión de taller: autenticación JWT, coches, citas, reparaciones y empleados.
 // @host            localhost:8080
 // @BasePath        /
 // @securityDefinitions.apikey BearerAuth
 // @in              header
 // @name            Authorization
-// @description     JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health).
+// @description     JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health y /ready).
 func main() {
 	log.Printf("/*************** Start Main ***************/")
 
@@ -209,7 +212,7 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Setup routes
-	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, repairHandler, authMiddleware)
+	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, repairHandler, authMiddleware, db)
 
 	log.Printf("Routes set up")
 
@@ -332,13 +335,36 @@ func setupRoutes(
 	appointmentHandler *handlers.AppointmentHandler,
 	repairHandler *handlers.RepairHandler,
 	authMiddleware *middleware.AuthMiddleware,
+	db *gorm.DB,
 ) {
-	// Health check
+	// Liveness: proceso arriba (orquestadores suelen usar este endpoint).
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status":  "ok",
-			"message": "GonsGarage API is running",
+		c.JSON(http.StatusOK, gin.H{
+			"status":     "ok",
+			"message":    "GonsGarage API is running",
+			"apiVersion": apiVersion,
 		})
+	})
+
+	// Readiness: dependencias críticas (PostgreSQL).
+	router.GET("/ready", func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(c.Request.Context(), 2*time.Second)
+		defer cancel()
+
+		sqlDB, err := db.DB()
+		if err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "not_ready", "checks": gin.H{"database": "unavailable"}})
+			return
+		}
+		if err := sqlDB.PingContext(ctx); err != nil {
+			if gin.Mode() == gin.ReleaseMode {
+				c.JSON(http.StatusServiceUnavailable, gin.H{"status": "not_ready", "checks": gin.H{"database": "unavailable"}})
+			} else {
+				c.JSON(http.StatusServiceUnavailable, gin.H{"status": "not_ready", "checks": gin.H{"database": err.Error()}})
+			}
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"status": "ready", "checks": gin.H{"database": "ok"}})
 	})
 
 	// API v1 routes

@@ -18,3 +18,4 @@
 - [ ] Backend: `go test ./...` y `go vet ./...` (desde `backend/`)
 - [ ] Frontend: `pnpm lint`, `pnpm typecheck`, `pnpm test` (desde `frontend/`) si toca UI o cliente
 - [ ] OpenAPI: `swag@v1.8.12` regenerado si cambiaron anotaciones de handlers
+- [ ] Si cambia el contrato HTTP público: actualizar [CHANGELOG.md](../CHANGELOG.md) y `apiVersion` en `cmd/api/main.go` si aplica (ver [docs/api/versioning.md](../docs/api/versioning.md))

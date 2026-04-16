@@ -4,7 +4,7 @@
         "description": "API de gestión de taller: autenticación JWT, coches, citas, reparaciones y empleados.",
         "title": "GonsGarage API",
         "contact": {},
-        "version": "1.0"
+        "version": "1.0.0"
     },
     "host": "localhost:8080",
     "basePath": "/",
@@ -1289,6 +1289,34 @@
                     }
                 }
             }
+        },
+        "/ready": {
+            "get": {
+                "description": "PostgreSQL accesible (sin autenticación; usar en probes de despliegue).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Comprobación de readiness",
+                "responses": {
+                    "200": {
+                        "description": "status, checks",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "503": {
+                        "description": "not_ready",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1809,7 +1837,7 @@
     },
     "securityDefinitions": {
         "BearerAuth": {
-            "description": "JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health).",
+            "description": "JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health y /ready).",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

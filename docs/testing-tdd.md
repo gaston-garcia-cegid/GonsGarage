@@ -25,4 +25,4 @@ Algunas pruebas de página legacy (`__tests__/app/appointments/page.test.tsx`, `
 
 El workflow `.github/workflows/ci.yml` ejecuta `go test`, `pnpm lint`, `pnpm typecheck`, `pnpm test` y `pnpm build`. Debe permanecer verde en `main`.
 
-El workflow **`.github/workflows/deploy.yml`** (manual `workflow_dispatch`) construye la stack de **smoke** (`docker-compose.smoke.yml`), comprueba `GET /health` y opcionalmente publica la imagen del API en GHCR.
+El workflow **`.github/workflows/deploy.yml`** (manual `workflow_dispatch`) construye la stack de **smoke** (`docker-compose.smoke.yml`), comprueba `GET /health` y `GET /ready`, y opcionalmente publica la imagen del API en GHCR.

@@ -16,6 +16,13 @@ Objetivo: **secretos fuera del repositorio**, artefactos **Docker** reproducible
 
 El middleware en `cmd/api/main.go` solo envía `Access-Control-Allow-Origin` si el `Origin` del navegador coincide con una entrada de `CORS_ALLOWED_ORIGINS`. Fuera de `release` el comportamiento sigue siendo permisivo para desarrollo local.
 
+### Probes HTTP
+
+| Ruta | Uso |
+| ---- | --- |
+| `GET /health` | **Liveness**: el proceso responde; incluye `apiVersion` (contrato público, ver [CHANGELOG.md](../CHANGELOG.md)). |
+| `GET /ready` | **Readiness**: `Ping` a PostgreSQL; `503` si la BD no responde (Kubernetes `readinessProbe`, balanceadores, etc.). |
+
 Copia `deploy/.env.production.example` a **`.env` en la raíz del repo** (o al path que pases con `docker compose --env-file`) y rellena valores reales. **No subas `.env` a git.**
 
 ## TLS (HTTPS)

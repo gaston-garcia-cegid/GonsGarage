@@ -42,7 +42,8 @@ go run ./cmd/api
 
 - API: `http://localhost:8080` (o `SERVER_PORT`)
 - Swagger: `http://localhost:8080/swagger/index.html`
-- Health: `http://localhost:8080/health`
+- Health (liveness): `http://localhost:8080/health` — incluye `apiVersion` (ver [CHANGELOG.md](../CHANGELOG.md) y [docs/api/versioning.md](./api/versioning.md)).
+- Ready (readiness / Postgres): `http://localhost:8080/ready`
 - Perfil autenticado: `GET http://localhost:8080/api/v1/auth/me` con cabecera `Authorization: Bearer <token>`
 - Empleados: `GET/POST /api/v1/employees/...` solo para roles **admin** o **manager**
 

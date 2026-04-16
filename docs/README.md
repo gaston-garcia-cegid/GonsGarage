@@ -11,6 +11,9 @@
 | [roadmap.md](./roadmap.md) | Roadmap para documentación, configuración y alineación con el enfoque Arnela (cuando existan specs). |
 | [testing-tdd.md](./testing-tdd.md) | TDD obligatorio, backend/frontend, CI y exclusiones Jest documentadas. |
 | [mvp-minimum-phases.md](./mvp-minimum-phases.md) | Fases mínimas sugeridas para un primer MVP. |
+| [api/versioning.md](./api/versioning.md) | Versionado del contrato HTTP (`/api/v1`, `apiVersion`, CHANGELOG). |
+| [deployment-staging.md](./deployment-staging.md) | Docker compose prod/smoke, secretos, CORS, probes `/health` y `/ready`, backup. |
+| [../CHANGELOG.md](../CHANGELOG.md) | Cambios notables del contrato y del producto (Keep a Changelog). |
 
 ## Documentación ya existente en el repo
 
