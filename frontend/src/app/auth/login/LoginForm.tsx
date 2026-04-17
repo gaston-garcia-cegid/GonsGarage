@@ -64,6 +64,11 @@ export default function LoginForm() {
       
       if (!result.success) {
         setErrors({ general: result.error || 'Login failed' });
+      } else {
+        // Client navigation keeps the in-memory Zustand state. A full reload
+        // (`window.location`) races with `persist` rehydration and the dashboard
+        // can redirect back to /auth/login before `user` is restored.
+        router.replace('/dashboard');
       }
     } catch {
       setErrors({ general: 'An unexpected error occurred' });

@@ -4,12 +4,14 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useCars, useAppointments, UserRole } from '@/stores';
 import { Repair } from '@/lib/api';
+import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import styles from './dashboard.module.css';
 
 export default function ClientDashboardPage() {
   const [recentRepairs] = useState<Repair[]>([]); // TODO: setRecentRepairs will be used when repair store is ready
 
   const { user, logout } = useAuth();
+  const authHydrated = useAuthHydrationReady();
   const { cars, isLoading: carsLoading, error: carsError, fetchCars } = useCars();
   const { appointments, isLoading: appointmentsLoading, error: appointmentsError, fetchAppointments } = useAppointments();
   const router = useRouter();
@@ -26,15 +28,16 @@ export default function ClientDashboardPage() {
   const isClientRole = user?.role === UserRole.CLIENT;
 
   useEffect(() => {
+    if (!authHydrated) return;
     if (!user) {
-      router.push('/auth/login');
+      router.replace('/auth/login');
       return;
     }
     fetchCars();
     fetchAppointments();
-  }, [user, router, fetchCars, fetchAppointments]);
+  }, [authHydrated, user, router, fetchCars, fetchAppointments]);
 
-  if (!user) {
+  if (!authHydrated || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>

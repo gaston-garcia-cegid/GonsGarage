@@ -41,12 +41,6 @@ type AuthStore = AuthState & AuthActions;
 // ✅ API configuration per Agent.md
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
-// Post-login: single dashboard for every role (MVP); staff/client UIs can split later.
-const redirectAfterLogin = (_userData: User) => {
-  if (typeof window === 'undefined') return;
-  window.location.href = '/dashboard';
-};
-
 function mapMeUser(raw: Record<string, unknown>): User {
   const u = raw as Record<string, unknown>;
   const idVal = u.id;
@@ -220,10 +214,6 @@ export const useAuthStore = create<AuthStore>()(
               });
 
               storage.setAuthData(data.token, userData);
-
-              setTimeout(() => {
-                redirectAfterLogin(userData);
-              }, 100);
 
               return { success: true };
             } catch (meErr) {
