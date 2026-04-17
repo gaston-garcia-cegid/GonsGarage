@@ -34,15 +34,15 @@ export default function LoginForm() {
     const newErrors: { [key: string]: string } = {};
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'O e-mail é obrigatório';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'E-mail inválido';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'A palavra-passe é obrigatória';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = 'A palavra-passe deve ter pelo menos 6 caracteres';
     }
 
     setErrors(newErrors);
@@ -63,7 +63,7 @@ export default function LoginForm() {
       const result = await login(formData.email, formData.password);
       
       if (!result.success) {
-        setErrors({ general: result.error || 'Login failed' });
+        setErrors({ general: result.error || 'Falha no início de sessão' });
       } else {
         // Client navigation keeps the in-memory Zustand state. A full reload
         // (`window.location`) races with `persist` rehydration and the dashboard
@@ -71,7 +71,7 @@ export default function LoginForm() {
         router.replace('/dashboard');
       }
     } catch {
-      setErrors({ general: 'An unexpected error occurred' });
+      setErrors({ general: 'Ocorreu um erro inesperado' });
     } finally {
       setIsLoading(false);
     }
@@ -145,7 +145,7 @@ export default function LoginForm() {
             fontSize: '0.875rem',
             color: 'var(--color-gray-600)',
           }}>
-            Sign in to your account
+            Inicie sessão na sua conta
           </p>
         </div>
 
@@ -198,7 +198,7 @@ export default function LoginForm() {
                   marginBottom: 'var(--space-1)',
                 }}
               >
-                Email address
+                E-mail
               </label>
               <input
                 id="email"
@@ -225,7 +225,7 @@ export default function LoginForm() {
                   e.target.style.borderColor = errors.email ? '#fca5a5' : 'var(--color-gray-300)';
                   e.target.style.boxShadow = 'none';
                 }}
-                placeholder="Enter your email"
+                placeholder="O seu e-mail"
               />
               {errors.email && (
                 <p style={{
@@ -247,7 +247,7 @@ export default function LoginForm() {
                   marginBottom: 'var(--space-1)',
                 }}
               >
-                Password
+                Palavra-passe
               </label>
               <div style={{ position: 'relative' }}>
                 <input
@@ -276,7 +276,7 @@ export default function LoginForm() {
                     e.target.style.borderColor = errors.password ? '#fca5a5' : 'var(--color-gray-300)';
                     e.target.style.boxShadow = 'none';
                   }}
-                  placeholder="Enter your password"
+                  placeholder="A sua palavra-passe"
                 />
                 <button
                   type="button"
@@ -368,10 +368,10 @@ export default function LoginForm() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Signing in...
+                  A iniciar sessão…
                 </>
               ) : (
-                'Sign in'
+                'Iniciar sessão'
               )}
             </button>
 
@@ -387,7 +387,7 @@ export default function LoginForm() {
                   borderRadius: 'var(--radius)',
                   marginBottom: 'var(--space-2)',
               }}>
-                Don&apos;t have an account?{' '}
+                Ainda não tem conta?{' '}
                 <button
                   type="button"
                   onClick={() => router.push('/auth/register')}
@@ -401,7 +401,7 @@ export default function LoginForm() {
                     fontWeight: '500',
                   }}
                 >
-                  Create one here
+                  Criar conta
                 </button>
               </p>
               <p style={{
@@ -411,7 +411,7 @@ export default function LoginForm() {
                   padding: 'var(--space-2)',
                   borderRadius: 'var(--radius)',
               }}>
-                Demo credentials: admin@gonsgarage.com / admin123
+                Conta de demonstração: admin@gonsgarage.com / admin123
               </p>
             </div>
           </form>

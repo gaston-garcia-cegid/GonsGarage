@@ -1,12 +1,12 @@
 .container {
   min-height: 100vh;
-  background-color: var(--color-gray-50);
+  background-color: var(--surface-page);
 }
 
 .header {
-  background-color: white;
+  background-color: var(--surface-header);
   box-shadow: var(--shadow-sm);
-  border-bottom: 1px solid var(--color-gray-200);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .headerContent {
@@ -16,7 +16,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 64px;
+  min-height: 64px;
+  gap: var(--space-4);
 }
 
 .logoSection {
@@ -38,33 +39,38 @@
 }
 
 .logoIcon {
-  width: 32px;
-  height: 32px;
-  background-color: var(--color-primary);
-  border-radius: var(--radius);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--text-on-primary);
   overflow: hidden;
   flex-shrink: 0;
+  background: linear-gradient(145deg, var(--brand-navy) 0%, var(--color-primary) 100%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.12) inset;
 }
 
 .logoIcon svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 .logoSection h1 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  color: var(--color-gray-900);
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .logoSection p {
-  font-size: 0.75rem;
-  color: var(--color-gray-600);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -72,49 +78,58 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  flex-shrink: 0;
 }
 
 .userSection span {
-  font-size: 0.875rem;
-  color: var(--color-gray-700);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .logoutButton {
-  background-color: #dc2626;
-  color: white;
+  background-color: var(--brand-signal);
+  color: var(--text-on-signal);
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius);
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .logoutButton:hover {
   background-color: #b91c1c;
 }
 
+.logoutButton:active {
+  transform: scale(0.98);
+}
+
 .navigation {
-  background-color: white;
-  border-bottom: 1px solid var(--color-gray-200);
+  background-color: var(--surface-header);
+  border-bottom: 1px solid var(--border-default);
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--space-4);
   display: flex;
-  gap: var(--space-6);
+  gap: var(--space-2);
 }
 
 .navButton {
-  padding: var(--space-3) 0;
+  padding: var(--space-3) var(--space-2);
   background: none;
   border: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-gray-600);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: all var(--transition-fast);
+  transition: color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .navButton:hover {
@@ -142,8 +157,9 @@
 }
 
 .pageToolbar h1 {
-  font-size: 1.5rem;
+  font-size: 1.375rem;
   font-weight: 700;
-  color: var(--color-gray-900);
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
   margin: 0;
 }

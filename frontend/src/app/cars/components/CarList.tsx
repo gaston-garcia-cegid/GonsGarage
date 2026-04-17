@@ -24,8 +24,8 @@ export default function CarList({
     return (
       <div className={styles.emptyState}>
         <div className={styles.emptyIcon}>🚗</div>
-        <h3>No cars registered yet</h3>
-        <p>Add your first car to get started with our services</p>
+        <h3>Ainda sem automóveis registados</h3>
+        <p>Adicione o primeiro automóvel para começar a usar os nossos serviços</p>
       </div>
     );
   }

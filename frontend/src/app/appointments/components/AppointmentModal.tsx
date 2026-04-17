@@ -77,17 +77,17 @@ export default function AppointmentModal({
 
     // Validation
     if (!formData.carId) {
-      setError('Please select a car');
+      setError('Selecione um automóvel');
       return;
     }
 
     if (!formData.service) {
-      setError('Please select a service');
+      setError('Selecione um serviço');
       return;
     }
 
     if (!formData.date || !formData.time) {
-      setError('Please select date and time');
+      setError('Selecione data e hora');
       return;
     }
     if (!isWeekdayLocalYmd(formData.date)) {
@@ -95,13 +95,13 @@ export default function AppointmentModal({
       return;
     }
     if (bookableSlots.length === 0) {
-      setError('No hay horarios disponibles para ese día.');
+      setError('Não há horários disponíveis para esse dia.');
       return;
     }
     const scheduledLocal = combineLocalDateAndSlot(formData.date, formData.time);
     const scheduledDate = new Date(scheduledLocal);
     if (Number.isNaN(scheduledDate.getTime()) || scheduledDate <= new Date()) {
-      setError('El turno tiene que ser en el futuro');
+      setError('A marcação tem de ser no futuro');
       return;
     }
     if (!isWithinWorkshopHours(scheduledDate)) {
@@ -113,7 +113,7 @@ export default function AppointmentModal({
 
     try {
       const appointmentData: CreateAppointmentRequest = {
-        clientName: selectedCar ? `${selectedCar.make} ${selectedCar.model}` : 'Unknown',
+        clientName: selectedCar ? `${selectedCar.make} ${selectedCar.model}` : 'Desconhecido',
         carId: formData.carId,
         service: formData.service,
         date: scheduledLocal,
@@ -143,11 +143,11 @@ export default function AppointmentModal({
       if (success) {
         onClose();
       } else {
-        setError('Failed to save appointment. Please try again.');
+        setError('Não foi possível guardar a marcação. Tente novamente.');
       }
     } catch (err) {
       console.error('Error saving appointment:', err);
-      setError('An error occurred. Please try again.');
+      setError('Ocorreu um erro. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -169,12 +169,12 @@ export default function AppointmentModal({
       >
         {/* Header */}
         <div className={styles.modalHeader}>
-          <h3 id="appointment-modal-title">{appointment ? 'Edit Appointment' : 'Schedule Appointment'}</h3>
+          <h3 id="appointment-modal-title">{appointment ? 'Editar marcação' : 'Marcar visita'}</h3>
           <button
             type="button"
             onClick={onClose}
             className={styles.closeButton}
-            aria-label="Close modal"
+            aria-label="Fechar"
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -198,7 +198,7 @@ export default function AppointmentModal({
 
             {/* Car Selection */}
             <div className={styles.section}>
-              <h3>Select Vehicle</h3>
+              <h3>Selecionar viatura</h3>
               {selectedCar ? (
                 <div className={styles.selectedCarInfo}>
                   <div className={styles.carIcon}>🚗</div>
@@ -212,7 +212,7 @@ export default function AppointmentModal({
                       onClick={() => setFormData(prev => ({ ...prev, carId: '' }))}
                       className={styles.changeCarButton}
                     >
-                      Change
+                      Alterar
                     </button>
                   )}
                 </div>
@@ -225,7 +225,7 @@ export default function AppointmentModal({
                     required
                     disabled={isLoading}
                   >
-                    <option value="">Select a car...</option>
+                    <option value="">Selecione um automóvel…</option>
                     {cars.map(car => (
                       <option key={car.id} value={car.id}>
                         {car.year} {car.make} {car.model} - {car.licensePlate}
@@ -238,7 +238,7 @@ export default function AppointmentModal({
 
             {/* Service Selection */}
             <div className={styles.section}>
-              <h3>Select Service</h3>
+              <h3>Selecionar serviço</h3>
               <div className={styles.serviceGrid}>
                 {SERVICE_TYPES.map(service => (
                   <label key={service.id} className={styles.serviceOption}>
@@ -261,13 +261,13 @@ export default function AppointmentModal({
 
             {/* Date & Time */}
             <div className={styles.section}>
-              <h3>Select Date & Time</h3>
+              <h3>Data e hora</h3>
               <p className={styles.helpText}>
-                Mon–Fri, every 30 minutes: 9:30–12:30 and 14:00–17:30 (24-hour display).
+                Segunda a sexta, de 30 em 30 minutos: 9:30–12:30 e 14:00–17:30 (formato 24 h).
               </p>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label htmlFor="date">Date *</label>
+                  <label htmlFor="date">Dia *</label>
                   <input
                     id="date"
                     name="date"
@@ -280,7 +280,7 @@ export default function AppointmentModal({
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label htmlFor="time">Time *</label>
+                  <label htmlFor="time">Hora *</label>
                   <select
                     id="time"
                     name="time"
@@ -291,10 +291,10 @@ export default function AppointmentModal({
                   >
                     <option value="">
                       {!formData.date
-                        ? 'Pick a date first…'
+                        ? 'Escolha primeiro um dia…'
                         : bookableSlots.length === 0
-                          ? 'No slots that day'
-                          : 'Select time…'}
+                          ? 'Sem horários nesse dia'
+                          : 'Escolha a hora…'}
                     </option>
                     {bookableSlots.map((hhmm) => (
                       <option key={hhmm} value={hhmm}>
@@ -308,13 +308,13 @@ export default function AppointmentModal({
 
             {/* Notes */}
             <div className={styles.section}>
-              <h3>Additional Notes (Optional)</h3>
+              <h3>Notas adicionais (opcional)</h3>
               <div className={styles.formGroup}>
                 <textarea
                   name="notes"
                   value={formData.notes}
                   onChange={handleChange}
-                  placeholder="Any specific concerns or requests..."
+                  placeholder="Observações ou pedidos específicos…"
                   rows={3}
                   disabled={isLoading}
                 />
@@ -324,24 +324,24 @@ export default function AppointmentModal({
             {/* Summary */}
             {formData.carId && formData.service && formData.date && formData.time && (
               <div className={styles.appointmentSummary}>
-                <h3>Appointment Summary</h3>
+                <h3>Resumo da marcação</h3>
                 <div className={styles.summaryGrid}>
                   <div className={styles.summaryItem}>
-                    <span className={styles.summaryLabel}>Vehicle:</span>
+                    <span className={styles.summaryLabel}>Viatura:</span>
                     <span className={styles.summaryValue}>
                       {selectedCar && `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}`}
                     </span>
                   </div>
                   <div className={styles.summaryItem}>
-                    <span className={styles.summaryLabel}>Service:</span>
+                    <span className={styles.summaryLabel}>Serviço:</span>
                     <span className={styles.summaryValue}>
                       {SERVICE_TYPES.find(s => s.id === formData.service)?.name}
                     </span>
                   </div>
                   <div className={styles.summaryItem}>
-                    <span className={styles.summaryLabel}>Date:</span>
+                    <span className={styles.summaryLabel}>Dia:</span>
                     <span className={styles.summaryValue}>
-                      {new Date(formData.date).toLocaleDateString('en-US', {
+                      {new Date(formData.date).toLocaleDateString('pt-PT', {
                         weekday: 'short',
                         year: 'numeric',
                         month: 'short',
@@ -350,7 +350,7 @@ export default function AppointmentModal({
                     </span>
                   </div>
                   <div className={styles.summaryItem}>
-                    <span className={styles.summaryLabel}>Time:</span>
+                    <span className={styles.summaryLabel}>Hora:</span>
                     <span className={styles.summaryValue}>{formatSlotLabel24h(formData.time)}</span>
                   </div>
                 </div>
@@ -366,7 +366,7 @@ export default function AppointmentModal({
               className={styles.modalCancelButton}
               disabled={isLoading}
             >
-              Cancel
+              Cancelar
             </button>
             <button
               type="submit"
@@ -374,10 +374,10 @@ export default function AppointmentModal({
               disabled={isLoading}
             >
               {isLoading
-                ? 'Saving...'
+                ? 'A guardar…'
                 : appointment
-                ? 'Update Appointment'
-                : 'Schedule Appointment'}
+                ? 'Atualizar marcação'
+                : 'Confirmar marcação'}
             </button>
           </div>
         </form>

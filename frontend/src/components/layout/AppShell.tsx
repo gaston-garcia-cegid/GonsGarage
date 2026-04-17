@@ -25,7 +25,7 @@ export default function AppShell({
   user,
   subtitle,
   activeNav,
-  carsNavLabel = 'My Cars',
+  carsNavLabel = 'Os meus automóveis',
   onLogout,
   children,
   logoVariant = 'svg',
@@ -41,7 +41,7 @@ export default function AppShell({
             type="button"
             className={styles.logoSection}
             onClick={() => router.push('/')}
-            aria-label="Go to home"
+            aria-label="Ir para a página inicial"
           >
             <div className={styles.logoIcon}>
               {logoVariant === 'branded' ? (
@@ -70,22 +70,22 @@ export default function AppShell({
           </button>
           <div className={styles.userSection}>
             <span>
-              Welcome, {user.firstName} {user.lastName}
+              Olá, {user.firstName} {user.lastName}
             </span>
             <button type="button" onClick={onLogout} className={styles.logoutButton}>
-              Logout
+              Terminar sessão
             </button>
           </div>
         </div>
       </header>
 
-      <nav className={styles.navigation} aria-label="Main">
+      <nav className={styles.navigation} aria-label="Principal">
         <button
           type="button"
           onClick={() => router.push('/dashboard')}
           className={`${styles.navButton} ${activeNav === 'dashboard' ? styles.active : ''}`}
         >
-          Dashboard
+          Painel
         </button>
         <button
           type="button"
@@ -99,7 +99,7 @@ export default function AppShell({
           onClick={() => router.push('/appointments')}
           className={`${styles.navButton} ${activeNav === 'appointments' ? styles.active : ''}`}
         >
-          Appointments
+          Marcações
         </button>
       </nav>
 

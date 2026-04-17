@@ -10,14 +10,10 @@ export default function LandingPage() {
   const { isAuthenticated, user, isLoading } = useAuth();
   const router = useRouter();
 
-  // Só redireciona se o usuário ESTIVER autenticado
   useEffect(() => {
-    console.log('Landing page - Auth state:', { isLoading, isAuthenticated, userRole: user?.role });
-  
     if (!isLoading && isAuthenticated && user) {
       router.push('/dashboard');
     }
-    // REMOVIDO: router.push('/auth/login') para usuários não autenticados
   }, [isAuthenticated, user, isLoading, router]);
 
   const handleLogin = () => {
@@ -31,97 +27,93 @@ export default function LandingPage() {
   const services = [
     {
       icon: '🔧',
-      title: 'General Maintenance',
-      description: 'Regular maintenance to keep your car running smoothly',
-      price: 'From $89'
+      title: 'Manutenção geral',
+      description: 'Revisões periódicas para manter o seu automóvel em segurança e bom estado.',
+      price: 'Desde 89 €',
     },
     {
       icon: '🛞',
-      title: 'Tire Services',
-      description: 'Tire rotation, alignment, and replacement services',
-      price: 'From $45'
+      title: 'Pneus e geometria',
+      description: 'Rotação, alinhamento, equilíbrio e substituição de pneus.',
+      price: 'Desde 45 €',
     },
     {
       icon: '🔋',
-      title: 'Battery Service',
-      description: 'Battery testing, maintenance, and replacement',
-      price: 'From $120'
+      title: 'Bateria',
+      description: 'Teste, manutenção e substituição de baterias.',
+      price: 'Desde 120 €',
     },
     {
       icon: '❄️',
-      title: 'Air Conditioning',
-      description: 'A/C repair, maintenance, and refrigerant refill',
-      price: 'From $150'
+      title: 'Climatização',
+      description: 'Reparação, manutenção e recarga de gás do sistema A/C.',
+      price: 'Desde 150 €',
     },
     {
       icon: '🚗',
-      title: 'Engine Diagnostic',
-      description: 'Complete engine analysis and troubleshooting',
-      price: 'From $95'
+      title: 'Diagnóstico de motor',
+      description: 'Análise completa e localização de avarias.',
+      price: 'Desde 95 €',
     },
     {
       icon: '🛡️',
-      title: 'Brake Service',
-      description: 'Brake pads, rotors, and complete brake system service',
-      price: 'From $180'
-    }
+      title: 'Travões',
+      description: 'Pastilhas, discos e revisão integral do sistema de travagem.',
+      price: 'Desde 180 €',
+    },
   ];
 
   const features = [
     {
       icon: '👨‍🔧',
-      title: 'Expert Technicians',
-      description: 'Certified mechanics with years of experience'
+      title: 'Técnicos experientes',
+      description: 'Mecânicos qualificados com experiência em oficina.',
     },
     {
       icon: '⚡',
-      title: 'Quick Service',
-      description: 'Fast and efficient repairs to get you back on the road'
+      title: 'Serviço ágil',
+      description: 'Reparações eficientes para voltar à estrada o mais depressa possível.',
     },
     {
       icon: '💰',
-      title: 'Fair Pricing',
-      description: 'Transparent pricing with no hidden fees'
+      title: 'Preços transparentes',
+      description: 'Orçamentos claros, sem surpresas na fatura.',
     },
     {
       icon: '🛡️',
-      title: 'Quality Guarantee',
-      description: '90-day warranty on all our services'
-    }
+      title: 'Garantia de qualidade',
+      description: 'Garantia de 90 dias nos nossos serviços.',
+    },
   ];
 
-  // Mostra loading apenas enquanto está verificando autenticação
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="loadingScreen">
+        <div className="spinnerLg" aria-hidden />
       </div>
     );
   }
 
-  // Se o usuário estiver autenticado, não mostra a landing page (vai redirecionar)
   if (isAuthenticated && user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>Redirecting to your dashboard...</p>
+      <div className="loadingScreen">
+        <div className="loadingScreenInner">
+          <div className="spinnerLg" aria-hidden />
+          <p>A redirecionar para o painel…</p>
         </div>
       </div>
     );
   }
 
-  // Mostra a landing page apenas para usuários NÃO autenticados
   return (
     <div className={styles.container}>
-      {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.logoSection} onClick={() => router.push('/')}>
             <div className={styles.logo}>
               <Image
-                src="/images/LogoGonsGarage.jpg" // ou .jpg/.jpeg dependendo da extensão
-                alt="GonsGarage Logo"
+                src="/images/LogoGonsGarage.jpg"
+                alt="Logótipo GonsGarage"
                 width={32}
                 height={32}
                 style={{ objectFit: 'contain' }}
@@ -129,88 +121,90 @@ export default function LandingPage() {
             </div>
             <div className={styles.logoText}>
               <h1>GonsGarage</h1>
-              <p>Professional Auto Repair</p>
+              <p>Oficina mecânica profissional</p>
             </div>
           </div>
-          
-          <nav className={styles.navigation}>
-            <a href="#services" className={styles.navLink}>Services</a>
-            <a href="#about" className={styles.navLink}>About</a>
-            <a href="#contact" className={styles.navLink}>Contact</a>
+
+          <nav className={styles.navigation} aria-label="Secções">
+            <a href="#services" className={styles.navLink}>
+              Serviços
+            </a>
+            <a href="#about" className={styles.navLink}>
+              Sobre
+            </a>
+            <a href="#contact" className={styles.navLink}>
+              Contacto
+            </a>
           </nav>
 
           <div className={styles.authButtons}>
-            <button onClick={handleLogin} className={styles.loginButton}>
-              Login
+            <button type="button" onClick={handleLogin} className={styles.loginButton}>
+              Iniciar sessão
             </button>
-            <button onClick={handleRegister} className={styles.registerButton}>
-              Sign Up
+            <button type="button" onClick={handleRegister} className={styles.registerButton}>
+              Registar
             </button>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroBackground}>
-          {/* Placeholder para a imagem do banner */}
           <div className={styles.bannerImage}>
             <Image
               src="/images/BannerGonsGarage.jpg"
-              alt="GonsGarage Workshop"
+              alt="Oficina GonsGarage"
               fill
               style={{ objectFit: 'cover' }}
               priority
               onError={(e) => {
-                // Fallback se a imagem não carregar
                 e.currentTarget.style.display = 'none';
               }}
             />
           </div>
           <div className={styles.heroOverlay} />
         </div>
-        
+
         <div className={styles.heroContent}>
           <div className={styles.heroText}>
-            <h2>Your Trusted Auto Repair Shop</h2>
+            <h2>A sua oficina de confiança</h2>
             <p>
-              Expert mechanics, quality service, and fair prices. 
-              We keep your car running at its best with professional care and attention.
+              Mecânicos experientes, serviço de qualidade e preços justos. Mantemos o seu automóvel em
+              excelente estado, com o profissionalismo que espera.
             </p>
             <div className={styles.heroStats}>
               <div className={styles.stat}>
                 <span className={styles.statNumber}>15+</span>
-                <span className={styles.statLabel}>Years Experience</span>
+                <span className={styles.statLabel}>Anos de experiência</span>
               </div>
               <div className={styles.stat}>
                 <span className={styles.statNumber}>5000+</span>
-                <span className={styles.statLabel}>Happy Customers</span>
+                <span className={styles.statLabel}>Clientes satisfeitos</span>
               </div>
               <div className={styles.stat}>
                 <span className={styles.statNumber}>24/7</span>
-                <span className={styles.statLabel}>Emergency Service</span>
+                <span className={styles.statLabel}>Assistência urgente</span>
               </div>
             </div>
             <div className={styles.heroActions}>
-              <button onClick={handleRegister} className={styles.ctaButton}>
-                Book Service Now
+              <button type="button" onClick={handleRegister} className={styles.ctaButton}>
+                Agendar serviço
               </button>
-              <button onClick={handleLogin} className={styles.secondaryButton}>
-                Existing Customer
+              <button type="button" onClick={handleLogin} className={styles.secondaryButton}>
+                Já sou cliente
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
       <section id="services" className={styles.servicesSection}>
         <div className={styles.sectionContent}>
           <div className={styles.sectionHeader}>
-            <h3>Our Services</h3>
-            <p>Complete automotive care for all makes and models</p>
+            <h3>Os nossos serviços</h3>
+            <p>Assistência completa a todas as marcas e modelos</p>
           </div>
-          
+
           <div className={styles.servicesGrid}>
             {services.map((service, index) => (
               <div key={index} className={styles.serviceCard}>
@@ -224,14 +218,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className={styles.featuresSection}>
+      <section id="about" className={styles.featuresSection}>
         <div className={styles.sectionContent}>
           <div className={styles.sectionHeader}>
-            <h3>Why Choose GonsGarage?</h3>
-            <p>We&apos;re committed to providing exceptional automotive service</p>
+            <h3>Porquê a GonsGarage?</h3>
+            <p>Compromisso com um serviço automóvel de excelência</p>
           </div>
-          
+
           <div className={styles.featuresGrid}>
             {features.map((feature, index) => (
               <div key={index} className={styles.featureCard}>
@@ -244,47 +237,55 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Contact Section */}
       <section id="contact" className={styles.contactSection}>
         <div className={styles.sectionContent}>
           <div className={styles.contactGrid}>
             <div className={styles.contactInfo}>
-              <h3>Visit Our Shop</h3>
+              <h3>Visite a nossa oficina</h3>
               <div className={styles.contactItem}>
                 <div className={styles.contactIcon}>📍</div>
                 <div>
-                  <h4>Address</h4>
-                  <p>123 Main Street<br />Downtown, State 12345</p>
+                  <h4>Morada</h4>
+                  <p>
+                    Rua Exemplo, 123
+                    <br />
+                    1000-001 Lisboa, Portugal
+                  </p>
                 </div>
               </div>
               <div className={styles.contactItem}>
                 <div className={styles.contactIcon}>📞</div>
                 <div>
-                  <h4>Phone</h4>
-                  <p>(555) 123-4567</p>
+                  <h4>Telefone</h4>
+                  <p>+351 21 123 4567</p>
                 </div>
               </div>
               <div className={styles.contactItem}>
                 <div className={styles.contactIcon}>🕒</div>
                 <div>
-                  <h4>Hours</h4>
-                  <p>Mon-Fri: 8AM-6PM<br />Sat: 8AM-4PM<br />Sun: Closed</p>
+                  <h4>Horário</h4>
+                  <p>
+                    Seg–Sex: 8h00–18h00
+                    <br />
+                    Sáb: 8h00–13h00
+                    <br />
+                    Dom: encerrado
+                  </p>
                 </div>
               </div>
             </div>
-            
+
             <div className={styles.contactCta}>
-              <h3>Ready to Get Started?</h3>
-              <p>Book your appointment today and experience the GonsGarage difference</p>
-              <button onClick={handleRegister} className={styles.ctaButton}>
-                Schedule Service
+              <h3>Pronto para começar?</h3>
+              <p>Marque já a sua visita e conheça a diferença GonsGarage.</p>
+              <button type="button" onClick={handleRegister} className={styles.ctaButton}>
+                Marcar serviço
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={styles.footerSection} onClick={() => router.push('/')}>
@@ -292,7 +293,7 @@ export default function LandingPage() {
               <div className={styles.logo}>
                 <Image
                   src="/images/LogoGonsGarage.jpg"
-                  alt="GonsGarage Logo"
+                  alt="Logótipo GonsGarage"
                   width={32}
                   height={32}
                   style={{ objectFit: 'contain' }}
@@ -300,44 +301,52 @@ export default function LandingPage() {
               </div>
               <div>
                 <h4>GonsGarage</h4>
-                <p>Professional Auto Repair</p>
+                <p>Oficina mecânica profissional</p>
               </div>
             </div>
           </div>
-          
+
           <div className={styles.footerSection}>
-            <h4>Services</h4>
+            <h4>Serviços</h4>
             <ul>
-              <li>Oil Change</li>
-              <li>Brake Service</li>
-              <li>Tire Service</li>
-              <li>Engine Repair</li>
+              <li>Mudança de óleo</li>
+              <li>Travões</li>
+              <li>Pneus</li>
+              <li>Motor</li>
             </ul>
           </div>
-          
+
           <div className={styles.footerSection}>
-            <h4>Company</h4>
+            <h4>Empresa</h4>
             <ul>
-              <li>About Us</li>
-              <li>Our Team</li>
-              <li>Careers</li>
-              <li>Contact</li>
+              <li>Sobre nós</li>
+              <li>Equipa</li>
+              <li>Recrutamento</li>
+              <li>Contacto</li>
             </ul>
           </div>
-          
+
           <div className={styles.footerSection}>
-            <h4>Customer</h4>
+            <h4>Cliente</h4>
             <ul>
-              <li><button onClick={handleLogin}>Login</button></li>
-              <li><button onClick={handleRegister}>Sign Up</button></li>
-              <li>Service History</li>
-              <li>Support</li>
+              <li>
+                <button type="button" onClick={handleLogin}>
+                  Iniciar sessão
+                </button>
+              </li>
+              <li>
+                <button type="button" onClick={handleRegister}>
+                  Registar
+                </button>
+              </li>
+              <li>Histórico de serviços</li>
+              <li>Ajuda</li>
             </ul>
           </div>
         </div>
-        
+
         <div className={styles.footerBottom}>
-          <p>&copy; 2024 GonsGarage. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} GonsGarage. Todos os direitos reservados.</p>
         </div>
       </footer>
     </div>

@@ -22,8 +22,8 @@ export default function CarsPage() {
 
   if (!authHydrated || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      <div className="loadingScreen">
+        <div className="spinnerLg" aria-hidden />
       </div>
     );
   }
@@ -31,23 +31,23 @@ export default function CarsPage() {
   return (
     <AppShell
       user={user}
-      subtitle="My Cars"
+      subtitle="Os meus automóveis"
       activeNav="cars"
       onLogout={logout}
       logoVariant="branded"
     >
       <Suspense
         fallback={
-          <div className="flex flex-col items-center justify-center gap-3 py-12 text-gray-600">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
-            <span>Loading…</span>
+          <div className="loadingStack">
+            <div className="spinnerMd" aria-hidden />
+            <span>A carregar…</span>
           </div>
         }
       >
         <CarsContainer
-          headerTitle="My Cars"
-          headerSubtitle="Manage your registered cars"
-          addButtonText="Add Car"
+          headerTitle="Os meus automóveis"
+          headerSubtitle="Gerir os seus automóveis registados"
+          addButtonText="Adicionar automóvel"
           className={styles.carsSection}
         />
       </Suspense>

@@ -49,42 +49,42 @@ export default function RegisterPage() {
 
     // First name validation
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = 'O nome é obrigatório';
     } else if (formData.firstName.trim().length < 2) {
-      newErrors.firstName = 'First name must be at least 2 characters';
+      newErrors.firstName = 'O nome deve ter pelo menos 2 caracteres';
     }
 
     // Last name validation
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = 'O apelido é obrigatório';
     } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = 'Last name must be at least 2 characters';
+      newErrors.lastName = 'O apelido deve ter pelo menos 2 caracteres';
     }
 
     // Email validation
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'O e-mail é obrigatório';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = 'Indique um e-mail válido';
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'A palavra-passe é obrigatória';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = 'A palavra-passe deve ter pelo menos 6 caracteres';
     }
 
     // Confirm password validation
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = 'Confirme a palavra-passe';
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = 'As palavras-passe não coincidem';
     }
 
     // Role validation
     if (!formData.role) {
-      newErrors.role = 'Please select a role';
+      newErrors.role = 'Selecione um perfil';
     }
 
     setErrors(newErrors);
@@ -135,15 +135,15 @@ export default function RegisterPage() {
     console.log('Registration result:', result);
       
       if (result.success) {
-        router.push('/auth/login?message=Registration successful! Please login with your credentials.');
+        router.push('/auth/login?message=Registo concluído. Inicie sessão com as suas credenciais.');
       } else {
-        setErrors({ general: result.error || 'Registration failed. Please try again.' });
+        setErrors({ general: result.error || 'O registo falhou. Tente novamente.' });
       }
     } catch (error) {
       console.error('Registration error:', error);
       
       // More detailed error handling
-      let errorMessage = 'An unexpected error occurred. Please try again.';
+      let errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';
       
       if (error instanceof Error) {
         errorMessage = `Error: ${error.message}`;
@@ -175,8 +175,8 @@ export default function RegisterPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
             </svg>
           </div>
-          <h1 className={styles.title}>Create Account</h1>
-          <p className={styles.subtitle}>Join the GonsGarage team</p>
+          <h1 className={styles.title}>Criar conta</h1>
+          <p className={styles.subtitle}>Junte-se à equipa GonsGarage</p>
         </div>
 
         {/* Registration Form */}
@@ -194,11 +194,11 @@ export default function RegisterPage() {
                 id="firstName"
                 name="firstName"
                 type="text"
-                label="First Name"
+                label="Nome"
                 value={formData.firstName}
                 onChange={handleChange}
                 error={errors.firstName}
-                placeholder="Enter your first name"
+                placeholder="O seu nome"
                 autoComplete="given-name"
                 required
               />
@@ -207,11 +207,11 @@ export default function RegisterPage() {
                 id="lastName"
                 name="lastName"
                 type="text"
-                label="Last Name"
+                label="Apelido"
                 value={formData.lastName}
                 onChange={handleChange}
                 error={errors.lastName}
-                placeholder="Enter your last name"
+                placeholder="O seu apelido"
                 autoComplete="family-name"
                 required
               />
@@ -234,7 +234,7 @@ export default function RegisterPage() {
             {/* Password Fields */}
             <div className={styles.passwordField}>
               <label htmlFor="password" className={styles.passwordLabel}>
-                Password
+                Palavra-passe
               </label>
               <div className={styles.passwordInputWrapper}>
                 <input
@@ -244,7 +244,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={handleChange}
                   className={`${styles.passwordInput} ${errors.password ? styles.inputError : ''}`}
-                  placeholder="Create a password"
+                  placeholder="Crie uma palavra-passe"
                   autoComplete="new-password"
                   required
                 />
@@ -252,7 +252,7 @@ export default function RegisterPage() {
                   type="button"
                   className={styles.passwordToggle}
                   onClick={() => togglePasswordVisibility('password')}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
                 >
                   {showPassword ? (
                     <svg className={styles.eyeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -283,7 +283,7 @@ export default function RegisterPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   className={`${styles.passwordInput} ${errors.confirmPassword ? styles.inputError : ''}`}
-                  placeholder="Confirm your password"
+                  placeholder="Confirme a palavra-passe"
                   autoComplete="new-password"
                   required
                 />
@@ -291,7 +291,7 @@ export default function RegisterPage() {
                   type="button"
                   className={styles.passwordToggle}
                   onClick={() => togglePasswordVisibility('confirmPassword')}
-                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showConfirmPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
                 >
                   {showConfirmPassword ? (
                     <svg className={styles.eyeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -319,19 +319,19 @@ export default function RegisterPage() {
             loading={isLoading}
             className={styles.submitButton}
           >
-            {isLoading ? 'Creating Account...' : 'Create Account'}
+            {isLoading ? 'A criar conta…' : 'Criar conta'}
           </Button>
 
           {/* Login Link */}
           <div className={styles.footer}>
             <p className={styles.footerText}>
-              Already have an account?{' '}
+              Já tem conta?{' '}
               <button
                 type="button"
                 onClick={() => router.push('/auth/login')}
                 className={styles.loginLink}
               >
-                Sign in here
+                Iniciar sessão
               </button>
             </p>
           </div>

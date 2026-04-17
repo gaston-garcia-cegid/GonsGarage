@@ -47,13 +47,13 @@ export interface Repair {
 // }
 
 export const SERVICE_TYPES = [
-  { id: 'oil_change', name: 'Oil Change', description: 'Regular oil and filter change' },
-  { id: 'brake_service', name: 'Brake Service', description: 'Brake pads, rotors, and fluid' },
-  { id: 'tire_service', name: 'Tire Service', description: 'Tire rotation, alignment, replacement' },
-  { id: 'engine_diagnostic', name: 'Engine Diagnostic', description: 'Check engine light and diagnostics' },
-  { id: 'transmission_service', name: 'Transmission Service', description: 'Transmission fluid and inspection' },
-  { id: 'air_conditioning', name: 'Air Conditioning', description: 'A/C repair and maintenance' },
-  { id: 'battery_service', name: 'Battery Service', description: 'Battery testing and replacement' },
-  { id: 'general_maintenance', name: 'General Maintenance', description: 'Multi-point inspection' },
-  { id: 'other', name: 'Other', description: 'Custom service request' },
+  { id: 'oil_change', name: 'Mudança de óleo', description: 'Mudança periódica de óleo e filtro' },
+  { id: 'brake_service', name: 'Travões', description: 'Pastilhas, discos e fluido de travões' },
+  { id: 'tire_service', name: 'Pneus', description: 'Rotação, alinhamento e substituição de pneus' },
+  { id: 'engine_diagnostic', name: 'Diagnóstico de motor', description: 'Luz de avaria e diagnóstico' },
+  { id: 'transmission_service', name: 'Transmissão', description: 'Fluido e inspeção da transmissão' },
+  { id: 'air_conditioning', name: 'Climatização', description: 'Reparação e manutenção do A/C' },
+  { id: 'battery_service', name: 'Bateria', description: 'Teste e substituição de bateria' },
+  { id: 'general_maintenance', name: 'Manutenção geral', description: 'Inspeção multiponto' },
+  { id: 'other', name: 'Outro', description: 'Serviço personalizado' },
 ] as const;

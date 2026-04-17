@@ -37,9 +37,9 @@ export default function AppointmentsContainer({
   onDeleteAppointment,
   maxAppointments,
   showHeader = true,
-  headerTitle = 'Your Appointments',
+  headerTitle = 'As suas marcações',
   headerSubtitle,
-  addButtonText = 'Add New Appointment',
+  addButtonText = 'Nova marcação',
   className = '',
   renderHeader,
   renderEmptyState,
@@ -70,7 +70,7 @@ export default function AppointmentsContainer({
   // ✅ Create appointment handler
   const handleCreateAppointment = useCallback(async (appointmentData: CreateAppointmentRequest): Promise<boolean> => {
     if (maxAppointments && appointments.length >= maxAppointments) {
-      alert(`You can only register up to ${maxAppointments} appointments.`);
+      alert(`Só pode registar até ${maxAppointments} marcações.`);
       return false;
     }
 
@@ -163,11 +163,11 @@ export default function AppointmentsContainer({
           onUpdateAppointment(appointments.filter(appointment => appointment.id !== appointmentId));
         }
       } else {
-        alert('Failed to delete appointment. Please try again.');
+        alert('Não foi possível eliminar a marcação. Tente novamente.');
       }
     } catch (error) {
       console.error('Failed to delete car:', error);
-      alert('An error occurred while deleting the appointment.');
+      alert('Ocorreu um erro ao eliminar a marcação.');
     } finally {
       setDeleteConfirmation({ isOpen: false, appointmentId: null, clientName: '', carId: null, carName: '' });
     }
@@ -192,7 +192,7 @@ export default function AppointmentsContainer({
   // ✅ Open create modal
   const handleAddAppointmentClick = useCallback(() => {
     if (maxAppointments && appointments.length >= maxAppointments) {
-      alert(`You have reached the maximum limit of ${maxAppointments} appointments.`);
+      alert(`Atingiu o limite máximo de ${maxAppointments} marcações.`);
       return;
     }
     setShowCreateModal(true);
@@ -203,7 +203,7 @@ export default function AppointmentsContainer({
     return (
       <div className="loading-container">
         <LoadingSpinner />
-        <span>Loading cars...</span>
+        <span>A carregar marcações…</span>
       </div>
     );
   }
@@ -217,7 +217,7 @@ export default function AppointmentsContainer({
           <div className={styles.header}>
             <div className={styles.headerContent}>
               <h2>{headerTitle}</h2>
-              <p>Start scheduling your vehicle maintenance</p>
+              <p>Comece por marcar a manutenção do seu automóvel</p>
             </div>
             <button 
               onClick={handleAddAppointmentClick}
@@ -253,8 +253,8 @@ export default function AppointmentsContainer({
   const canAddAppointments = !maxAppointments || appointments.length < maxAppointments;
   const computedSubtitle = headerSubtitle || (
     maxAppointments 
-      ? `Manage your registered appointments (${appointments.length}/${maxAppointments})`
-      : 'Manage your registered appointments'
+      ? `Gerir as suas marcações (${appointments.length}/${maxAppointments})`
+      : 'Gerir as suas marcações'
   );
 
   return (
@@ -277,7 +277,7 @@ export default function AppointmentsContainer({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            {isCreating ? 'Scheduling...' : addButtonText}
+            {isCreating ? 'A marcar…' : addButtonText}
           </button>
         </div>
       ) : null}
@@ -285,7 +285,7 @@ export default function AppointmentsContainer({
       {/* Max appointments warning */}
       {maxAppointments && appointments.length >= maxAppointments && (
         <div className={styles.maxAppointmentsMessage}>
-          <span>⚠️ Maximum appointments limit reached ({appointments.length}/{maxAppointments})</span>
+          <span>⚠️ Limite máximo de marcações atingido ({appointments.length}/{maxAppointments})</span>
         </div>
       )}
 
@@ -319,10 +319,10 @@ export default function AppointmentsContainer({
       {/* Confirmation Modal */}
       <ConfirmModal
         isOpen={deleteConfirmation.isOpen}
-        title="Delete Appointment"
-        message={`Are you sure you want to delete the appointment for ${deleteConfirmation.clientName}? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
+        title="Eliminar marcação"
+        message={`Tem a certeza de que pretende eliminar a marcação de ${deleteConfirmation.clientName}? Esta ação não pode ser anulada.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
         variant="danger"
         onConfirm={confirmDelete}
         onCancel={cancelDelete}

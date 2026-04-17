@@ -34,10 +34,8 @@
   transition: filter var(--transition-fast);
 }
 
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert(1);
-  }
+html[data-theme='dark'] .logo {
+  filter: invert(1);
 }
 
 .instructions {
@@ -68,10 +66,8 @@
   border-radius: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  .code {
-    background-color: rgba(255, 255, 255, 0.06);
-  }
+html[data-theme='dark'] .code {
+  background-color: rgba(255, 255, 255, 0.06);
 }
 
 .actions {
@@ -118,10 +114,8 @@
   color: var(--background);
 }
 
-@media (prefers-color-scheme: dark) {
-  .primaryButton:hover {
-    background-color: var(--color-gray-300);
-  }
+html[data-theme='dark'] .primaryButton:hover {
+  background-color: var(--color-gray-300);
 }
 
 .secondaryButton {
@@ -161,10 +155,8 @@
   border-color: transparent;
 }
 
-@media (prefers-color-scheme: dark) {
-  .secondaryButton:hover {
-    background-color: var(--color-gray-800);
-  }
+html[data-theme='dark'] .secondaryButton:hover {
+  background-color: var(--color-gray-800);
 }
 
 .footer {

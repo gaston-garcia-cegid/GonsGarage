@@ -7,6 +7,18 @@ import { useCarStore } from '@/stores/car.store';
 import { useAppointmentStore } from '@/stores/appointment.store';
 import styles from './AppointmentCard.module.css';
 
+function appointmentStatusLabel(status: string): string {
+  const map: Record<string, string> = {
+    scheduled: 'Agendado',
+    confirmed: 'Confirmado',
+    in_progress: 'Em curso',
+    'in-progress': 'Em curso',
+    completed: 'Concluído',
+    cancelled: 'Cancelado',
+  };
+  return map[status] ?? status.replace(/_/g, ' ').replace(/-/g, ' ');
+}
+
 interface AppointmentCardProps {
   appointment: Appointment;
   onStatusChange?: (appointmentId: string, action: 'cancel' | 'confirm' | 'complete') => void;
@@ -29,7 +41,7 @@ export default function AppointmentCard({ appointment, onStatusChange, onResched
 
   // Format the appointment date
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('pt-PT', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -86,13 +98,13 @@ export default function AppointmentCard({ appointment, onStatusChange, onResched
       {/* Header with date and status */}
       <div className={styles.appointmentHeader}>
         <div className={styles.appointmentDate}>
-          <span className={styles.dateLabel}>Scheduled</span>
+          <span className={styles.dateLabel}>Marcado para</span>
           <span className={styles.dateValue}>
             {formatDate(appointment.date)}
           </span>
         </div>
         <span className={`${styles.statusBadge} ${getStatusClass(appointment.status)}`}>
-          {appointment.status.replace('_', ' ').replace('-', ' ')}
+          {appointmentStatusLabel(appointment.status)}
         </span>
       </div>
       
@@ -120,7 +132,7 @@ export default function AppointmentCard({ appointment, onStatusChange, onResched
       {/* Footer with ID and actions */}
       <div className={styles.appointmentFooter}>
         <span className={styles.appointmentId}>
-          ID: {appointment.id.slice(0, 8)}...
+          Ref.: {appointment.id.slice(0, 8)}…
         </span>
         
         <div className={styles.appointmentActions}>
@@ -132,20 +144,20 @@ export default function AppointmentCard({ appointment, onStatusChange, onResched
                 className={styles.confirmButton}
                 disabled={isUpdating}
               >
-                {isUpdating ? 'Updating...' : 'Confirm'}
+                {isUpdating ? 'A atualizar…' : 'Confirmar'}
               </button>
               <button 
                 onClick={() => router.push(`/appointments/${appointment.id}/edit`)}
                 className={styles.editButton}
               >
-                Edit
+                Editar
               </button>
               <button 
                 onClick={() => handleStatusChange('cancel')}
                 className={styles.cancelButton}
                 disabled={isUpdating}
               >
-                Cancel
+                Cancelar
               </button>
             </>
           )}
@@ -157,14 +169,14 @@ export default function AppointmentCard({ appointment, onStatusChange, onResched
                 className={styles.completeButton}
                 disabled={isUpdating}
               >
-                Complete
+                {isUpdating ? 'A atualizar…' : 'Concluir'}
               </button>
               <button 
                 onClick={() => handleStatusChange('cancel')}
                 className={styles.cancelButton}
                 disabled={isUpdating}
               >
-                Cancel
+                Cancelar
               </button>
             </>
           )}
@@ -174,7 +186,7 @@ export default function AppointmentCard({ appointment, onStatusChange, onResched
               onClick={() => router.push(`/cars/${car.id}`)}
               className={styles.viewButton}
             >
-              View Car
+              Ver automóvel
             </button>
           )}
 
@@ -188,7 +200,7 @@ export default function AppointmentCard({ appointment, onStatusChange, onResched
               }
               className={styles.rescheduleButton}
             >
-              Reschedule
+              Remarcar
             </button>
           )}
         </div>

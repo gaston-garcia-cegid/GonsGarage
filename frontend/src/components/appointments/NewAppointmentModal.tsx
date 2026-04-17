@@ -94,32 +94,32 @@ export default function NewAppointmentModal({
     const newErrors: Record<string, string> = {};
 
     if (!formData.carId) {
-      newErrors.carId = 'Please select a car';
+      newErrors.carId = 'Selecione um automóvel';
     }
     if (!formData.service) {
-      newErrors.service = 'Please select a service type';
+      newErrors.service = 'Selecione o tipo de serviço';
     }
     if (formData.service === 'other' && !customServiceType.trim()) {
-      newErrors.customServiceType = 'Please specify the service type';
+      newErrors.customServiceType = 'Indique o tipo de serviço';
     }
     if (!appointmentDay) {
-      newErrors.date = 'Elegí un día';
+      newErrors.date = 'Escolha um dia';
     } else if (!isWeekdayLocalYmd(appointmentDay)) {
       newErrors.date = weekdayErrorMessage();
     } else if (bookableSlots.length === 0) {
-      newErrors.date = 'No hay horarios disponibles para ese día. Elegí otro día.';
+      newErrors.date = 'Não há horários disponíveis para esse dia. Escolha outro dia.';
     }
     if (!appointmentSlot) {
-      newErrors.time = 'Elegí un horario';
+      newErrors.time = 'Escolha um horário';
     }
     if (!newErrors.date && !newErrors.time && appointmentDay && appointmentSlot) {
       const combined = combineLocalDateAndSlot(appointmentDay, appointmentSlot);
       const selectedDate = new Date(combined);
       const now = new Date();
       if (Number.isNaN(selectedDate.getTime())) {
-        newErrors.date = 'Fecha u hora no válida';
+        newErrors.date = 'Data ou hora inválida';
       } else if (selectedDate <= now) {
-        newErrors.date = 'El turno tiene que ser en el futuro';
+        newErrors.date = 'A marcação tem de ser no futuro';
       } else if (!isWithinWorkshopHours(selectedDate)) {
         newErrors.date = workshopHoursErrorMessage();
       }
@@ -184,10 +184,10 @@ export default function NewAppointmentModal({
         <div className={formStyles.formContainer}>
           <div className={modalStyles.header}>
             <div>
-              <h2 id="new-apt-title">Schedule a service</h2>
-              <p>Book an appointment for your car</p>
+              <h2 id="new-apt-title">Marcar serviço</h2>
+              <p>Reserve uma visita para o seu automóvel</p>
             </div>
-            <button type="button" className={modalStyles.closeButton} onClick={onClose} aria-label="Close">
+            <button type="button" className={modalStyles.closeButton} onClick={onClose} aria-label="Fechar">
               ×
             </button>
           </div>
@@ -196,9 +196,9 @@ export default function NewAppointmentModal({
 
           <form onSubmit={handleSubmit} className={formStyles.appointmentForm}>
             <div className={formStyles.section}>
-              <h3>Select your car *</h3>
+              <h3>Selecione o automóvel *</h3>
               <div className={formStyles.formGroup}>
-                <label htmlFor="modal-carId">Vehicle</label>
+                <label htmlFor="modal-carId">Automóvel</label>
                 <select
                   id="modal-carId"
                   name="carId"
@@ -206,7 +206,7 @@ export default function NewAppointmentModal({
                   onChange={handleChange}
                   className={errors.carId ? formStyles.inputError : ''}
                 >
-                  <option value="">Choose a car…</option>
+                  <option value="">Escolha um automóvel…</option>
                   {cars.map((car) => (
                     <option key={car.id} value={car.id}>
                       {car.year} {car.make} {car.model} — {car.licensePlate}
@@ -218,7 +218,7 @@ export default function NewAppointmentModal({
 
               {selectedCar ? (
                 <div className={formStyles.selectedCarInfo}>
-                  <h4>Selected car</h4>
+                  <h4>Automóvel selecionado</h4>
                   <p>
                     {selectedCar.year} {selectedCar.make} {selectedCar.model} — {selectedCar.licensePlate}
                   </p>
@@ -227,7 +227,7 @@ export default function NewAppointmentModal({
             </div>
 
             <div className={formStyles.section}>
-              <h3>Service type *</h3>
+              <h3>Tipo de serviço *</h3>
               <div className={formStyles.serviceGrid}>
                 {SERVICE_TYPES.map((service) => (
                   <label key={service.id} className={formStyles.serviceOption}>
@@ -249,13 +249,13 @@ export default function NewAppointmentModal({
 
               {formData.service === 'other' ? (
                 <div className={formStyles.formGroup}>
-                  <label htmlFor="modal-customService">Specify service *</label>
+                  <label htmlFor="modal-customService">Especificar serviço *</label>
                   <input
                     id="modal-customService"
                     type="text"
                     value={customServiceType}
                     onChange={(e) => setCustomServiceType(e.target.value)}
-                    placeholder="Describe the service"
+                    placeholder="Descreva o serviço"
                     className={errors.customServiceType ? formStyles.inputError : ''}
                   />
                   {errors.customServiceType ? (
@@ -266,12 +266,12 @@ export default function NewAppointmentModal({
             </div>
 
             <div className={formStyles.section}>
-              <h3>Fecha y horario *</h3>
+              <h3>Data e horário *</h3>
               <p className={formStyles.helpText}>
-                Lunes a viernes, cada 30 minutos: 9:30 a 12:30 y 14:00 a 17:30 (horario en formato 24 h).
+                Segunda a sexta, de 30 em 30 minutos: 9:30–12:30 e 14:00–17:30 (formato 24 h).
               </p>
               <div className={formStyles.formGroup}>
-                <label htmlFor="modal-appointment-day">Día</label>
+                <label htmlFor="modal-appointment-day">Dia</label>
                 <input
                   id="modal-appointment-day"
                   name="appointmentDay"
@@ -288,7 +288,7 @@ export default function NewAppointmentModal({
                 {errors.date ? <span className={formStyles.errorText}>{errors.date}</span> : null}
               </div>
               <div className={formStyles.formGroup}>
-                <label htmlFor="modal-appointment-slot">Horario</label>
+                <label htmlFor="modal-appointment-slot">Horário</label>
                 <select
                   id="modal-appointment-slot"
                   value={appointmentSlot}
@@ -301,10 +301,10 @@ export default function NewAppointmentModal({
                 >
                   <option value="">
                     {!appointmentDay
-                      ? 'Primero elegí un día…'
+                      ? 'Primeiro escolha um dia…'
                       : bookableSlots.length === 0
-                        ? 'No hay horarios para ese día'
-                        : 'Elegí un horario…'}
+                        ? 'Sem horários para esse dia'
+                        : 'Escolha um horário…'}
                   </option>
                   {bookableSlots.map((hhmm) => (
                     <option key={hhmm} value={hhmm}>
@@ -317,15 +317,15 @@ export default function NewAppointmentModal({
             </div>
 
             <div className={formStyles.section}>
-              <h3>Additional information</h3>
+              <h3>Informação adicional</h3>
               <div className={formStyles.formGroup}>
-                <label htmlFor="modal-notes">Notes</label>
+                <label htmlFor="modal-notes">Notas</label>
                 <textarea
                   id="modal-notes"
                   name="notes"
                   value={formData.notes}
                   onChange={handleChange}
-                  placeholder="Concerns, parts, or instructions…"
+                  placeholder="Observações, peças ou instruções…"
                   rows={4}
                   className={formStyles.textarea}
                 />
@@ -334,16 +334,16 @@ export default function NewAppointmentModal({
 
             {selectedCar && selectedService && appointmentDay && appointmentSlot ? (
               <div className={formStyles.appointmentSummary}>
-                <h3>Summary</h3>
+                <h3>Resumo</h3>
                 <div className={formStyles.summaryContent}>
                   <p>
-                    <strong>Car:</strong> {selectedCar.year} {selectedCar.make} {selectedCar.model}
+                    <strong>Automóvel:</strong> {selectedCar.year} {selectedCar.make} {selectedCar.model}
                   </p>
                   <p>
-                    <strong>Service:</strong> {selectedService.name}
+                    <strong>Serviço:</strong> {selectedService.name}
                   </p>
                   <p>
-                    <strong>Cuándo:</strong> {formatAppointmentSummaryLocal(appointmentDay, appointmentSlot)}
+                    <strong>Quando:</strong> {formatAppointmentSummaryLocal(appointmentDay, appointmentSlot)}
                   </p>
                 </div>
               </div>
@@ -351,10 +351,10 @@ export default function NewAppointmentModal({
 
             <div className={formStyles.formActions}>
               <button type="button" onClick={onClose} className={formStyles.cancelButton}>
-                Cancel
+                Cancelar
               </button>
               <button type="submit" disabled={isCreating} className={formStyles.submitButton}>
-                {isCreating ? 'Scheduling…' : 'Schedule appointment'}
+                {isCreating ? 'A marcar…' : 'Confirmar marcação'}
               </button>
             </div>
           </form>

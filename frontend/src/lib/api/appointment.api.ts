@@ -51,12 +51,12 @@ export const appointmentApi = {
         status: data.status,
       });
       if (!response.success || !response.data) {
-        throw new Error(response.error?.message || 'No se pudo crear el turno');
+        throw new Error(response.error?.message || 'Não foi possível criar a marcação');
       }
       return response.data;
     } catch (error) {
       console.error('❌ Create appointment error:', error);
-      throw error instanceof Error ? error : new Error('No se pudo crear el turno');
+      throw error instanceof Error ? error : new Error('Não foi possível criar a marcação');
     }
   },
 

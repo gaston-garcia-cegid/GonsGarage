@@ -40,17 +40,17 @@ export default function EmployeesPage() {
         setEmployees(data.employees || []);
         setTotalEmployees(data.total || 0);
       } else {
-        setError(apiError?.message || 'Failed to fetch employees');
+        setError(apiError?.message || 'Não foi possível carregar os colaboradores');
       }
     } catch (err) {
-      setError('Network error occurred, Line 46');
+      setError('Erro de rede. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this employee?')) {
+    if (!confirm('Tem a certeza de que pretende eliminar este colaborador?')) {
       return;
     }
 
@@ -60,10 +60,10 @@ export default function EmployeesPage() {
         setEmployees(employees.filter(emp => emp.id !== id));
         setTotalEmployees(prev => prev - 1);
       } else {
-        alert('Failed to delete employee: ' + error.message);
+        alert('Não foi possível eliminar o colaborador: ' + error.message);
       }
     } catch (err) {
-      alert('Network error occurred, Line 66');
+      alert('Erro de rede. Tente novamente.');
     }
   };
 
@@ -119,7 +119,7 @@ export default function EmployeesPage() {
             fontSize: '0.875rem',
             color: 'var(--color-gray-600)',
           }}>
-            Loading employees...
+            A carregar colaboradores…
           </span>
         </div>
       </div>
@@ -185,7 +185,7 @@ export default function EmployeesPage() {
                   color: 'var(--color-gray-600)',
                   margin: 0,
                 }}>
-                  Employee Management
+                  Gestão de colaboradores
                 </p>
               </div>
             </div>
@@ -198,7 +198,7 @@ export default function EmployeesPage() {
                 fontSize: '0.875rem',
                 color: 'var(--color-gray-700)',
               }}>
-                Welcome, {user?.first_name} {user?.last_name}
+                Olá, {user?.first_name} {user?.last_name}
               </span>
               <button
                 onClick={logout}
@@ -220,7 +220,7 @@ export default function EmployeesPage() {
                   e.currentTarget.style.backgroundColor = '#dc2626';
                 }}
               >
-                Logout
+                Terminar sessão
               </button>
             </div>
           </div>
@@ -254,7 +254,7 @@ export default function EmployeesPage() {
             }}>
               <input
                 type="text"
-                placeholder="Search employees..."
+                placeholder="Pesquisar colaboradores…"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -326,7 +326,7 @@ export default function EmployeesPage() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Add Employee
+              Adicionar colaborador
             </button>
           </div>
         </div>
@@ -374,14 +374,14 @@ export default function EmployeesPage() {
               margin: 0,
               marginBottom: 'var(--space-1)',
             }}>
-              Employees ({totalEmployees})
+              Colaboradores ({totalEmployees})
             </h3>
             <p style={{
               fontSize: '0.875rem',
               color: 'var(--color-gray-600)',
               margin: 0,
             }}>
-              Manage your workshop employees
+              Gerir a equipa da oficina
             </p>
           </div>
           
@@ -404,7 +404,7 @@ export default function EmployeesPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                   }}>
-                    Name
+                    Nome
                   </th>
                   <th style={{
                     padding: 'var(--space-3) var(--space-6)',
@@ -415,7 +415,7 @@ export default function EmployeesPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                   }}>
-                    Email
+                    E-mail
                   </th>
                   <th style={{
                     padding: 'var(--space-3) var(--space-6)',
@@ -426,7 +426,7 @@ export default function EmployeesPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                   }}>
-                    Department
+                    Departamento
                   </th>
                   <th style={{
                     padding: 'var(--space-3) var(--space-6)',
@@ -437,7 +437,7 @@ export default function EmployeesPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                   }}>
-                    Position
+                    Cargo
                   </th>
                   <th style={{
                     padding: 'var(--space-3) var(--space-6)',
@@ -448,7 +448,7 @@ export default function EmployeesPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                   }}>
-                    Salary
+                    Salário
                   </th>
                   <th style={{
                     padding: 'var(--space-3) var(--space-6)',
@@ -459,7 +459,7 @@ export default function EmployeesPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                   }}>
-                    Status
+                    Estado
                   </th>
                   <th style={{
                     padding: 'var(--space-3) var(--space-6)',
@@ -470,7 +470,7 @@ export default function EmployeesPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                   }}>
-                    Actions
+                    Ações
                   </th>
                 </tr>
               </thead>
@@ -488,7 +488,7 @@ export default function EmployeesPage() {
                         fontSize: '0.875rem',
                       }}
                     >
-                      {searchTerm ? 'No employees found matching your search.' : 'No employees found. Add your first employee!'}
+                      {searchTerm ? 'Nenhum colaborador corresponde à pesquisa.' : 'Sem colaboradores. Adicione o primeiro!'}
                     </td>
                   </tr>
                 ) : (
@@ -595,7 +595,7 @@ export default function EmployeesPage() {
                           backgroundColor: employee.is_active ? '#ecfdf5' : '#fef2f2',
                           color: employee.is_active ? '#065f46' : '#991b1b',
                         }}>
-                          {employee.is_active ? 'Active' : 'Inactive'}
+                          {employee.is_active ? 'Ativo' : 'Inativo'}
                         </span>
                       </td>
                       <td style={{
@@ -625,7 +625,7 @@ export default function EmployeesPage() {
                               e.currentTarget.style.color = 'var(--color-primary)';
                             }}
                           >
-                            Edit
+                            Editar
                           </button>
                           <button
                             onClick={() => handleDelete(employee.id)}
@@ -646,7 +646,7 @@ export default function EmployeesPage() {
                               e.currentTarget.style.color = '#dc2626';
                             }}
                           >
-                            Delete
+                            Eliminar
                           </button>
                         </div>
                       </td>
@@ -673,15 +673,15 @@ export default function EmployeesPage() {
                   color: 'var(--color-gray-700)',
                   margin: 0,
                 }}>
-                  Showing{' '}
+                  A mostrar{' '}
                   <span style={{ fontWeight: '500' }}>{(currentPage - 1) * employeesPerPage + 1}</span>
-                  {' '}to{' '}
+                  {' '}a{' '}
                   <span style={{ fontWeight: '500' }}>
                     {Math.min(currentPage * employeesPerPage, totalEmployees)}
                   </span>
-                  {' '}of{' '}
+                  {' '}de{' '}
                   <span style={{ fontWeight: '500' }}>{totalEmployees}</span>
-                  {' '}results
+                  {' '}resultados
                 </p>
               </div>
               <div style={{
@@ -711,7 +711,7 @@ export default function EmployeesPage() {
                     e.currentTarget.style.backgroundColor = 'white';
                   }}
                 >
-                  Previous
+                  Anterior
                 </button>
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   const pageNum = i + 1;
@@ -768,7 +768,7 @@ export default function EmployeesPage() {
                     e.currentTarget.style.backgroundColor = 'white';
                   }}
                 >
-                  Next
+                  Seguinte
                 </button>
               </div>
             </div>
@@ -826,14 +826,14 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!formData.first_name) newErrors.first_name = 'First name is required';
-    if (!formData.last_name) newErrors.last_name = 'Last name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
-    if (!formData.department) newErrors.department = 'Department is required';
-    if (!formData.position) newErrors.position = 'Position is required';
-    if (!formData.hire_date) newErrors.hire_date = 'Hire date is required';
-    if (!formData.salary || formData.salary <= 0) newErrors.salary = 'Salary must be greater than 0';
+    if (!formData.first_name) newErrors.first_name = 'O nome é obrigatório';
+    if (!formData.last_name) newErrors.last_name = 'O apelido é obrigatório';
+    if (!formData.email) newErrors.email = 'O e-mail é obrigatório';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'E-mail inválido';
+    if (!formData.department) newErrors.department = 'O departamento é obrigatório';
+    if (!formData.position) newErrors.position = 'O cargo é obrigatório';
+    if (!formData.hire_date) newErrors.hire_date = 'A data de admissão é obrigatória';
+    if (!formData.salary || formData.salary <= 0) newErrors.salary = 'O salário tem de ser superior a 0';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -858,10 +858,10 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
       if (result.data && !result.error) {
         onSuccess();
       } else {
-        setErrors({ general: result.error?.message || 'Operation failed' });
+        setErrors({ general: result.error?.message || 'Operação falhou' });
       }
     } catch (error) {
-      setErrors({ general: 'Network error occurred, Line 864' });
+      setErrors({ general: 'Erro de rede. Tente novamente.' });
     } finally {
       setIsLoading(false);
     }
@@ -913,7 +913,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
             color: 'var(--color-gray-900)',
             margin: 0,
           }}>
-            {employee ? 'Edit Employee' : 'Add New Employee'}
+            {employee ? 'Editar colaborador' : 'Novo colaborador'}
           </h3>
           <button
             onClick={onClose}
@@ -974,7 +974,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   color: 'var(--color-gray-700)',
                   marginBottom: 'var(--space-1)',
                 }}>
-                  First Name
+                  Nome
                 </label>
                 <input
                   type="text"
@@ -1018,7 +1018,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   color: 'var(--color-gray-700)',
                   marginBottom: 'var(--space-1)',
                 }}>
-                  Last Name
+                  Apelido
                 </label>
                 <input
                   type="text"
@@ -1063,7 +1063,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                 color: 'var(--color-gray-700)',
                 marginBottom: 'var(--space-1)',
               }}>
-                Email
+                E-mail
               </label>
               <input
                 type="email"
@@ -1113,7 +1113,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   color: 'var(--color-gray-700)',
                   marginBottom: 'var(--space-1)',
                 }}>
-                  Department
+                  Departamento
                 </label>
                 <select
                   name="department"
@@ -1129,12 +1129,12 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                     transition: 'border-color var(--transition-fast)',
                   }}
                 >
-                  <option value="">Select Department</option>
-                  <option value="Mechanical">Mechanical</option>
-                  <option value="Electrical">Electrical</option>
-                  <option value="Body Work">Body Work</option>
-                  <option value="Administration">Administration</option>
-                  <option value="Sales">Sales</option>
+                  <option value="">Selecione o departamento</option>
+                  <option value="Mechanical">Mecânica</option>
+                  <option value="Electrical">Elétrica</option>
+                  <option value="Body Work">Chapa e pintura</option>
+                  <option value="Administration">Administração</option>
+                  <option value="Sales">Vendas</option>
                 </select>
                 {errors.department && (
                   <p style={{
@@ -1155,7 +1155,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   color: 'var(--color-gray-700)',
                   marginBottom: 'var(--space-1)',
                 }}>
-                  Position
+                  Cargo
                 </label>
                 <input
                   type="text"
@@ -1206,7 +1206,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   color: 'var(--color-gray-700)',
                   marginBottom: 'var(--space-1)',
                 }}>
-                  Hire Date
+                  Data de admissão
                 </label>
                 <input
                   type="date"
@@ -1250,7 +1250,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   color: 'var(--color-gray-700)',
                   marginBottom: 'var(--space-1)',
                 }}>
-                  Salary
+                  Salário
                 </label>
                 <input
                   type="number"
@@ -1317,7 +1317,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   e.currentTarget.style.backgroundColor = 'white';
                 }}
               >
-                Cancel
+                Cancelar
               </button>
               <button
                 type="submit"
@@ -1344,7 +1344,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   }
                 }}
               >
-                {isLoading ? 'Saving...' : (employee ? 'Update' : 'Create')}
+                {isLoading ? 'A guardar…' : (employee ? 'Atualizar' : 'Criar')}
               </button>
             </div>
           </form>

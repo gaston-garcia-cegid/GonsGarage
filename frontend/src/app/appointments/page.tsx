@@ -86,8 +86,8 @@ function AppointmentsPageContent() {
 
   if (!authHydrated || !user || !isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      <div className="loadingScreen">
+        <div className="spinnerLg" aria-hidden />
       </div>
     );
   }
@@ -99,10 +99,10 @@ function AppointmentsPageContent() {
 
   if (isBootstrapping) {
     return (
-      <AppShell user={user} subtitle="Appointments" activeNav="appointments" onLogout={logout}>
-        <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-600">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
-          <span>Loading appointments...</span>
+      <AppShell user={user} subtitle="Marcações" activeNav="appointments" onLogout={logout}>
+        <div className="loadingStack">
+          <div className="spinnerMd" aria-hidden />
+          <span>A carregar marcações…</span>
         </div>
       </AppShell>
     );
@@ -110,11 +110,11 @@ function AppointmentsPageContent() {
 
   if (appointmentsError) {
     return (
-      <AppShell user={user} subtitle="Appointments" activeNav="appointments" onLogout={logout}>
-        <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-700">
-          <p>Error loading appointments: {appointmentsError}</p>
+      <AppShell user={user} subtitle="Marcações" activeNav="appointments" onLogout={logout}>
+        <div className="alertError">
+          <p>Erro ao carregar marcações: {appointmentsError}</p>
           <button type="button" className="btn-primary mt-3" onClick={() => fetchAppointments()}>
-            Retry
+            Tentar novamente
           </button>
         </div>
       </AppShell>
@@ -122,11 +122,11 @@ function AppointmentsPageContent() {
   }
 
   if (cars.length === 0) {
-    const toolbarNoCars = <h1>Mis turnos</h1>;
+    const toolbarNoCars = <h1>As minhas marcações</h1>;
     return (
       <AppShell
         user={user}
-        subtitle="Appointments"
+        subtitle="Marcações"
         activeNav="appointments"
         onLogout={logout}
         toolbar={toolbarNoCars}
@@ -135,19 +135,19 @@ function AppointmentsPageContent() {
           <div className={emptyStyles.emptyStateIcon} aria-hidden>
             🚗
           </div>
-          <h3 className={emptyStyles.emptyStateTitle}>Aún no tenés vehículos cargados</h3>
+          <h3 className={emptyStyles.emptyStateTitle}>Ainda não tem automóveis registados</h3>
           <p className={emptyStyles.emptyStateDescription}>
-            Para agendar un turno primero registrá al menos un auto en <strong>Mis autos</strong>.
+            Para marcar uma visita, registe primeiro pelo menos um automóvel em <strong>Os meus automóveis</strong>.
           </p>
           <p className={`${emptyStyles.emptyStateDescription} ${styles.noCarsRedirectHint}`}>
-            Te llevamos a Mis autos en unos segundos…
+            A redirecionar para os seus automóveis dentro de momentos…
           </p>
           <button
             type="button"
             className={emptyStyles.emptyStateButton}
             onClick={() => router.replace('/cars?addCar=1')}
           >
-            Ir a Mis autos ahora
+            Ir já para os meus automóveis
           </button>
         </div>
       </AppShell>
@@ -167,7 +167,7 @@ function AppointmentsPageContent() {
     <>
       <AppShell
         user={user}
-        subtitle="Appointments"
+        subtitle="Marcações"
         activeNav="appointments"
         onLogout={logout}
         toolbar={toolbar}
@@ -201,8 +201,8 @@ function AppointmentsPageContent() {
 
 function AppointmentsFallback() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+    <div className="loadingScreen">
+      <div className="spinnerLg" aria-hidden />
     </div>
   );
 }

@@ -112,7 +112,7 @@ export const useCarStore = create<CarState>()(
             state.cars = [];
             state.totalCars = 0;
             state.isLoading = false;
-            state.error = response.error?.message || 'No cars found';
+            state.error = response.error?.message || 'Nenhum automóvel encontrado';
           });
         }
       } catch (error) {
@@ -120,7 +120,7 @@ export const useCarStore = create<CarState>()(
         set((state) => {
           state.cars = [];
           state.totalCars = 0;
-          state.error = error instanceof Error ? error.message : 'Failed to fetch cars';
+          state.error = error instanceof Error ? error.message : 'Não foi possível carregar os automóveis';
           state.isLoading = false;
         });
       }
@@ -142,11 +142,11 @@ export const useCarStore = create<CarState>()(
             state.isLoading = false;
           });
         } else {
-          throw new Error(response.error?.message || 'Car not found');
+          throw new Error(response.error?.message || 'Automóvel não encontrado');
         }
       } catch (error) {
         set((state) => {
-          state.error = error instanceof Error ? error.message : 'Failed to fetch car';
+          state.error = error instanceof Error ? error.message : 'Não foi possível carregar o automóvel';
           state.isLoading = false;
         });
       }
@@ -174,7 +174,7 @@ export const useCarStore = create<CarState>()(
         }
       } catch (error) {
         set((state) => {
-          state.error = error instanceof Error ? error.message : 'Failed to create car';
+          state.error = error instanceof Error ? error.message : 'Não foi possível criar o automóvel';
           state.isCreating = false;
         });
         return false;
@@ -204,11 +204,11 @@ export const useCarStore = create<CarState>()(
           });
           return true;
         } else {
-          throw new Error(response.error?.message || 'Failed to update car');
+          throw new Error(response.error?.message || 'Não foi possível atualizar o automóvel');
         }
       } catch (error) {
         set((state) => {
-          state.error = error instanceof Error ? error.message : 'Failed to update car';
+          state.error = error instanceof Error ? error.message : 'Não foi possível atualizar o automóvel';
           state.isUpdating = false;
         });
         return false;
@@ -236,11 +236,11 @@ export const useCarStore = create<CarState>()(
           });
           return true;
         } else {
-          throw new Error(response.error?.message || 'Failed to delete car');
+          throw new Error(response.error?.message || 'Não foi possível eliminar o automóvel');
         }
       } catch (error) {
         set((state) => {
-          state.error = error instanceof Error ? error.message : 'Failed to delete car';
+          state.error = error instanceof Error ? error.message : 'Não foi possível eliminar o automóvel';
           state.isDeleting = false;
         });
         return false;

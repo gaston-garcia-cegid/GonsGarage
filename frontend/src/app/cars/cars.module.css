@@ -1,12 +1,12 @@
 .container {
   min-height: 100vh;
-  background-color: var(--color-gray-50);
+  background-color: var(--surface-page);
 }
 
 .header {
-  background-color: white;
+  background-color: var(--surface-header);
   box-shadow: var(--shadow-sm);
-  border-bottom: 1px solid var(--color-gray-200);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .headerContent {

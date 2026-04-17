@@ -11,32 +11,32 @@ export function useCarValidation() {
 
     // Required field validation
     if (!formData.make.trim()) {
-      newErrors.make = 'Make is required';
+      newErrors.make = 'A marca é obrigatória';
     }
 
     if (!formData.model.trim()) {
-      newErrors.model = 'Model is required';
+      newErrors.model = 'O modelo é obrigatório';
     }
 
     if (!formData.licensePlate.trim()) {
-      newErrors.licensePlate = 'License plate is required';
+      newErrors.licensePlate = 'A matrícula é obrigatória';
     } else if (formData.licensePlate.length < 3) {
       newErrors.licensePlate = 'License plate must be at least 3 characters';
     }
 
     if (!formData.color.trim()) {
-      newErrors.color = 'Color is required';
+      newErrors.color = 'A cor é obrigatória';
     }
 
     // Year validation - following Agent.md business rules
     const currentYear = new Date().getFullYear();
     if (!formData.year || formData.year < 1900 || formData.year > currentYear + 2) {
-      newErrors.year = `Year must be between 1900 and ${currentYear + 2}`;
+      newErrors.year = `O ano deve estar entre 1900 e ${currentYear + 2}`;
     }
 
     // Mileage validation
     if (formData.mileage < 0) {
-      newErrors.mileage = 'Mileage cannot be negative';
+      newErrors.mileage = 'A quilometragem não pode ser negativa';
     }
 
     setErrors(newErrors);

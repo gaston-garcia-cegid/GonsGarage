@@ -29,10 +29,11 @@ Objetivo del MVP: **un taller puede registrar usuarios, clientes con coches, ped
 
 ## Fase C — Reparaciones (diferenciador de taller)
 
-- Exponer **repairs** en REST (hoy el dominio existe pero las rutas en `cmd/api` están comentadas) o recortar el alcance del MVP y documentar “sin repairs en API hasta vX”.
-- UI mínima: listado / detalle de reparación por coche (aunque sea solo lectura en MVP).
+- [x] **API:** `GET /api/v1/repairs/car/:carId` activo en `cmd/api` (lista por coche; permisos en servicio).
+- [x] **UI cliente:** detalle de coche carga historial; **dashboard** agrega reparaciones recientes de la flota del usuario (solo lectura).
+- [ ] **Opcional MVP+:** `POST`/`PATCH`/`DELETE` de repairs en Gin + UI mínima para staff; o documentar aplazamiento con issue.
 
-**Criterio de salida:** historia de reparación visible para el cliente o decisión explícita de aplazar con issue enlazado.
+**Criterio de salida:** historia de reparación visible para el cliente (**cumplido** en lectura); ampliaciones staff = criterio opcional arriba.
 
 ## Fase D — MVP en producción (mínimo viable “de verdad”)
 

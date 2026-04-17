@@ -37,9 +37,9 @@ export default function CarsContainer({
   onDeleteCar,
   maxCars,
   showHeader = true,
-  headerTitle = 'Your Cars',
+  headerTitle = 'Os seus automóveis',
   headerSubtitle,
-  addButtonText = 'Add New Car',
+  addButtonText = 'Novo automóvel',
   className = '',
   renderHeader,
   renderEmptyState,
@@ -67,7 +67,7 @@ export default function CarsContainer({
   // ✅ Create car handler
   const handleCreateCar = useCallback(async (carData: CreateCarRequest): Promise<boolean> => {
     if (maxCars && cars.length >= maxCars) {
-      alert(`You can only register up to ${maxCars} cars.`);
+      alert(`Só pode registar até ${maxCars} automóveis.`);
       return false;
     }
 
@@ -160,11 +160,11 @@ export default function CarsContainer({
           onUpdateCar(useCarStore.getState().cars.filter((car) => car.id !== carId));
         }
       } else {
-        alert('Failed to delete car. Please try again.');
+        alert('Não foi possível eliminar o automóvel. Tente novamente.');
       }
     } catch (error) {
       console.error('Failed to delete car:', error);
-      alert('An error occurred while deleting the car.');
+      alert('Ocorreu um erro ao eliminar o automóvel.');
     } finally {
       setDeleteConfirmation({ isOpen: false, carId: null, carName: '' });
     }
@@ -211,7 +211,7 @@ export default function CarsContainer({
     return (
       <div className={styles.loadingContainer}>
         <LoadingSpinner />
-        <span>Loading cars...</span>
+        <span>A carregar automóveis…</span>
       </div>
     );
   }
@@ -231,10 +231,10 @@ export default function CarsContainer({
         )}
         <ConfirmModal
           isOpen={deleteConfirmation.isOpen}
-          title="Delete Car"
-          message={`Are you sure you want to delete ${deleteConfirmation.carName}? This action cannot be undone.`}
-          confirmText="Delete"
-          cancelText="Cancel"
+          title="Eliminar automóvel"
+          message={`Tem a certeza de que pretende eliminar ${deleteConfirmation.carName}? Esta ação não pode ser anulada.`}
+          confirmText="Eliminar"
+          cancelText="Cancelar"
           variant="danger"
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
@@ -246,8 +246,8 @@ export default function CarsContainer({
   const canAddCars = !maxCars || cars.length < maxCars;
   const computedSubtitle = headerSubtitle || (
     maxCars 
-      ? `Manage your registered cars (${cars.length}/${maxCars})`
-      : 'Manage your registered cars'
+      ? `Gerir os seus automóveis (${cars.length}/${maxCars})`
+      : 'Gerir os seus automóveis registados'
   );
 
   return (
@@ -270,7 +270,7 @@ export default function CarsContainer({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            {isCreating ? 'Adding...' : addButtonText}
+            {isCreating ? 'A adicionar…' : addButtonText}
           </button>
         </div>
       ) : null}
@@ -278,7 +278,7 @@ export default function CarsContainer({
       {/* ✅ Max cars warning */}
       {maxCars && cars.length >= maxCars && (
         <div className={styles.maxCarsMessage}>
-          <span>⚠️ Maximum cars limit reached ({cars.length}/{maxCars})</span>
+          <span>⚠️ Limite máximo de automóveis atingido ({cars.length}/{maxCars})</span>
         </div>
       )}
 
@@ -309,10 +309,10 @@ export default function CarsContainer({
       {/* ✅ Confirmation Modal */}
       <ConfirmModal
         isOpen={deleteConfirmation.isOpen}
-        title="Delete Car"
-        message={`Are you sure you want to delete ${deleteConfirmation.carName}? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
+        title="Eliminar automóvel"
+        message={`Tem a certeza de que pretende eliminar ${deleteConfirmation.carName}? Esta ação não pode ser anulada.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
         variant="danger"
         onConfirm={confirmDelete}
         onCancel={cancelDelete}

@@ -132,7 +132,7 @@ const authAPI = {
 
     if (!response.ok) {
       const errorText = await response.text();
-      let errorMessage = `Login failed (${response.status})`;
+      let errorMessage = `Falha no início de sessão (${response.status})`;
       
       try {
         const errorData = JSON.parse(errorText);
@@ -164,7 +164,7 @@ const authAPI = {
 
     if (!response.ok) {
       const errorText = await response.text();
-      let errorMessage = `Registration failed (${response.status})`;
+      let errorMessage = `Falha no registo (${response.status})`;
       
       try {
         const errorData = JSON.parse(errorText);
@@ -220,7 +220,7 @@ export const useAuthStore = create<AuthStore>()(
               return { success: true };
             } catch (meErr) {
               const msg =
-                meErr instanceof Error ? meErr.message : 'No se pudo validar la sesión con el servidor.';
+                meErr instanceof Error ? meErr.message : 'Não foi possível validar a sessão com o servidor.';
               set((state) => {
                 state.error = msg;
                 state.isLoading = false;
@@ -230,13 +230,13 @@ export const useAuthStore = create<AuthStore>()(
             }
           } else {
             set((state) => {
-              state.error = data.error || 'Login failed';
+              state.error = data.error || 'Falha no início de sessão';
               state.isLoading = false;
             });
-            return { success: false, error: data.error || 'Login failed' };
+            return { success: false, error: data.error || 'Falha no início de sessão' };
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Network error. Please try again.';
+          const errorMessage = error instanceof Error ? error.message : 'Erro de rede. Tente novamente.';
           set((state) => {
             state.error = errorMessage;
             state.isLoading = false;
@@ -260,7 +260,7 @@ export const useAuthStore = create<AuthStore>()(
 
           return { success: true };
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Network error. Please try again.';
+          const errorMessage = error instanceof Error ? error.message : 'Erro de rede. Tente novamente.';
           set((state) => {
             state.error = errorMessage;
             state.isLoading = false;

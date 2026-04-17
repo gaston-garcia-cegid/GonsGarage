@@ -23,7 +23,7 @@ export default function ClientPage() {
   const handleAddCar = useCallback((newCar: Car) => {
   console.log('New car added:', newCar);
   setUserCars(prevCars => [...prevCars, newCar]);
-  alert(`${newCar.year} ${newCar.make} ${newCar.model} has been added successfully!`);
+  alert(`${newCar.year} ${newCar.make} ${newCar.model} foi adicionado com sucesso.`);
 }, []);
 
   // Handle when cars list is updated - following Agent.md state management
@@ -35,13 +35,13 @@ export default function ClientPage() {
   }, []);
 
   if (authLoading || loading) {// || !isAuthenticated
-    return <div>Loading Client Page...</div>;
+    return <div>A carregar área do cliente…</div>;
   }
 
   const navigationItems = [
-    { key: 'dashboard', label: 'Dashboard', href: '#' },
-    { key: 'cars', label: 'My Cars', href: '#' },
-    { key: 'appointments', label: 'Appointments', href: '#' },
+    { key: 'dashboard', label: 'Painel', href: '#' },
+    { key: 'cars', label: 'Os meus automóveis', href: '#' },
+    { key: 'appointments', label: 'Marcações', href: '#' },
   ];
 
   const renderContent = () => {
@@ -69,10 +69,16 @@ export default function ClientPage() {
     }
   };
 
+  const tabTitles: Record<ActiveTab, string> = {
+    dashboard: 'Painel',
+    cars: 'Automóveis',
+    appointments: 'Marcações',
+  };
+
   return (
     <DashboardLayout
-      title={activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-      subtitle="Customer Dashboard"
+      title={tabTitles[activeTab]}
+      subtitle="Área do cliente"
       activeTab={activeTab}
       navigationItems={navigationItems}
       onNavClick={(tab: string) => setActiveTab(tab as ActiveTab)}

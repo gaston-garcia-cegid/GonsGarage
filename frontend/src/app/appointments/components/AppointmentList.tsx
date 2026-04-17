@@ -23,8 +23,8 @@ export default function AppointmentList({
     return (
       <div className={styles.emptyState}>
         <div className={styles.emptyIcon}>📅</div>
-        <h3>No appointments scheduled yet</h3>
-        <p>Book your first appointment to get started with our services</p>
+        <h3>Ainda sem marcações</h3>
+        <p>Marque a primeira visita para começar a usar os nossos serviços</p>
       </div>
     );
   }

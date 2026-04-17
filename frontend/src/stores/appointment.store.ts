@@ -119,7 +119,7 @@ export const useAppointmentStore = create<AppointmentStore>()(
       try {
         const newAppointment = await appointmentApi.createAppointment(data);
         if(!newAppointment) {
-          throw new Error('Failed to create appointment');
+          throw new Error('Não foi possível criar a marcação');
         }
 
         set((state) => {
@@ -146,7 +146,7 @@ export const useAppointmentStore = create<AppointmentStore>()(
       try {
         const updatedAppointment = await appointmentApi.updateAppointment(id, data);
         if(!updatedAppointment) {
-          throw new Error('Failed to update appointment');
+          throw new Error('Não foi possível atualizar a marcação');
         }
 
         set((state) => {
@@ -174,7 +174,7 @@ export const useAppointmentStore = create<AppointmentStore>()(
       try {
         const cancelledAppointment = await appointmentApi.cancelAppointment(id);
         if (!cancelledAppointment) {
-          throw new Error('Failed to cancel appointment');
+          throw new Error('Não foi possível cancelar a marcação');
         }
 
         set((state) => {
@@ -197,7 +197,7 @@ export const useAppointmentStore = create<AppointmentStore>()(
       try {
         const confirmedAppointment = await appointmentApi.confirmAppointment(id);
         if (!confirmedAppointment) {
-          throw new Error('Failed to confirm appointment');
+          throw new Error('Não foi possível confirmar a marcação');
         }
 
         set((state) => {
@@ -220,7 +220,7 @@ export const useAppointmentStore = create<AppointmentStore>()(
       try {
         const completedAppointment = await appointmentApi.completeAppointment(id);
         if (!completedAppointment) {
-          throw new Error('Failed to complete appointment');
+          throw new Error('Não foi possível concluir a marcação');
         }
 
         set((state) => {

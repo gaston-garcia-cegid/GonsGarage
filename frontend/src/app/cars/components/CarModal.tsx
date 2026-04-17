@@ -79,12 +79,12 @@ export default function CarModal({
       if (success) {
         onClose();
       } else {
-        errors.general = 'Failed to save car. Please try again.';
+        errors.general = 'Não foi possível guardar o automóvel. Tente novamente.';
         //alert('Failed to save car. Please try again.');
       }
     } catch (err) {
       console.log(err);
-      alert('An error occurred. Please try again.');
+      alert('Ocorreu um erro. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -101,11 +101,11 @@ export default function CarModal({
     <div className={styles.modalOverlay} onClick={handleBackdropClick}>
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
-          <h3>{car ? 'Edit Car' : 'Add New Car'}</h3>
+          <h3>{car ? 'Editar automóvel' : 'Novo automóvel'}</h3>
           <button 
             onClick={onClose} 
             className={styles.closeButton}
-            aria-label="Close modal"
+            aria-label="Fechar"
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -130,14 +130,14 @@ export default function CarModal({
           <div className={styles.formGrid}>
             {/* Make Field */}
             <div className={styles.formGroup}>
-              <label htmlFor="make">Make *</label>
+              <label htmlFor="make">Marca *</label>
               <input
                 id="make"
                 name="make"
                 type="text"
                 value={formData.make}
                 onChange={handleChange}
-                placeholder="e.g., Toyota"
+                placeholder="ex.: Toyota"
                 className={errors.make ? styles.inputError : ''}
                 disabled={isLoading}
               />
@@ -146,14 +146,14 @@ export default function CarModal({
 
             {/* Model Field */}
             <div className={styles.formGroup}>
-              <label htmlFor="model">Model *</label>
+              <label htmlFor="model">Modelo *</label>
               <input
                 id="model"
                 name="model"
                 type="text"
                 value={formData.model}
                 onChange={handleChange}
-                placeholder="e.g., Camry"
+                placeholder="ex.: Corolla"
                 className={errors.model ? styles.inputError : ''}
                 disabled={isLoading}
               />
@@ -162,7 +162,7 @@ export default function CarModal({
 
             {/* Year Field */}
             <div className={styles.formGroup}>
-              <label htmlFor="year">Year *</label>
+              <label htmlFor="year">Ano *</label>
               <input
                 id="year"
                 name="year"
@@ -179,14 +179,14 @@ export default function CarModal({
 
             {/* Color Field */}
             <div className={styles.formGroup}>
-              <label htmlFor="color">Color *</label>
+              <label htmlFor="color">Cor *</label>
               <input
                 id="color"
                 name="color"
                 type="text"
                 value={formData.color}
                 onChange={handleChange}
-                placeholder="e.g., Blue"
+                placeholder="ex.: Azul"
                 className={errors.color ? styles.inputError : ''}
                 disabled={isLoading}
               />
@@ -196,14 +196,14 @@ export default function CarModal({
 
           {/* License Plate Field */}
           <div className={styles.formGroup}>
-            <label htmlFor="licensePlate">License Plate *</label>
+            <label htmlFor="licensePlate">Matrícula *</label>
             <input
               id="licensePlate"
               name="licensePlate"
               type="text"
               value={formData.licensePlate}
               onChange={handleChange}
-              placeholder="e.g., ABC-1234"
+              placeholder="ex.: AA-12-BB"
               className={errors.licensePlate ? styles.inputError : ''}
               disabled={isLoading}
             />
@@ -212,14 +212,14 @@ export default function CarModal({
 
           {/* VIN Field */}
           <div className={styles.formGroup}>
-            <label htmlFor="vin">VIN (Optional)</label>
+            <label htmlFor="vin">VIN (opcional)</label>
             <input
               id="vin"
               name="vin"
               type="text"
               value={formData.vin}
               onChange={handleChange}
-              placeholder="17-character VIN"
+              placeholder="VIN com 17 caracteres"
               maxLength={17}
               disabled={isLoading}
             />
@@ -227,7 +227,7 @@ export default function CarModal({
 
           {/* Mileage Field */}
           <div className={styles.formGroup}>
-            <label htmlFor="mileage">Mileage (Optional)</label>
+            <label htmlFor="mileage">Quilometragem (opcional)</label>
             <input
               id="mileage"
               name="mileage"
@@ -235,7 +235,7 @@ export default function CarModal({
               value={formData.mileage}
               onChange={handleChange}
               min="0"
-              placeholder="Current mileage"
+              placeholder="Quilometragem atual"
               className={errors.mileage ? styles.inputError : ''}
               disabled={isLoading}
             />
@@ -250,14 +250,14 @@ export default function CarModal({
               className={styles.cancelButton}
               disabled={isLoading}
             >
-              Cancel
+              Cancelar
             </button>
             <button
               type="submit"
               disabled={isLoading}
               className={styles.submitButton}
             >
-              {isLoading ? 'Saving...' : (car ? 'Update Car' : 'Add Car')}
+              {isLoading ? 'A guardar…' : (car ? 'Atualizar' : 'Adicionar')}
             </button>
           </div>
         </form>

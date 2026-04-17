@@ -43,7 +43,7 @@ export function isWithinWorkshopHours(d: Date): boolean {
 }
 
 export function workshopHoursErrorMessage(): string {
-  return 'El horario debe estar entre 9:30 y 12:30 o entre 14:00 y 17:30.';
+  return 'O horário tem de estar entre as 9:30 e as 12:30 ou entre as 14:00 e as 17:30.';
 }
 
 /** Parse YYYY-MM-DD as local calendar date (no UTC shift). */
@@ -67,7 +67,7 @@ export function isWeekdayLocalYmd(ymd: string): boolean {
 }
 
 export function weekdayErrorMessage(): string {
-  return 'Solo se pueden reservar turnos de lunes a viernes.';
+  return 'Só é possível marcar de segunda a sexta-feira.';
 }
 
 /** Local YYYY-MM-DD for today. */
@@ -153,7 +153,7 @@ export function formatSlotLabel24h(hhmm: string): string {
 export function formatAppointmentSummaryLocal(ymd: string, hhmm: string): string {
   const d = parseLocalDateOnlyYmd(ymd);
   if (!d) return `${ymd} ${hhmm}`;
-  const datePart = new Intl.DateTimeFormat('es-AR', {
+  const datePart = new Intl.DateTimeFormat('pt-PT', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

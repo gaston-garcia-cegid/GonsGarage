@@ -14,10 +14,10 @@ export default function EmptyCarState({ onAddCar }: EmptyCarStateProps) {
         <div className="empty-state-icon">
           🚗
         </div>
-        <h3>No Cars Registered</h3>
+        <h3>Sem automóveis registados</h3>
         <p>
-          You haven&apos;t added any cars to your account yet. 
-          Add your first car to start booking appointments.
+          Ainda não adicionou nenhum automóvel à sua conta.
+          Adicione o primeiro para poder marcar visitas.
         </p>
         <div className="empty-state-actions">
           {onAddCar ? (
@@ -25,11 +25,11 @@ export default function EmptyCarState({ onAddCar }: EmptyCarStateProps) {
               onClick={onAddCar}
               className="btn-primary"
             >
-              Add Your First Car
+              Adicionar o primeiro automóvel
             </button>
           ) : (
             <Link href="/cars?addCar=1" className="btn-primary">
-              Add Your First Car
+              Adicionar o primeiro automóvel
             </Link>
           )}
         </div>

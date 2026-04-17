@@ -8,6 +8,16 @@ import AppShell from '@/components/layout/AppShell';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import styles from './car-details.module.css';
 
+function repairStatusPt(status: string): string {
+  const map: Record<string, string> = {
+    pending: 'Pendente',
+    in_progress: 'Em curso',
+    completed: 'Concluída',
+    cancelled: 'Cancelada',
+  };
+  return map[status] ?? status.replace(/_/g, ' ');
+}
+
 export default function CarDetailsPage() {
   const [repairs, setRepairs] = useState<Repair[]>([]);
   const [repairsLoading, setRepairsLoading] = useState(true);
@@ -55,7 +65,7 @@ export default function CarDetailsPage() {
   }, [authHydrated, user, router, carId, fetchCarById, fetchCarRepairs]);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('pt-PT', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -63,9 +73,9 @@ export default function CarDetailsPage() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('pt-PT', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'EUR',
     }).format(amount);
   };
 
@@ -81,26 +91,26 @@ export default function CarDetailsPage() {
 
   if (!authHydrated || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      <div className="loadingScreen">
+        <div className="spinnerLg" aria-hidden />
       </div>
     );
   }
 
   if (carId === 'new') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      <div className="loadingScreen">
+        <div className="spinnerLg" aria-hidden />
       </div>
     );
   }
 
   if (loading) {
     return (
-      <AppShell user={user} subtitle="Car Details" activeNav="cars" onLogout={logout}>
+      <AppShell user={user} subtitle="Detalhe do automóvel" activeNav="cars" onLogout={logout}>
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
-          <span>Loading car details...</span>
+          <span>A carregar detalhes…</span>
         </div>
       </AppShell>
     );
@@ -108,14 +118,14 @@ export default function CarDetailsPage() {
 
   if (error || !car) {
     return (
-      <AppShell user={user} subtitle="Car Details" activeNav="cars" onLogout={logout}>
+      <AppShell user={user} subtitle="Detalhe do automóvel" activeNav="cars" onLogout={logout}>
         <div className={styles.errorContainer}>
           <div className={styles.errorContent}>
             <div className={styles.errorIcon}>⚠️</div>
-            <h2>Car Not Found</h2>
-            <p>{error || 'The requested car could not be found.'}</p>
+            <h2>Automóvel não encontrado</h2>
+            <p>{error || 'O automóvel pedido não existe ou não está disponível.'}</p>
             <button type="button" onClick={() => router.push('/cars')} className={styles.backButton}>
-              Back to Cars
+              Voltar aos automóveis
             </button>
           </div>
         </div>
@@ -124,10 +134,10 @@ export default function CarDetailsPage() {
   }
 
   return (
-    <AppShell user={user} subtitle="Car Details" activeNav="cars" onLogout={logout}>
+    <AppShell user={user} subtitle="Detalhe do automóvel" activeNav="cars" onLogout={logout}>
       <div className={styles.breadcrumbs}>
         <button onClick={() => router.push('/cars')} className={styles.breadcrumbLink}>
-          My Cars
+          Os meus automóveis
         </button>
         <span className={styles.breadcrumbSeparator}>›</span>
         <span className={styles.breadcrumbCurrent}>
@@ -152,14 +162,14 @@ export default function CarDetailsPage() {
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Schedule Service
+                Marcar serviço
               </button>
             </div>
           </div>
 
           <div className={styles.carInfoGrid}>
             <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Color</span>
+              <span className={styles.infoLabel}>Cor</span>
               <span className={styles.infoValue}>{car.color}</span>
             </div>
             {car.vin && (
@@ -169,11 +179,11 @@ export default function CarDetailsPage() {
               </div>
             )}
             <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Added</span>
+              <span className={styles.infoLabel}>Registado em</span>
               <span className={styles.infoValue}>{formatDate(car.createdAt)}</span>
             </div>
             <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Last Updated</span>
+              <span className={styles.infoLabel}>Última atualização</span>
               <span className={styles.infoValue}>{formatDate(car.updatedAt)}</span>
             </div>
           </div>
@@ -182,31 +192,31 @@ export default function CarDetailsPage() {
         {/* Repairs Section */}
         <div className={styles.repairsSection}>
           <div className={styles.sectionHeader}>
-            <h3>Service History</h3>
+            <h3>Histórico de serviços</h3>
             <div className={styles.repairsStats}>
               <div className={styles.statItem}>
                 <span className={styles.statValue}>
                   {repairs.filter(r => r.status === 'completed').length}
                 </span>
-                <span className={styles.statLabel}>Completed</span>
+                <span className={styles.statLabel}>Concluídas</span>
               </div>
               <div className={styles.statItem}>
                 <span className={styles.statValue}>
                   {repairs.filter(r => r.status === 'in_progress').length}
                 </span>
-                <span className={styles.statLabel}>In Progress</span>
+                <span className={styles.statLabel}>Em curso</span>
               </div>
               <div className={styles.statItem}>
                 <span className={styles.statValue}>
                   {repairs.filter(r => r.status === 'pending').length}
                 </span>
-                <span className={styles.statLabel}>Pending</span>
+                <span className={styles.statLabel}>Pendentes</span>
               </div>
               <div className={styles.statItem}>
                 <span className={styles.statValue}>
                   {formatCurrency(repairs.reduce((sum, r) => sum + r.cost, 0))}
                 </span>
-                <span className={styles.statLabel}>Total Cost</span>
+                <span className={styles.statLabel}>Custo total</span>
               </div>
             </div>
           </div>
@@ -214,18 +224,18 @@ export default function CarDetailsPage() {
           {repairsLoading ? (
             <div className={styles.repairsLoading}>
               <div className={styles.spinner}></div>
-              <span>Loading repairs...</span>
+              <span>A carregar reparações…</span>
             </div>
           ) : repairs.length === 0 ? (
             <div className={styles.emptyRepairs}>
               <div className={styles.emptyIcon}>🔧</div>
-              <h4>No Service History</h4>
-              <p>This car hasn&apos;t had any services yet.</p>
+              <h4>Sem histórico de serviços</h4>
+              <p>Este automóvel ainda não tem intervenções registadas.</p>
               <button 
                 onClick={() => router.push(`/appointments?schedule=1&carId=${encodeURIComponent(car.id)}`)}
                 className={styles.scheduleFirstServiceButton}
               >
-                Schedule First Service
+                Marcar primeiro serviço
               </button>
             </div>
           ) : (
@@ -235,7 +245,7 @@ export default function CarDetailsPage() {
                   <div className={styles.repairHeader}>
                     <div className={styles.repairStatus}>
                       <span className={`${styles.statusBadge} ${styles[getStatusColor(repair.status)]}`}>
-                        {repair.status.replace('_', ' ').toUpperCase()}
+                        {repairStatusPt(repair.status)}
                       </span>
                     </div>
                     <div className={styles.repairCost}>
@@ -251,7 +261,7 @@ export default function CarDetailsPage() {
                         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span>Created: {formatDate(repair.created_at)}</span>
+                        <span>Criado: {formatDate(repair.created_at)}</span>
                       </div>
                       
                       {repair.started_at && (
@@ -259,7 +269,7 @@ export default function CarDetailsPage() {
                           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <span>Started: {formatDate(repair.started_at)}</span>
+                          <span>Início: {formatDate(repair.started_at)}</span>
                         </div>
                       )}
                       
@@ -268,7 +278,7 @@ export default function CarDetailsPage() {
                           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <span>Completed: {formatDate(repair.completed_at)}</span>
+                          <span>Concluído: {formatDate(repair.completed_at)}</span>
                         </div>
                       )}
 
@@ -277,7 +287,7 @@ export default function CarDetailsPage() {
                           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                           </svg>
-                          <span>Technician: {repair.technician.first_name} {repair.technician.last_name}</span>
+                          <span>Técnico: {repair.technician.first_name} {repair.technician.last_name}</span>
                         </div>
                       )}
                     </div>

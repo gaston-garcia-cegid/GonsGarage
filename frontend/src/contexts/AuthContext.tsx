@@ -100,9 +100,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         try {
           const errorData = JSON.parse(errorText);
-          return { success: false, error: errorData.error || `Login failed (${response.status})` };
+          return { success: false, error: errorData.error || `Falha no início de sessão (${response.status})` };
         } catch {
-          return { success: false, error: `Login failed (${response.status})` };
+          return { success: false, error: `Falha no início de sessão (${response.status})` };
         }
       }
 
@@ -142,13 +142,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: true };
       } else {
         console.error('Login error:', data.error);
-        return { success: false, error: data.error || 'Login failed' };
+        return { success: false, error: data.error || 'Falha no início de sessão' };
       }
     } catch (error) {
       console.error('Login error:', error);
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Network error. Please try again.' 
+        error: error instanceof Error ? error.message : 'Erro de rede. Tente novamente.' 
       };
     } finally {
       setIsLoading(false);
@@ -187,10 +187,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const errorData = JSON.parse(errorText);
           return { 
             success: false, 
-            error: errorData.error || errorData.message || `Registration failed (${response.status})` 
+            error: errorData.error || errorData.message || `Falha no registo (${response.status})` 
           };
         } catch {
-          return { success: false, error: `Registration failed (${response.status})` };
+          return { success: false, error: `Falha no registo (${response.status})` };
         }
       }
 
@@ -202,7 +202,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error('Registration error:', error);
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Network error. Please try again.' 
+        error: error instanceof Error ? error.message : 'Erro de rede. Tente novamente.' 
       };
     }
   };

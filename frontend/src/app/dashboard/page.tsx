@@ -3,13 +3,24 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useCars, useAppointments, UserRole } from '@/stores';
-import { Repair } from '@/lib/api';
+import { apiClient, Repair } from '@/lib/api';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import AppShell from '@/components/layout/AppShell';
 import styles from './dashboard.module.css';
 
+function repairStatusPt(status: string): string {
+  const map: Record<string, string> = {
+    pending: 'Pendente',
+    in_progress: 'Em curso',
+    completed: 'Concluído',
+    cancelled: 'Cancelado',
+  };
+  return map[status] ?? status.replace(/_/g, ' ');
+}
+
 export default function ClientDashboardPage() {
-  const [recentRepairs] = useState<Repair[]>([]); // TODO: setRecentRepairs will be used when repair store is ready
+  const [recentRepairs, setRecentRepairs] = useState<Repair[]>([]);
+  const [repairsLoading, setRepairsLoading] = useState(false);
 
   const { user, logout } = useAuth();
   const authHydrated = useAuthHydrationReady();
@@ -22,9 +33,12 @@ export default function ClientDashboardPage() {
   const error = carsError || appointmentsError;
   
   // Filter upcoming appointments
-  const upcomingAppointments = appointments.filter(appointment => 
-    new Date(appointment.date) > new Date()
-  );
+  const upcomingAppointments = appointments.filter((appointment) => {
+    const raw = appointment.date;
+    if (!raw) return false;
+    const t = new Date(raw).getTime();
+    return !Number.isNaN(t) && t > Date.now();
+  });
 
   const isClientRole = user?.role === UserRole.CLIENT;
 
@@ -38,16 +52,48 @@ export default function ClientDashboardPage() {
     fetchAppointments();
   }, [authHydrated, user, router, fetchCars, fetchAppointments]);
 
+  useEffect(() => {
+    if (!authHydrated || !user) return;
+    if (cars.length === 0) {
+      setRecentRepairs([]);
+      return;
+    }
+    let cancelled = false;
+    setRepairsLoading(true);
+    void (async () => {
+      try {
+        const batches = await Promise.all(
+          cars.map(async (car) => {
+            const { data, error } = await apiClient.getRepairs(car.id);
+            if (error || !data) return [] as Repair[];
+            return Array.isArray(data) ? data : [];
+          }),
+        );
+        if (cancelled) return;
+        const merged = batches.flat();
+        merged.sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        );
+        setRecentRepairs(merged.slice(0, 8));
+      } finally {
+        if (!cancelled) setRepairsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [authHydrated, user, cars]);
+
   if (!authHydrated || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="loadingScreen">
+        <div className="spinnerLg" aria-hidden />
       </div>
     );
   }
 
-  const shellSubtitle = isClientRole ? 'Customer dashboard' : 'Workshop dashboard';
-  const carsLabel = isClientRole ? 'My cars' : 'Vehicles';
+  const shellSubtitle = isClientRole ? 'Painel do cliente' : 'Painel da oficina';
+  const carsLabel = isClientRole ? 'Os meus automóveis' : 'Viaturas';
 
   if (loading) {
     return (
@@ -60,7 +106,7 @@ export default function ClientDashboardPage() {
       >
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
-          <span>Loading dashboard...</span>
+          <span>A carregar o painel…</span>
         </div>
       </AppShell>
     );
@@ -89,7 +135,7 @@ export default function ClientDashboardPage() {
               </svg>
             </div>
             <div>
-              <h3>{isClientRole ? 'My cars' : 'Vehicles'}</h3>
+              <h3>{isClientRole ? 'Os meus automóveis' : 'Viaturas'}</h3>
               <p className={styles.statNumber}>{cars.length}</p>
             </div>
           </div>
@@ -102,7 +148,7 @@ export default function ClientDashboardPage() {
               </svg>
             </div>
             <div>
-              <h3>Active Repairs</h3>
+              <h3>Reparações ativas</h3>
               <p className={styles.statNumber}>
                 {recentRepairs.filter(r => r.status === 'in_progress').length}
               </p>
@@ -116,7 +162,7 @@ export default function ClientDashboardPage() {
               </svg>
             </div>
             <div>
-              <h3>Upcoming Appointments</h3>
+              <h3>Próximas marcações</h3>
               <p className={styles.statNumber}>{upcomingAppointments.length}</p>
             </div>
           </div>
@@ -127,23 +173,23 @@ export default function ClientDashboardPage() {
           {/* Recent Cars */}
           <div className={styles.card}>
             <div className={styles.cardHeader}>
-              <h3>{isClientRole ? 'My cars' : 'Vehicles'}</h3>
+              <h3>{isClientRole ? 'Os meus automóveis' : 'Viaturas'}</h3>
               <button 
                 onClick={() => router.push('/cars')}
                 className={styles.linkButton}
               >
-                View All
+                Ver tudo
               </button>
             </div>
             <div className={styles.cardBody}>
               {cars.length === 0 ? (
                 <div className={styles.emptyState}>
-                  <p>{isClientRole ? 'No cars registered yet' : 'No vehicles in list'}</p>
+                  <p>{isClientRole ? 'Ainda sem automóveis registados' : 'Sem viaturas na lista'}</p>
                   <button 
                     onClick={() => router.push('/cars')}
                     className={styles.primaryButton}
                   >
-                    {isClientRole ? 'Add your first car' : 'Open vehicles'}
+                    {isClientRole ? 'Adicionar o primeiro automóvel' : 'Abrir viaturas'}
                   </button>
                 </div>
               ) : (
@@ -161,7 +207,7 @@ export default function ClientDashboardPage() {
                         onClick={() => router.push(`/cars/${car.id}`)}
                         className={styles.viewButton}
                       >
-                        View
+                        Ver
                       </button>
                     </div>
                   ))}
@@ -173,18 +219,23 @@ export default function ClientDashboardPage() {
           {/* Recent Repairs */}
           <div className={styles.card}>
             <div className={styles.cardHeader}>
-              <h3>Recent Repairs</h3>
-              <button 
+              <h3>Reparações recentes</h3>
+              <button
+                type="button"
                 onClick={() => router.push('/cars')}
                 className={styles.linkButton}
               >
-                View All
+                Ver nos automóveis
               </button>
             </div>
             <div className={styles.cardBody}>
-              {recentRepairs.length === 0 ? (
+              {repairsLoading ? (
                 <div className={styles.emptyState}>
-                  <p>No repairs yet</p>
+                  <p>A carregar reparações…</p>
+                </div>
+              ) : recentRepairs.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>Ainda sem reparações</p>
                 </div>
               ) : (
                 <div className={styles.repairsList}>
@@ -192,12 +243,14 @@ export default function ClientDashboardPage() {
                     <div key={repair.id} className={styles.repairItem}>
                       <div className={styles.repairStatus}>
                         <span className={`${styles.statusBadge} ${styles[repair.status]}`}>
-                          {repair.status.replace('_', ' ')}
+                          {repairStatusPt(repair.status)}
                         </span>
                       </div>
                       <div className={styles.repairInfo}>
                         <h4>{repair.description}</h4>
-                        <p>${repair.cost.toFixed(2)}</p>
+                        <p>
+                          {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(repair.cost)}
+                        </p>
                       </div>
                     </div>
                   ))}

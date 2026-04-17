@@ -13,10 +13,9 @@ export default function EmptyAppointmentState({ onSchedule }: EmptyAppointmentSt
       <div className={styles.emptyStateIcon}>
         📅
       </div>
-      <h3 className={styles.emptyStateTitle}>No Appointments Yet</h3>
+      <h3 className={styles.emptyStateTitle}>Ainda sem marcações</h3>
       <p className={styles.emptyStateDescription}>
-        You haven&apos;t scheduled any service appointments. 
-        Book your first appointment to keep your vehicle in top condition.
+        Ainda não marcou nenhum serviço. Marque a primeira visita para manter o seu automóvel em boas condições.
       </p>
       {onSchedule && (
         <button onClick={onSchedule} className={styles.emptyStateButton}>
@@ -24,7 +23,7 @@ export default function EmptyAppointmentState({ onSchedule }: EmptyAppointmentSt
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
               d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          Schedule First Appointment
+          Marcar primeira visita
         </button>
       )}
     </div>
