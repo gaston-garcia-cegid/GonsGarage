@@ -6,11 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
@@ -333,7 +331,7 @@ func setupRoutes(
 
 	// Protected routes
 	protected := api.Group("/")
-	protected.Use(ginAuthMiddleware(authMiddleware))
+	protected.Use(middleware.GinBearerJWT(authMiddleware))
 	{
 		protected.GET("/auth/me", authHandler.Me)
 
@@ -377,110 +375,6 @@ func setupRoutes(
 		// 	repairs.PUT("/:id", repairHandler.UpdateRepair)
 		// 	repairs.DELETE("/:id", repairHandler.DeleteRepair)
 		// }
-	}
-}
-
-// Convert auth middleware to Gin middleware
-// ginAuthMiddleware converts the auth middleware to work properly with Gin
-func ginAuthMiddleware(authMiddleware *middleware.AuthMiddleware) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// Get token from Authorization header using Gin's method
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
-			c.Abort()
-			return
-		}
-
-		// Check if token has Bearer prefix
-		tokenParts := strings.Split(authHeader, " ")
-		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format"})
-			c.Abort()
-			return
-		}
-
-		tokenString := tokenParts[1]
-
-		// Parse and validate token using jwt
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return []byte(authMiddleware.GetJWTSecret()), nil
-		})
-
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			c.Abort()
-			return
-		}
-
-		if !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			c.Abort()
-			return
-		}
-
-		// Extract claims
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
-			c.Abort()
-			return
-		}
-
-		// Extract user ID
-		var userIDStr string
-		if uid, exists := claims["userID"]; exists {
-			if uidStr, ok := uid.(string); ok {
-				userIDStr = uidStr
-			} else {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid userID in token"})
-				c.Abort()
-				return
-			}
-		} else if sub, exists := claims["sub"]; exists {
-			if subStr, ok := sub.(string); ok {
-				userIDStr = subStr
-			} else {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid sub in token"})
-				c.Abort()
-				return
-			}
-		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing user identifier in token"})
-			c.Abort()
-			return
-		}
-
-		// Validate UUID format
-		userID, err := uuid.Parse(userIDStr)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid userID format"})
-			c.Abort()
-			return
-		}
-
-		// Store user info in Gin context (much cleaner than http.Request context)
-		c.Set("userID", userID.String())
-
-		if email, exists := claims["email"]; exists {
-			if emailStr, ok := email.(string); ok {
-				c.Set("userEmail", emailStr)
-			}
-		}
-
-		if role, exists := claims["role"]; exists {
-			if roleStr, ok := role.(string); ok {
-				c.Set("userRole", roleStr)
-			}
-		}
-
-		log.Printf("✅ Authentication successful for user: %s", userID.String())
-
-		// Continue to next handler
-		c.Next()
 	}
 }
 

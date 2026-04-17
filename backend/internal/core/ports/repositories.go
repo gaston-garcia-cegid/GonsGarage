@@ -116,6 +116,13 @@ type RepairRepository interface {
 	GetByCarID(ctx context.Context, carID uuid.UUID) ([]*domain.Repair, error)
 }
 
+// InvoiceRepository persists invoices (customer-scoped access enforced in InvoiceService).
+type InvoiceRepository interface {
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Invoice, error)
+	Update(ctx context.Context, invoice *domain.Invoice) error
+	ListByCustomerID(ctx context.Context, customerID uuid.UUID, limit, offset int) ([]*domain.Invoice, int64, error)
+}
+
 // Logger defines the interface for logging
 type Logger interface {
 	Info(msg string, keysAndValues ...interface{})

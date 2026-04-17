@@ -95,3 +95,9 @@ go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/
 - **`internal/repository/postgres/repair_repository.go`**: con **postgres** / **pgx**, CRUD y listados (`GetByCarID`, `GetByClientID`, `List`, `GetByLicensePlate`) por **sqlx**; **`toDomainRepair`** mapea dominio completo; `INSERT` rellena campos denormalizados del modelo con valores neutros (el modelo GORM ya los tenía).
 - **`internal/repository/postgres/employee_repository.go`**: con **postgres** / **pgx**, `Create`, `FindByID`, `Update`, soft `Delete` y **`List`** (conteo + filtros `department` / `is_active`, orden seguro) por **sqlx**; el usuario asociado se enriquece con un `IN` batch vía `fetchUserModelsByIDs` (mismo patrón que coches). Con **sqlite** en tests se sigue usando **GORM**.
 - Próximos pasos: repositorios Redis/mock si aplica, y alinear migraciones SQL con nombres de columnas reales (`repairs` / `appointments`) para reducir divergencia con AutoMigrate.
+
+## Tests (cliente / JWT / facturas)
+
+- **Backend**: `go test ./... -short` — incluye `internal/service/invoice` (RU factura propia del cliente) y `internal/middleware` (`GinBearerJWT`).
+- **Integración SQLite** (`tests/integration/*`, build tag `cgo`): requiere **CGO habilitado** (p. ej. Linux en CI). Incluye RBAC HTTP de citas y coches con JWT; en Windows sin CGO el paquete se omite en `go test ./...`.
+- **Frontend**: `pnpm test` ejecuta **Vitest** (`src/**/*.test.ts`). Suites legacy con `jest.mock` siguen en `pnpm test:jest`.

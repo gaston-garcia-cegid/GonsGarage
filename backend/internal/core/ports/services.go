@@ -138,3 +138,10 @@ type AppointmentService interface {
 	// ListAppointments lists appointments with optional filters and authorization checks
 	ListAppointments(ctx context.Context, requestingUserID uuid.UUID, filters *AppointmentFilters) ([]*domain.Appointment, int64, error)
 }
+
+// InvoiceService customer invoices (client: own invoices only for read/update notes).
+type InvoiceService interface {
+	GetInvoice(ctx context.Context, invoiceID uuid.UUID, requestingUserID uuid.UUID) (*domain.Invoice, error)
+	UpdateInvoice(ctx context.Context, invoice *domain.Invoice, requestingUserID uuid.UUID) (*domain.Invoice, error)
+	ListMyInvoices(ctx context.Context, requestingUserID uuid.UUID, limit, offset int) ([]*domain.Invoice, int64, error)
+}
