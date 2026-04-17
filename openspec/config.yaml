@@ -1,0 +1,52 @@
+# GonsGarage — SDD (Spec-Driven). Regenerado por sdd-init.
+schema: spec-driven
+
+context: |
+  Monorepo: Go 1.25 (Gin, GORM, Postgres, Redis, JWT, swag) + Next.js 15 / React 19 (pnpm, Zustand).
+  API REST bajo /api/v1; dominio en backend/internal (handlers, services, repository).
+  Frontend App Router; estado con Zustand; UI pt_PT por defecto (i18n futuro: docs/i18n-reminder.md).
+  CI: .github/workflows/ci.yml (Go + frontend lint/typecheck/test/build).
+
+strict_tdd: true
+
+testing:
+  strict_tdd: true
+  detected: "2026-04-16"
+  test_runner:
+    frontend: { framework: vitest, command: "pnpm test" }
+    backend: { framework: go test, command: "go test ./..." }
+  layers:
+    unit: { available: true, tools: [vitest, testify] }
+    integration: { available: true, tools: ["@testing-library/react"] }
+    e2e: { available: false, tools: [] }
+  coverage:
+    available: true
+    command_frontend: "pnpm test:coverage"
+    command_backend: "go test -cover ./..."
+  quality:
+    linter: { available: true, command: "pnpm lint" }
+    typecheck: { available: true, command: "pnpm typecheck" }
+    formatter: { available: true, notes: "eslint --fix según config; gofmt en Go" }
+
+rules:
+  proposal:
+    - Incluir plan de rollback en cambios arriesgados
+    - Identificar módulos/paquetes afectados
+  specs:
+    - Escenarios en formato Given/When/Then
+    - Palabras clave RFC 2119 (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Diagramas de secuencia para flujos complejos
+    - Decisiones de arquitectura con justificación
+  tasks:
+    - Agrupar por fase (infra, implementación, pruebas)
+    - Numeración jerárquica (1.1, 1.2)
+    - Tareas cerrables en una sesión
+  apply:
+    - Seguir patrones existentes del repo
+    - Cargar skills de stack cuando apliquen
+  verify:
+    - Ejecutar tests si existen
+    - Contrastar con cada escenario del spec
+  archive:
+    - Advertir antes de fusionar deltas destructivos
