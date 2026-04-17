@@ -1,7 +1,13 @@
 /**
  * GonsGarage — design tokens (generic app shell)
- * Brand: taller mecánico — navy/carbón (logo), azul confianza, rojo señalética (logo / alertas).
  * Dark mode: `html[data-theme="dark"]`; preferencia en `data-theme-pref` (light|dark|system).
+ *
+ * ## Brand (vs. logo)
+ * Referência visual: `frontend/public/images/LogoGonsGarage.jpg`
+ * - `--brand-navy` / `--brand-navy-muted`: fundo escuro / barra do logótipo (carbón).
+ * - `--brand-accent` / `--brand-accent-soft`: azul de confiança (texto/marca no logo).
+ * - `--brand-signal` / `--color-error`: vermelho de sinalética e ações destrutivas.
+ * - `--color-primary`: cor de interacção principal (liga a `--brand-accent` no tema claro).
  */
 
 :root {
@@ -11,11 +17,13 @@
   --brand-accent: #1d4ed8;
   --brand-accent-soft: #3b82f6;
   --brand-signal: #dc2626;
+  --brand-signal-hover: color-mix(in srgb, var(--brand-signal) 86%, #000);
 
   --color-primary: var(--brand-accent);
   --color-primary-hover: #1e40af;
   --color-secondary: #64748b;
   --color-success: #059669;
+  --color-success-hover: color-mix(in srgb, var(--color-success) 88%, #0f172a);
   --color-warning: #d97706;
   --color-error: var(--brand-signal);
 
@@ -105,6 +113,41 @@
   --marketing-footer-text: #f1f5f9;
   --marketing-footer-muted: #94a3b8;
   --marketing-footer-border: #334155;
+
+  /* Hero / nav vidro (landing) — literais alinhados à marca sobre gradiente */
+  --marketing-glass-fill: rgb(255 255 255 / 0.12);
+  --marketing-glass-border: rgb(255 255 255 / 0.35);
+  --marketing-glass-fill-hover: rgb(255 255 255 / 0.22);
+  --marketing-glass-border-hover: rgb(255 255 255 / 0.55);
+
+  /* Modais: scrim e sombras sem depender de cinzentos Tailwind soltos */
+  --overlay-scrim: rgb(15 23 42 / 0.45);
+  --overlay-scrim-strong: rgb(0 0 0 / 0.55);
+
+  /* Chips / estados (agendamentos, reparações) — funcionam com dark via mix + surface */
+  --chip-info-bg: color-mix(in srgb, var(--color-primary) 10%, var(--surface-panel));
+  --chip-info-fg: var(--brand-accent);
+  --chip-info-border: color-mix(in srgb, var(--color-primary) 28%, var(--border-default));
+
+  --chip-success-bg: color-mix(in srgb, var(--color-success) 12%, var(--surface-panel));
+  --chip-success-fg: color-mix(in srgb, var(--color-success) 55%, var(--color-gray-900));
+  --chip-success-border: color-mix(in srgb, var(--color-success) 32%, var(--border-default));
+
+  --chip-warning-bg: color-mix(in srgb, var(--color-warning) 14%, var(--surface-panel));
+  --chip-warning-fg: color-mix(in srgb, var(--color-warning) 70%, var(--color-gray-900));
+  --chip-warning-border: color-mix(in srgb, var(--color-warning) 38%, var(--border-default));
+
+  --chip-danger-bg: color-mix(in srgb, var(--color-error) 10%, var(--surface-panel));
+  --chip-danger-fg: var(--color-error);
+  --chip-danger-border: color-mix(in srgb, var(--color-error) 32%, var(--border-default));
+
+  --chip-neutral-bg: var(--surface-muted);
+  --chip-neutral-fg: var(--text-secondary);
+  --chip-neutral-border: var(--border-default);
+
+  --ring-focus-input: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent);
+  --ring-focus-error: 0 0 0 3px color-mix(in srgb, var(--color-error) 14%, transparent);
+  --shadow-primary-glow: 0 4px 6px color-mix(in srgb, var(--color-primary) 22%, transparent);
 }
 
 html[data-theme='light'] {
@@ -117,8 +160,10 @@ html[data-theme='dark'] {
   --color-primary-hover: #93c5fd;
   --color-secondary: #94a3b8;
   --color-success: #34d399;
+  --color-success-hover: color-mix(in srgb, var(--color-success) 78%, #000);
   --color-warning: #fbbf24;
   --color-error: #f87171;
+  --brand-signal-hover: color-mix(in srgb, var(--color-error) 82%, #000);
 
   --color-white: #0f141c;
   --color-black: #f8fafc;
@@ -173,4 +218,8 @@ html[data-theme='dark'] {
   --marketing-footer-text: #f1f5f9;
   --marketing-footer-muted: #94a3b8;
   --marketing-footer-border: #1e293b;
+
+  --chip-info-fg: var(--color-primary);
+  --chip-success-fg: color-mix(in srgb, var(--color-success) 65%, var(--color-gray-900));
+  --chip-warning-fg: color-mix(in srgb, var(--color-warning) 55%, var(--color-gray-900));
 }

@@ -1,10 +1,10 @@
 .container {
   min-height: 100vh;
-  background-color: var(--color-gray-50);
+  background-color: var(--surface-page);
 }
 
 .header {
-  background-color: white;
+  background-color: var(--surface-header);
   box-shadow: var(--shadow-sm);
   border-bottom: 1px solid var(--color-gray-200);
 }
@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--text-on-primary);
 }
 
 .logoIcon svg {
@@ -66,8 +66,8 @@
 }
 
 .logoutButton {
-  background-color: #dc2626;
-  color: white;
+  background-color: var(--brand-signal);
+  color: var(--text-on-signal);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius);
   font-size: 0.875rem;
@@ -78,11 +78,11 @@
 }
 
 .logoutButton:hover {
-  background-color: #b91c1c;
+  background-color: var(--brand-signal-hover);
 }
 
 .navigation {
-  background-color: white;
+  background-color: var(--surface-header);
   border-bottom: 1px solid var(--color-gray-200);
   max-width: 1200px;
   margin: 0 auto;
@@ -199,7 +199,7 @@
 
 .backButton {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--text-on-primary);
   padding: var(--space-3) var(--space-6);
   border-radius: var(--radius);
   border: none;
@@ -213,7 +213,7 @@
 }
 
 .carInfoCard {
-  background-color: white;
+  background-color: var(--surface-panel);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   margin-bottom: var(--space-6);
@@ -267,7 +267,7 @@
   align-items: center;
   gap: var(--space-2);
   background-color: var(--color-success);
-  color: white;
+  color: var(--text-on-primary);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius);
   border: none;
@@ -282,7 +282,7 @@
 }
 
 .scheduleServiceButton:hover {
-  background-color: #059669;
+  background-color: var(--color-success-hover);
 }
 
 .carInfoGrid {
@@ -313,7 +313,7 @@
 }
 
 .repairsSection {
-  background-color: white;
+  background-color: var(--surface-panel);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
@@ -392,7 +392,7 @@
 
 .scheduleFirstServiceButton {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--text-on-primary);
   padding: var(--space-3) var(--space-6);
   border-radius: var(--radius);
   border: none;
@@ -444,23 +444,23 @@
 }
 
 .statusBadge.warning {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--chip-warning-bg);
+  color: var(--chip-warning-fg);
 }
 
 .statusBadge.info {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: var(--chip-info-bg);
+  color: var(--chip-info-fg);
 }
 
 .statusBadge.success {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: var(--chip-success-bg);
+  color: var(--chip-success-fg);
 }
 
 .statusBadge.error {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: var(--chip-danger-bg);
+  color: var(--chip-danger-fg);
 }
 
 .repairCost {
@@ -520,19 +520,19 @@
 }
 
 .progressFill.warning {
-  background-color: #f59e0b;
+  background-color: var(--color-warning);
 }
 
 .progressFill.info {
-  background-color: #3b82f6;
+  background-color: var(--color-primary);
 }
 
 .progressFill.success {
-  background-color: #10b981;
+  background-color: var(--color-success);
 }
 
 .progressFill.error {
-  background-color: #ef4444;
+  background-color: var(--color-error);
 }
 
 /* Responsive Design */

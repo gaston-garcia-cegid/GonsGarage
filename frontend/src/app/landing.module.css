@@ -243,9 +243,9 @@
 
 /* Hero secondary — glass sobre imagem */
 .hero .secondaryButton {
-  background: rgb(255 255 255 / 0.12);
+  background: var(--marketing-glass-fill);
   color: var(--marketing-hero-text);
-  border: 2px solid rgb(255 255 255 / 0.35);
+  border: 2px solid var(--marketing-glass-border);
   padding: var(--space-3) var(--space-8);
   border-radius: var(--radius-md);
   font-weight: 600;
@@ -256,8 +256,8 @@
 }
 
 .hero .secondaryButton:hover {
-  background: rgb(255 255 255 / 0.22);
-  border-color: rgb(255 255 255 / 0.55);
+  background: var(--marketing-glass-fill-hover);
+  border-color: var(--marketing-glass-border-hover);
 }
 
 .sectionContent {

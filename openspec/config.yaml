@@ -1,31 +1,36 @@
-# GonsGarage — SDD (Spec-Driven). Regenerado por sdd-init.
+# GonsGarage — SDD (Spec-Driven). Sincronizado por sdd-init.
 schema: spec-driven
 
 context: |
   Monorepo: Go 1.25 (Gin, GORM, Postgres, Redis, JWT, swag) + Next.js 15 / React 19 (pnpm, Zustand).
   API REST bajo /api/v1; dominio en backend/internal (handlers, services, repository).
   Frontend App Router; estado con Zustand; UI pt_PT por defecto (i18n futuro: docs/i18n-reminder.md).
-  CI: .github/workflows/ci.yml (Go + frontend lint/typecheck/test/build).
+  CI: .github/workflows/ci.yml — backend go vet + go test -race; frontend pnpm lint/typecheck/test/build.
 
 strict_tdd: true
 
 testing:
   strict_tdd: true
-  detected: "2026-04-16"
+  detected: "2026-04-17"
   test_runner:
-    frontend: { framework: vitest, command: "pnpm test" }
-    backend: { framework: go test, command: "go test ./..." }
+    frontend: { framework: vitest, command: "cd frontend && pnpm test" }
+    backend: { framework: go test, command: "cd backend && go test ./... -count=1" }
   layers:
-    unit: { available: true, tools: [vitest, testify] }
-    integration: { available: true, tools: ["@testing-library/react"] }
+    unit: { available: true, tools: [vitest, jest, testify] }
+    integration: { available: true, tools: ["@testing-library/react", "httptest"] }
     e2e: { available: false, tools: [] }
   coverage:
-    available: true
-    command_frontend: "pnpm test:coverage"
-    command_backend: "go test -cover ./..."
+    frontend:
+      available: false
+      note: "pnpm test:coverage falla sin devDependency @vitest/coverage-v8"
+      command_if_installed: "cd frontend && pnpm test:coverage"
+    backend:
+      available: true
+      command: "cd backend && go test -cover ./..."
   quality:
-    linter: { available: true, command: "pnpm lint" }
-    typecheck: { available: true, command: "pnpm typecheck" }
+    linter_frontend: { available: true, command: "cd frontend && pnpm lint" }
+    linter_backend: { available: true, command: "cd backend && go vet ./...", notes: "CI; VS Code puede usar golangci-lint localmente" }
+    typecheck: { available: true, command: "cd frontend && pnpm typecheck" }
     formatter: { available: true, notes: "eslint --fix según config; gofmt en Go" }
 
 rules:

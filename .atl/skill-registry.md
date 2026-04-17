@@ -1,57 +1,84 @@
-# Skill registry — GonsGarage
+# Skill Registry
 
-Generado por **sdd-init** (2026-04-16). Las skills `sdd-*` y `_shared` se omiten del catálogo de trabajo; siguen disponibles vía comandos `/sdd-*`.
+**Delegator use only.** Any agent that launches sub-agents reads this registry to resolve compact rules, then injects them directly into sub-agent prompts. Sub-agents do NOT read this registry or individual SKILL.md files.
 
-## Convenciones del proyecto
+See `_shared/skill-resolver.md` in the user skills tree for the full resolution protocol.
 
-| Fuente | Notas |
-|--------|--------|
-| `README.md` | Arranque, API, Swagger |
-| `docs/development-guide.md` | pnpm, Go, compose |
-| `docs/mvp-minimum-phases.md` | Alcance MVP |
-| `docs/i18n-reminder.md` | Futuro i18n |
+Skills `sdd-*`, `_shared`, and `skill-registry` are omitted from the table (SDD vía `/sdd-*`; el catálogo de skill-registry es esta propia tarea).
 
-## Skills detectadas (Cursor user + skills-cursor)
+## User Skills
 
-| Trigger (resumen) | Nombre | Ruta |
-|--------------------|--------|------|
-| PR, branch-pr | branch-pr | `~/.cursor/skills/branch-pr/` |
-| GitHub issue | issue-creation | `~/.cursor/skills/issue-creation/` |
-| Go tests, teatest | go-testing | `~/.cursor/skills/go-testing/` |
-| judgment day, dual review | judgment-day | `~/.cursor/skills/judgment-day/` |
-| nueva skill | skill-creator | `~/.cursor/skills/skill-creator/` |
-| update skills, registry | skill-registry | `~/.cursor/skills/skill-registry/` |
-| Canvas / datos pesados | canvas | `~/.cursor/skills-cursor/canvas/` |
-| hooks | create-hook | `~/.cursor/skills-cursor/create-hook/` |
-| rules, AGENTS.md | create-rule | `~/.cursor/skills-cursor/create-rule/` |
-| crear skill | create-skill | `~/.cursor/skills-cursor/create-skill/` |
-| settings.json | update-cursor-settings | `~/.cursor/skills-cursor/update-cursor-settings/` |
-| PR merge-ready | babysit | `~/.cursor/skills-cursor/babysit/` |
-| statusline CLI | statusline | `~/.cursor/skills-cursor/statusline/` |
+| Trigger | Skill | Path |
+|---------|-------|------|
+| PR, pull request, branch-pr | branch-pr | `~/.cursor/skills/branch-pr/SKILL.md` |
+| GitHub issue, bug, feature request | issue-creation | `~/.cursor/skills/issue-creation/SKILL.md` |
+| Go tests, teatest, Bubbletea TUI tests | go-testing | `~/.cursor/skills/go-testing/SKILL.md` |
+| judgment day, dual review, adversarial review | judgment-day | `~/.cursor/skills/judgment-day/SKILL.md` |
+| create skill, Agent Skills, SKILL.md | skill-creator | `~/.cursor/skills/skill-creator/SKILL.md` |
+| Canvas, datos pesados, MCP tables | canvas | `~/.cursor/skills-cursor/canvas/SKILL.md` |
+| Cursor hooks, hooks.json | create-hook | `~/.cursor/skills-cursor/create-hook/SKILL.md` |
+| Cursor rules, RULE.md, .cursor/rules | create-rule | `~/.cursor/skills-cursor/create-rule/SKILL.md` |
+| crear skill Cursor | create-skill | `~/.cursor/skills-cursor/create-skill/SKILL.md` |
+| subagent, custom subagent | create-subagent | `~/.cursor/skills-cursor/create-subagent/SKILL.md` |
+| migrate rules, .mdc to skills | migrate-to-skills | `~/.cursor/skills-cursor/migrate-to-skills/SKILL.md` |
+| /shell | shell | `~/.cursor/skills-cursor/shell/SKILL.md` |
+| statusline, CLI prompt footer | statusline | `~/.cursor/skills-cursor/statusline/SKILL.md` |
+| settings.json, editor preferences | update-cursor-settings | `~/.cursor/skills-cursor/update-cursor-settings/SKILL.md` |
+| cli-config.json, CLI permissions | update-cli-config | `~/.cursor/skills-cursor/update-cli-config/SKILL.md` |
+| babysit, PR merge-ready, CI loop | babysit | `~/.cursor/skills-cursor/babysit/SKILL.md` |
 
-## Reglas compactas (sub-agentes)
+## Compact Rules
+
+Pre-digested rules per skill. Delegators copy matching blocks into sub-agent prompts as `## Project Standards (auto-resolved)`.
 
 ### branch-pr
-- Flujo centrado en issue antes del PR; enlazar issue en descripción del PR.
+- Issue-first: enlazar el issue en la descripción del PR; seguir el flujo del SKILL para Agent Teams Lite.
 
 ### issue-creation
-- Issue con contexto reproducible, pasos, resultado esperado vs actual.
+- Issue con contexto reproducible, pasos, resultado esperado vs actual; encaje con enforcement issue-first del SKILL.
 
 ### go-testing
-- Tests table-driven en services; testify; `go test ./...` desde `backend/`; seguir SKILL para Gin/teatest.
+- Preferir table-driven en servicios; testify; desde `backend/` usar `go test ./...`; ver SKILL para patrones Gin/teatest si aplica.
 
 ### judgment-day
-- Lanzar dos revisores ciegos en paralelo; iterar o escalar según el SKILL.
+- Dos revisores ciegos en paralelo; sintetizar, corregir, re-juzgar hasta pass o escalar según el SKILL.
+
+### skill-creator
+- Seguir Agent Skills spec: frontmatter con `name`, `description` y triggers en `Trigger:`.
 
 ### canvas
-- Usar canvas para artefactos analíticos/tablas interactivas; no volcar solo markdown masivo.
+- Para análisis cuantitativos, tablas densas o herramientas interactivas: canvas en lugar de volcar solo markdown.
 
-### create-rule / create-skill
-- Seguir formato Agent Skills; triggers claros en frontmatter.
+### create-hook / create-rule / create-skill
+- Respetar rutas y convenciones Cursor del SKILL; triggers explícitos en descripción.
+
+### create-subagent
+- Subagentes en rutas documentadas en el SKILL; prompts enfocados y reutilizables.
+
+### migrate-to-skills
+- Copiar cuerpo de reglas/comandos verbatim al migrar; no reescribir ni “mejorar” el contenido fuente.
+
+### shell
+- Solo con invocación explícita `/shell`: ejecutar el texto subsiguiente literalmente, sin reinterpretar.
+
+### statusline / update-cursor-settings / update-cli-config
+- Editar solo los archivos indicados en el SKILL; reinicio CLI si aplica tras cambiar `cli-config.json`.
 
 ### babysit
-- Bucle: comentarios CI, conflictos claros, hasta merge-ready.
+- Bucle: triage de comentarios del PR, conflictos claros, CI verde, hasta estado merge-ready.
+
+## Project Conventions
+
+| File | Path | Notes |
+|------|------|-------|
+| README | `README.md` | Arranque, API, Swagger |
+| Development guide | `docs/development-guide.md` | pnpm, Go, compose |
+| MVP phases | `docs/mvp-minimum-phases.md` | Alcance MVP |
+| i18n reminder | `docs/i18n-reminder.md` | Futuro i18n |
+| Contributing | `CONTRIBUTING.md` | go vet, tests |
+
+No hay `AGENTS.md` / `.cursorrules` en la raíz del repo; convenciones principales en `docs/` y README.
 
 ---
 
-*Engram: no disponible en esta sesión; no se llamó `mem_save`. Re-ejecutar `skill-registry` tras instalar skills nuevas.*
+*Engram (`mem_save`): no disponible en esta sesión. Re-ejecutar sdd-init o skill-registry tras instalar skills nuevas.*

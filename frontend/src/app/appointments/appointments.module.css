@@ -65,7 +65,7 @@
 
 /* —— Appointment cards —— */
 .appointmentCard {
-  background: white;
+  background: var(--surface-panel);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-gray-200);
@@ -83,7 +83,7 @@
   gap: var(--space-3);
   padding: var(--space-4);
   border-bottom: 1px solid var(--color-gray-200);
-  background: linear-gradient(180deg, var(--color-gray-50) 0%, white 100%);
+  background: linear-gradient(180deg, var(--color-gray-50) 0%, var(--surface-panel) 100%);
 }
 
 .appointmentDate {
@@ -119,33 +119,33 @@
 }
 
 .scheduled {
-  background: #eff6ff;
-  color: #1d4ed8;
-  border-color: #bfdbfe;
+  background: var(--chip-info-bg);
+  color: var(--chip-info-fg);
+  border-color: var(--chip-info-border);
 }
 
 .confirmed {
-  background: #ecfdf5;
-  color: #047857;
-  border-color: #a7f3d0;
+  background: var(--chip-success-bg);
+  color: var(--chip-success-fg);
+  border-color: var(--chip-success-border);
 }
 
 .inProgress {
-  background: #fffbeb;
-  color: #b45309;
-  border-color: #fde68a;
+  background: var(--chip-warning-bg);
+  color: var(--chip-warning-fg);
+  border-color: var(--chip-warning-border);
 }
 
 .completed {
-  background: var(--color-gray-100);
-  color: var(--color-gray-700);
-  border-color: var(--color-gray-300);
+  background: var(--chip-neutral-bg);
+  color: var(--chip-neutral-fg);
+  border-color: var(--chip-neutral-border);
 }
 
 .cancelled {
-  background: #fef2f2;
-  color: #b91c1c;
-  border-color: #fecaca;
+  background: var(--chip-danger-bg);
+  color: var(--chip-danger-fg);
+  border-color: var(--chip-danger-border);
 }
 
 .appointmentBody {
@@ -243,7 +243,7 @@
 
 .confirmButton {
   background: var(--color-primary);
-  color: white;
+  color: var(--text-on-primary);
   border-color: var(--color-primary);
 }
 
@@ -253,7 +253,7 @@
 }
 
 .editButton {
-  background: white;
+  background: var(--surface-panel);
   color: var(--color-gray-700);
   border-color: var(--color-gray-300);
 }
@@ -265,39 +265,39 @@
 
 /* Card action: cancel appointment (not modal dismiss) */
 .cancelButton {
-  background: white;
-  color: #b91c1c;
-  border-color: #fecaca;
+  background: var(--surface-panel);
+  color: var(--chip-danger-fg);
+  border-color: var(--chip-danger-border);
 }
 
 .cancelButton:hover:not(:disabled) {
-  background: #fef2f2;
-  border-color: #f87171;
+  background: var(--chip-danger-bg);
+  border-color: var(--color-error);
 }
 
 .completeButton {
-  background: #047857;
-  color: #ffffff;
-  border-color: #047857;
+  background: var(--color-success);
+  color: var(--text-on-primary);
+  border-color: var(--color-success);
 }
 
 .completeButton:hover:not(:disabled) {
-  background: #065f46;
-  border-color: #065f46;
+  background: var(--color-success-hover);
+  border-color: var(--color-success-hover);
 }
 
 .viewButton {
-  background: white;
+  background: var(--surface-panel);
   color: var(--color-primary);
-  border-color: #bfdbfe;
+  border-color: var(--chip-info-border);
 }
 
 .viewButton:hover:not(:disabled) {
-  background: #eff6ff;
+  background: var(--chip-info-bg);
 }
 
 .rescheduleButton {
-  background: white;
+  background: var(--surface-panel);
   color: var(--color-gray-800);
   border-color: var(--color-gray-300);
 }
@@ -336,7 +336,7 @@
   position: fixed;
   inset: 0;
   z-index: 10000;
-  background-color: rgb(15 23 42 / 0.45);
+  background-color: var(--overlay-scrim);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -349,7 +349,7 @@
   width: 100%;
   max-width: 640px;
   margin-bottom: var(--space-10);
-  background: white;
+  background: var(--surface-panel);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--color-gray-200);
@@ -368,7 +368,7 @@
   padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--color-gray-200);
   flex-shrink: 0;
-  background: white;
+  background: var(--surface-panel);
 }
 
 .modalHeader h3 {
@@ -412,9 +412,9 @@
 .errorAlert {
   margin-bottom: var(--space-4);
   padding: var(--space-3) var(--space-4);
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
+  background-color: var(--chip-danger-bg);
+  border: 1px solid var(--chip-danger-border);
+  color: var(--chip-danger-fg);
   border-radius: var(--radius);
   font-size: 0.875rem;
   line-height: 1.45;
@@ -469,7 +469,7 @@
 .formGroup textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: var(--ring-focus-input);
 }
 
 .formGroup input:disabled,
@@ -508,7 +508,7 @@
   font-weight: 500;
   border-radius: var(--radius);
   border: 1px solid var(--color-gray-300);
-  background: white;
+  background: var(--surface-panel);
   color: var(--color-gray-700);
   cursor: pointer;
   transition: background-color var(--transition-fast), border-color var(--transition-fast);
@@ -552,11 +552,11 @@
 
 .serviceOption input[type='radio']:checked + .serviceCard {
   border-color: var(--color-primary);
-  background: rgba(37, 99, 235, 0.06);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--surface-panel));
 }
 
 .serviceCard:hover {
-  border-color: #93c5fd;
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--border-default));
 }
 
 .serviceCard h4 {
@@ -632,7 +632,7 @@
   font-weight: 500;
   border-radius: var(--radius);
   border: 1px solid var(--color-gray-300);
-  background: white;
+  background: var(--surface-panel);
   color: var(--color-gray-700);
   cursor: pointer;
   transition: background-color var(--transition-fast), border-color var(--transition-fast);
@@ -655,7 +655,7 @@
   border-radius: var(--radius);
   border: 1px solid var(--color-primary);
   background: var(--color-primary);
-  color: white;
+  color: var(--text-on-primary);
   cursor: pointer;
   min-width: 7.5rem;
   transition: background-color var(--transition-fast), border-color var(--transition-fast);

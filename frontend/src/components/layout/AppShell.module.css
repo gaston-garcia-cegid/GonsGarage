@@ -103,7 +103,7 @@
 }
 
 .logoutButton:hover {
-  background-color: #b91c1c;
+  background-color: var(--brand-signal-hover);
 }
 
 .logoutButton:active {

@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--text-on-primary);
 }
 
 .logoIcon svg {
@@ -66,8 +66,8 @@
 }
 
 .logoutButton {
-  background-color: #dc2626;
-  color: white;
+  background-color: var(--brand-signal);
+  color: var(--text-on-signal);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius);
   font-size: 0.875rem;
@@ -78,11 +78,11 @@
 }
 
 .logoutButton:hover {
-  background-color: #b91c1c;
+  background-color: var(--brand-signal-hover);
 }
 
 .navigation {
-  background-color: white;
+  background-color: var(--surface-header);
   border-bottom: 1px solid var(--color-gray-200);
   max-width: 1200px;
   margin: 0 auto;
@@ -141,9 +141,9 @@
 }
 
 .errorAlert {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background-color: var(--chip-danger-bg);
+  border: 1px solid var(--chip-danger-border);
+  color: var(--chip-danger-fg);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius);
   margin-bottom: var(--space-4);
@@ -175,7 +175,7 @@
   align-items: center;
   gap: var(--space-2);
   background-color: var(--color-primary);
-  color: white;
+  color: var(--text-on-primary);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius);
   border: none;
@@ -217,7 +217,7 @@
 
 .primaryButton {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--text-on-primary);
   padding: var(--space-3) var(--space-6);
   border-radius: var(--radius);
   border: none;
@@ -237,7 +237,7 @@
 }
 
 .carCard {
-  background-color: white;
+  background-color: var(--surface-panel);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
@@ -291,8 +291,8 @@
 }
 
 .deleteButton:hover {
-  border-color: #dc2626;
-  color: #dc2626;
+  border-color: var(--color-error);
+  color: var(--color-error);
 }
 
 .carContent {
@@ -351,7 +351,7 @@
 
 .viewDetailsButton:hover {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--text-on-primary);
 }
 
 .scheduleButton {
@@ -359,7 +359,7 @@
   padding: var(--space-2) var(--space-3);
   background-color: var(--color-success);
   border: 1px solid var(--color-success);
-  color: white;
+  color: var(--text-on-primary);
   border-radius: var(--radius);
   font-size: 0.875rem;
   font-weight: 500;
@@ -368,7 +368,8 @@
 }
 
 .scheduleButton:hover {
-  background-color: #059669;
+  background-color: var(--color-success-hover);
+  border-color: var(--color-success-hover);
 }
 
 /* ========================================
@@ -382,7 +383,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: var(--overlay-scrim-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -403,13 +404,12 @@
 
 /* Modal Container */
 .modal {
-  background: white;
-  border-radius: 12px;
+  background: var(--surface-panel);
+  border-radius: var(--radius-lg);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-lg);
   animation: slideUp 0.3s ease-out;
   overflow: hidden;
   display: flex;
@@ -433,7 +433,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-default);
   flex-shrink: 0;
 }
 
@@ -441,7 +441,7 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .closeButton {
@@ -449,17 +449,17 @@
   border: none;
   cursor: pointer;
   padding: 0.5rem;
-  color: #6b7280;
+  color: var(--text-muted);
   transition: color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
 }
 
 .closeButton:hover {
-  color: #1f2937;
-  background-color: #f3f4f6;
+  color: var(--text-primary);
+  background-color: var(--surface-muted);
 }
 
 .closeButton svg {
@@ -492,48 +492,50 @@
 .formGroup label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-secondary);
 }
 
 .formGroup input,
 .formGroup select {
   padding: 0.625rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
   font-size: 0.95rem;
   transition: all 0.2s ease;
   outline: none;
+  background: var(--surface-panel);
+  color: var(--text-primary);
 }
 
 .formGroup input:focus,
 .formGroup select:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: var(--ring-focus-input);
 }
 
 .formGroup input:disabled,
 .formGroup select:disabled {
-  background-color: #f3f4f6;
+  background-color: var(--surface-muted);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .formGroup input::placeholder {
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 /* Input Error State */
 .inputError {
-  border-color: #dc2626 !important;
+  border-color: var(--color-error) !important;
 }
 
 .inputError:focus {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+  box-shadow: var(--ring-focus-error) !important;
 }
 
 .errorText {
   font-size: 0.75rem;
-  color: #dc2626;
+  color: var(--color-error);
   margin-top: 0.25rem;
 }
 
@@ -543,7 +545,7 @@
   gap: 0.75rem;
   justify-content: flex-end;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-default);
   margin-top: 1rem;
 }
 
@@ -560,14 +562,14 @@
 }
 
 .cancelButton {
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background-color: var(--surface-panel);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
 }
 
 .cancelButton:hover:not(:disabled) {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  background-color: var(--surface-muted);
+  border-color: var(--color-gray-400);
 }
 
 .cancelButton:disabled {
@@ -576,15 +578,15 @@
 }
 
 .submitButton {
-  background-color: #2563eb;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--text-on-primary);
   min-width: 120px;
 }
 
 .submitButton:hover:not(:disabled) {
-  background-color: #1d4ed8;
+  background-color: var(--color-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+  box-shadow: var(--shadow-primary-glow);
 }
 
 .submitButton:active:not(:disabled) {

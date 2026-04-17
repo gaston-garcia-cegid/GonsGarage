@@ -1,4 +1,5 @@
-/* Utility classes — sin Tailwind; usan tokens en `tokens.css`. */
+/* Utility classes — sin Tailwind; usan tokens en `tokens.css`.
+ * Chips / badges de estado: tokens semánticos `--chip-*` (ver `tokens.css`), sin duplicar aquí. */
 
 @keyframes spin {
   to {
