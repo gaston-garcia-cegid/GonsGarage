@@ -39,9 +39,8 @@ func main() {
 		log.Fatalf("conexión a base de datos: %v", err)
 	}
 
-	if err := db.AutoMigrate(&domain.User{}); err != nil {
-		log.Fatalf("migrate users: %v", err)
-	}
+	// No AutoMigrate aquí: la tabla `users` usa `password_hash` (UserModel/repo), mientras
+	// `domain.User` expone `password` y GORM intentaría añadir columna `password` NOT NULL y falla.
 
 	repo := postgresRepo.NewPostgresUserRepository(db)
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)

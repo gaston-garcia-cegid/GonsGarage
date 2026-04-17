@@ -32,7 +32,7 @@ Credenciales y nombres coinciden con `backend/.env.example` y con los valores po
 
 ## Cuenta cliente de prueba (seed)
 
-Con la API usando la misma base PostgreSQL:
+Con la API usando la misma base PostgreSQL (la tabla `users` debe existir: levantá **`go run ./cmd/api/main.go`** al menos una vez o aplicá migraciones; el seed **no** hace AutoMigrate).
 
 ```powershell
 Set-Location backend

@@ -211,7 +211,7 @@ Role: admin
 
 ### Demo client user (pruebas en el portal)
 
-Desde `backend/` con PostgreSQL en marcha y la misma `DATABASE_URL` que la API:
+Desde `backend/` con PostgreSQL en marcha, la misma `DATABASE_URL` que la API y el esquema ya creado (por ejemplo habiendo arrancado la API una vez con AutoMigrate):
 
 ```powershell
 go run ./cmd/seed-test-client
