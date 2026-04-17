@@ -30,6 +30,17 @@ docker compose up -d
 
 Credenciales y nombres coinciden con `backend/.env.example` y con los valores por defecto en `backend/cmd/api/main.go` si no defines `DATABASE_URL`.
 
+## Cuenta cliente de prueba (seed)
+
+Con la API usando la misma base PostgreSQL:
+
+```powershell
+Set-Location backend
+go run ./cmd/seed-test-client
+```
+
+Por defecto crea **cliente.demo@gonsgarage.local** / **ClienteDemo123** (rol `client`). Variables opcionales: `SEED_CLIENT_EMAIL`, `SEED_CLIENT_PASSWORD`, `DATABASE_URL`.
+
 ## Backend
 
 ```powershell

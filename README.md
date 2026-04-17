@@ -209,6 +209,24 @@ Password: admin123
 Role: admin
 ```
 
+### Demo client user (pruebas en el portal)
+
+Desde `backend/` con PostgreSQL en marcha y la misma `DATABASE_URL` que la API:
+
+```powershell
+go run ./cmd/seed-test-client
+```
+
+Credenciales por defecto (si no definís variables de entorno):
+
+```
+Email:    cliente.demo@gonsgarage.local
+Password: ClienteDemo123
+Role:     client
+```
+
+Podés cambiar email/contraseña con `SEED_CLIENT_EMAIL` y `SEED_CLIENT_PASSWORD`. El comando es **idempotente**: si el email ya existe, no hace nada.
+
 ## 📚 API Documentation (Swagger/OpenAPI)
 
 GonsGarage provides comprehensive API documentation through Swagger/OpenAPI 3.0:
