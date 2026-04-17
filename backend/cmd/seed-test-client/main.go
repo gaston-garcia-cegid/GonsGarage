@@ -6,6 +6,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 	"time"
@@ -47,7 +48,7 @@ func main() {
 	defer cancel()
 
 	existing, err := repo.GetByEmail(ctx, email)
-	if err != nil {
+	if err != nil && !errors.Is(err, domain.ErrUserNotFound) {
 		log.Fatalf("consultar email: %v", err)
 	}
 	if existing != nil {
