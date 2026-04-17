@@ -7,6 +7,8 @@ import (
 	"log"
 	"time"
 
+	"strings"
+
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
 	"github.com/google/uuid"
@@ -82,6 +84,24 @@ func (s *AppointmentService) CreateAppointment(
 		return nil, domain.ErrUnauthorizedAccess
 	}
 
+	if strings.TrimSpace(appointment.ServiceType) == "" {
+		return nil, domain.ErrInvalidAppointmentData
+	}
+	if appointment.ScheduledAt.IsZero() {
+		return nil, domain.ErrInvalidAppointmentData
+	}
+	if err := validateWorkshopClock(appointment.ScheduledAt); err != nil {
+		return nil, err
+	}
+	dayStart, dayEnd := dayRangeUTC(appointment.ScheduledAt)
+	nSameDay, err := s.repo.CountNonCancelledBetween(queryCtx, dayStart, dayEnd, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count appointments for day: %w", err)
+	}
+	if nSameDay >= MaxAppointmentsPerDay {
+		return nil, domain.ErrAppointmentDailyCapReached
+	}
+
 	appointment.CustomerID = customerID
 	if appointment.Status == "" {
 		appointment.Status = domain.AppointmentStatusScheduled
@@ -154,6 +174,21 @@ func (s *AppointmentService) UpdateAppointment(ctx context.Context, appointment 
 		merged.ServiceType = appointment.ServiceType
 	}
 	merged.UpdatedAt = time.Now()
+
+	if strings.TrimSpace(merged.ServiceType) == "" {
+		return nil, domain.ErrInvalidAppointmentData
+	}
+	if err := validateWorkshopClock(merged.ScheduledAt); err != nil {
+		return nil, err
+	}
+	uDay0, uDay1 := dayRangeUTC(merged.ScheduledAt)
+	nSameDay, err := s.repo.CountNonCancelledBetween(ctx, uDay0, uDay1, &merged.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count appointments for day: %w", err)
+	}
+	if nSameDay >= MaxAppointmentsPerDay {
+		return nil, domain.ErrAppointmentDailyCapReached
+	}
 
 	if err := s.repo.Update(ctx, &merged); err != nil {
 		return nil, err

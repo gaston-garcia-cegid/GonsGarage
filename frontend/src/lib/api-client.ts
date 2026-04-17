@@ -173,6 +173,11 @@ export class ApiClient {
       
       // ✅ Extract configuration values
       const { body, timeout: configTimeout, skipAuth: configSkipAuth, baseURL: configBaseURL, retry: configRetry, retryDelay: configRetryDelay, ...restConfig } = processedConfig;
+
+      // ✅ Keep Authorization in sync with Zustand-persisted session (singleton may be stale after login)
+      if (typeof window !== 'undefined' && !configSkipAuth) {
+        this.token = window.localStorage.getItem('auth_token');
+      }
       
       // ✅ Build complete URL
       const baseURL = configBaseURL || this.baseURL;

@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth, useCars } from '@/stores';
 import { apiClient, Repair } from '@/lib/api';
+import AppShell from '@/components/layout/AppShell';
+import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import styles from './car-details.module.css';
 
 export default function CarDetailsPage() {
@@ -11,10 +13,17 @@ export default function CarDetailsPage() {
   const [repairsLoading, setRepairsLoading] = useState(true);
 
   const { user, logout } = useAuth();
+  const authHydrated = useAuthHydrationReady();
   const { selectedCar: car, isLoading: loading, error, fetchCarById } = useCars();
   const router = useRouter();
   const params = useParams();
   const carId = params.id as string;
+
+  useEffect(() => {
+    if (carId === 'new') {
+      router.replace('/cars?addCar=1');
+    }
+  }, [carId, router]);
 
   const fetchCarRepairs = useCallback(async () => {
     try {
@@ -35,15 +44,15 @@ export default function CarDetailsPage() {
   }, [carId]);
 
   useEffect(() => {
+    if (!authHydrated) return;
     if (!user) {
-      router.push('/auth/login');
+      router.replace('/auth/login');
       return;
     }
-    if (carId) {
-      fetchCarById(carId);
-      fetchCarRepairs();
-    }
-  }, [user, router, carId, fetchCarById, fetchCarRepairs]);
+    if (!carId || carId === 'new') return;
+    fetchCarById(carId);
+    fetchCarRepairs();
+  }, [authHydrated, user, router, carId, fetchCarById, fetchCarRepairs]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -70,81 +79,52 @@ export default function CarDetailsPage() {
     }
   };
 
+  if (!authHydrated || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+
+  if (carId === 'new') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.spinner}></div>
-        <span>Loading car details...</span>
-      </div>
+      <AppShell user={user} subtitle="Car Details" activeNav="cars" onLogout={logout}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <span>Loading car details...</span>
+        </div>
+      </AppShell>
     );
   }
 
   if (error || !car) {
     return (
-      <div className={styles.errorContainer}>
-        <div className={styles.errorContent}>
-          <div className={styles.errorIcon}>⚠️</div>
-          <h2>Car Not Found</h2>
-          <p>{error || 'The requested car could not be found.'}</p>
-          <button 
-            onClick={() => router.push('/cars')}
-            className={styles.backButton}
-          >
-            Back to Cars
-          </button>
+      <AppShell user={user} subtitle="Car Details" activeNav="cars" onLogout={logout}>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorContent}>
+            <div className={styles.errorIcon}>⚠️</div>
+            <h2>Car Not Found</h2>
+            <p>{error || 'The requested car could not be found.'}</p>
+            <button type="button" onClick={() => router.push('/cars')} className={styles.backButton}>
+              Back to Cars
+            </button>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.logoSection}>
-            <div className={styles.logoIcon}>
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
-              </svg>
-            </div>
-            <div>
-              <h1>GonsGarage</h1>
-              <p>Car Details</p>
-            </div>
-          </div>
-          <div className={styles.userSection}>
-            <span>Welcome, {user?.firstName} {user?.lastName}</span>
-            <button onClick={logout} className={styles.logoutButton}>
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className={styles.navigation}>
-        <button 
-          onClick={() => router.push('/dashboard')}
-          className={styles.navButton}
-        >
-          Dashboard
-        </button>
-        <button 
-          onClick={() => router.push('/cars')}
-          className={`${styles.navButton} ${styles.active}`}
-        >
-          My Cars
-        </button>
-        <button 
-          onClick={() => router.push('/appointments')}
-          className={styles.navButton}
-        >
-          Appointments
-        </button>
-      </nav>
-
-      {/* Breadcrumbs */}
+    <AppShell user={user} subtitle="Car Details" activeNav="cars" onLogout={logout}>
       <div className={styles.breadcrumbs}>
         <button onClick={() => router.push('/cars')} className={styles.breadcrumbLink}>
           My Cars
@@ -155,8 +135,7 @@ export default function CarDetailsPage() {
         </span>
       </div>
 
-      {/* Main Content */}
-      <main className={styles.main}>
+      <div className={styles.main}>
         {/* Car Info Card */}
         <div className={styles.carInfoCard}>
           <div className={styles.carInfoHeader}>
@@ -167,7 +146,7 @@ export default function CarDetailsPage() {
             </div>
             <div className={styles.carActions}>
               <button 
-                onClick={() => router.push(`/appointments/new?carId=${car.id}`)}
+                onClick={() => router.push(`/appointments?schedule=1&carId=${encodeURIComponent(car.id)}`)}
                 className={styles.scheduleServiceButton}
               >
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -243,7 +222,7 @@ export default function CarDetailsPage() {
               <h4>No Service History</h4>
               <p>This car hasn&apos;t had any services yet.</p>
               <button 
-                onClick={() => router.push(`/appointments/new?carId=${car.id}`)}
+                onClick={() => router.push(`/appointments?schedule=1&carId=${encodeURIComponent(car.id)}`)}
                 className={styles.scheduleFirstServiceButton}
               >
                 Schedule First Service
@@ -321,7 +300,7 @@ export default function CarDetailsPage() {
             </div>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

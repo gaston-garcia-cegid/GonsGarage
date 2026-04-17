@@ -10,9 +10,11 @@ import styles from './AppointmentCard.module.css';
 interface AppointmentCardProps {
   appointment: Appointment;
   onStatusChange?: (appointmentId: string, action: 'cancel' | 'confirm' | 'complete') => void;
+  /** Opens in-app scheduling (e.g. modal on /appointments). Falls back to navigation if omitted. */
+  onReschedule?: (carId: string) => void;
 }
 
-export default function AppointmentCard({ appointment, onStatusChange }: AppointmentCardProps) {
+export default function AppointmentCard({ appointment, onStatusChange, onReschedule }: AppointmentCardProps) {
   const router = useRouter();
   const { cars } = useCarStore();
   const { 
@@ -177,8 +179,13 @@ export default function AppointmentCard({ appointment, onStatusChange }: Appoint
           )}
 
           {appointment.status === 'cancelled' && (
-            <button 
-              onClick={() => router.push(`/appointments/new?carId=${appointment.carId}`)}
+            <button
+              type="button"
+              onClick={() =>
+                onReschedule
+                  ? onReschedule(appointment.carId)
+                  : router.push(`/appointments?schedule=1&carId=${encodeURIComponent(appointment.carId)}`)
+              }
               className={styles.rescheduleButton}
             >
               Reschedule

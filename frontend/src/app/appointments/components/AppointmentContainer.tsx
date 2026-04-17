@@ -298,7 +298,12 @@ export default function AppointmentsContainer({
         onEdit={handleEditAppointment}
         onDelete={handleDeleteAppointment}
         onViewDetails={(id) => router.push(`/appointments/${id}`)}
-        onScheduleService={(id) => router.push(`/appointments/new?appointmentId=${id}`)}
+        onScheduleService={(appointmentId) => {
+          const apt = appointments.find((a) => a.id === appointmentId);
+          if (apt) {
+            router.push(`/appointments?schedule=1&carId=${encodeURIComponent(apt.carId)}`);
+          }
+        }}
       />
 
       {/* Appointment Modal */}

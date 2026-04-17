@@ -253,12 +253,26 @@
 
 .selectedCarInfo {
   display: flex;
-  align-items: center;
-  gap: var(--space-3);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
   padding: var(--space-4);
   background-color: var(--color-gray-50);
   border-radius: var(--radius);
   margin-top: var(--space-3);
+}
+
+.selectedCarInfo h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin: 0;
+}
+
+.selectedCarInfo p {
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+  margin: 0;
 }
 
 .carIcon {
@@ -407,6 +421,89 @@
 }
 
 /* Responsive Design */
+.appointmentForm {
+  padding: var(--space-6);
+}
+
+.errorAlert {
+  margin: 0 var(--space-6) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+
+.appointmentSummary {
+  padding: var(--space-4);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+  margin-top: var(--space-4);
+}
+
+.appointmentSummary h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-3);
+  color: var(--color-gray-900);
+}
+
+.summaryContent p {
+  margin: var(--space-1) 0;
+  font-size: 0.875rem;
+  color: var(--color-gray-800);
+}
+
+.textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.serviceContent {
+  display: block;
+  padding: var(--space-4);
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius);
+  transition: all var(--transition-fast);
+}
+
+.serviceContent h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.serviceContent p {
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.serviceOption input[type="radio"]:checked + .serviceContent {
+  border-color: var(--color-primary);
+  background-color: rgba(37, 99, 235, 0.05);
+}
+
+.backButton {
+  margin-bottom: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.helpText {
+  font-size: 0.8125rem;
+  color: var(--color-gray-600);
+  margin: 0 0 var(--space-3);
+  line-height: 1.45;
+}
+
 @media (max-width: 768px) {
   .serviceGrid {
     grid-template-columns: 1fr;

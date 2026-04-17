@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
 import { User, UserRole, RegisterRequest } from '@/types';
+import { apiClient } from '@/lib/api-client';
 
 // ✅ Store state interface following Agent.md
 interface AuthState {
@@ -214,6 +215,7 @@ export const useAuthStore = create<AuthStore>()(
               });
 
               storage.setAuthData(data.token, userData);
+              apiClient.setToken(data.token);
 
               return { success: true };
             } catch (meErr) {
@@ -277,6 +279,7 @@ export const useAuthStore = create<AuthStore>()(
 
         // Clear localStorage
         storage.clearAuthData();
+        apiClient.clearToken();
 
         // Redirect to landing page
         if (typeof window !== 'undefined') {
@@ -335,6 +338,7 @@ export const useAuthStore = create<AuthStore>()(
                 state.isAuthenticated = true;
               });
               storage.setAuthData(token, user);
+              apiClient.setToken(token);
             } catch {
               storage.clearAuthData();
               set((state) => {
@@ -371,6 +375,17 @@ export const useAuthStore = create<AuthStore>()(
         token: state.token,
         // Don't persist loading states or errors
       }),
+      merge: (persistedState, currentState) => {
+        const next = {
+          ...currentState,
+          ...(persistedState as object),
+        };
+        return {
+          ...next,
+          // `isAuthenticated` is not partialed; derive it so /appointments does not treat a valid session as logged out
+          isAuthenticated: Boolean(next.user && next.token),
+        };
+      },
     }
   )
 );

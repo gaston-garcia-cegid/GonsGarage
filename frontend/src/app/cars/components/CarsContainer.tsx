@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Car, CreateCarRequest } from '@/types/car';
-import { useCars } from '@/stores';
+import { useCars, useCarStore } from '@/stores';
 import CarList from '@/app/cars/components/CarList';
 import CarModal from '@/app/cars/components/CarModal';
 import LoadingSpinner from '@/components/ui/Loading/LoadingSpinner';
 import ErrorAlert from '@/components/ui/Error/ErrorAlert';
 import ConfirmModal from '@/components/ui/Modal/ConfirmModal';
 import EmptyCarState from '@/components/empty-states/EmptyCarState';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './CarsContainer.module.css'; // ✅ Import styles
 
 interface CarsContainerProps {
@@ -45,6 +45,7 @@ export default function CarsContainer({
   renderEmptyState,
 }: CarsContainerProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { cars, isLoading, error, createCar, updateCar, deleteCar, fetchCars } = useCars();
 
   // Modal states
@@ -77,11 +78,13 @@ export default function CarsContainer({
       
       if (success) {
         await fetchCars();
-        
-        const newCar = cars.find(car => 
-          car.make === carData.make && 
-          car.model === carData.model && 
-          car.licensePlate === carData.licensePlate
+
+        const freshCars = useCarStore.getState().cars;
+        const newCar = freshCars.find(
+          (car) =>
+            car.make === carData.make &&
+            car.model === carData.model &&
+            car.licensePlate === carData.licensePlate,
         );
 
         if (onAddCar && newCar) {
@@ -89,7 +92,7 @@ export default function CarsContainer({
         }
 
         if (onUpdateCar) {
-          onUpdateCar(cars);
+          onUpdateCar(freshCars);
         }
 
         setShowCreateModal(false);
@@ -103,7 +106,7 @@ export default function CarsContainer({
     } finally {
       setIsCreating(false);
     }
-  }, [createCar, fetchCars, cars, maxCars, onAddCar, onUpdateCar]);
+  }, [createCar, fetchCars, maxCars, onAddCar, onUpdateCar]);
 
   // ✅ Update car handler
   const handleUpdateCar = useCallback(async (id: string, carData: Partial<CreateCarRequest>): Promise<boolean> => {
@@ -112,9 +115,9 @@ export default function CarsContainer({
       
       if (success) {
         await fetchCars();
-        
+
         if (onUpdateCar) {
-          onUpdateCar(cars);
+          onUpdateCar(useCarStore.getState().cars);
         }
 
         setEditingCar(null);
@@ -126,7 +129,7 @@ export default function CarsContainer({
       console.error('Failed to update car:', error);
       return false;
     }
-  }, [updateCar, fetchCars, cars, onUpdateCar]);
+  }, [updateCar, fetchCars, onUpdateCar]);
 
   // ✅ Delete car handler - opens confirmation modal
   const handleDeleteCar = useCallback((id: string) => {
@@ -154,7 +157,7 @@ export default function CarsContainer({
         }
 
         if (onUpdateCar) {
-          onUpdateCar(cars.filter(car => car.id !== carId));
+          onUpdateCar(useCarStore.getState().cars.filter((car) => car.id !== carId));
         }
       } else {
         alert('Failed to delete car. Please try again.');
@@ -165,7 +168,7 @@ export default function CarsContainer({
     } finally {
       setDeleteConfirmation({ isOpen: false, carId: null, carName: '' });
     }
-  }, [deleteConfirmation, deleteCar, cars, onDeleteCar, onUpdateCar]);
+  }, [deleteConfirmation, deleteCar, onDeleteCar, onUpdateCar]);
 
   // ✅ Cancel deletion
   const cancelDelete = useCallback(() => {
@@ -192,6 +195,17 @@ export default function CarsContainer({
     setShowCreateModal(true);
   }, [cars.length, maxCars]);
 
+  useEffect(() => {
+    if (isLoading) return;
+    if (searchParams.get('addCar') !== '1') return;
+    if (maxCars && cars.length >= maxCars) {
+      router.replace('/cars', { scroll: false });
+      return;
+    }
+    setShowCreateModal(true);
+    router.replace('/cars', { scroll: false });
+  }, [isLoading, searchParams, router, maxCars, cars.length]);
+
   // ✅ Loading state
   if (isLoading) {
     return (
@@ -202,11 +216,29 @@ export default function CarsContainer({
     );
   }
 
-  // ✅ Empty state
+  // ✅ Empty state (still render modals so “Add car” / ?addCar=1 works)
   if (!isLoading && cars.length === 0) {
     return (
       <div className={styles.emptyStateWrapper}>
-        {renderEmptyState ? renderEmptyState() : <EmptyCarState />}
+        {renderEmptyState ? renderEmptyState() : <EmptyCarState onAddCar={handleAddCarClick} />}
+        {(showCreateModal || editingCar) && (
+          <CarModal
+            car={editingCar}
+            onClose={handleModalClose}
+            onCreate={handleCreateCar}
+            onUpdate={handleUpdateCar}
+          />
+        )}
+        <ConfirmModal
+          isOpen={deleteConfirmation.isOpen}
+          title="Delete Car"
+          message={`Are you sure you want to delete ${deleteConfirmation.carName}? This action cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          variant="danger"
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
       </div>
     );
   }
@@ -259,7 +291,9 @@ export default function CarsContainer({
         onEdit={handleEditCar}
         onDelete={handleDeleteCar}
         onViewDetails={(id) => router.push(`/cars/${id}`)}
-        onScheduleService={(id) => router.push(`/appointments/new?carId=${id}`)}
+        onScheduleService={(id) =>
+          router.push(`/appointments?schedule=1&carId=${encodeURIComponent(id)}`)
+        }
       />
 
       {/* ✅ Car Modal */}

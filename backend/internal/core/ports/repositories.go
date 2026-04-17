@@ -136,6 +136,8 @@ type AppointmentRepository interface {
 	Update(ctx context.Context, appointment *domain.Appointment) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	List(ctx context.Context, filters *AppointmentFilters) ([]*domain.Appointment, int64, error)
+	// CountNonCancelledBetween counts appointments with scheduled_at in [start, end) (UTC), excluding cancelled, optionally excluding an id (e.g. current row on update).
+	CountNonCancelledBetween(ctx context.Context, start, end time.Time, excludeID *uuid.UUID) (int64, error)
 }
 
 // AppointmentFilters represents filters for listing appointments

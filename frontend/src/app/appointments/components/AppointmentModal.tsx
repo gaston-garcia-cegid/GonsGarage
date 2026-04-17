@@ -1,8 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
 import { SERVICE_TYPES } from '@/shared/types';
+import {
+  combineLocalDateAndSlot,
+  formatSlotLabel24h,
+  getBookableSlotTimesForDay,
+  isWeekdayLocalYmd,
+  isWithinWorkshopHours,
+  localYmdFromIso,
+  todayLocalYmd,
+  weekdayErrorMessage,
+  workshopHoursErrorMessage,
+  workshopSlotFromIso,
+} from '@/lib/workshopAppointmentRules';
 import { useCarStore } from '@/stores/car.store';
 import styles from '../appointments.module.css';
 
@@ -36,10 +48,19 @@ export default function AppointmentModal({
   const [formData, setFormData] = useState<FormData>({
     carId: appointment?.carId || preSelectedCarId || '',
     service: appointment?.service || '',
-    date: appointment?.date ? appointment.date.split('T')[0] : '',
-    time: appointment?.date ? new Date(appointment.date).toTimeString().slice(0, 5) : '',
+    date: appointment?.date ? localYmdFromIso(appointment.date) : '',
+    time: appointment?.date ? workshopSlotFromIso(appointment.date) : '',
     notes: appointment?.notes || '',
   });
+
+  const bookableSlots = useMemo(() => getBookableSlotTimesForDay(formData.date), [formData.date]);
+
+  useEffect(() => {
+    if (!formData.time) return;
+    if (!bookableSlots.includes(formData.time)) {
+      setFormData((prev) => ({ ...prev, time: '' }));
+    }
+  }, [formData.date, bookableSlots, formData.time]);
 
   const selectedCar = cars.find(c => c.id === formData.carId);
 
@@ -69,6 +90,24 @@ export default function AppointmentModal({
       setError('Please select date and time');
       return;
     }
+    if (!isWeekdayLocalYmd(formData.date)) {
+      setError(weekdayErrorMessage());
+      return;
+    }
+    if (bookableSlots.length === 0) {
+      setError('No hay horarios disponibles para ese día.');
+      return;
+    }
+    const scheduledLocal = combineLocalDateAndSlot(formData.date, formData.time);
+    const scheduledDate = new Date(scheduledLocal);
+    if (Number.isNaN(scheduledDate.getTime()) || scheduledDate <= new Date()) {
+      setError('El turno tiene que ser en el futuro');
+      return;
+    }
+    if (!isWithinWorkshopHours(scheduledDate)) {
+      setError(workshopHoursErrorMessage());
+      return;
+    }
 
     setIsLoading(true);
 
@@ -77,12 +116,12 @@ export default function AppointmentModal({
         clientName: selectedCar ? `${selectedCar.make} ${selectedCar.model}` : 'Unknown',
         carId: formData.carId,
         service: formData.service,
-        date: `${formData.date}T${formData.time}:00Z`,
+        date: scheduledLocal,
         notes: formData.notes || undefined,
         status: 'scheduled',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        time: ''
+        time: formData.time,
       };
 
       let success = false;
@@ -91,7 +130,7 @@ export default function AppointmentModal({
         const appointmentUpdateData: UpdateAppointmentRequest = {
               carId: formData.carId,
               service: formData.service,
-              date: `${formData.date}T${formData.time}:00Z`,
+              date: scheduledLocal,
               notes: formData.notes || undefined,
               status: 'scheduled',
             };
@@ -120,16 +159,19 @@ export default function AppointmentModal({
     }
   };
 
-  // Get minimum date (today)
-  const today = new Date().toISOString().split('T')[0];
-
   return (
     <div className={styles.modalOverlay} onClick={handleBackdropClick}>
-      <div className={styles.modal}>
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="appointment-modal-title"
+      >
         {/* Header */}
         <div className={styles.modalHeader}>
-          <h3>{appointment ? 'Edit Appointment' : 'Schedule Appointment'}</h3>
+          <h3 id="appointment-modal-title">{appointment ? 'Edit Appointment' : 'Schedule Appointment'}</h3>
           <button
+            type="button"
             onClick={onClose}
             className={styles.closeButton}
             aria-label="Close modal"
@@ -168,8 +210,7 @@ export default function AppointmentModal({
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, carId: '' }))}
-                      className={styles.cancelButton}
-                      style={{ padding: '0.5rem 1rem' }}
+                      className={styles.changeCarButton}
                     >
                       Change
                     </button>
@@ -221,6 +262,9 @@ export default function AppointmentModal({
             {/* Date & Time */}
             <div className={styles.section}>
               <h3>Select Date & Time</h3>
+              <p className={styles.helpText}>
+                Mon–Fri, every 30 minutes: 9:30–12:30 and 14:00–17:30 (24-hour display).
+              </p>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
                   <label htmlFor="date">Date *</label>
@@ -230,24 +274,34 @@ export default function AppointmentModal({
                     type="date"
                     value={formData.date}
                     onChange={handleChange}
-                    min={today}
+                    min={todayLocalYmd()}
                     required
                     disabled={isLoading}
                   />
                 </div>
                 <div className={styles.formGroup}>
                   <label htmlFor="time">Time *</label>
-                  <input
+                  <select
                     id="time"
                     name="time"
-                    type="time"
                     value={formData.time}
                     onChange={handleChange}
-                    min="08:00"
-                    max="18:00"
                     required
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading || !formData.date || bookableSlots.length === 0}
+                  >
+                    <option value="">
+                      {!formData.date
+                        ? 'Pick a date first…'
+                        : bookableSlots.length === 0
+                          ? 'No slots that day'
+                          : 'Select time…'}
+                    </option>
+                    {bookableSlots.map((hhmm) => (
+                      <option key={hhmm} value={hhmm}>
+                        {formatSlotLabel24h(hhmm)}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
@@ -268,7 +322,7 @@ export default function AppointmentModal({
             </div>
 
             {/* Summary */}
-            {formData.carId && formData.service && formData.date && (
+            {formData.carId && formData.service && formData.date && formData.time && (
               <div className={styles.appointmentSummary}>
                 <h3>Appointment Summary</h3>
                 <div className={styles.summaryGrid}>
@@ -297,7 +351,7 @@ export default function AppointmentModal({
                   </div>
                   <div className={styles.summaryItem}>
                     <span className={styles.summaryLabel}>Time:</span>
-                    <span className={styles.summaryValue}>{formData.time}</span>
+                    <span className={styles.summaryValue}>{formatSlotLabel24h(formData.time)}</span>
                   </div>
                 </div>
               </div>
@@ -309,14 +363,14 @@ export default function AppointmentModal({
             <button
               type="button"
               onClick={onClose}
-              className={styles.cancelButton}
+              className={styles.modalCancelButton}
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className={styles.submitButton}
+              className={styles.modalSubmitButton}
               disabled={isLoading}
             >
               {isLoading

@@ -22,7 +22,14 @@ func parseAppointmentScheduledAt(raw string) (time.Time, error) {
 	if t, err := time.Parse(time.RFC3339, raw); err == nil {
 		return t, nil
 	}
-	return time.Parse("2006-01-02T15:04:05Z07:00", raw)
+	if t, err := time.Parse("2006-01-02T15:04:05Z07:00", raw); err == nil {
+		return t, nil
+	}
+	// HTML datetime-local (no timezone): interpret in local wall clock
+	if t, err := time.ParseInLocation("2006-01-02T15:04", raw, time.Local); err == nil {
+		return t, nil
+	}
+	return time.ParseInLocation("2006-01-02T15:04:05", raw, time.Local)
 }
 
 type AppointmentHandler struct {
@@ -39,8 +46,8 @@ func NewAppointmentHandler(appointmentService ports.AppointmentService) *Appoint
 type CreateAppointmentRequest struct {
 	CustomerID    string `json:"customerID"`    // ✅ camelCase
 	EmployeeID    string `json:"employeeID"`    // ✅ camelCase
-	CarID         string `json:"carID"`         // ✅ camelCase
-	ScheduledTime string `json:"scheduledTime"` // ✅ camelCase
+	CarID         string `json:"carId"`         // frontend / Agent.md
+	ScheduledTime string `json:"scheduledTime"` // legacy
 	ScheduledAt   string `json:"scheduledAt"`   // ✅ camelCase
 	Reason        string `json:"reason"`
 	Notes         string `json:"notes"`
@@ -111,7 +118,11 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car ID"})
 		return
 	}
-	scheduledAt, err := parseAppointmentScheduledAt(req.ScheduledAt)
+	schedRaw := strings.TrimSpace(req.ScheduledAt)
+	if schedRaw == "" {
+		schedRaw = strings.TrimSpace(req.ScheduledTime)
+	}
+	scheduledAt, err := parseAppointmentScheduledAt(schedRaw)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid scheduled time format"})
 		return
@@ -143,6 +154,14 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 	if err != nil {
 		if err == domain.ErrUnauthorizedAccess {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+			return
+		}
+		if err == domain.ErrAppointmentOutsideBusinessHours {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "El horario debe estar entre 9:30 y 12:30 o entre 14:00 y 17:30."})
+			return
+		}
+		if err == domain.ErrAppointmentDailyCapReached {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Ya hay 8 turnos agendados ese día; elegí otra fecha u horario."})
 			return
 		}
 		if err == domain.ErrAppointmentAlreadyExists {
@@ -346,16 +365,21 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 	// }
 
 	patch := &domain.Appointment{ID: appointmentID}
-	if strings.TrimSpace(req.ScheduledAt) != "" {
-		t, perr := parseAppointmentScheduledAt(req.ScheduledAt)
+	schedRaw := strings.TrimSpace(req.ScheduledAt)
+	if schedRaw == "" {
+		schedRaw = strings.TrimSpace(req.ScheduledTime)
+	}
+	if schedRaw != "" {
+		t, perr := parseAppointmentScheduledAt(schedRaw)
 		if perr != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid scheduled time format"})
 			return
 		}
 		patch.ScheduledAt = t
 	}
-	if strings.TrimSpace(req.CarID) != "" {
-		carUUID, perr := uuid.Parse(strings.TrimSpace(req.CarID))
+	carPatch := strings.TrimSpace(req.CarID)
+	if carPatch != "" {
+		carUUID, perr := uuid.Parse(carPatch)
 		if perr != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car ID"})
 			return
@@ -378,6 +402,14 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 		}
 		if err == domain.ErrUnauthorizedAccess {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+			return
+		}
+		if err == domain.ErrAppointmentOutsideBusinessHours {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "El horario debe estar entre 9:30 y 12:30 o entre 14:00 y 17:30."})
+			return
+		}
+		if err == domain.ErrAppointmentDailyCapReached {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Ya hay 8 turnos agendados ese día; elegí otra fecha u horario."})
 			return
 		}
 		if err == domain.ErrInvalidAppointmentData {

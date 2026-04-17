@@ -50,10 +50,13 @@ export const appointmentApi = {
         notes: data.notes,
         status: data.status,
       });
-      return response.success ? response.data ?? null : null;
+      if (!response.success || !response.data) {
+        throw new Error(response.error?.message || 'No se pudo crear el turno');
+      }
+      return response.data;
     } catch (error) {
       console.error('❌ Create appointment error:', error);
-      return null;
+      throw error instanceof Error ? error : new Error('No se pudo crear el turno');
     }
   },
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth, useCars, useAppointments, UserRole } from '@/stores';
 import { Repair } from '@/lib/api';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
+import AppShell from '@/components/layout/AppShell';
 import styles from './dashboard.module.css';
 
 export default function ClientDashboardPage() {
@@ -45,64 +46,34 @@ export default function ClientDashboardPage() {
     );
   }
 
+  const shellSubtitle = isClientRole ? 'Customer dashboard' : 'Workshop dashboard';
+  const carsLabel = isClientRole ? 'My cars' : 'Vehicles';
+
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.spinner}></div>
-        <span>Loading dashboard...</span>
-      </div>
+      <AppShell
+        user={user}
+        subtitle={shellSubtitle}
+        activeNav="dashboard"
+        carsNavLabel={carsLabel}
+        onLogout={logout}
+      >
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <span>Loading dashboard...</span>
+        </div>
+      </AppShell>
     );
   }
 
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.logoSection}>
-            <div className={styles.logoIcon}>
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
-              </svg>
-            </div>
-            <div>
-              <h1>GonsGarage</h1>
-              <p>{isClientRole ? 'Customer dashboard' : 'Workshop dashboard'}</p>
-            </div>
-          </div>
-          <div className={styles.userSection}>
-            <span>Welcome, {user?.firstName} {user?.lastName}</span>
-            <button onClick={logout} className={styles.logoutButton}>
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className={styles.navigation}>
-        <button 
-          onClick={() => router.push('/dashboard')}
-          className={`${styles.navButton} ${styles.active}`}
-        >
-          Dashboard
-        </button>
-        <button 
-          onClick={() => router.push('/cars')}
-          className={styles.navButton}
-        >
-          {isClientRole ? 'My cars' : 'Vehicles'}
-        </button>
-        <button 
-          onClick={() => router.push('/appointments')}
-          className={styles.navButton}
-        >
-          Appointments
-        </button>
-      </nav>
-
-      {/* Main Content */}
-      <main className={styles.main}>
+    <AppShell
+      user={user}
+      subtitle={shellSubtitle}
+      activeNav="dashboard"
+      carsNavLabel={carsLabel}
+      onLogout={logout}
+    >
         {error && (
           <div className={styles.errorAlert}>
             <span>{error}</span>
@@ -235,7 +206,6 @@ export default function ClientDashboardPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+    </AppShell>
   );
 }

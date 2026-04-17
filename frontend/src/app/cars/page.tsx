@@ -1,89 +1,56 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/stores';
 import CarsContainer from '@/app/cars/components/CarsContainer';
-import Image from 'next/image';
+import AppShell from '@/components/layout/AppShell';
+import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import styles from './cars.module.css';
 
-// Main Cars page component following Agent.md component conventions
 export default function CarsPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const authHydrated = useAuthHydrationReady();
 
-  // Redirect if not authenticated
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!authHydrated) return;
     if (!user) {
-      router.push('/auth/login');
+      router.replace('/auth/login');
     }
-  }, [user, router]);
+  }, [authHydrated, user, router]);
 
-  if (!user) {
-    return null;
+  if (!authHydrated || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
   }
 
   return (
-    <div className={styles.container}>
-      {/* Header - following Agent.md UI conventions */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.logoSection} onClick={() => router.push('/')}>
-            <div className={styles.logoIcon}>
-              <Image
-                src="/images/LogoGonsGarage.jpg"
-                alt="GonsGarage Logo"
-                width={24}
-                height={24}
-                style={{ objectFit: 'contain' }}
-              />
-            </div>
-            <div>
-              <h1>GonsGarage</h1>
-              <p>My Cars</p>
-            </div>
+    <AppShell
+      user={user}
+      subtitle="My Cars"
+      activeNav="cars"
+      onLogout={logout}
+      logoVariant="branded"
+    >
+      <Suspense
+        fallback={
+          <div className="flex flex-col items-center justify-center gap-3 py-12 text-gray-600">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+            <span>Loading…</span>
           </div>
-          <div className={styles.userSection}>
-            <span>Welcome, {user?.firstName} {user?.lastName}</span>
-            <button onClick={logout} className={styles.logoutButton}>
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation - following Agent.md navigation patterns */}
-      <nav className={styles.navigation}>
-        <button 
-          onClick={() => router.push('/dashboard')}
-          className={styles.navButton}
-        >
-          Dashboard
-        </button>
-        <button 
-          onClick={() => router.push('/cars')}
-          className={`${styles.navButton} ${styles.active}`}
-        >
-          My Cars
-        </button>
-        <button 
-          onClick={() => router.push('/appointments')}
-          className={styles.navButton}
-        >
-          Appointments
-        </button>
-      </nav>
-
-      {/* Main Content */}
-      <main className={styles.main}>
-        {/* ✅ Use shared container */}
+        }
+      >
         <CarsContainer
           headerTitle="My Cars"
           headerSubtitle="Manage your registered cars"
           addButtonText="Add Car"
           className={styles.carsSection}
         />
-      </main>
-    </div>
+      </Suspense>
+    </AppShell>
   );
 }

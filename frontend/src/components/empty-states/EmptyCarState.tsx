@@ -28,7 +28,7 @@ export default function EmptyCarState({ onAddCar }: EmptyCarStateProps) {
               Add Your First Car
             </button>
           ) : (
-            <Link href="/cars/new" className="btn-primary">
+            <Link href="/cars?addCar=1" className="btn-primary">
               Add Your First Car
             </Link>
           )}

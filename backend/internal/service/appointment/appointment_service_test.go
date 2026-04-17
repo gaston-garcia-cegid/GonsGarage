@@ -61,6 +61,8 @@ type stubApptRepo struct {
 	listErr   error
 	updateErr error
 	deleteErr error
+	countN    int64
+	countErr  error
 }
 
 func (s *stubApptRepo) Create(ctx context.Context, a *domain.Appointment) error {
@@ -96,6 +98,13 @@ func (s *stubApptRepo) List(ctx context.Context, filters *ports.AppointmentFilte
 		return nil, 0, s.listErr
 	}
 	return s.listApps, s.listTotal, nil
+}
+
+func (s *stubApptRepo) CountNonCancelledBetween(ctx context.Context, start, end time.Time, excludeID *uuid.UUID) (int64, error) {
+	if s.countErr != nil {
+		return 0, s.countErr
+	}
+	return s.countN, nil
 }
 
 type stubCarRepo struct {
@@ -371,6 +380,7 @@ func sampleAppointment(customerID, carID uuid.UUID) *domain.Appointment {
 		CarID:       carID,
 		ServiceType: "inspection",
 		Status:      domain.AppointmentStatusScheduled,
-		ScheduledAt: time.Now().Add(24 * time.Hour).UTC().Truncate(time.Second),
+		// Fixed local time inside workshop morning window (9:30–12:30)
+		ScheduledAt: time.Date(2030, 6, 15, 10, 30, 0, 0, time.Local),
 	}
 }

@@ -319,3 +319,32 @@ func (r *postgresAppointmentRepository) listAppointmentsSQLX(ctx context.Context
 	}
 	return out, total, nil
 }
+
+// CountNonCancelledBetween implements ports.AppointmentRepository.
+func (r *postgresAppointmentRepository) CountNonCancelledBetween(ctx context.Context, start, end time.Time, excludeID *uuid.UUID) (int64, error) {
+	if r.sqlx != nil {
+		q := `SELECT COUNT(*) FROM appointments WHERE deleted_at IS NULL AND status != $1 AND scheduled_at >= $2 AND scheduled_at < $3`
+		args := []interface{}{string(domain.AppointmentStatusCancelled), start, end}
+		if excludeID != nil {
+			q += ` AND id <> $4`
+			args = append(args, *excludeID)
+		}
+		var n int64
+		if err := r.sqlx.GetContext(ctx, &n, q, args...); err != nil {
+			return 0, fmt.Errorf("failed to count appointments: %w", err)
+		}
+		return n, nil
+	}
+
+	q := r.db.WithContext(ctx).Model(&AppointmentModel{}).
+		Where("deleted_at IS NULL AND status <> ?", string(domain.AppointmentStatusCancelled)).
+		Where("scheduled_at >= ? AND scheduled_at < ?", start, end)
+	if excludeID != nil {
+		q = q.Where("id <> ?", *excludeID)
+	}
+	var n int64
+	if err := q.Count(&n).Error; err != nil {
+		return 0, fmt.Errorf("failed to count appointments: %w", err)
+	}
+	return n, nil
+}

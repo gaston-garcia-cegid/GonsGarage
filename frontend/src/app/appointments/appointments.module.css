@@ -1,500 +1,318 @@
-.container {
-  min-height: 100vh;
-  background-color: var(--color-gray-50);
-}
+/* Shared appointments route styles: list, cards, staff modal (aligned with new-appointment + design tokens). */
 
-.header {
-  background-color: white;
-  box-shadow: var(--shadow-sm);
-  border-bottom: 1px solid var(--color-gray-200);
-}
-
-.headerContent {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--space-4);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 64px;
-}
-
-.logoSection {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.logoIcon {
-  width: 32px;
-  height: 32px;
-  background-color: var(--color-primary);
-  border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.logoIcon svg {
-  width: 16px;
-  height: 16px;
-}
-
-.logoSection h1 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-gray-900);
-  margin: 0;
-}
-
-.logoSection p {
-  font-size: 0.75rem;
-  color: var(--color-gray-600);
-  margin: 0;
-}
-
-.userSection {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.userSection span {
-  font-size: 0.875rem;
-  color: var(--color-gray-700);
-}
-
-.logoutButton {
-  background-color: #dc2626;
-  color: white;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius);
-  font-size: 0.875rem;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-}
-
-.logoutButton:hover {
-  background-color: #b91c1c;
-}
-
-.navigation {
-  background-color: white;
-  border-bottom: 1px solid var(--color-gray-200);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--space-4);
-  display: flex;
-  gap: var(--space-6);
-}
-
-.navButton {
-  padding: var(--space-3) 0;
-  background: none;
-  border: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-gray-600);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all var(--transition-fast);
-}
-
-.navButton:hover {
-  color: var(--color-primary);
-}
-
-.navButton.active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
-}
-
-.main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-4);
-}
-
-.loadingContainer {
-  min-height: 100vh;
+.list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-}
-
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--color-gray-200);
-  border-top: 2px solid var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.errorAlert {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius);
-  margin-bottom: var(--space-4);
-}
-
-.controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: var(--space-6);
   gap: var(--space-4);
 }
 
-.controlsLeft h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-gray-900);
-  margin: 0 0 var(--space-1) 0;
-}
-
-.controlsLeft p {
-  font-size: 0.875rem;
+.emptyWrap {
+  padding: var(--space-8) 0;
+  text-align: center;
   color: var(--color-gray-600);
-  margin: 0;
 }
 
-.controlsRight {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
+.noCarsRedirectHint {
+  margin-top: -1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--color-gray-500);
 }
 
-.statusFilter {
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-gray-300);
-  border-radius: var(--radius);
-  font-size: 0.875rem;
-  background-color: white;
-  cursor: pointer;
+.helpText {
+  font-size: 0.8125rem;
+  color: var(--color-gray-600);
+  margin: 0 0 0.75rem;
+  line-height: 1.45;
 }
 
-.addButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.addButton svg {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-.addButton:hover:not(:disabled) {
-  background: #1d4ed8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-}
-
-.addButton:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.addButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
+/* —— List empty state —— */
 .emptyState {
   text-align: center;
-  padding: var(--space-16) var(--space-4);
-  background: white;
-  border-radius: var(--radius);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  margin-top: var(--space-6);
+  padding: var(--space-12) var(--space-4);
+  background: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--color-gray-200);
 }
 
 .emptyIcon {
-  font-size: 4rem;
+  font-size: 3rem;
   margin-bottom: var(--space-4);
+  line-height: 1;
 }
 
 .emptyState h3 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-gray-900);
-  margin-bottom: var(--space-2);
+  margin: 0 0 var(--space-2);
 }
 
 .emptyState p {
-  color: var(--color-gray-500);
-  margin-bottom: var(--space-6);
+  color: var(--color-gray-600);
+  margin: 0;
+  max-width: 28rem;
+  margin-inline: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .appointmentsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-5);
 }
 
+/* —— Appointment cards —— */
 .appointmentCard {
-  background-color: white;
-  border-radius: var(--radius);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  padding: var(--space-6) var(--space-4);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 260px;
-  transition: box-shadow 0.2s;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-gray-200);
+  overflow: hidden;
+  transition: box-shadow var(--transition-fast);
 }
 
 .appointmentCard:hover {
-  box-shadow: 0 4px 12px rgba(37,99,235,0.08);
+  box-shadow: var(--shadow-md);
 }
 
 .appointmentHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-4);
-}
-
-.carIcon {
-  font-size: 2rem;
-  margin-right: var(--space-2);
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-gray-200);
+  background: linear-gradient(180deg, var(--color-gray-50) 0%, white 100%);
 }
 
 .appointmentDate {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  gap: 0.125rem;
 }
 
 .dateLabel {
-  font-size: 0.85rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--color-gray-500);
 }
 
 .dateValue {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-gray-900);
 }
 
 .statusBadge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  background: #f3f4f6;
-  color: #2563eb;
-  margin-left: var(--space-2);
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+}
+
+.scheduled {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.confirmed {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.inProgress {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.completed {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  border-color: var(--color-gray-300);
+}
+
+.cancelled {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
 }
 
 .appointmentBody {
-  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-.serviceInfo h3 {
-  font-size: 1.1rem;
+.serviceInfo {
+  min-width: 0;
+}
+
+.serviceType {
+  margin: 0;
+  font-size: 1rem;
   font-weight: 600;
-  margin: 0 0 0.5rem 0;
+  color: var(--color-gray-900);
+  text-transform: capitalize;
 }
 
 .notes {
+  margin: var(--space-2) 0 0;
+  font-size: 0.8125rem;
   color: var(--color-gray-600);
-  font-size: 0.95rem;
-  margin: 0;
+  line-height: 1.45;
 }
 
 .carInfo {
   display: flex;
-  align-items: center;
-  margin-top: var(--space-2);
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-gray-50);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-gray-200);
+}
+
+.carIcon {
+  font-size: 1.75rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.carDetails {
+  min-width: 0;
 }
 
 .carDetails h4 {
-  font-size: 1rem;
-  font-weight: 500;
-  margin: 0;
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
 }
 
 .carDetails p {
-  font-size: 0.9rem;
-  color: var(--color-gray-500);
   margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
 }
 
 .appointmentFooter {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-  margin-top: var(--space-4);
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-gray-200);
+  background: var(--color-gray-50);
 }
 
 .appointmentId {
-  font-size: 0.85rem;
-  color: var(--color-gray-400);
+  font-size: 0.6875rem;
+  color: var(--color-gray-500);
+  font-family: ui-monospace, monospace;
 }
 
 .appointmentActions {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
+  justify-content: flex-end;
 }
 
-.editButton,
-.cancelButton,
-.confirmButton,
-.completeButton,
-.viewButton,
-.rescheduleButton {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
+.appointmentActions button {
+  font-size: 0.8125rem;
   font-weight: 500;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius);
   cursor: pointer;
-  border: none;
-  outline: none;
-  transition: all 0.2s;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.confirmButton {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.confirmButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
 }
 
 .editButton {
-  background-color: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #bfdbfe;
+  background: white;
+  color: var(--color-gray-700);
+  border-color: var(--color-gray-300);
 }
-.editButton:hover { background-color: #dbeafe; border-color: #93c5fd; }
 
-.confirmButton {
-  background-color: #dcfce7;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
+.editButton:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
-.confirmButton:hover { background-color: #bbf7d0; border-color: #86efac; }
+
+/* Card action: cancel appointment (not modal dismiss) */
+.cancelButton {
+  background: white;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #f87171;
+}
 
 .completeButton {
-  background-color: #d1fae5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
+  background: #047857;
+  color: #ffffff;
+  border-color: #047857;
 }
-.completeButton:hover { background-color: #a7f3d0; border-color: #6ee7b7; }
 
-.cancelButton {
-  background-color: #fee2e2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+.completeButton:hover:not(:disabled) {
+  background: #065f46;
+  border-color: #065f46;
 }
-.cancelButton:hover { background-color: #fecaca; border-color: #fca5a5; }
 
 .viewButton {
-  background-color: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: white;
+  color: var(--color-primary);
+  border-color: #bfdbfe;
 }
-.viewButton:hover { background-color: #e5e7eb; border-color: #9ca3af; }
+
+.viewButton:hover:not(:disabled) {
+  background: #eff6ff;
+}
 
 .rescheduleButton {
-  background-color: #fef3c7;
-  color: #d97706;
-  border: 1px solid #fde68a;
-}
-.rescheduleButton:hover { background-color: #fde68a; border-color: #fcd34d; }
-
-/* Empty state igual ao dos carros */
-.emptyState {
-  text-align: center;
-  padding: var(--space-16) var(--space-4);
   background: white;
-  border-radius: var(--radius);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  margin-top: var(--space-6);
+  color: var(--color-gray-800);
+  border-color: var(--color-gray-300);
 }
 
-.emptyIcon {
-  font-size: 4rem;
-  margin-bottom: var(--space-4);
+.rescheduleButton:hover:not(:disabled) {
+  background: var(--color-gray-50);
 }
 
-.emptyState h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-gray-900);
-  margin-bottom: var(--space-2);
+.appointmentActions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
-.emptyState p {
-  color: var(--color-gray-500);
-  margin-bottom: var(--space-6);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .serviceGrid {
-    grid-template-columns: 1fr;
-  }
-  
-  .summaryItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
-  
-  .summaryValue {
-    text-align: left;
-  }
-  
-  .controlsRight {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .controls {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-}
-
-/* ========================================
-   MODAL STYLES (Match Cars)
-   ======================================== */
-
-/* Modal Overlay */
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 1rem;
-  animation: fadeIn 0.2s ease-out;
-  overflow-y: auto;
-}
-
-@keyframes fadeIn {
+/* —— Staff appointment modal —— */
+@keyframes aptModalFadeIn {
   from {
     opacity: 0;
   }
@@ -503,24 +321,9 @@
   }
 }
 
-/* Modal Container */
-.modal {
-  background: white;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 650px;
-  max-height: 90vh;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-              0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  animation: slideUp 0.3s ease-out;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-@keyframes slideUp {
+@keyframes aptModalSlideUp {
   from {
-    transform: translateY(20px);
+    transform: translateY(12px);
     opacity: 0;
   }
   to {
@@ -529,355 +332,375 @@
   }
 }
 
-/* Modal Header */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background-color: rgb(15 23 42 / 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+  overflow-y: auto;
+  animation: aptModalFadeIn 0.2s ease-out;
+}
+
+.modal {
+  width: 100%;
+  max-width: 640px;
+  margin-bottom: var(--space-10);
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-gray-200);
+  display: flex;
+  flex-direction: column;
+  max-height: min(92vh, 900px);
+  animation: aptModalSlideUp 0.25s ease-out;
+  overflow: hidden;
+}
+
 .modalHeader {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-gray-200);
   flex-shrink: 0;
-  background-color: #f9fafb;
+  background: white;
 }
 
 .modalHeader h3 {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
 }
 
 .closeButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  color: #6b7280;
-  transition: all 0.2s ease;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
 }
 
 .closeButton:hover {
-  color: #1f2937;
-  background-color: #e5e7eb;
+  background: var(--color-gray-200);
 }
 
 .closeButton svg {
-  width: 20px;
-  height: 20px;
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
-/* Modal Body */
 .modalBody {
-  padding: 1.5rem;
+  padding: var(--space-5) var(--space-6);
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
 }
 
-/* Form Section */
+.errorAlert {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
 .section {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
 }
 
-.section:last-child {
+.section:last-of-type {
   margin-bottom: 0;
 }
 
-.section h3 {
+.section > h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 1rem 0;
+  color: var(--color-gray-900);
+  margin: 0 0 var(--space-3);
 }
 
-/* Form Grid */
 .formGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
 }
 
-/* Form Group */
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .formGroup label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-gray-700);
 }
 
 .formGroup input,
 .formGroup select,
 .formGroup textarea {
-  padding: 0.625rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  outline: none;
+  padding: var(--space-3);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   font-family: inherit;
-}
-
-.formGroup textarea {
-  resize: vertical;
-  min-height: 80px;
 }
 
 .formGroup input:focus,
 .formGroup select:focus,
 .formGroup textarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .formGroup input:disabled,
 .formGroup select:disabled,
 .formGroup textarea:disabled {
-  background-color: #f3f4f6;
+  background: var(--color-gray-50);
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
-/* Selected Car Display */
+.formGroup textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
 .selectedCarInfo {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background-color: #f3f4f6;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-gray-50);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-gray-200);
+  flex-wrap: wrap;
 }
 
-.selectedCarInfo .carIcon {
-  font-size: 2rem;
-}
-
-.carDetails {
+.selectedCarInfo .carDetails {
   flex: 1;
+  min-width: 0;
 }
 
-.carDetails h4 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0.25rem 0;
+.changeCarButton {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-gray-300);
+  background: white;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.carDetails p {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0;
+.changeCarButton:hover:not(:disabled) {
+  background: var(--color-gray-50);
+  border-color: var(--color-gray-400);
 }
 
-/* Service Options */
 .serviceGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
 }
 
 .serviceOption {
+  cursor: pointer;
   position: relative;
+  display: block;
 }
 
-.serviceOption input[type="radio"] {
+.serviceOption input[type='radio'] {
   position: absolute;
   opacity: 0;
-  pointer-events: none;
+  width: 0;
+  height: 0;
 }
 
 .serviceCard {
-  padding: 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: white;
+  padding: var(--space-4);
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
-.serviceOption input[type="radio"]:checked + .serviceCard {
-  border-color: #2563eb;
-  background-color: #eff6ff;
+.serviceOption input[type='radio']:focus-visible + .serviceCard {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.serviceOption input[type='radio']:checked + .serviceCard {
+  border-color: var(--color-primary);
+  background: rgba(37, 99, 235, 0.06);
 }
 
 .serviceCard:hover {
   border-color: #93c5fd;
-  background-color: #f9fafb;
-}
-
-.serviceOption input[type="radio"]:checked + .serviceCard:hover {
-  background-color: #dbeafe;
 }
 
 .serviceCard h4 {
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
+  color: var(--color-gray-900);
+  margin: 0 0 var(--space-1);
 }
 
 .serviceCard p {
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
   margin: 0;
+  line-height: 1.4;
 }
 
-/* Appointment Summary */
 .appointmentSummary {
-  padding: 1rem;
-  background-color: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  padding: var(--space-4);
+  background: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-gray-200);
+  margin-top: var(--space-2);
 }
 
 .appointmentSummary h3 {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 1rem 0;
+  margin: 0 0 var(--space-3);
+  color: var(--color-gray-900);
 }
 
 .summaryGrid {
-  display: grid;
-  gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .summaryItem {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: var(--space-4);
 }
 
 .summaryLabel {
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.summaryValue {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-/* Modal Actions */
-.modalActions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  padding: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-  background-color: #f9fafb;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
   flex-shrink: 0;
 }
 
-.cancelButton,
-.submitButton {
-  padding: 0.625rem 1.25rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
+.summaryValue {
+  font-size: 0.8125rem;
   font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  outline: none;
+  color: var(--color-gray-900);
+  text-align: right;
 }
 
-.cancelButton {
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
+.modalActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-gray-200);
+  background: var(--color-gray-50);
+  flex-shrink: 0;
 }
 
-.cancelButton:hover:not(:disabled) {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.cancelButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.submitButton {
-  background-color: #2563eb;
-  color: white;
-  min-width: 120px;
-}
-
-.submitButton:hover:not(:disabled) {
-  background-color: #1d4ed8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-}
-
-.submitButton:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.submitButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Error States */
-.inputError {
-  border-color: #dc2626 !important;
-}
-
-.inputError:focus {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
-}
-
-.errorText {
-  font-size: 0.75rem;
-  color: #dc2626;
-  margin-top: 0.25rem;
-}
-
-.errorAlert {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+.modalCancelButton {
+  padding: var(--space-3) var(--space-5);
   font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-gray-300);
+  background: white;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
-/* Responsive */
+.modalCancelButton:hover:not(:disabled) {
+  background: var(--color-gray-50);
+  border-color: var(--color-gray-400);
+}
+
+.modalCancelButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.modalSubmitButton {
+  padding: var(--space-3) var(--space-5);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  min-width: 7.5rem;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.modalSubmitButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.modalSubmitButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 @media (max-width: 640px) {
   .modalOverlay {
     padding: 0;
-    align-items: flex-start;
+    align-items: stretch;
   }
 
   .modal {
-    max-width: 100vw;
-    max-height: 100vh;
-    border-radius: 0;
+    max-width: 100%;
     min-height: 100vh;
+    max-height: none;
+    margin-bottom: 0;
+    border-radius: 0;
   }
 
-  .formGrid,
-  .serviceGrid {
+  .formGrid {
     grid-template-columns: 1fr;
   }
 
   .modalActions {
     flex-direction: column-reverse;
+    align-items: stretch;
   }
 
-  .cancelButton,
-  .submitButton {
+  .modalCancelButton,
+  .modalSubmitButton {
     width: 100%;
     justify-content: center;
+  }
+
+  .appointmentsGrid {
+    grid-template-columns: 1fr;
   }
 }

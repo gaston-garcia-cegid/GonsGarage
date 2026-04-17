@@ -30,6 +30,7 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/auth"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/car"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/employee"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/repair"
 
 	_ "github.com/gaston-garcia-cegid/gonsgarage/docs" // swagger (swag)
 )
@@ -163,6 +164,7 @@ func main() {
 	employeeRepo := postgresRepo.NewPostgresEmployeeRepository(db)
 	carRepo := postgresRepo.NewPostgresCarRepository(db)
 	appointmentRepo := postgresRepo.NewPostgresAppointmentRepository(db)
+	repairRepo := postgresRepo.NewPostgresRepairRepository(db)
 	log.Printf("Repositories initialized")
 
 	// Initialize use cases
@@ -176,6 +178,7 @@ func main() {
 	employeeService := employee.NewEmployeeService(employeeRepo, cacheRepo)
 	carService := car.NewCarService(carRepo, userRepo, cacheRepo)
 	appointmentService := appointment.NewAppointmentService(appointmentRepo, userRepo, carRepo)
+	repairService := repair.NewRepairService(repairRepo, carRepo, userRepo)
 
 	log.Printf("Use cases initialized")
 
@@ -189,6 +192,7 @@ func main() {
 
 	// Initialize appointment handler
 	appointmentHandler := handler.NewAppointmentHandler(appointmentService)
+	repairHandler := handler.NewRepairHandler(repairService)
 
 	log.Printf("Handlers initialized")
 
@@ -203,7 +207,7 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Setup routes
-	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, authMiddleware, sqlxDB)
+	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, repairHandler, authMiddleware, sqlxDB)
 
 	log.Printf("Routes set up")
 
@@ -294,6 +298,7 @@ func setupRoutes(
 	employeeHandler *handler.EmployeeHandler,
 	carHandler *handler.CarHandler,
 	appointmentHandler *handler.AppointmentHandler,
+	repairHandler *handler.RepairHandler,
 	authMiddleware *middleware.AuthMiddleware,
 	sqlxDB *sqlx.DB,
 ) {
@@ -366,15 +371,10 @@ func setupRoutes(
 			appointments.DELETE("/:id", appointmentHandler.DeleteAppointment)
 		}
 
-		// Repair routes would go here
-		// repairs := protected.Group("/repairs")
-		// {
-		// 	repairs.POST("", repairHandler.CreateRepair)
-		// 	repairs.GET("", repairHandler.ListRepairs)
-		// 	repairs.GET("/:id", repairHandler.GetRepair)
-		// 	repairs.PUT("/:id", repairHandler.UpdateRepair)
-		// 	repairs.DELETE("/:id", repairHandler.DeleteRepair)
-		// }
+		repairs := protected.Group("/repairs")
+		{
+			repairs.GET("/car/:carId", repairHandler.ListRepairsByCar)
+		}
 	}
 }
 
