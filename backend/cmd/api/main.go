@@ -20,21 +20,16 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	postgresRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/postgres"
-	_ "github.com/gaston-garcia-cegid/gonsgarage/internal/apidocs" // anclas swag /health, /ready, /metrics
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/platform/slogsetup"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/sqlmigrate"
-
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/handlers"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/middleware"
 	redisRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/redis"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	_ "github.com/gaston-garcia-cegid/gonsgarage/internal/apidocs" // anclas swag /health, /ready, /metrics
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/appointment"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/auth"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/car"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/employee"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/repair"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/handler"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/middleware"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/platform/slogsetup"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/repository"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/sqlmigrate"
 
 	_ "github.com/gaston-garcia-cegid/gonsgarage/docs" // swagger (swag)
 )
@@ -180,11 +175,11 @@ func main() {
 	}
 
 	// Initialize repositories
-	userRepo := postgresRepo.NewPostgresUserRepository(db)
-	employeeRepo := postgresRepo.NewPostgresEmployeeRepository(db)
-	carRepo := postgresRepo.NewPostgresCarRepository(db)
-	repairRepo := postgresRepo.NewPostgresRepairRepository(db)
-	appointmentRepo := postgresRepo.NewPostgresAppointmentRepository(db)
+	userRepo := repository.NewPostgresUserRepository(db)
+	employeeRepo := repository.NewPostgresEmployeeRepository(db)
+	carRepo := repository.NewPostgresCarRepository(db)
+	repairRepo := repository.NewPostgresRepairRepository(db)
+	appointmentRepo := repository.NewPostgresAppointmentRepository(db)
 	log.Printf("Repositories initialized")
 
 	// Initialize use cases
@@ -201,11 +196,11 @@ func main() {
 		log.Printf("Warning: CORS_ALLOWED_ORIGINS is empty in release mode; only requests without Origin (e.g. curl) or same-site usage avoid browser CORS checks.")
 	}
 
-	authService := auth.NewAuthService(userRepo, jwtSecret, 24)
-	employeeService := employee.NewEmployeeService(employeeRepo, cacheRepo)
-	carService := car.NewCarService(carRepo, userRepo, cacheRepo)
-	appointmentService := appointment.NewAppointmentService(appointmentRepo, userRepo, carRepo)
-	repairService := repair.NewRepairService(repairRepo, carRepo, userRepo)
+	authService := service.NewAuthService(userRepo, jwtSecret, 24)
+	employeeService := service.NewEmployeeService(employeeRepo, cacheRepo)
+	carService := service.NewCarService(carRepo, userRepo, cacheRepo)
+	appointmentService := service.NewAppointmentService(appointmentRepo, userRepo, carRepo)
+	repairService := service.NewRepairService(repairRepo, carRepo, userRepo)
 
 	log.Printf("Use cases initialized")
 
@@ -213,13 +208,13 @@ func main() {
 	authMiddleware := middleware.NewAuthMiddleware(jwtSecret)
 
 	// Initialize handlers
-	authHandler := handlers.NewAuthHandler(authService)
-	employeeHandler := handlers.NewEmployeeHandler(employeeService)
-	carHandler := handlers.NewCarHandler(carService)
+	authHandler := handler.NewAuthHandler(authService)
+	employeeHandler := handler.NewEmployeeHandler(employeeService)
+	carHandler := handler.NewCarHandler(carService)
 
 	// Initialize appointment handler
-	appointmentHandler := handlers.NewAppointmentHandler(appointmentService)
-	repairHandler := handlers.NewRepairHandler(repairService)
+	appointmentHandler := handler.NewAppointmentHandler(appointmentService)
+	repairHandler := handler.NewRepairHandler(repairService)
 
 	log.Printf("Handlers initialized")
 
@@ -353,11 +348,11 @@ func corsMiddleware() gin.HandlerFunc {
 // Setup all routes
 func setupRoutes(
 	router *gin.Engine,
-	authHandler *handlers.AuthHandler,
-	employeeHandler *handlers.EmployeeHandler,
-	carHandler *handlers.CarHandler,
-	appointmentHandler *handlers.AppointmentHandler,
-	repairHandler *handlers.RepairHandler,
+	authHandler *handler.AuthHandler,
+	employeeHandler *handler.EmployeeHandler,
+	carHandler *handler.CarHandler,
+	appointmentHandler *handler.AppointmentHandler,
+	repairHandler *handler.RepairHandler,
 	authMiddleware *middleware.AuthMiddleware,
 	db *gorm.DB,
 ) {
