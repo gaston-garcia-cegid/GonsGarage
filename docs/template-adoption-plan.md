@@ -18,19 +18,20 @@ Este documento descompone la alineación del repositorio **GonsGarage** con la p
 
 ---
 
-## Fase 1 — Estructura de carpetas backend (plantilla §1, §4.7) — **completada (fachadas + tests de contrato)**
+## Fase 1 — Estructura de carpetas backend (plantilla §1, §4.7) — **completada (HTTP en layout final + fachadas)**
 
 **Objetivo:** `internal/domain`, `internal/service`, `internal/repository`, `internal/handler`, `internal/middleware`, `pkg/` como contrato principal.
 
 **Implementado:**
 
-- Paquetes de fachada con **aliases** a `internal/adapters/http/handlers`, `.../middleware`, `internal/adapters/repository/postgres` y `internal/core/services/*`.
+- **Handlers HTTP** en `internal/handler` (paquete `handler`) y **middleware** en `internal/middleware` (código movido desde `internal/adapters/http/...`; ya no hay duplicado por alias en esas rutas).
+- Fachadas con **aliases** en `internal/domain`, `internal/service`, `internal/repository` hacia `internal/core/domain`, `internal/core/services/*` y `internal/adapters/repository/postgres` (contrato estable para `cmd/api` sin mover aún toda la capa de dominio/persistencia).
 - `internal/domain` re-exporta modelos usados por `cmd/api` (AutoMigrate) y constantes de rol/estado alineadas con `internal/core/domain`.
 - `pkg/` reservado con `doc.go` y test de módulo.
-- **TDD:** tests `contract_test.go` por paquete (`reflect` sobre punteros de funciones / asignabilidad de tipos) para garantizar que **no se duplica** lógica en la fase de layout.
-- `cmd/api` y `tests/integration` importan ya los nuevos paths públicos.
+- **TDD:** tests `contract_test.go` en `handler` y `middleware` (constructores / no nil) para anclar el layout.
+- `cmd/api` importa los paths públicos anteriores.
 
-**Pendiente (fases posteriores):** mover implementación física de archivos desde `adapters/` / `core/` hacia los árboles finales (sin aliases).
+**Opcional (Fase 1b):** mover implementación física de `internal/core/*` y `internal/adapters/repository/postgres` hacia los árboles finales y retirar aliases en domain/service/repository.
 
 ---
 
@@ -38,11 +39,11 @@ Este documento descompone la alineación del repositorio **GonsGarage** con la p
 
 **Objetivo:** acceso SQL con **github.com/jmoiron/sqlx** y driver **pq**, migraciones con **golang-migrate** (ya presente).
 
-**Estado actual:** **GORM** + driver postgres de GORM.
+**Estado actual:** **GORM** sigue siendo el acceso principal a datos. Dependencias **sqlx** y **lib/pq** declaradas en `go.mod`; paquete **`internal/platform/sqlxdb`** con `Open(dsn)` (`sqlx.Connect("postgres", dsn)`) para nuevas rutas SQL sin tocar GORM todavía.
 
-**Propuesta explícita (stack no listado hoy):** mantener GORM **temporalmente** solo si documentamos la deuda; la plantilla pide sqlx — la migración es el trabajo más grande del backend.
+**Propuesta explícita (stack no listado hoy):** mantener GORM **temporalmente** mientras se migra por vertical; la plantilla pide sqlx — el trabajo grande es sustituir repositorios uno a uno.
 
-**Acciones:** introducir `sqlx` en un bounded context (p. ej. `auth` o `health`), tabla de migraciones compartida, retirar GORM por vertical.
+**Acciones siguientes:** usar `sqlxdb.Open` en un bounded context acotado (p. ej. health/readiness o primer repositorio), compartir la misma cadena `DATABASE_URL` que GORM, retirar GORM por vertical cuando cada módulo esté cubierto.
 
 ---
 

@@ -1,5 +1,5 @@
-// Example test to verify Jest configuration
-describe('Jest Configuration', () => {
+// Example test to verify Vitest configuration
+describe('Vitest Configuration', () => {
   it('should be properly configured', () => {
     expect(true).toBe(true);
   });

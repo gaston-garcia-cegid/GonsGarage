@@ -73,26 +73,26 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handlers.AppointmentResponse"
+                                "$ref": "#/definitions/handler.AppointmentResponse"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -120,7 +120,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.CreateAppointmentRequest"
+                            "$ref": "#/definitions/handler.CreateAppointmentRequest"
                         }
                     }
                 ],
@@ -128,25 +128,25 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AppointmentResponse"
+                            "$ref": "#/definitions/handler.AppointmentResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -179,31 +179,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AppointmentResponse"
+                            "$ref": "#/definitions/handler.AppointmentResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -238,7 +238,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UpdateAppointmentRequest"
+                            "$ref": "#/definitions/handler.UpdateAppointmentRequest"
                         }
                     }
                 ],
@@ -246,31 +246,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AppointmentResponse"
+                            "$ref": "#/definitions/handler.AppointmentResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -301,25 +301,25 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -345,7 +345,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.LoginRequest"
+                            "$ref": "#/definitions/handler.LoginRequest"
                         }
                     }
                 ],
@@ -353,19 +353,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerLoginOK"
+                            "$ref": "#/definitions/handler.SwaggerLoginOK"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -390,19 +390,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMeOK"
+                            "$ref": "#/definitions/handler.SwaggerMeOK"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -436,19 +436,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerRegisterOK"
+                            "$ref": "#/definitions/handler.SwaggerRegisterOK"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -494,26 +494,26 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handlers.CarResponse"
+                                "$ref": "#/definitions/handler.CarResponse"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -541,7 +541,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.CreateCarRequest"
+                            "$ref": "#/definitions/handler.CreateCarRequest"
                         }
                     }
                 ],
@@ -549,31 +549,31 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handlers.CarResponse"
+                            "$ref": "#/definitions/handler.CarResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -606,31 +606,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.CarResponse"
+                            "$ref": "#/definitions/handler.CarResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -665,7 +665,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UpdateCarRequest"
+                            "$ref": "#/definitions/handler.UpdateCarRequest"
                         }
                     }
                 ],
@@ -673,31 +673,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.CarResponse"
+                            "$ref": "#/definitions/handler.CarResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -728,25 +728,25 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -781,26 +781,26 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handlers.RepairResponse"
+                                "$ref": "#/definitions/handler.RepairResponse"
                             }
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -851,13 +851,13 @@
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -900,19 +900,19 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -952,25 +952,25 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1020,19 +1020,19 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1063,25 +1063,25 @@
                     "200": {
                         "description": "message",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1111,7 +1111,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.CreateRepairRequest"
+                            "$ref": "#/definitions/handler.CreateRepairRequest"
                         }
                     }
                 ],
@@ -1119,31 +1119,31 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handlers.RepairResponse"
+                            "$ref": "#/definitions/handler.RepairResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1176,25 +1176,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.RepairResponse"
+                            "$ref": "#/definitions/handler.RepairResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1229,7 +1229,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UpdateRepairRequest"
+                            "$ref": "#/definitions/handler.UpdateRepairRequest"
                         }
                     }
                 ],
@@ -1237,31 +1237,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.RepairResponse"
+                            "$ref": "#/definitions/handler.RepairResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerMessage"
+                            "$ref": "#/definitions/handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1340,7 +1340,7 @@
         }
     },
     "definitions": {
-        "handlers.AppointmentResponse": {
+        "handler.AppointmentResponse": {
             "type": "object",
             "properties": {
                 "carId": {
@@ -1378,7 +1378,7 @@
                 }
             }
         },
-        "handlers.CarResponse": {
+        "handler.CarResponse": {
             "type": "object",
             "properties": {
                 "color": {
@@ -1420,7 +1420,7 @@
                 }
             }
         },
-        "handlers.CreateAppointmentRequest": {
+        "handler.CreateAppointmentRequest": {
             "type": "object",
             "properties": {
                 "carID": {
@@ -1458,7 +1458,7 @@
                 }
             }
         },
-        "handlers.CreateCarRequest": {
+        "handler.CreateCarRequest": {
             "type": "object",
             "properties": {
                 "color": {
@@ -1488,7 +1488,7 @@
                 }
             }
         },
-        "handlers.CreateRepairRequest": {
+        "handler.CreateRepairRequest": {
             "type": "object",
             "required": [
                 "carId",
@@ -1512,7 +1512,7 @@
                 }
             }
         },
-        "handlers.LoginRequest": {
+        "handler.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -1527,7 +1527,7 @@
                 }
             }
         },
-        "handlers.RepairResponse": {
+        "handler.RepairResponse": {
             "type": "object",
             "properties": {
                 "carId": {
@@ -1562,7 +1562,7 @@
                 }
             }
         },
-        "handlers.SwaggerLoginOK": {
+        "handler.SwaggerLoginOK": {
             "type": "object",
             "properties": {
                 "message": {
@@ -1573,15 +1573,15 @@
                 }
             }
         },
-        "handlers.SwaggerMeOK": {
+        "handler.SwaggerMeOK": {
             "type": "object",
             "properties": {
                 "user": {
-                    "$ref": "#/definitions/handlers.SwaggerMeUser"
+                    "$ref": "#/definitions/handler.SwaggerMeUser"
                 }
             }
         },
-        "handlers.SwaggerMeUser": {
+        "handler.SwaggerMeUser": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -1610,7 +1610,7 @@
                 }
             }
         },
-        "handlers.SwaggerMessage": {
+        "handler.SwaggerMessage": {
             "type": "object",
             "properties": {
                 "details": {
@@ -1624,18 +1624,18 @@
                 }
             }
         },
-        "handlers.SwaggerRegisterOK": {
+        "handler.SwaggerRegisterOK": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/handlers.SwaggerRegisterUser"
+                    "$ref": "#/definitions/handler.SwaggerRegisterUser"
                 }
             }
         },
-        "handlers.SwaggerRegisterUser": {
+        "handler.SwaggerRegisterUser": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -1664,7 +1664,7 @@
                 }
             }
         },
-        "handlers.UpdateAppointmentRequest": {
+        "handler.UpdateAppointmentRequest": {
             "type": "object",
             "properties": {
                 "carId": {
@@ -1700,7 +1700,7 @@
                 }
             }
         },
-        "handlers.UpdateCarRequest": {
+        "handler.UpdateCarRequest": {
             "type": "object",
             "properties": {
                 "color": {
@@ -1727,7 +1727,7 @@
                 }
             }
         },
-        "handlers.UpdateRepairRequest": {
+        "handler.UpdateRepairRequest": {
             "type": "object",
             "properties": {
                 "completedAt": {

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/stores';
 import { CreateEmployeeRequest, Employee, apiClient } from '@/lib/api';
 
 export default function EmployeesPage() {
@@ -198,7 +198,7 @@ export default function EmployeesPage() {
                 fontSize: '0.875rem',
                 color: 'var(--color-gray-700)',
               }}>
-                Welcome, {user?.first_name} {user?.last_name}
+                Welcome, {user?.firstName} {user?.lastName}
               </span>
               <button
                 onClick={logout}

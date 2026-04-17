@@ -61,7 +61,8 @@ backend/
   cmd/api/main.go          # Arranque, migraciones GORM, rutas Gin
   internal/core/domain     # Entidades
   internal/core/services   # Casos de uso / servicios
-  internal/adapters/http   # Handlers, middleware
+  internal/handler         # Handlers HTTP (Gin)
+  internal/middleware      # Auth, CORS, rate limit, etc.
   internal/adapters/repository/postgres|redis
 
 frontend/

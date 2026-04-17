@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  handlers.AppointmentResponse:
+  handler.AppointmentResponse:
     properties:
       carId:
         type: string
@@ -25,7 +25,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  handlers.CarResponse:
+  handler.CarResponse:
     properties:
       color:
         type: string
@@ -54,7 +54,7 @@ definitions:
       year:
         type: integer
     type: object
-  handlers.CreateAppointmentRequest:
+  handler.CreateAppointmentRequest:
     properties:
       carID:
         description: ✅ camelCase
@@ -81,7 +81,7 @@ definitions:
       status:
         type: string
     type: object
-  handlers.CreateCarRequest:
+  handler.CreateCarRequest:
     properties:
       color:
         type: string
@@ -102,7 +102,7 @@ definitions:
       year:
         type: integer
     type: object
-  handlers.CreateRepairRequest:
+  handler.CreateRepairRequest:
     properties:
       carId:
         type: string
@@ -118,7 +118,7 @@ definitions:
     - carId
     - description
     type: object
-  handlers.LoginRequest:
+  handler.LoginRequest:
     properties:
       email:
         type: string
@@ -128,7 +128,7 @@ definitions:
     - email
     - password
     type: object
-  handlers.RepairResponse:
+  handler.RepairResponse:
     properties:
       carId:
         type: string
@@ -151,19 +151,19 @@ definitions:
       updatedAt:
         type: string
     type: object
-  handlers.SwaggerLoginOK:
+  handler.SwaggerLoginOK:
     properties:
       message:
         type: string
       token:
         type: string
     type: object
-  handlers.SwaggerMeOK:
+  handler.SwaggerMeOK:
     properties:
       user:
-        $ref: '#/definitions/handlers.SwaggerMeUser'
+        $ref: '#/definitions/handler.SwaggerMeUser'
     type: object
-  handlers.SwaggerMeUser:
+  handler.SwaggerMeUser:
     properties:
       createdAt:
         type: string
@@ -182,7 +182,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  handlers.SwaggerMessage:
+  handler.SwaggerMessage:
     properties:
       details:
         type: string
@@ -191,14 +191,14 @@ definitions:
       message:
         type: string
     type: object
-  handlers.SwaggerRegisterOK:
+  handler.SwaggerRegisterOK:
     properties:
       message:
         type: string
       user:
-        $ref: '#/definitions/handlers.SwaggerRegisterUser'
+        $ref: '#/definitions/handler.SwaggerRegisterUser'
     type: object
-  handlers.SwaggerRegisterUser:
+  handler.SwaggerRegisterUser:
     properties:
       createdAt:
         type: string
@@ -217,7 +217,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  handlers.UpdateAppointmentRequest:
+  handler.UpdateAppointmentRequest:
     properties:
       carId:
         description: ✅ camelCase
@@ -242,7 +242,7 @@ definitions:
       status:
         type: string
     type: object
-  handlers.UpdateCarRequest:
+  handler.UpdateCarRequest:
     properties:
       color:
         type: string
@@ -260,7 +260,7 @@ definitions:
       year:
         type: integer
     type: object
-  handlers.UpdateRepairRequest:
+  handler.UpdateRepairRequest:
     properties:
       completedAt:
         type: string
@@ -391,20 +391,20 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handlers.AppointmentResponse'
+              $ref: '#/definitions/handler.AppointmentResponse'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Listar citas
@@ -419,26 +419,26 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateAppointmentRequest'
+          $ref: '#/definitions/handler.CreateAppointmentRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.AppointmentResponse'
+            $ref: '#/definitions/handler.AppointmentResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Crear cita
@@ -458,19 +458,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Eliminar cita
@@ -489,23 +489,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AppointmentResponse'
+            $ref: '#/definitions/handler.AppointmentResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Obtener cita
@@ -525,30 +525,30 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.UpdateAppointmentRequest'
+          $ref: '#/definitions/handler.UpdateAppointmentRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AppointmentResponse'
+            $ref: '#/definitions/handler.AppointmentResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Actualizar cita
@@ -566,22 +566,22 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.LoginRequest'
+          $ref: '#/definitions/handler.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.SwaggerLoginOK'
+            $ref: '#/definitions/handler.SwaggerLoginOK'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       summary: Iniciar sesión
       tags:
       - auth
@@ -594,15 +594,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.SwaggerMeOK'
+            $ref: '#/definitions/handler.SwaggerMeOK'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Perfil actual
@@ -626,15 +626,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.SwaggerRegisterOK'
+            $ref: '#/definitions/handler.SwaggerRegisterOK'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       summary: Registro
       tags:
       - auth
@@ -660,20 +660,20 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handlers.CarResponse'
+              $ref: '#/definitions/handler.CarResponse'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Listar coches
@@ -688,30 +688,30 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateCarRequest'
+          $ref: '#/definitions/handler.CreateCarRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.CarResponse'
+            $ref: '#/definitions/handler.CarResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Crear coche
@@ -731,19 +731,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Eliminar coche
@@ -762,23 +762,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.CarResponse'
+            $ref: '#/definitions/handler.CarResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Obtener coche
@@ -798,30 +798,30 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.UpdateCarRequest'
+          $ref: '#/definitions/handler.UpdateCarRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.CarResponse'
+            $ref: '#/definitions/handler.CarResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Actualizar coche
@@ -842,20 +842,20 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handlers.RepairResponse'
+              $ref: '#/definitions/handler.RepairResponse'
             type: array
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Listar reparaciones por coche
@@ -887,11 +887,11 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Listar empleados
@@ -918,15 +918,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Crear empleado
@@ -946,19 +946,19 @@ paths:
         "200":
           description: message
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Eliminar empleado
@@ -982,19 +982,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Obtener empleado
@@ -1026,15 +1026,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Actualizar empleado
@@ -1050,30 +1050,30 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateRepairRequest'
+          $ref: '#/definitions/handler.CreateRepairRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.RepairResponse'
+            $ref: '#/definitions/handler.RepairResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Crear reparación
@@ -1093,19 +1093,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.RepairResponse'
+            $ref: '#/definitions/handler.RepairResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Obtener reparación
@@ -1125,30 +1125,30 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handlers.UpdateRepairRequest'
+          $ref: '#/definitions/handler.UpdateRepairRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.RepairResponse'
+            $ref: '#/definitions/handler.RepairResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.SwaggerMessage'
+            $ref: '#/definitions/handler.SwaggerMessage'
       security:
       - BearerAuth: []
       summary: Actualizar reparación

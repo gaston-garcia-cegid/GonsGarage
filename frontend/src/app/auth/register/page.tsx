@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/stores';
+import { getPostLoginPath } from '@/lib/post-login-paths';
+import { isUserRole, UserRole } from '@/types';
 import { Input } from '../../../components/ui/Input/Input';
 import { Button } from '../../../components/ui/Button/Button';
 import styles from './register.module.css';
@@ -35,14 +37,14 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { register, isAuthenticated } = useAuth();
+  const { register, isAuthenticated, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/employees');
+    if (isAuthenticated && user) {
+      router.replace(getPostLoginPath(user.role));
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, user, router]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -129,7 +131,7 @@ export default function RegisterPage() {
         password: formData.password,
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
-        role: formData.role,
+        role: isUserRole(formData.role) ? formData.role : UserRole.CLIENT,
       });
     
     console.log('Registration result:', result);

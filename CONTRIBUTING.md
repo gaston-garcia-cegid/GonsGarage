@@ -23,6 +23,8 @@ pnpm install
 pnpm dev
 ```
 
+Convenciones del repo: **[`gonsgarage-rules/`](../gonsgarage-rules/)** (alineadas con `template_project.md` §1–§4).
+
 ## TDD obligatorio
 
 Antes de implementar una funcionalidad nueva o corregir un bug con impacto en comportamiento:

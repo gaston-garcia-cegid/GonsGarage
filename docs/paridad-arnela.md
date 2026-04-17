@@ -13,7 +13,7 @@ Esta tabla resume qué replica GonsGarage frente al README/stack Arnela y dónde
 | Redis + worker async (BRPOP) | `backend/cmd/worker`, `Dockerfile.worker`, cola `WORKER_QUEUE_KEY` |
 | Docker Compose + Nginx | `docker-compose.prod.yml` servicio `edge`, `deploy/nginx-gonsgarage.conf` |
 | JWT + roles (API) | Handlers + middleware existentes |
-| Rate limit rutas públicas de auth | `internal/adapters/http/middleware/ratelimit.go`, `AUTH_RATE_LIMIT_*` |
+| Rate limit rutas públicas de auth | `internal/middleware/ratelimit.go`, `AUTH_RATE_LIMIT_*` |
 | OpenAPI / Swagger | `swag` + `/swagger/*` (proxy en Nginx) |
 
 Producción Compose: el host publica solo **Nginx** (`HTTP_PUBLISH_PORT`). Configurar `NEXT_PUBLIC_API_URL` con el mismo origen que el navegador (p. ej. `http://localhost:8080/api/v1` si el edge escucha en 8080) y `CORS_ALLOWED_ORIGINS` con el origen del SPA.

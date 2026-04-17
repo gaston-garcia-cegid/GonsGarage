@@ -12,7 +12,7 @@ y pega lo siguiente (luego enlaza el issue en el PR si aplica).
 
 ```markdown
 ## Contexto
-`backend/internal/adapters/http/handlers/user_handler.go` usaba **gorilla/mux** (`mux.Vars`) en un stub de usuarios.
+`backend/internal/handler/user_handler.go` usaba **gorilla/mux** (`mux.Vars`) en un stub de usuarios.
 
 ## Objetivo
 Eliminar la dependencia `github.com/gorilla/mux` del módulo Go y alinear el stub con **Gin** (`c.Param`), como el resto de handlers.

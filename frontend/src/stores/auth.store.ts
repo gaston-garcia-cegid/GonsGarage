@@ -5,8 +5,20 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
+import { apiClient } from '@/lib/api';
 import { getPublicApiV1BaseUrl } from '@/lib/api-base-url';
+import { getPostLoginPath } from '@/lib/post-login-paths';
 import { User, UserRole, RegisterRequest } from '@/types';
+
+/** Legacy `@/lib/api` client used by employees CRUD; keep bearer in sync with Zustand auth. */
+function syncEmployeesApiClient(token: string | null) {
+  if (typeof window === 'undefined') return;
+  if (token) {
+    apiClient.setToken(token);
+  } else {
+    apiClient.clearToken();
+  }
+}
 
 // ✅ Store state interface following Agent.md
 interface AuthState {
@@ -22,7 +34,7 @@ interface AuthState {
 
 // ✅ Store actions interface following Agent.md  
 interface AuthActions {
-  // Authentication methods (maintain same API as AuthContext)
+  // Authentication methods (public API used by login/register pages)
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: RegisterRequest) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -41,32 +53,12 @@ interface AuthActions {
 // ✅ Complete store type
 type AuthStore = AuthState & AuthActions;
 
-// ✅ Helper function for role-based redirects (maintain existing behavior)
+// ✅ Post-login redirect: paths must exist in App Router (see `getPostLoginPath`).
 const redirectBasedOnRole = (userData: User) => {
-  console.log('Redirecting user with role:', userData.role);
-  
   if (typeof window === 'undefined') return;
-  
-  switch (userData.role) {
-    case UserRole.ADMIN:
-      console.log('Redirecting to admin dashboard');
-      window.location.href = '/admin/dashboard';
-      break;
-    case UserRole.MANAGER:
-      window.location.href = '/dashboard';
-      break;
-    case UserRole.EMPLOYEE:
-      console.log('Redirecting to employee dashboard');  
-      window.location.href = '/employee/dashboard';
-      break;
-    case UserRole.CLIENT:
-      console.log('Redirecting to client dashboard');
-      window.location.href = '/client/';
-      break;
-    default:
-      console.warn('Unknown role:', userData.role, 'redirecting to default dashboard');
-      window.location.href = '/';
-  }
+  const path = getPostLoginPath(userData.role);
+  console.log('Redirecting user with role:', userData.role, '->', path);
+  window.location.href = path;
 };
 
 function mapMeUser(raw: Record<string, unknown>): User {
@@ -226,7 +218,7 @@ export const useAuthStore = create<AuthStore>()(
       error: null,
       isAuthenticated: false,
 
-      // ✅ Authentication methods (maintain AuthContext API)
+      // ✅ Authentication methods
       login: async (email: string, password: string) => {
         try {
           set((state) => {
@@ -250,6 +242,7 @@ export const useAuthStore = create<AuthStore>()(
               });
 
               storage.setAuthData(data.token, userData);
+              syncEmployeesApiClient(data.token);
 
               setTimeout(() => {
                 redirectBasedOnRole(userData);
@@ -259,6 +252,8 @@ export const useAuthStore = create<AuthStore>()(
             } catch (meErr) {
               const msg =
                 meErr instanceof Error ? meErr.message : 'No se pudo validar la sesión con el servidor.';
+              storage.clearAuthData();
+              syncEmployeesApiClient(null);
               set((state) => {
                 state.error = msg;
                 state.isLoading = false;
@@ -317,6 +312,7 @@ export const useAuthStore = create<AuthStore>()(
 
         // Clear localStorage
         storage.clearAuthData();
+        syncEmployeesApiClient(null);
 
         // Redirect to landing page
         if (typeof window !== 'undefined') {
@@ -375,8 +371,10 @@ export const useAuthStore = create<AuthStore>()(
                 state.isAuthenticated = true;
               });
               storage.setAuthData(token, user);
+              syncEmployeesApiClient(token);
             } catch {
               storage.clearAuthData();
+              syncEmployeesApiClient(null);
               set((state) => {
                 state.user = null;
                 state.token = null;
@@ -384,6 +382,7 @@ export const useAuthStore = create<AuthStore>()(
               });
             }
           } else {
+            syncEmployeesApiClient(null);
             set((state) => {
               state.isAuthenticated = false;
             });
@@ -391,6 +390,7 @@ export const useAuthStore = create<AuthStore>()(
         } catch (error) {
           console.error('Auth check failed:', error);
           storage.clearAuthData();
+          syncEmployeesApiClient(null);
           set((state) => {
             state.user = null;
             state.token = null;
@@ -426,7 +426,7 @@ export const useAuth = () => {
     error: store.error,
     isAuthenticated: store.isAuthenticated,
     
-    // Actions (maintain AuthContext API)
+    // Actions
     login: store.login,
     register: store.register,
     logout: store.logout,

@@ -4,15 +4,15 @@
 import { ApiClient, HTTP_STATUS } from '@/lib/api-client';
 
 // ✅ Mock fetch for testing
-const mockFetch = jest.fn();
+const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
 // ✅ Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 };
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
@@ -56,9 +56,9 @@ describe('ApiClient', () => {
         ok: true,
         status: HTTP_STATUS.OK,
         headers: {
-          get: jest.fn().mockReturnValue('application/json'),
+          get: vi.fn().mockReturnValue('application/json'),
         },
-        json: jest.fn().mockResolvedValue({ success: true, data: { id: '1' } }),
+        json: vi.fn().mockResolvedValue({ success: true, data: { id: '1' } }),
       });
     });
 
@@ -128,8 +128,8 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: HTTP_STATUS.OK,
-        headers: { get: jest.fn().mockReturnValue('application/json') },
-        json: jest.fn().mockResolvedValue({}),
+        headers: { get: vi.fn().mockReturnValue('application/json') },
+        json: vi.fn().mockResolvedValue({}),
       });
 
       await apiClient.get('/protected');
@@ -150,8 +150,8 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: HTTP_STATUS.OK,
-        headers: { get: jest.fn().mockReturnValue('application/json') },
-        json: jest.fn().mockResolvedValue({}),
+        headers: { get: vi.fn().mockReturnValue('application/json') },
+        json: vi.fn().mockResolvedValue({}),
       });
 
       await apiClient.get('/public', { skipAuth: true });
@@ -172,8 +172,8 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: HTTP_STATUS.BAD_REQUEST,
-        headers: { get: jest.fn().mockReturnValue('application/json') },
-        json: jest.fn().mockResolvedValue({ error: 'Validation failed' }),
+        headers: { get: vi.fn().mockReturnValue('application/json') },
+        json: vi.fn().mockResolvedValue({ error: 'Validation failed' }),
       });
 
       const response = await apiClient.get('/invalid');
@@ -210,9 +210,9 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: HTTP_STATUS.INTERNAL_SERVER_ERROR,
-        headers: { get: jest.fn().mockReturnValue('application/json') },
-        json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
-        text: jest.fn().mockResolvedValue('Server Error'),
+        headers: { get: vi.fn().mockReturnValue('application/json') },
+        json: vi.fn().mockRejectedValue(new Error('Invalid JSON')),
+        text: vi.fn().mockResolvedValue('Server Error'),
       });
 
       const response = await apiClient.get('/test');
@@ -227,7 +227,7 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: HTTP_STATUS.NO_CONTENT,
-        headers: { get: jest.fn().mockReturnValue('application/json') },
+        headers: { get: vi.fn().mockReturnValue('application/json') },
       });
 
       const response = await apiClient.delete('/test');
@@ -240,8 +240,8 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: HTTP_STATUS.OK,
-        headers: { get: jest.fn().mockReturnValue('text/plain') },
-        text: jest.fn().mockResolvedValue('Plain text response'),
+        headers: { get: vi.fn().mockReturnValue('text/plain') },
+        text: vi.fn().mockResolvedValue('Plain text response'),
       });
 
       const response = await apiClient.get('/text');
@@ -258,8 +258,8 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: HTTP_STATUS.OK,
-        headers: { get: jest.fn().mockReturnValue('application/json') },
-        json: jest.fn().mockResolvedValue({}),
+        headers: { get: vi.fn().mockReturnValue('application/json') },
+        json: vi.fn().mockResolvedValue({}),
       });
 
       await customClient.get('/test');
@@ -274,8 +274,8 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: HTTP_STATUS.OK,
-        headers: { get: jest.fn().mockReturnValue('application/json') },
-        json: jest.fn().mockResolvedValue({}),
+        headers: { get: vi.fn().mockReturnValue('application/json') },
+        json: vi.fn().mockResolvedValue({}),
       });
 
       await apiClient.get('/test', { baseURL: 'https://override.com/api' });
@@ -290,7 +290,7 @@ describe('ApiClient', () => {
   describe('Interceptors', () => {
     it('should apply request interceptors', async () => {
       const requestInterceptor = {
-        onRequest: jest.fn().mockImplementation((config) => ({
+        onRequest: vi.fn().mockImplementation((config) => ({
           ...config,
           headers: { ...config.headers, 'X-Custom': 'test' }
         }))
@@ -301,8 +301,8 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: HTTP_STATUS.OK,
-        headers: { get: jest.fn().mockReturnValue('application/json') },
-        json: jest.fn().mockResolvedValue({}),
+        headers: { get: vi.fn().mockReturnValue('application/json') },
+        json: vi.fn().mockResolvedValue({}),
       });
 
       await apiClient.get('/test');
@@ -320,7 +320,7 @@ describe('ApiClient', () => {
 
     it('should apply response interceptors', async () => {
       const responseInterceptor = {
-        onResponse: jest.fn().mockImplementation((response) => ({
+        onResponse: vi.fn().mockImplementation((response) => ({
           ...response,
           data: { ...response.data, intercepted: true }
         }))
@@ -331,8 +331,8 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: HTTP_STATUS.OK,
-        headers: { get: jest.fn().mockReturnValue('application/json') },
-        json: jest.fn().mockResolvedValue({ original: true }),
+        headers: { get: vi.fn().mockReturnValue('application/json') },
+        json: vi.fn().mockResolvedValue({ original: true }),
       });
 
       const response = await apiClient.get('/test');

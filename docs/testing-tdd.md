@@ -14,13 +14,13 @@
 ## Frontend (Next.js + pnpm)
 
 - Gestor de paquetes: **pnpm** (ver `packageManager` en `frontend/package.json`).
-- Tests: **Jest** + Testing Library (`pnpm test`).
+- Tests: **Vitest** + Testing Library (`pnpm test`); configuración en `frontend/vitest.config.ts` y `vitest.setup.ts`.
 - Typecheck: `pnpm typecheck` (TypeScript estricto).
 - Build producción con **standalone** (imagen Docker / CI): definir `NEXT_STANDALONE=true` (ver `next.config.ts`); en Windows sin permisos de symlink omitir esa variable para `pnpm build` local.
 
-### Suites temporalmente excluidas de Jest
+### Suites temporalmente excluidas de Vitest
 
-Algunas pruebas de página legacy (`__tests__/app/appointments/page.test.tsx`, `src/app/cars/__tests__/cars.test.tsx`) están en `testPathIgnorePatterns` de `jest.config.js` hasta alinear mocks (`useCars`, hooks) con el árbol actual de `src/`. No eliminar los archivos: reactivarlos quitando la exclusión cuando los mocks estén listos.
+Algunas pruebas de página legacy (`__tests__/app/appointments/page.test.tsx`, `src/app/cars/__tests__/cars.test.tsx`) están en `exclude` de `vitest.config.ts` hasta alinear mocks (`useCars`, hooks) con el árbol actual de `src/`. No eliminar los archivos: reactivarlas quitando la exclusión cuando los mocks estén listos.
 
 ## CI
 

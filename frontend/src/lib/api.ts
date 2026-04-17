@@ -161,7 +161,6 @@ class ApiClient {
       localStorage.removeItem('token');
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
-      localStorage.clear();
     }
   }
 

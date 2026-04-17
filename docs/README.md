@@ -2,6 +2,8 @@
 
 Índice de la documentación técnica del repositorio. El README principal del proyecto sigue siendo la puerta de entrada general; aquí se concentra el material para **desarrollo, arquitectura y planificación**.
 
+**Mapa maestro:** [DOCUMENTATION_INDEX.md](./DOCUMENTATION_INDEX.md) · **Plantilla base:** [../template_project.md](../template_project.md) · **Plan de adopción:** [template-adoption-plan.md](./template-adoption-plan.md) · **Reglas:** [../gonsgarage-rules/](../gonsgarage-rules/)
+
 | Documento | Contenido |
 |-----------|-----------|
 | [application-analysis.md](./application-analysis.md) | Análisis de la aplicación: stack, módulos, rutas API, frontend, infraestructura. |

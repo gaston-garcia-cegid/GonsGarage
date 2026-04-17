@@ -2,21 +2,21 @@ import { act, renderHook } from '@testing-library/react';
 import { useCarStore } from '@/stores/car.store';
 import { carService } from '@/lib/services/car.service';
 
-jest.mock('@/lib/services/car.service', () => ({
+vi.mock('@/lib/services/car.service', () => ({
   carService: {
-    getCars: jest.fn(),
-    getCar: jest.fn(),
-    createCar: jest.fn(),
-    updateCar: jest.fn(),
-    deleteCar: jest.fn(),
+    getCars: vi.fn(),
+    getCar: vi.fn(),
+    createCar: vi.fn(),
+    updateCar: vi.fn(),
+    deleteCar: vi.fn(),
   },
 }));
 
-const mockedCarService = carService as jest.Mocked<typeof carService>;
+const mockedCarService = vi.mocked(carService);
 
 describe('useCarStore', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     useCarStore.setState({
       cars: [],
       selectedCar: null,

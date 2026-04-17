@@ -7,21 +7,21 @@ import type { LoginRequest, RegisterRequest } from '@/types/auth';
 import { UserRole } from '@/types/auth';
 
 // ✅ Mock the API client
-jest.mock('@/lib/api-client', () => ({
+vi.mock('@/lib/api-client', () => ({
   apiClient: {
-    post: jest.fn(),
-    get: jest.fn(),
-    put: jest.fn(),
-    setToken: jest.fn(),
-    clearToken: jest.fn(),
+    post: vi.fn(),
+    get: vi.fn(),
+    put: vi.fn(),
+    setToken: vi.fn(),
+    clearToken: vi.fn(),
   },
 }));
 
-const mockApiClient = apiClient as jest.Mocked<typeof apiClient>;
+const mockApiClient = vi.mocked(apiClient);
 
 describe('AuthService', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Singleton Pattern', () => {

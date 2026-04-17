@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 // Tipos exportados solo para documentación OpenAPI (swag).
 

@@ -4,7 +4,7 @@
 |--------------|-------------------|------------|
 | Go | **1.25** (`go.mod`) | Alineado. |
 | HTTP | **Gin** | Alineado. |
-| BD | **PostgreSQL 16**, **sqlx**, driver **pq** | **Deuda:** repo puede usar GORM hasta migración (ver `docs/template-adoption-plan.md` Fase 2). |
+| BD | **PostgreSQL 16**, **sqlx**, driver **pq** | **Deuda:** acceso principal sigue siendo GORM; **Fase 2 en curso:** dependencias `sqlx` + `lib/pq` y paquete `internal/platform/sqlxdb` (`Open`) para nuevas rutas (ver `docs/template-adoption-plan.md` Fase 2). |
 | Migraciones | **golang-migrate**, SQL en `migrations/` | Alineado (rutas bajo `backend/db/migrations` o convención acordada). |
 | Redis | **go-redis v8** + miniredis | **Desviación aprobada:** repo usa **go-redis v9**; mantener v9 salvo requisito estricto de paridad Arnela. |
 | Node | **22+**, **pnpm**, CI `--frozen-lockfile` | Alineado. |

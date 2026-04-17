@@ -2,7 +2,8 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/stores';
+import { getPostLoginPath } from '@/lib/post-login-paths';
 import Image from 'next/image';
 import styles from './landing.module.css';
 
@@ -15,25 +16,9 @@ export default function LandingPage() {
     console.log('Landing page - Auth state:', { isLoading, isAuthenticated, userRole: user?.role });
   
     if (!isLoading && isAuthenticated && user) {
-      switch (user.role) {
-        case 'admin':
-        case 'manager':
-          console.log('Redirecting to admin dashboard');
-          router.push('/admin/dashboard');
-          break;
-        case 'employee':
-        case 'technician':
-          console.log('Redirecting to technician dashboard');
-          router.push('/technician/dashboard');
-          break;
-        case 'client':
-          console.log('Redirecting to client dashboard');
-          router.push('/client');
-          break;
-        default:
-          console.log('Unknown role, redirecting to default dashboard');
-          router.push('/dashboard');
-      }
+      const path = getPostLoginPath(String(user.role));
+      console.log('Redirecting authenticated user ->', path);
+      router.push(path);
     }
     // REMOVIDO: router.push('/auth/login') para usuários não autenticados
   }, [isAuthenticated, user, isLoading, router]);

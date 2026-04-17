@@ -3,8 +3,8 @@ import { useAppointmentStore, useAppointments } from '@/stores/appointment.store
 import { appointmentApi } from '@/lib/api/appointment.api';
 import type { Appointment, CreateAppointmentRequest } from '@/types/appointment';
 
-jest.mock('@/lib/api/appointment.api');
-const mockedAppointmentApi = appointmentApi as jest.Mocked<typeof appointmentApi>;
+vi.mock('@/lib/api/appointment.api');
+const mockedAppointmentApi = vi.mocked(appointmentApi);
 
 const sampleAppointment = (over: Partial<Appointment> = {}): Appointment => ({
   id: '1',
@@ -22,7 +22,7 @@ const sampleAppointment = (over: Partial<Appointment> = {}): Appointment => ({
 describe('AppointmentStore', () => {
   beforeEach(() => {
     useAppointmentStore.getState().reset();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('fetchAppointments', () => {

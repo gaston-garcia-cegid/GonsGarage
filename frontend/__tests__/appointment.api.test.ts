@@ -2,21 +2,21 @@ import { appointmentApi } from '@/lib/api/appointment.api';
 import { apiClient } from '@/lib/api-client';
 import type { Appointment, CreateAppointmentRequest } from '@/types/appointment';
 
-jest.mock('@/lib/api-client', () => ({
+vi.mock('@/lib/api-client', () => ({
   apiClient: {
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    patch: jest.fn(),
-    delete: jest.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
-const mockedClient = apiClient as jest.Mocked<typeof apiClient>;
+const mockedClient = vi.mocked(apiClient);
 
 describe('appointmentApi', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('getAppointments returns list when API succeeds', async () => {

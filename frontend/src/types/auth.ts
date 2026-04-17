@@ -40,6 +40,7 @@ export interface RefreshTokenRequest {
   refreshToken: string;
 }
 
+/** @deprecated Legacy shape; auth lives in Zustand (`@/stores`). Kept for typing only. */
 export interface AuthContextType {
   user: User | null;
   token: string | null;
