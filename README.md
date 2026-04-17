@@ -169,7 +169,7 @@ cd backend
 go mod tidy
 
 # Generar Swagger (no hace falta instalar swag globalmente)
-go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports --parseInternal
+go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/handler,./internal/core/ports --parseInternal
 
 # Schema: GORM AutoMigrate runs on startup (no separate migrate command required)
 
@@ -200,6 +200,7 @@ After successful setup, access the application at:
 - **📋 Swagger UI Documentation**: http://localhost:8080/swagger/index.html
 - **📄 OpenAPI JSON Spec**: http://localhost:8080/swagger/doc.json
 - **🔍 API Health Check**: http://localhost:8080/health
+- **✅ API Readiness (PostgreSQL via sqlx)**: http://localhost:8080/ready
 
 ### Default Admin User
 ```
@@ -339,7 +340,7 @@ go test ./...
 go test -cover ./...
 
 # Run specific service tests
-go test ./internal/core/services/...
+go test ./internal/service/...
 
 # Run tests with verbose output
 go test -v ./...
@@ -679,7 +680,7 @@ go get github.com/swaggo/files
 
 ```bash
 cd backend
-go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports --parseInternal
+go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/handler,./internal/core/ports --parseInternal
 ```
 
 ### 3. Integration Example

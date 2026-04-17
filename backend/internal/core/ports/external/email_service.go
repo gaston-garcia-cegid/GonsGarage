@@ -3,7 +3,7 @@ package external
 import (
 	"context"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
 )
 
 // EmailService defines the interface for the email service

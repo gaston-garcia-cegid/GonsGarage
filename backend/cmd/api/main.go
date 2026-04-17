@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -19,17 +20,18 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	postgresRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/postgres"
+	postgresRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/repository/postgres"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/handlers"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/middleware"
-	redisRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/redis"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/appointment"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/auth"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/car"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/employee"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/handler"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/middleware"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/platform/sqlxdb"
+	redisRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/repository/redis"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/appointment"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/auth"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/car"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/employee"
 
 	_ "github.com/gaston-garcia-cegid/gonsgarage/docs" // swagger (swag)
 )
@@ -86,6 +88,11 @@ func main() {
 	}
 
 	log.Printf("Database connection established")
+
+	sqlxDB := sqlxdb.WrapPostgres(sqlDB)
+	if sqlxDB == nil {
+		log.Fatal("sqlx wrap failed: nil *sql.DB")
+	}
 
 	// Check if we need to reset database (for development)
 	resetDB := os.Getenv("RESET_DATABASE")
@@ -178,12 +185,12 @@ func main() {
 	authMiddleware := middleware.NewAuthMiddleware(jwtSecret)
 
 	// Initialize handlers
-	authHandler := handlers.NewAuthHandler(authService)
-	employeeHandler := handlers.NewEmployeeHandler(employeeService)
-	carHandler := handlers.NewCarHandler(carService)
+	authHandler := handler.NewAuthHandler(authService)
+	employeeHandler := handler.NewEmployeeHandler(employeeService)
+	carHandler := handler.NewCarHandler(carService)
 
 	// Initialize appointment handler
-	appointmentHandler := handlers.NewAppointmentHandler(appointmentService)
+	appointmentHandler := handler.NewAppointmentHandler(appointmentService)
 
 	log.Printf("Handlers initialized")
 
@@ -198,7 +205,7 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Setup routes
-	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, authMiddleware)
+	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, authMiddleware, sqlxDB)
 
 	log.Printf("Routes set up")
 
@@ -285,11 +292,12 @@ func corsMiddleware() gin.HandlerFunc {
 // Setup all routes
 func setupRoutes(
 	router *gin.Engine,
-	authHandler *handlers.AuthHandler,
-	employeeHandler *handlers.EmployeeHandler,
-	carHandler *handlers.CarHandler,
-	appointmentHandler *handlers.AppointmentHandler,
+	authHandler *handler.AuthHandler,
+	employeeHandler *handler.EmployeeHandler,
+	carHandler *handler.CarHandler,
+	appointmentHandler *handler.AppointmentHandler,
 	authMiddleware *middleware.AuthMiddleware,
+	sqlxDB *sqlx.DB,
 ) {
 	// Health check
 	router.GET("/health", func(c *gin.Context) {
@@ -297,6 +305,20 @@ func setupRoutes(
 			"status":  "ok",
 			"message": "GonsGarage API is running",
 		})
+	})
+
+	// Readiness: PostgreSQL via sqlx (shared pool with GORM)
+	router.GET("/ready", func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(c.Request.Context(), 2*time.Second)
+		defer cancel()
+		if err := sqlxDB.PingContext(ctx); err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{
+				"status": "not_ready",
+				"db":     err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"status": "ready"})
 	})
 
 	// API v1 routes

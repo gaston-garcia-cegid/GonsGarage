@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
 	"github.com/google/uuid"
 )
 
@@ -24,9 +24,9 @@ type UserRepository interface {
 // EmployeeRepository define os métodos para o repositório de funcionários
 type EmployeeRepository interface {
 	Create(ctx context.Context, employee *domain.Employee) error
-	FindByID(ctx context.Context, id uint) (*domain.Employee, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*domain.Employee, error)
 	Update(ctx context.Context, employee *domain.Employee) error
-	Delete(ctx context.Context, id uint) error
+	Delete(ctx context.Context, id uuid.UUID) error
 	List(ctx context.Context, filters *EmployeeFilters) ([]*domain.Employee, int64, error)
 }
 

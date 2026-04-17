@@ -78,9 +78,20 @@ Regenerar tras cambiar anotaciones `// @Summary`, `// @Router`, etc.:
 
 ```powershell
 Set-Location backend
-go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/adapters/http/handlers,./internal/core/ports --parseInternal
+go run github.com/swaggo/swag/cmd/swag@v1.8.12 init -g main.go -o docs -d ./cmd/api,./internal/handler,./internal/core/ports --parseInternal
 ```
 
 - El **general API** (título, `BasePath`, seguridad `BearerAuth`) está en `cmd/api/main.go`.
-- Las rutas documentadas están en `internal/adapters/http/handlers` y el ancla de **`/health`** en `cmd/api/swagger_health.go`.
+- Las rutas documentadas están en `internal/handler`; **`/health`** y **`/ready`** se anclan en `cmd/api/swagger_health.go` y `cmd/api/swagger_ready.go`.
 - Tipos de petición compartidos (`ports.RegisterRequest`, empleados, etc.) requieren incluir **`internal/core/ports`** en `-d`.
+
+## Persistencia híbrida GORM + sqlx (Fase 2)
+
+- **`internal/platform/sqlxdb`**: `WrapPostgres(*sql.DB)` reutiliza el pool de GORM (`GET /ready` hace `PingContext` con ese handle).
+- **`internal/repository/postgres/user_repository.go`**: con dialector **postgres** / **pgx**, todo el CRUD de usuarios va por **sqlx** (lecturas, `EmailExists`, listados, `Create`/`Update`/`UpdatePassword`, soft `Delete`). Con **sqlite** en tests se sigue usando **GORM** en esos métodos.
+- **`internal/repository/postgres/car_repository.go`**: con **postgres** / **pgx**, coches por **sqlx** (`Create`, lecturas con dueños vía `IN` batch, `Update`, soft `Delete`, `Restore`, matrícula borrada). **`GetWithRepairs`** carga el coche con sqlx y las reparaciones con **GORM** (`Find` sobre `repairs`) hasta alinear el modelo SQL de reparaciones.
+- Helpers compartidos: **`internal/repository/postgres/gorm_sqlx.go`** (`sqlxFromGORM`), **`internal/repository/postgres/fetch_user_models.go`** (`fetchUserModelsByIDs`).
+- **`internal/repository/postgres/appointment_repository.go`**: con **postgres** / **pgx**, `Create`, `GetByID`, `Update`, `Delete` (soft) y **`List`** (conteo + filtros `customer_id` / `car_id` / `status`, orden `created_at` o `scheduled_at`) por **sqlx**.
+- **`internal/repository/postgres/repair_repository.go`**: con **postgres** / **pgx**, CRUD y listados (`GetByCarID`, `GetByClientID`, `List`, `GetByLicensePlate`) por **sqlx**; **`toDomainRepair`** mapea dominio completo; `INSERT` rellena campos denormalizados del modelo con valores neutros (el modelo GORM ya los tenía).
+- **`internal/repository/postgres/employee_repository.go`**: con **postgres** / **pgx**, `Create`, `FindByID`, `Update`, soft `Delete` y **`List`** (conteo + filtros `department` / `is_active`, orden seguro) por **sqlx**; el usuario asociado se enriquece con un `IN` batch vía `fetchUserModelsByIDs` (mismo patrón que coches). Con **sqlite** en tests se sigue usando **GORM**.
+- Próximos pasos: repositorios Redis/mock si aplica, y alinear migraciones SQL con nombres de columnas reales (`repairs` / `appointments`) para reducir divergencia con AutoMigrate.

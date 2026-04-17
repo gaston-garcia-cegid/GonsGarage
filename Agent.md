@@ -78,32 +78,18 @@ backend/
 ├── cmd/
 │   └── api/main.go                 # Application entry point
 ├── internal/
+│   ├── domain/                     # Business entities (plantilla §1)
+│   ├── service/                    # Casos de uso (auth, car, appointment, …)
+│   ├── handler/                    # HTTP (Gin)
+│   ├── middleware/                 # Auth, CORS, etc.
+│   ├── repository/                 # postgres | redis | mock
 │   ├── core/
-│   │   ├── domain/                 # Business entities (unified)
-│   │   │   ├── user.go            # Single User entity with roles
-│   │   │   ├── employee.go        # Employee profile (extends User)
-│   │   │   ├── car.go
-│   │   │   ├── repair.go
-│   │   │   └── appointment.go
-│   │   ├── ports/                 # Interfaces/Contracts
-│   │   │   ├── repositories.go    # Data layer interfaces
-│   │   │   └── services.go        # Business layer interfaces
-│   │   └── services/              # ✅ Business Logic (renamed from usecases)
-│   │       ├── auth/auth_service.go
-│   │       ├── user/user_service.go    # ✅ Unified user management
-│   │       ├── car/car_service.go
-│   │       └── employee/employee_service.go
-│   └── adapters/
-│       ├── http/
-│       │   ├── handlers/          # HTTP Controllers (Gin)
-│       │   └── middleware/        # Gin Middleware (Auth, CORS, etc.)
-│       └── repository/
-│           └── postgres/          # Data persistence
-├── docs/                          # ✅ Swagger/OpenAPI documentation
-│   ├── swagger.yaml              # OpenAPI 3.0 specification
-│   └── swagger.json              # Generated JSON docs
-├── pkg/                           # Shared utilities
-└── tests/                         # Integration tests
+│   │   └── ports/                  # Interfaces / contratos
+│   └── platform/
+│       └── sqlxdb/                 # sqlx sobre el pool compartido (Fase 2)
+├── docs/                           # Swagger (swag): docs.go, swagger.json/yaml
+├── pkg/                            # Utilidades compartidas
+└── tests/                          # Integration tests
 ```
 
 ### Frontend Structure (Next.js + TypeScript + Zustand)

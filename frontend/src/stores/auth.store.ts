@@ -41,32 +41,10 @@ type AuthStore = AuthState & AuthActions;
 // ✅ API configuration per Agent.md
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
-// ✅ Helper function for role-based redirects (maintain existing behavior)
-const redirectBasedOnRole = (userData: User) => {
-  console.log('Redirecting user with role:', userData.role);
-  
+// Post-login: single dashboard for every role (MVP); staff/client UIs can split later.
+const redirectAfterLogin = (_userData: User) => {
   if (typeof window === 'undefined') return;
-  
-  switch (userData.role) {
-    case UserRole.ADMIN:
-      console.log('Redirecting to admin dashboard');
-      window.location.href = '/admin/dashboard';
-      break;
-    case UserRole.MANAGER:
-      window.location.href = '/dashboard';
-      break;
-    case UserRole.EMPLOYEE:
-      console.log('Redirecting to employee dashboard');  
-      window.location.href = '/employee/dashboard';
-      break;
-    case UserRole.CLIENT:
-      console.log('Redirecting to client dashboard');
-      window.location.href = '/client/';
-      break;
-    default:
-      console.warn('Unknown role:', userData.role, 'redirecting to default dashboard');
-      window.location.href = '/';
-  }
+  window.location.href = '/dashboard';
 };
 
 function mapMeUser(raw: Record<string, unknown>): User {
@@ -244,7 +222,7 @@ export const useAuthStore = create<AuthStore>()(
               storage.setAuthData(data.token, userData);
 
               setTimeout(() => {
-                redirectBasedOnRole(userData);
+                redirectAfterLogin(userData);
               }, 100);
 
               return { success: true };

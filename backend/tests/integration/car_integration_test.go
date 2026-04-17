@@ -20,9 +20,9 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/http/handlers"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/adapters/repository/postgres"
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/services/car"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/handler"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/repository/postgres"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/car"
 )
 
 type CarIntegrationTestSuite struct {
@@ -51,7 +51,7 @@ func (suite *CarIntegrationTestSuite) SetupSuite() {
 	carService := car.NewCarService(carRepo, userRepo, nil)
 
 	// Setup handlers
-	carHandler := handlers.NewCarHandler(carService)
+	carHandler := handler.NewCarHandler(carService)
 
 	// Setup Gin router
 	gin.SetMode(gin.TestMode)

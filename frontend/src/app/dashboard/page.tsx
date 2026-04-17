@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useCars, useAppointments } from '@/stores';
+import { useAuth, useCars, useAppointments, UserRole } from '@/stores';
 import { Repair } from '@/lib/api';
-import { useState } from 'react';
 import styles from './dashboard.module.css';
 
 export default function ClientDashboardPage() {
@@ -24,25 +23,18 @@ export default function ClientDashboardPage() {
     new Date(appointment.date) > new Date()
   );
 
+  const isClientRole = user?.role === UserRole.CLIENT;
+
   useEffect(() => {
     if (!user) {
       router.push('/auth/login');
       return;
     }
-
-    // Verificar se é realmente um cliente
-    if (user.role !== 'client') {
-      console.warn('Access denied: user role is', user.role, 'but page requires client');
-      router.push('/auth/login');
-      return;
-    }
-    
-    // Fetch data using stores
     fetchCars();
     fetchAppointments();
   }, [user, router, fetchCars, fetchAppointments]);
 
-  if (!user || user.role !== 'client') {
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -72,7 +64,7 @@ export default function ClientDashboardPage() {
             </div>
             <div>
               <h1>GonsGarage</h1>
-              <p>Customer Dashboard</p>
+              <p>{isClientRole ? 'Customer dashboard' : 'Workshop dashboard'}</p>
             </div>
           </div>
           <div className={styles.userSection}>
@@ -96,7 +88,7 @@ export default function ClientDashboardPage() {
           onClick={() => router.push('/cars')}
           className={styles.navButton}
         >
-          My Cars
+          {isClientRole ? 'My cars' : 'Vehicles'}
         </button>
         <button 
           onClick={() => router.push('/appointments')}
@@ -123,7 +115,7 @@ export default function ClientDashboardPage() {
               </svg>
             </div>
             <div>
-              <h3>My Cars</h3>
+              <h3>{isClientRole ? 'My cars' : 'Vehicles'}</h3>
               <p className={styles.statNumber}>{cars.length}</p>
             </div>
           </div>
@@ -161,7 +153,7 @@ export default function ClientDashboardPage() {
           {/* Recent Cars */}
           <div className={styles.card}>
             <div className={styles.cardHeader}>
-              <h3>My Cars</h3>
+              <h3>{isClientRole ? 'My cars' : 'Vehicles'}</h3>
               <button 
                 onClick={() => router.push('/cars')}
                 className={styles.linkButton}
@@ -172,12 +164,12 @@ export default function ClientDashboardPage() {
             <div className={styles.cardBody}>
               {cars.length === 0 ? (
                 <div className={styles.emptyState}>
-                  <p>No cars registered yet</p>
+                  <p>{isClientRole ? 'No cars registered yet' : 'No vehicles in list'}</p>
                   <button 
                     onClick={() => router.push('/cars')}
                     className={styles.primaryButton}
                   >
-                    Add Your First Car
+                    {isClientRole ? 'Add your first car' : 'Open vehicles'}
                   </button>
                 </div>
               ) : (

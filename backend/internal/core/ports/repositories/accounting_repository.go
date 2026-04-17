@@ -3,7 +3,7 @@ package repositories
 import (
 	"context"
 
-	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/domain"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
 )
 
 // AccountingRepository defines the interface for the accounting repository

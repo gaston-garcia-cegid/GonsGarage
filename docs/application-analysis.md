@@ -59,10 +59,12 @@ Guía operativa: [development-guide.md](./development-guide.md). Planificación:
 ```
 backend/
   cmd/api/main.go          # Arranque, migraciones GORM, rutas Gin
-  internal/core/domain     # Entidades
-  internal/core/services   # Casos de uso / servicios
-  internal/adapters/http   # Handlers, middleware
-  internal/adapters/repository/postgres|redis
+  internal/domain          # Entidades
+  internal/service         # Casos de uso (subpaquetes auth, car, …)
+  internal/handler         # Handlers HTTP (Gin)
+  internal/middleware      # Auth, CORS, etc.
+  internal/repository/postgres|redis|mock
+  internal/core/ports      # Contratos (interfaces)
 
 frontend/
   src/app/                 # Rutas UI

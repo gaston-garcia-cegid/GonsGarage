@@ -15,25 +15,7 @@ export default function LandingPage() {
     console.log('Landing page - Auth state:', { isLoading, isAuthenticated, userRole: user?.role });
   
     if (!isLoading && isAuthenticated && user) {
-      switch (user.role) {
-        case 'admin':
-        case 'manager':
-          console.log('Redirecting to admin dashboard');
-          router.push('/admin/dashboard');
-          break;
-        case 'employee':
-        case 'technician':
-          console.log('Redirecting to technician dashboard');
-          router.push('/technician/dashboard');
-          break;
-        case 'client':
-          console.log('Redirecting to client dashboard');
-          router.push('/client');
-          break;
-        default:
-          console.log('Unknown role, redirecting to default dashboard');
-          router.push('/dashboard');
-      }
+      router.push('/dashboard');
     }
     // REMOVIDO: router.push('/auth/login') para usuários não autenticados
   }, [isAuthenticated, user, isLoading, router]);

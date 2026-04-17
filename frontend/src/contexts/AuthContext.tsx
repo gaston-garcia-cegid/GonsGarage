@@ -37,29 +37,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Helper function to redirect based on role
-  const redirectBasedOnRole = (userData: User) => {
-    console.log('Redirecting user with role:', userData.role); // Debug log
-    
-    switch (userData.role) {
-      case 'admin':
-      case 'manager':
-        console.log('Redirecting to admin dashboard');
-        router.push('/admin/dashboard');
-        break;
-      case 'employee':
-      case 'technician':
-        console.log('Redirecting to technician dashboard');
-        router.push('/technician/dashboard');
-        break;
-      case 'client':
-        console.log('Redirecting to client dashboard');
-        router.push('/client/');
-        break;
-      default:
-        console.warn('Unknown role:', userData.role, 'redirecting to default dashboard');
-        router.push('/'); // fallback
-    }
+  const redirectAfterLogin = () => {
+    router.push('/dashboard');
   };
 
   useEffect(() => {
@@ -156,9 +135,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           localStorage.setItem('auth_user', JSON.stringify(userData));
         }
 
-        // Redirect based on role
         setTimeout(() => {
-          redirectBasedOnRole(userData);
+          redirectAfterLogin();
         }, 100);
         
         return { success: true };
