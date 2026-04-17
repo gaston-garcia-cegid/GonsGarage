@@ -219,3 +219,40 @@ func TestCarService_GetCar_ClientOtherOwnerDenied(t *testing.T) {
 	require.Error(t, err)
 	assert.ErrorIs(t, err, domain.ErrUnauthorizedAccess)
 }
+
+func TestCarService_GetCar_ClientOwnCar(t *testing.T) {
+	t.Parallel()
+	clientID := uuid.New()
+	carID := uuid.New()
+	client, err := domain.NewUser("own@example.com", "pw", "O", "W", domain.RoleClient)
+	require.NoError(t, err)
+	client.ID = clientID
+
+	owned := &domain.Car{ID: carID, OwnerID: clientID, Make: "X", Model: "Y", Year: 2020, LicensePlate: "OWN-1", Color: "Black", Mileage: 0}
+	userRepo := &carTestUserRepo{users: map[uuid.UUID]*domain.User{clientID: client}}
+	carRepo := newCarTestCarRepo()
+	carRepo.byID[carID] = owned
+
+	svc := NewCarService(carRepo, userRepo, noopCache{})
+	out, err := svc.GetCar(context.Background(), carID, clientID)
+	require.NoError(t, err)
+	require.NotNil(t, out)
+	assert.Equal(t, carID, out.ID)
+	assert.Equal(t, clientID, out.OwnerID)
+}
+
+func TestCarService_ListCars_ClientRejectsForeignOwnerFilter(t *testing.T) {
+	t.Parallel()
+	clientID := uuid.New()
+	otherID := uuid.New()
+	client, err := domain.NewUser("c@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	client.ID = clientID
+
+	userRepo := &carTestUserRepo{users: map[uuid.UUID]*domain.User{clientID: client}}
+	svc := NewCarService(newCarTestCarRepo(), userRepo, noopCache{})
+
+	_, err = svc.ListCars(context.Background(), clientID, &otherID, 10, 0)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, domain.ErrUnauthorizedAccess)
+}

@@ -41,6 +41,9 @@ func (uc *RepairService) CreateRepair(ctx context.Context, repair *domain.Repair
 	if err != nil {
 		return nil, fmt.Errorf("car not found: %w", err)
 	}
+	if car == nil {
+		return nil, fmt.Errorf("car not found")
+	}
 
 	// Check if repair already exists for the same car with same description and start date
 	existingRepairs, err := uc.repairRepo.GetByCarID(ctx, repair.CarID)
@@ -53,9 +56,7 @@ func (uc *RepairService) CreateRepair(ctx context.Context, repair *domain.Repair
 		}
 	}
 
-	if car.OwnerID != userID {
-		return nil, domain.ErrUnauthorizedAccess
-	}
+	// Staff creates repairs on the customer's car (car.OwnerID is the client, not the technician).
 
 	// Set metadata
 	repair.ID = uuid.New()

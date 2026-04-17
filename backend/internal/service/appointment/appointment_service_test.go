@@ -340,6 +340,31 @@ func TestAppointmentService_DeleteAppointment_RepoError(t *testing.T) {
 	require.ErrorIs(t, err, delErr)
 }
 
+// Client role: list must never use another user's customer_id, even if passed in filters (tenant isolation).
+func TestAppointmentService_ListAppointments_ClientAlwaysOwnCustomerID(t *testing.T) {
+	t.Parallel()
+	clientID := uuid.New()
+	otherID := uuid.New()
+	user, err := domain.NewUser("c@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	user.ID = clientID
+
+	apptRepo := &stubApptRepo{listApps: []*domain.Appointment{}, listTotal: 0}
+	svc := NewAppointmentService(
+		apptRepo,
+		&apptTestUserRepo{users: map[uuid.UUID]*domain.User{clientID: user}},
+		&stubCarRepo{},
+	)
+	malicious := otherID
+	filters := &ports.AppointmentFilters{CustomerID: &malicious, Limit: 10, Offset: 0}
+
+	_, _, err = svc.ListAppointments(context.Background(), clientID, filters)
+	require.NoError(t, err)
+	require.NotNil(t, apptRepo.lastList)
+	require.NotNil(t, apptRepo.lastList.CustomerID)
+	assert.Equal(t, clientID, *apptRepo.lastList.CustomerID, "client list must be scoped to the authenticated user")
+}
+
 func sampleAppointment(customerID, carID uuid.UUID) *domain.Appointment {
 	return &domain.Appointment{
 		CustomerID:  customerID,
