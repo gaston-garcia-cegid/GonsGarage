@@ -72,12 +72,12 @@
 
 | ID | Tarea | Criterio de hecho |
 |----|--------|-------------------|
-| 4.1 | Definir **URL base** del front y del API (aunque sea IP + puerto) y anotarlas abajo | Texto en [Entorno remoto](#entorno-remoto-servidor-de-pruebas) |
-| 4.2 | **Secretos:** `JWT_SECRET` fuerte; `DATABASE_URL` / Redis solo en el servidor (no en git) | `.env` en servidor o secret manager; nada sensible en repo |
-| 4.3 | **Backend:** build (`go build -o … ./cmd/api`) o imagen Docker; proceso bajo systemd/supervisor o compose en el servidor | API responde `/health` y `/ready` |
-| 4.4 | **Frontend:** `pnpm build` con `NEXT_PUBLIC_API_URL` apuntando al API del servidor; servir con lo que elijas (nginx, Node, etc.) | Login usable contra ese API |
-| 4.5 | **HTTPS** si el servidor es expuesto (certificado Let’s Encrypt o TLS detrás de proxy) | Navegador sin warning crítico (o documentar excepción solo LAN) |
-| 4.6 | **Rollback:** una página o sección “cómo volver atrás” (versión anterior binario + migración si aplica) | Enlace o párrafo en `docs/` o nota privada |
+| 4.1 | Definir **URL base** del front y del API (aunque sea IP + puerto) y anotarlas abajo | **Hecho** (repo) — bloque [Entorno remoto](#entorno-remoto-servidor-de-pruebas); mismo origen `http://192.168.1.100:8102` vía nginx. |
+| 4.2 | **Secretos:** `JWT_SECRET` fuerte; `DATABASE_URL` / Redis solo en el servidor (no en git) | **Hecho** (repo) — [`.env.prod.example`](../.env.prod.example), `.gitignore` → `.env.prod`; sección **Secretos** en [`deploy/README.md`](./deploy/README.md). Rellenar secretos reales solo en el servidor. |
+| 4.3 | **Backend:** build (`go build -o … ./cmd/api`) o imagen Docker; proceso bajo systemd/supervisor o compose en el servidor | **Plantilla** — [`backend/Dockerfile`](../backend/Dockerfile) + [`docker-compose.prod.yml`](../docker-compose.prod.yml); smoke `curl …/health` y `/ready` en [`deploy/README.md`](./deploy/README.md). Marcar “verificado en servidor” cuando lo ejecutes. |
+| 4.4 | **Frontend:** `pnpm build` con `NEXT_PUBLIC_API_URL` apuntando al API del servidor; servir con lo que elijas (nginx, Node, etc.) | **Plantilla** — build en imagen (`NEXT_PUBLIC_API_URL` + nginx en compose); mismo doc §**Verificación**. Confirmar login en LAN cuando el stack esté arriba. |
+| 4.5 | **HTTPS** si el servidor es expuesto (certificado Let’s Encrypt o TLS detrás de proxy) | **Hecho** (doc) — excepción **HTTP en LAN** y cuándo pasar a TLS: [`deploy/README.md`](./deploy/README.md) §**HTTPS vs HTTP en LAN**. |
+| 4.6 | **Rollback:** una página o sección “cómo volver atrás” (versión anterior binario + migración si aplica) | **Hecho** (doc) — §**Rollback** en [`deploy/README.md`](./deploy/README.md). |
 
 ### Entorno remoto (servidor de pruebas)
 
@@ -113,6 +113,6 @@
 | 1 Congelar alcance | **hecha** (1.1–1.3 cerradas 2026-04-17) |
 | 2 Contrato + docs | **hecha** (2.1–2.3, 2026-04-18) |
 | 3 Demo local | **hecha** (3.1–3.3, 2026-04-18) |
-| 4 Servidor pruebas | … |
+| 4 Servidor pruebas | **Plantilla + runbook en repo** (4.1–4.2, 4.5–4.6 listos en doc); **4.3–4.4** pendiente tu smoke en `192.168.1.100:8102` |
 | 5 Endurecimiento | … |
 | 6 MVP+ | N/A / pendiente |

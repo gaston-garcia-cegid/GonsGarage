@@ -21,6 +21,36 @@ Archivos en la **raíz del repo**:
 
 El API lee **`CORS_ORIGINS`** (coma-separado). Debe coincidir con la URL exacta del navegador (p. ej. `http://192.168.1.100:8102`, sin barra final).
 
+## Secretos (checklist 4.2)
+
+- En el servidor solo **`/DATA/AppData/gonsgarage/.env.prod`** (o la ruta que uses); **no** subir `.env.prod` al git (está en [`.gitignore`](../.gitignore)).
+- Obligatorios: **`JWT_SECRET`** (largo, aleatorio), **`DATABASE_URL`** (usuario dedicado, no el superusuario de Postgres).
+- **`REDIS_URL`** en el compose prod apunta al contenedor Redis interno; no hace falta secret extra para Redis salvo que cambies el diseño.
+
+## Verificación tras el primer `up` (4.3 / 4.4)
+
+Desde cualquier máquina en la LAN (sustituí host/puerto si cambiaron):
+
+```bash
+curl -sS "http://192.168.1.100:8102/health"
+curl -sS "http://192.168.1.100:8102/ready"
+```
+
+- **4.3:** respuestas JSON OK del API vía nginx.
+- **4.4:** abrir `http://192.168.1.100:8102` en el navegador, **login** contra el mismo origen (el front ya fue construido con `NEXT_PUBLIC_API_URL` igual a esa URL pública).
+
+Si `/ready` falla, Postgres no es alcanzable desde el contenedor del API (revisá `DATABASE_URL`, firewall y `host.docker.internal`).
+
+## HTTPS vs HTTP en LAN (4.5)
+
+Para **solo red local** (`192.168.x.x`) es aceptable **HTTP** en el checklist: sin certificado, sin Let’s Encrypt. Si exponés el servidor a **internet**, añadí TLS (nginx + certbot, o TLS en el proxy) y actualizá **`CORS_ORIGINS`** / **`NEXT_PUBLIC_API_URL`** a `https://…`.
+
+## Rollback (4.6)
+
+1. **Antes de cada deploy:** copia del `.env.prod` vigente y, si aplica, volcado rápido de BD (`pg_dump -Fc gonsgarage > backup.dump`).
+2. **Volver atrás en contenedores:** en el directorio del deploy, `docker compose -f docker-compose.prod.yml --env-file .env.prod down`, restaurá la carpeta/código anterior (o `git checkout` + rebuild) y `… up -d --build`.
+3. **Solo API (binario):** sustituí el binario por la versión anterior y reiniciá el proceso; la base suele seguir compatible salvo que hayas dependido de migraciones destructivas (evitar `RESET_DATABASE` en servidor).
+
 ## Checklist MVP
 
-Marcar tareas 4.x en [`docs/mvp-solo-checklist.md`](../docs/mvp-solo-checklist.md) cuando verifiques URLs y secretos en el servidor real.
+Cerrar tareas **4.x** en [`docs/mvp-solo-checklist.md`](../docs/mvp-solo-checklist.md) cuando hayas hecho la **verificación en servidor** (curl + login). Este documento cubre criterios **4.2–4.6** a nivel de runbook; **4.1** son las URLs ya anotadas en el checklist.

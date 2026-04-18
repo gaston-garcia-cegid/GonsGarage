@@ -1,5 +1,9 @@
 # Guía de desarrollo GonsGarage
 
+## Servidor de pruebas / LAN (checklist Fase 4)
+
+Plantilla Docker + nginx (puerto **8102**), `.env.prod`, scripts y runbook (secretos, verificación, HTTP LAN, rollback): **[`deploy/README.md`](../deploy/README.md)**. URLs de ejemplo en [`mvp-solo-checklist.md`](./mvp-solo-checklist.md) → *Entorno remoto*.
+
 ## Demo local (secuencia mínima, checklist 3.1)
 
 Orden para una máquina “limpia” siguiendo también el [README en la raíz](../README.md):
