@@ -6,7 +6,9 @@ import { fileURLToPath } from "node:url";
 // fail to resolve `next/package.json`. Pin the root to this app directory.
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
+// Standalone solo en imagen Docker (Linux); en Windows `pnpm build` sin esto evita EPERM en symlinks.
 const nextConfig: NextConfig = {
+  ...(process.env.DOCKER_BUILD === "1" ? { output: "standalone" as const } : {}),
   turbopack: {
     root: projectRoot,
   },

@@ -15,6 +15,7 @@ Technical deep-dives (architecture, env vars, TDD, roadmap) live under **[`docs/
 | Topic | Link |
 |--------|------|
 | Development setup | [`docs/development-guide.md`](docs/development-guide.md) |
+| Docker / LAN deploy (plantilla Arnela) | [`deploy/README.md`](deploy/README.md) |
 | TDD / testing | [`docs/testing-tdd.md`](docs/testing-tdd.md) |
 | Contributing | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Agent / code standards | [`Agent.md`](Agent.md) |

@@ -1,0 +1,6 @@
+**/bin
+**/*.test
+.git
+.env
+.env.*
+!.env.example

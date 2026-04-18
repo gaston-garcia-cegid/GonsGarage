@@ -42,6 +42,7 @@ Definidas o usadas en `backend/cmd/api/main.go`:
 | `SERVER_PORT` | Puerto HTTP | `8080` |
 | `GIN_MODE` | `release` desactiva modo debug Gin | — |
 | `RESET_DATABASE` | `true` elimina tablas antes de migrar (solo desarrollo) | — |
+| `CORS_ORIGINS` | Orígenes extra permitidos con **`GIN_MODE=release`** (coma-separado, sin espacios tras coma si podés). Localhost ya está permitido. | — (vacío = solo localhost en release) |
 
 ## Levantar PostgreSQL y Redis (Docker)
 

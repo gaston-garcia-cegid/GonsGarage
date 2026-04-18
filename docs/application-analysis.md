@@ -18,6 +18,7 @@ Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas
 - **Swagger**: ruta `GET /swagger/*any` (swaggo).
 - **Salud**: `GET /health`.
 - **Prefijo API**: `/api/v1`.
+- **CORS**: con `GIN_MODE=release`, orígenes permitidos = localhost:3000/3001 más los de la variable **`CORS_ORIGINS`** (coma-separado). Ver `corsMiddleware` en `backend/cmd/api/main.go`. Despliegue Docker/LAN: [`deploy/README.md`](./deploy/README.md).
 
 ## Rutas API expuestas (resumen)
 
@@ -48,7 +49,7 @@ La integración con la API debe alinearse con el prefijo `/api/v1` y JSON en cam
 
 ## Infraestructura y documentación
 
-1. **Docker Compose** en la raíz del repo (`docker-compose.yml`): PostgreSQL (`gonsgarage` / `admindb`) y Redis, alineado con los defaults del backend y `backend/.env.example`.
+1. **Docker Compose** en la raíz (`docker-compose.yml`): PostgreSQL y Redis para desarrollo local. **`docker-compose.prod.yml`**: stack prod (API + Redis + Next + nginx en 8102) con Postgres en el host vía `DATABASE_URL`; ver [`deploy/README.md`](./deploy/README.md).
 2. **Entrada del servidor**: `backend/cmd/api/main.go` (AutoMigrate al arranque; no hay `cmd/migrate` obligatorio).
 3. **README del frontend** sigue siendo en parte la plantilla de `create-next-app`; ver `.env.local.example` y [development-guide.md](./development-guide.md).
 

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -287,13 +288,46 @@ func createIndexes(db *gorm.DB) error {
 	return nil
 }
 
+// corsExtraOrigins parses CORS_ORIGINS (comma-separated) for GIN_MODE=release (e.g. LAN deploy).
+func corsExtraOrigins() []string {
+	v := strings.TrimSpace(os.Getenv("CORS_ORIGINS"))
+	if v == "" {
+		return nil
+	}
+	var out []string
+	for _, p := range strings.Split(v, ",") {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
 // CORS middleware function
 func corsMiddleware() gin.HandlerFunc {
+	extras := corsExtraOrigins()
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
+		release := os.Getenv("GIN_MODE") == "release"
 
-		// Allow specific origins or all origins for development
-		if origin == "http://localhost:3000" || origin == "http://localhost:3001" || os.Getenv("GIN_MODE") != "release" {
+		allow := false
+		if !release {
+			allow = origin != ""
+		} else {
+			if origin == "http://localhost:3000" || origin == "http://localhost:3001" {
+				allow = true
+			}
+			if !allow {
+				for _, o := range extras {
+					if o == origin {
+						allow = true
+						break
+					}
+				}
+			}
+		}
+		if allow {
 			c.Header("Access-Control-Allow-Origin", origin)
 		}
 

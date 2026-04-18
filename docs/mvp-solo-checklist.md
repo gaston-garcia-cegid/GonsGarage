@@ -81,9 +81,9 @@
 
 ### Entorno remoto (servidor de pruebas)
 
-- URL API: ____________________
-- URL frontend: ____________________
-- Notas (proveedor, SSH, etc.): ____________________
+- URL API (misma entrada nginx, ej.): `http://192.168.1.100:8102` — rutas bajo `/api/v1/...`, `/health`, `/swagger/`
+- URL frontend: `http://192.168.1.100:8102` — mismo origen; `NEXT_PUBLIC_API_URL` = esa base (sin `/api/v1`)
+- Notas (proveedor, SSH, etc.): plantilla Docker en [`deploy/README.md`](./deploy/README.md), [`docker-compose.prod.yml`](../docker-compose.prod.yml), Postgres en host (`DATABASE_URL` → `host.docker.internal` en el compose prod)
 
 ---
 
