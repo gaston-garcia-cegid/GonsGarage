@@ -2,7 +2,7 @@
 
 ## Intent
 
-El repositorio **ya tiene** gran parte del flujo taller/cliente (auth, coches, citas, lectura de reparaciones por coche, CI, compose local). Falta **cerrar el círculo “MVP de verdad”**: criterios explícitos de hecho, huecos entre documentación y código, y **entrega** (staging/producción con secretos y deploy). Esta change documenta un **plan de fases único** alineado al análisis del monorepo y a [`docs/mvp-minimum-phases.md`](docs/mvp-minimum-phases.md), sin duplicar novelas: la ejecución irá por issues/tareas derivadas de aquí.
+El repositorio **ya tiene** gran parte del flujo taller/cliente (auth, coches, citas, lectura de reparaciones por coche, CI, compose local). Falta **cerrar el círculo “MVP de verdad”**: criterios explícitos de hecho, huecos entre documentación y código, y **entrega** en un **servidor de pruebas** (equipo pequeño: sin URL “staging” separada; ese servidor cumple rol de staging y prod de pruebas, con secretos y CORS serios). Esta change documenta un **plan de fases único** alineado al monorepo y a [`docs/mvp-minimum-phases.md`](../../../docs/mvp-minimum-phases.md). La ejecución día a día está en [`docs/mvp-solo-checklist.md`](../../../docs/mvp-solo-checklist.md) (checklist con IDs de tarea para aprobación con asistente).
 
 ## Análisis breve del proyecto (estado actual)
 
@@ -12,7 +12,7 @@ El repositorio **ya tiene** gran parte del flujo taller/cliente (auth, coches, c
 | **Frontend** | App Router: auth, coches, citas, dashboard/cliente; Zustand + cliente API. |
 | **Infra dev** | `docker-compose.yml` Postgres 16 + Redis 7; `.env.example` / `.env.local.example`. |
 | **Calidad** | CI: `go vet`, `go test -race`, `pnpm lint/typecheck/test/build`. TDD documentado en `docs/testing-tdd.md`. |
-| **Huecos MVP** | Deploy real ([`docs/mvp-minimum-phases.md`](docs/mvp-minimum-phases.md) Fase D); sync Swagger ↔ tipos cliente ([`docs/roadmap.md`](docs/roadmap.md) Fase 3); opcional staff **POST/PATCH** repairs y CORS/secrets en prod. |
+| **Huecos MVP** | Deploy en servidor de pruebas ([`docs/mvp-minimum-phases.md`](../../../docs/mvp-minimum-phases.md) Fase D); sync Swagger ↔ tipos cliente ([`docs/roadmap.md`](../../../docs/roadmap.md) Fase 3); opcional staff **POST/PATCH** repairs y CORS/secrets en servidor. |
 
 ## Plan de fases (orden lógico)
 
@@ -20,10 +20,10 @@ El repositorio **ya tiene** gran parte del flujo taller/cliente (auth, coches, c
 
 | Fase | Nombre | Objetivo | Criterio de salida (DoD) |
 |------|--------|-----------|---------------------------|
-| **1** | **Congelar alcance MVP** | Lista corta de historias obligatorias vs aplazadas (repairs escritura staff, notificaciones, pagos = fuera). | Documento o sección en `docs/mvp-minimum-phases.md` / issue épica con checklist aprobado. |
+| **1** | **Congelar alcance MVP** | Lista corta de historias obligatorias vs aplazadas (repairs escritura staff, notificaciones, pagos = fuera). | Sección [Decisiones cerradas](../../../docs/mvp-solo-checklist.md#decisiones-cerradas-mvp-v1) en `mvp-solo-checklist.md` completada con fecha. |
 | **2** | **Coherencia contrato + docs** | OpenAPI generado = rutas reales; frontend sin llamadas muertas; **actualizar** `application-analysis.md` (repairs, rutas). | Revisión manual + script o checklist; CI sigue verde. |
 | **3** | **Demo “cerrada” en local** | Script o `docs` con orden exacto: compose → API → seed opcional → `pnpm dev`; usuario demo admin + cliente. | Cualquier dev en máquina limpia reproduce en &lt; 15 min siguiendo solo el README + `development-guide`. |
-| **4** | **MVP desplegable (staging mínimo)** | Secretos fuera del repo; `JWT_SECRET` fuerte; imagen(es) o PaaS; workflow que sustituya o complete [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (migración/health). | URL staging con HTTPS; login + crear coche + cita + ver reparaciones lectura; rollback documentado en 1 página. |
+| **4** | **MVP en servidor de pruebas** | Mismo rigor que “staging”: secretos fuera del repo; `JWT_SECRET` fuerte; despliegue manual o workflow ([`.github/workflows/deploy.yml`](../../../.github/workflows/deploy.yml) hoy placeholder). | URL del servidor de pruebas con HTTPS si es expuesto; login + coche + cita + repairs lectura; rollback documentado en 1 página. |
 | **5** | **Endurecimiento MVP** | CORS acorde a `GIN_MODE=release`; sin defaults peligrosos en prod; backup BD mencionado. | Checklist pre-prod en `docs/`; smoke manual documentado. |
 | **6** | **MVP+ opcional (post‑MVP)** | `POST/PATCH/DELETE` repairs + UI staff mínima **si** el negocio lo exige para el primer release. | Issue enlazado; no bloquea Fase 4 si se acuerda explícitamente. |
 
@@ -38,7 +38,7 @@ El repositorio **ya tiene** gran parte del flujo taller/cliente (auth, coches, c
 
 ### Out of Scope
 
-- Paridad completa con Arnela/Tailwind v4 u otros stacks del [`template_project.md`](template_project.md).
+- Paridad completa con Arnela/Tailwind v4 u otros stacks del [`template_project.md`](../../../template_project.md).
 - i18n, pagos, multi‑tenant.
 
 ## Capabilities
@@ -53,9 +53,9 @@ El repositorio **ya tiene** gran parte del flujo taller/cliente (auth, coches, c
 
 ## Approach
 
-1. Usar esta tabla de fases como **backlog épico**; cada fila → 1+ issues en GitHub.
-2. Tras aprobación: opcional **design.md** breve solo para Fase 4 (target de hosting, secret store).
-3. Actualizar `docs/application-analysis.md` en la primera tarea de Fase 2 para no desorientar a nuevos devs.
+1. Usar esta tabla de fases como **backlog épico**; con equipo de una persona, seguir [`docs/mvp-solo-checklist.md`](../../../docs/mvp-solo-checklist.md) (IDs `1.1`, `2.1`, …).
+2. Opcional **design.md** breve solo para Fase 4 (host del servidor de pruebas, dónde viven los secretos).
+3. `docs/application-analysis.md` ya alinea repairs; mantenerlo en revisiones de la Fase 2.
 
 ## Affected Areas
 

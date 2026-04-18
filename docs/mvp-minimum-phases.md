@@ -4,6 +4,8 @@ Objetivo del MVP: **un taller puede registrar usuarios, clientes con coches, ped
 
 **Plan consolidado hasta “MVP funcionando” (staging/prod, contrato, demo):** [openspec/changes/mvp-funcionando-plan/proposal.md](../openspec/changes/mvp-funcionando-plan/proposal.md) (aprobado; usar como épica para issues).
 
+**Checklist operativo (equipo de una persona, servidor de pruebas = staging):** [mvp-solo-checklist.md](./mvp-solo-checklist.md).
+
 ## Fase A — Base técnica (cerrada)
 
 - [x] Compose local (Postgres + Redis) y variables documentadas (`docker-compose.yml`, `backend/.env.example`, `frontend/.env.local.example`, `docs/development-guide.md`).

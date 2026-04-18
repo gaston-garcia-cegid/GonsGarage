@@ -11,6 +11,7 @@
 | [roadmap.md](./roadmap.md) | Roadmap para documentación, configuración y alineación con el enfoque Arnela (cuando existan specs). |
 | [testing-tdd.md](./testing-tdd.md) | TDD obligatorio, backend/frontend, CI y exclusiones Jest documentadas. |
 | [mvp-minimum-phases.md](./mvp-minimum-phases.md) | Fases mínimas sugeridas para un primer MVP. |
+| [mvp-solo-checklist.md](./mvp-solo-checklist.md) | Checklist operativo (solo dev, servidor de pruebas = staging). |
 
 ## Documentación ya existente en el repo
 
