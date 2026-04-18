@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas, empleados y dominio de reparaciones (modelo presente; API de reparaciones pendiente de cablear).
+Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas, empleados y dominio de reparaciones (lectura por coche expuesta en API; escritura staff opcional según MVP).
 
 ## Stack real (código actual)
 
@@ -33,7 +33,7 @@ Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas
 - Coches: `POST|GET|GET/:id|PUT|DELETE /api/v1/cars/...`
 - Citas: `POST|GET|GET/:id|PUT|DELETE /api/v1/appointments/...`
 
-**Reparaciones**: el dominio y migraciones incluyen `Repair`; las rutas REST en `main.go` están comentadas (pendiente `repairHandler`).
+**Reparaciones** (JWT): `GET /api/v1/repairs/car/:carId` — listado de reparaciones por coche (permisos en `RepairService`). Otras operaciones REST de repairs pueden añadirse según [`docs/mvp-minimum-phases.md`](./mvp-minimum-phases.md) (fase C opcional).
 
 ## Frontend (App Router)
 
