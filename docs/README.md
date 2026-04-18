@@ -14,7 +14,7 @@
 
 ## Documentación ya existente en el repo
 
-- [../README.md](../README.md): visión del producto, stack y guía amplia.
+- [../README.md](../README.md): entrada al repo, stack verificado (manifests) y arranque rápido; detalle en `docs/`.
 - [../Agent.md](../Agent.md): estándares de código y arquitectura para el equipo.
 - [../frontend/README.md](../frontend/README.md): enlaces a `docs/` y `.env.local.example`.
 - [../docker-compose.yml](../docker-compose.yml): Postgres + Redis para desarrollo local.

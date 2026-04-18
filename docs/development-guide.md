@@ -2,7 +2,7 @@
 
 ## Requisitos
 
-- Go 1.21+ (según README del proyecto)
+- Go 1.25+ (directiva `go` en `backend/go.mod`)
 - Node.js 22+ con **pnpm** 9+ (`corepack enable` recomendado)
 - PostgreSQL 16+ (o Docker)
 - Redis opcional (recomendado para probar cache real)
