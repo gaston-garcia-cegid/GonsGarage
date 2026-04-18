@@ -1,0 +1,86 @@
+{
+  "version": "2.0.0",
+  "inputs": [
+    {
+      "id": "gonsCommitSubject",
+      "type": "promptString",
+      "description": "Primera línea del commit (asunto, Conventional Commits)",
+      "default": "chore: describe el cambio"
+    },
+    {
+      "id": "gonsCommitExplanation",
+      "type": "promptString",
+      "description": "Explicación: qué vas a commitear y por qué (cuerpo del mensaje)"
+    }
+  ],
+  "tasks": [
+    {
+      "label": "dev: backend test",
+      "type": "shell",
+      "command": "go test ./... -count=1 -race -timeout=2m",
+      "options": {
+        "cwd": "${workspaceFolder}/backend",
+        "env": {
+          "CGO_ENABLED": "1"
+        }
+      },
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "dev: frontend test",
+      "type": "shell",
+      "command": "pnpm test -- --passWithNoTests",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "dev: verify (tests only)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["dev: backend test", "dev: frontend test"],
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "dev: run commit and push (script)",
+      "type": "shell",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${workspaceFolder}/scripts/dev-verify-and-commit.ps1\" -SkipTests",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "GONS_COMMIT_SUBJECT": "${input:gonsCommitSubject}",
+          "GONS_COMMIT_EXPLANATION": "${input:gonsCommitExplanation}"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "dev: verify + commit + push",
+      "dependsOrder": "sequence",
+      "dependsOn": ["dev: verify (tests only)", "dev: run commit and push (script)"],
+      "problemMatcher": []
+    },
+    {
+      "label": "dev: verify + commit + push (Unix)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["dev: verify (tests only)", "dev: run commit and push (script, Unix)"],
+      "problemMatcher": []
+    },
+    {
+      "label": "dev: run commit and push (script, Unix)",
+      "type": "shell",
+      "command": "bash \"${workspaceFolder}/scripts/dev-verify-and-commit.sh\" --skip-tests",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "GONS_COMMIT_SUBJECT": "${input:gonsCommitSubject}",
+          "GONS_COMMIT_EXPLANATION": "${input:gonsCommitExplanation}"
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}

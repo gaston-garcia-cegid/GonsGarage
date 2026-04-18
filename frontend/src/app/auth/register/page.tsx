@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from "@/contexts/AuthContext";
+import { UserRole } from '@/types';
+import { useAuth } from '@/stores';
+import { AuthShell, AuthShellFooter } from '@/components/auth/AuthShell';
+import authShellStyles from '@/components/auth/AuthShell.module.css';
 import { Input } from '../../../components/ui/Input/Input';
 import { Button } from '../../../components/ui/Button/Button';
 import styles from './register.module.css';
@@ -118,31 +121,20 @@ export default function RegisterPage() {
     setErrors({});
 
     try {
-      console.log('Attempting registration with data:', {
-        email: formData.email.trim(),
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        role: formData.role,
-      });
       const result = await register({
         email: formData.email.trim(),
         password: formData.password,
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
-        role: formData.role,
+        role: formData.role as UserRole,
       });
-    
-    console.log('Registration result:', result);
-      
+
       if (result.success) {
         router.push('/auth/login?message=Registo concluído. Inicie sessão com as suas credenciais.');
       } else {
         setErrors({ general: result.error || 'O registo falhou. Tente novamente.' });
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      
-      // More detailed error handling
       let errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';
       
       if (error instanceof Error) {
@@ -165,28 +157,14 @@ export default function RegisterPage() {
     }
   };
 
+  const banner =
+    errors.general && errors.general.length > 0
+      ? ({ variant: 'error' as const, message: errors.general })
+      : null;
+
   return (
-    <div className={styles.pageContainer}>
-      <div className={styles.formContainer}>
-        {/* Header */}
-        <div className={styles.header}>
-          <div className={styles.logoContainer}>
-            <svg className={styles.logo} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
-            </svg>
-          </div>
-          <h1 className={styles.title}>Criar conta</h1>
-          <p className={styles.subtitle}>Junte-se à equipa GonsGarage</p>
-        </div>
-
-        {/* Registration Form */}
-        <form className={styles.form} onSubmit={handleSubmit}>
-          {errors.general && (
-            <div className={styles.errorAlert}>
-              {errors.general}
-            </div>
-          )}
-
+    <AuthShell title="Criar conta" subtitle="Junte-se à equipa GonsGarage" banner={banner}>
+      <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.fieldsContainer}>
             {/* Name Fields Row */}
             <div className={styles.nameFieldsRow}>
@@ -312,31 +290,23 @@ export default function RegisterPage() {
           </div>
 
           {/* Submit Button */}
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            loading={isLoading}
-            className={styles.submitButton}
-          >
-            {isLoading ? 'A criar conta…' : 'Criar conta'}
+          <Button type="submit" variant="primary" size="lg" loading={isLoading} className={styles.submitButton}>
+            Criar conta
           </Button>
 
-          {/* Login Link */}
-          <div className={styles.footer}>
-            <p className={styles.footerText}>
+          <AuthShellFooter>
+            <p className={authShellStyles.footerText}>
               Já tem conta?{' '}
               <button
                 type="button"
                 onClick={() => router.push('/auth/login')}
-                className={styles.loginLink}
+                className={authShellStyles.footerLink}
               >
                 Iniciar sessão
               </button>
             </p>
-          </div>
+          </AuthShellFooter>
         </form>
-      </div>
-    </div>
+    </AuthShell>
   );
 }

@@ -1,0 +1,12 @@
+# SDD change state — auth-ui-unified
+change: auth-ui-unified
+created: "2026-04-17"
+phases:
+  explore: pending
+  propose: complete
+  spec: complete
+  design: complete
+  tasks: complete
+  apply: complete
+  verify: pending
+  archive: pending

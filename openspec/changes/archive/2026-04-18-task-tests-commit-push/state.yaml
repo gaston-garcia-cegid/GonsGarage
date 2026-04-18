@@ -1,0 +1,12 @@
+# SDD change state — task-tests-commit-push
+change: task-tests-commit-push
+created: "2026-04-18"
+phases:
+  explore: pending
+  propose: complete
+  spec: pending
+  design: complete
+  tasks: complete
+  apply: complete
+  verify: complete
+  archive: complete

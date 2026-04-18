@@ -1,0 +1,97 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.fieldStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.passwordField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.passwordLabel {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.passwordInputWrap {
+  position: relative;
+}
+
+.passwordInput {
+  appearance: none;
+  background-color: var(--surface-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  padding: var(--space-3) var(--space-10) var(--space-3) var(--space-3);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%;
+}
+
+.passwordInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+
+.passwordInputError {
+  border-color: var(--color-error);
+}
+
+.passwordInputError:focus {
+  border-color: var(--color-error);
+  box-shadow: var(--focus-ring-error);
+}
+
+.passwordToggle {
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  padding: var(--space-3);
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: color var(--transition-fast);
+}
+
+.passwordToggle:hover {
+  color: var(--text-secondary);
+}
+
+.eyeIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.fieldError {
+  color: var(--color-error);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.submitWide {
+  width: 100%;
+}
+
+.demoBlock {
+  background-color: var(--surface-muted);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+}
