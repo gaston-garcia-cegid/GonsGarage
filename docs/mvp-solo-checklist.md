@@ -24,13 +24,14 @@
 | ID | Tarea | Criterio de hecho |
 |----|--------|-------------------|
 | 1.1 | Escribir la lista **«Entra»** en MVP v1 | **Hecho** 2026-04-17 — bloque [Entra](#decisiones-cerradas-mvp-v1) abajo |
-| 1.2 | Escribir **3 bullets** “fuera de MVP v1” (ej. pagos, i18n, multi-tenant) | Tres ítems explícitos bajo «Fuera» (sin placeholders) |
-| 1.3 | Cerrar explícitamente **repairs staff** (API/UI escritura) vs solo lectura | Una línea final bajo «Repairs staff»; hoy: **incluido** (coherente con 1.1) |
+| 1.2 | Escribir **3 bullets** “fuera de MVP v1” (ej. pagos, i18n, multi-tenant) | **Hecho** 2026-04-17 — tres ítems bajo «Fuera» + nota de propuesta |
+| 1.3 | Cerrar explícitamente **repairs staff** (API/UI escritura) vs solo lectura | **Hecho** 2026-04-17 — línea «Repairs staff» abajo (**incluido**) |
 
 ### Decisiones cerradas MVP v1
 
-**Fecha cierre parcial (1.1):** 2026-04-17 — *1.2 y 1.3 pendientes de tu aprobación.*  
-**Reconfirmación 1.1 (chat):** lista Entra con desglose de **invoices** (clientes, proveedores, recibos de sueldos) y **billing** solo clientes.
+**Fecha cierre Fase 1 (alcance):** 2026-04-17 — *1.1, 1.2 y 1.3 cerradas en checklist.*  
+**Reconfirmación 1.1 (chat):** lista Entra con desglose de **invoices** (clientes, proveedores, recibos de sueldos) y **billing** solo clientes.  
+**Propuesta 1.2 (chat) — «Fuera»:** tres límites claros compatibles con **CRUD billing** (registro contable / facturación hacia clientes) sin convertir el MVP en un PSP.
 
 - Entra (MVP v1):
   - **CRUD users** — registro / login JWT y perfil (`/auth/me`).
@@ -39,10 +40,10 @@
   - **CRUD repairs** (reparaciones)
   - **CRUD invoices** (facturas clientes, facturas proveedores, recibos de sueldos de empleados)
   - **CRUD billing** (cobros / facturación exclusiva de clientes)
-- Fuera:
-  - Kind of Payments (Efectivo, tarjeta, MBWay, Transferencia)
-  - i18n
-  - _(tercer ítem «Fuera» — pendiente aprobación **1.2**)_
+- Fuera (MVP v1):
+  - **Cobro electrónico con terceros** — pasarelas (Stripe, Adyen, …), TPV con adquirente, **MB Way / transferencia como canal conectado** (API, webhooks, firma, devoluciones), tokenización de tarjeta y **conciliación bancaria automática**. Sí podés modelar *medio* e *importe* como **datos** en facturas/billing (efectivo, tarjeta, MB Way, transferencia como etiqueta o importe registrado); **no** integración ni cobro online end‑to‑end.
+  - **i18n** — una sola lengua de interfaz y de documentación operativa en MVP v1.
+  - **Multi‑tenant / varios talleres** — una instancia = un taller (una marca, un conjunto de datos); sin subdominios por cliente corporativo ni aislamiento duro entre empresas.
 - Repairs staff (POST/PATCH/DELETE + UI): **incluido** en MVP v1 — coherente con «CRUD repairs» en Entra (1.1 aprobado).
 
 ---
@@ -109,7 +110,7 @@
 
 | Fase | Estado |
 |------|--------|
-| 1 Congelar alcance | en curso — **1.1 hecha**; pendiente 1.2 (tres bullets Fuera) y confirmación 1.3 |
+| 1 Congelar alcance | **hecha** (1.1–1.3 cerradas 2026-04-17) |
 | 2 Contrato + docs | … |
 | 3 Demo local | … |
 | 4 Servidor pruebas | … |
