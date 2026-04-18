@@ -10,7 +10,18 @@ import (
 )
 
 // ListRepairsByCar returns repairs for a car (client: own car only).
-// GET /api/v1/repairs/car/:carId — JSON body: array of repairs (snake_case), compatible with legacy frontend ApiClient.
+// @Summary     Listar reparaciones por coche
+// @Description Cliente: solo su coche. Personal del taller según reglas del dominio.
+// @Tags        repairs
+// @Security    BearerAuth
+// @Produce     json
+// @Param       carId path string true "UUID del coche"
+// @Success     200 {array} RepairResponse
+// @Failure     400 {object} SwaggerMessage
+// @Failure     401 {object} SwaggerMessage
+// @Failure     403 {object} SwaggerMessage
+// @Failure     500 {object} SwaggerMessage
+// @Router      /api/v1/repairs/car/{carId} [get]
 func (h *RepairHandler) ListRepairsByCar(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
 	if !exists {

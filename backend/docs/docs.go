@@ -1040,6 +1040,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/repairs/car/{carId}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Cliente: solo su coche. Personal del taller según reglas del dominio.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "repairs"
+                ],
+                "summary": "Listar reparaciones por coche",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID del coche",
+                        "name": "carId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.RepairResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "Estado del proceso API (sin autenticación).",
@@ -1180,8 +1241,8 @@ const docTemplate = `{
         "handler.CreateAppointmentRequest": {
             "type": "object",
             "properties": {
-                "carID": {
-                    "description": "✅ camelCase",
+                "carId": {
+                    "description": "frontend / Agent.md",
                     "type": "string"
                 },
                 "customerID": {
@@ -1203,7 +1264,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "scheduledTime": {
-                    "description": "✅ camelCase",
+                    "description": "legacy",
                     "type": "string"
                 },
                 "serviceType": {
@@ -1256,6 +1317,47 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.RepairResponse": {
+            "type": "object",
+            "properties": {
+                "car": {
+                    "$ref": "#/definitions/handler.CarResponse"
+                },
+                "car_id": {
+                    "type": "string"
+                },
+                "cost": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "employee": {
+                    "$ref": "#/definitions/handler.UserResponse"
+                },
+                "employee_id": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -1422,6 +1524,23 @@ const docTemplate = `{
                 },
                 "year": {
                     "type": "integer"
+                }
+            }
+        },
+        "handler.UserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
                 }
             }
         },

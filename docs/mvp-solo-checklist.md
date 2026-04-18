@@ -52,7 +52,7 @@
 
 | ID | Tarea | Criterio de hecho |
 |----|--------|-------------------|
-| 2.1 | Revisar que **Swagger generado** (`backend/docs/`) refleje rutas reales en `cmd/api` (grupos `/api/v1/...`) | Lista de discrepancias vacía o issues creados por cada hueco |
+| 2.1 | Revisar que **Swagger generado** (`backend/docs/`) refleje rutas reales en `cmd/api` (grupos `/api/v1/...`) | **Hecho** 2026-04-18 — faltaba `GET /api/v1/repairs/car/{carId}` en Swagger; añadidas anotaciones swag en `repair_handler_gin.go` y regenerado `swagger.json` / `swagger.yaml` / `docs.go`. Resto de paths alineados con `setupRoutes`. |
 | 2.2 | **Frontend:** buscar llamadas a endpoints que no existan o estén mal prefijados | `grep` / revisión; CI verde |
 | 2.3 | Mantener [application-analysis.md](./application-analysis.md) alineado cuando agregues rutas | Commit o “sin cambios necesarios” |
 
@@ -111,7 +111,7 @@
 | Fase | Estado |
 |------|--------|
 | 1 Congelar alcance | **hecha** (1.1–1.3 cerradas 2026-04-17) |
-| 2 Contrato + docs | … |
+| 2 Contrato + docs | en curso — **2.1 hecha**; pendiente 2.2–2.3 |
 | 3 Demo local | … |
 | 4 Servidor pruebas | … |
 | 5 Endurecimiento | … |
