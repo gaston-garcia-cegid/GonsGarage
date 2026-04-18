@@ -23,25 +23,26 @@
 
 | ID | Tarea | Criterio de hecho |
 |----|--------|-------------------|
-| 1.1 | Escribir **5 bullets** “entra en MVP v1” (auth, coches, citas, lectura repairs por coche, …) | Texto pegado abajo en [Decisiones cerradas](#decisiones-cerradas-mvp-v1) con fecha |
-| 1.2 | Escribir **3 bullets** “fuera de MVP v1” (ej. pagos, i18n, CRUD repairs staff) | Mismo bloque |
-| 1.3 | Si algo de la Fase C opcional del doc (`repairs` staff) queda **aplazado**, anotarlo explícitamente | Una línea “Repairs staff: aplazado / incluido” |
+| 1.1 | Escribir la lista **«Entra»** en MVP v1 | **Hecho** 2026-04-17 — bloque [Entra](#decisiones-cerradas-mvp-v1) abajo |
+| 1.2 | Escribir **3 bullets** “fuera de MVP v1” (ej. pagos, i18n, multi-tenant) | Tres ítems explícitos bajo «Fuera» (sin placeholders) |
+| 1.3 | Cerrar explícitamente **repairs staff** (API/UI escritura) vs solo lectura | Una línea final bajo «Repairs staff»; hoy: **incluido** (coherente con 1.1) |
 
 ### Decisiones cerradas MVP v1
 
-*(Completá tras 1.1–1.3; fecha: ______ )*
+**Fecha cierre parcial (1.1):** 2026-04-17 — *1.2 y 1.3 pendientes de tu aprobación.*
 
-- Entra:
-  - 
-  - 
-  - 
-  - 
-  - 
+- Entra (MVP v1):
+  - **CRUD users** — registro / login JWT y perfil (`/auth/me`).
+  - **CRUD cars**
+  - **CRUD appointments** (citas)
+  - **CRUD repairs** (reparaciones)
+  - **CRUD invoices** (facturas)
+  - **CRUD billing** (cobros / facturación)
 - Fuera:
-  - 
-  - 
-  - 
-- Repairs staff (POST/PATCH/DELETE + UI): aplazado / incluido — **_______**
+  - Kind of Payments
+  - i18n
+  - _(completar en 1.2)_
+- Repairs staff (POST/PATCH/DELETE + UI): **incluido** en MVP v1 — coherente con «CRUD repairs» en Entra (1.1 aprobado).
 
 ---
 
@@ -107,7 +108,7 @@
 
 | Fase | Estado |
 |------|--------|
-| 1 Congelar alcance | pendiente / en curso / hecha |
+| 1 Congelar alcance | en curso — **1.1 hecha**; pendiente 1.2 (tres bullets Fuera) y confirmación 1.3 |
 | 2 Contrato + docs | … |
 | 3 Demo local | … |
 | 4 Servidor pruebas | … |
