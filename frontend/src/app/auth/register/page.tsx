@@ -136,9 +136,9 @@ export default function RegisterPage() {
       }
     } catch (error) {
       let errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';
-      
+
       if (error instanceof Error) {
-        errorMessage = `Error: ${error.message}`;
+        errorMessage = error.message.trim() || errorMessage;
       } else if (typeof error === 'string') {
         errorMessage = error;
       }
@@ -200,11 +200,11 @@ export default function RegisterPage() {
               id="email"
               name="email"
               type="email"
-              label="Email Address"
+              label="E-mail"
               value={formData.email}
               onChange={handleChange}
               error={errors.email}
-              placeholder="Enter your email address"
+              placeholder="O seu e-mail"
               autoComplete="email"
               required
             />
@@ -251,7 +251,7 @@ export default function RegisterPage() {
 
             <div className={styles.passwordField}>
               <label htmlFor="confirmPassword" className={styles.passwordLabel}>
-                Confirm Password
+                Confirmar palavra-passe
               </label>
               <div className={styles.passwordInputWrapper}>
                 <input

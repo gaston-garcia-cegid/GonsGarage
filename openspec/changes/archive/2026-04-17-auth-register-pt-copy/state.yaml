@@ -1,0 +1,12 @@
+# SDD change state — auth-register-pt-copy
+change: auth-register-pt-copy
+created: "2026-04-17"
+phases:
+  explore: complete
+  propose: complete
+  spec: complete
+  design: complete
+  tasks: complete
+  apply: complete
+  verify: complete
+  archive: complete
