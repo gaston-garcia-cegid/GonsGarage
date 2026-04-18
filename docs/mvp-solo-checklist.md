@@ -29,19 +29,20 @@
 
 ### Decisiones cerradas MVP v1
 
-**Fecha cierre parcial (1.1):** 2026-04-17 — *1.2 y 1.3 pendientes de tu aprobación.*
+**Fecha cierre parcial (1.1):** 2026-04-17 — *1.2 y 1.3 pendientes de tu aprobación.*  
+**Reconfirmación 1.1 (chat):** lista Entra con desglose de **invoices** (clientes, proveedores, recibos de sueldos) y **billing** solo clientes.
 
 - Entra (MVP v1):
   - **CRUD users** — registro / login JWT y perfil (`/auth/me`).
   - **CRUD cars**
   - **CRUD appointments** (citas)
   - **CRUD repairs** (reparaciones)
-  - **CRUD invoices** (facturas)
-  - **CRUD billing** (cobros / facturación)
+  - **CRUD invoices** (facturas clientes, facturas proveedores, recibos de sueldos de empleados)
+  - **CRUD billing** (cobros / facturación exclusiva de clientes)
 - Fuera:
-  - Kind of Payments
+  - Kind of Payments (Efectivo, tarjeta, MBWay, Transferencia)
   - i18n
-  - _(completar en 1.2)_
+  - _(tercer ítem «Fuera» — pendiente aprobación **1.2**)_
 - Repairs staff (POST/PATCH/DELETE + UI): **incluido** en MVP v1 — coherente con «CRUD repairs» en Entra (1.1 aprobado).
 
 ---
