@@ -50,6 +50,48 @@ curl -sS "http://192.168.1.100:8102/ready"
 
 Si `/ready` falla, Postgres no es alcanzable desde el contenedor del API (revisá `DATABASE_URL`, firewall y `host.docker.internal`).
 
+## Login → **502 Bad Gateway** (nginx)
+
+El front carga pero **`POST /api/v1/auth/login`** devuelve 502: nginx **no** recibe respuesta OK del contenedor **`gonsgarage-api`** (caído, reiniciando o no escucha en `8080`).
+
+En el **servidor**:
+
+```bash
+cd /DATA/AppData/gonsgarage
+docker compose -f docker-compose.prod.yml --env-file .env.prod ps
+docker logs gonsgarage-api --tail 120
+```
+
+- Si el API está **Exited** o en bucle de reinicio, casi siempre es **`DATABASE_URL`**: Postgres en el host debe escuchar en una interfaz alcanzable desde Docker (no solo `127.0.0.1`). Revisá `postgresql.conf` → `listen_addresses` y `pg_hba.conf` para permitir el bridge Docker (p. ej. `172.17.0.0/16`) o la IP del host. Alternativa: en `.env.prod`, probá el host real en lugar de `host.docker.internal` si Postgres escucha en `192.168.1.100:5432`.
+- Comprobar red interna (desde el contenedor nginx al API):
+
+```bash
+docker exec gonsgarage-nginx wget -qO- -S http://gonsgarage-api:8080/health 2>&1 | head -20
+```
+
+Si esto falla con *connection refused*, el API no está arriba → prioridad: logs de `gonsgarage-api`.
+
+## pgAdmin desde tu PC hacia Postgres del servidor
+
+**Recomendado (sin abrir el puerto 5432 a la LAN): túnel SSH**
+
+1. En **PowerShell** o terminal de tu PC (con `ssh` instalado), dejá abierta una sesión que reenvíe el puerto (elegí un puerto local libre, p. ej. **5433**):
+
+```powershell
+ssh -L 5433:127.0.0.1:5432 root@192.168.1.100
+```
+
+   Eso asume que **Postgres en el servidor escucha en `127.0.0.1:5432`**. Si tu Postgres solo escucha en otra interfaz, ajustá el segundo tramo (consultá con `ss -tlnp | grep 5432` en el servidor).
+
+2. En **pgAdmin** → *Register* → *Server* → pestaña **General**: nombre libre. Pestaña **Connection**:
+   - **Host:** `127.0.0.1` o `localhost`
+   - **Port:** `5433` (el local del túnel)
+   - **Username / Password:** los de tu base `gonsgarage` (los mismos que usaste en `DATABASE_URL` del `.env.prod`, usuario dedicado, no hace falta ser `postgres`).
+
+3. Mantené la ventana del **ssh** abierta mientras usás pgAdmin.
+
+**Alternativa (directo por red):** solo si en el servidor Postgres tiene `listen_addresses` que incluya la LAN y firewall/pg_hba permiten tu IP. Entonces en pgAdmin: **Host** `192.168.1.100`, **Port** `5432`. No lo recomendamos en WiFi compartido sin TLS ni restricción por IP.
+
 ## HTTPS vs HTTP en LAN (4.5)
 
 Para **solo red local** (`192.168.x.x`) es aceptable **HTTP** en el checklist: sin certificado, sin Let’s Encrypt. Si exponés el servidor a **internet**, añadí TLS (nginx + certbot, o TLS en el proxy) y actualizá **`CORS_ORIGINS`** / **`NEXT_PUBLIC_API_URL`** a `https://…`.
