@@ -124,6 +124,11 @@ func main() {
 		log.Printf("Successfully migrated %T", model)
 	}
 
+	// Bases creadas antes de domain.Repair.technician_id: AutoMigrate puede haber fallado y el repo sqlx asume la columna.
+	if err := ensureRepairsTechnicianIDColumn(db); err != nil {
+		log.Fatalf("repairs.technician_id schema fix: %v", err)
+	}
+
 	// Create indexes manually if they don't exist
 	if err := createIndexes(db); err != nil {
 		log.Printf("Warning: Failed to create some indexes: %v", err)
@@ -237,6 +242,20 @@ func dropAllTables(db *gorm.DB) error {
 			log.Printf("Failed to drop table %s: %v", table, err)
 		} else {
 			log.Printf("Dropped table: %s", table)
+		}
+	}
+	return nil
+}
+
+// ensureRepairsTechnicianIDColumn alinea esquemas antiguos con el modelo actual (sqlx SELECT incluye technician_id).
+func ensureRepairsTechnicianIDColumn(db *gorm.DB) error {
+	const qAdd = `ALTER TABLE repairs ADD COLUMN IF NOT EXISTS technician_id uuid`
+	const qFill = `UPDATE repairs SET technician_id = '00000000-0000-0000-0000-000000000000'::uuid WHERE technician_id IS NULL`
+	const qDefault = `ALTER TABLE repairs ALTER COLUMN technician_id SET DEFAULT '00000000-0000-0000-0000-000000000000'::uuid`
+	const qNotNull = `ALTER TABLE repairs ALTER COLUMN technician_id SET NOT NULL`
+	for _, q := range []string{qAdd, qFill, qDefault, qNotNull} {
+		if err := db.Exec(q).Error; err != nil {
+			return fmt.Errorf("%s: %w", q, err)
 		}
 	}
 	return nil

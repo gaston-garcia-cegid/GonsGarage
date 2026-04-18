@@ -14,6 +14,15 @@ Orden para una máquina “limpia” siguiendo también el [README en la raíz](
 
 Si algo falla, revisá firewall/puertos **5432** (Postgres) y **6379** (Redis) no ocupados por otra instancia.
 
+### Flujo manual mínimo (checklist 3.2)
+
+Objetivo: comprobar en el navegador **login → coche → cita → reparaciones en el detalle del coche** (MVP v1).
+
+1. Abrí `http://localhost:3000/auth/login`. Usuario cliente de prueba (tras seed, ver arriba): **cliente.demo@gonsgarage.local** / **ClienteDemo123**.
+2. **Coches:** `/cars` — añadí un coche o abrí uno existente; el detalle está en **`/cars/{id}`** (también hay enlaces desde el dashboard y desde las citas).
+3. **Cita:** **`/appointments/new`** — reservá un servicio para el coche elegido; en **`/appointments`** debe aparecer en la lista.
+4. **Reparaciones:** en **`/cars/{id}`** la sección de reparaciones llama a **`GET /api/v1/repairs/car/{carId}`** (puede estar vacía hasta que el taller registre reparaciones). Si la API devolvía error SQL por columna **`technician_id`** en bases creadas antes de ese campo, **actualizá el repo y reiniciá** `go run ./cmd/api`: al arrancar se ejecuta un `ALTER` idempotente que asegura esa columna en la tabla `repairs`.
+
 ## Requisitos
 
 - Go 1.25+ (directiva `go` en `backend/go.mod`)
