@@ -1,5 +1,14 @@
 # Despliegue LAN / Docker (plantilla Arnela)
 
+## Orden recomendado (desde tu PC con `deploy.ps1`)
+
+1. **`git pull`** en el clon local (`D:\Repos\GonsGarage` o el que uses), para que lo que subís sea la última versión.
+2. **`.\deploy.ps1`** en **PowerShell** desde la raíz del repo (no copia el `.git`; solo `backend/`, `frontend/`, `nginx/`, compose y example de env).
+
+Si trabajás **solo en el servidor** con una carpeta que rellenás a mano o con `git clone` allí, entonces el equivalente es **`git pull`** en `/DATA/AppData/gonsgarage` (si usás git en el servidor) y después `docker compose … up -d --build` — no hace falta `deploy.ps1` en ese flujo.
+
+---
+
 Archivos en la **raíz del repo**:
 
 | Archivo | Uso |

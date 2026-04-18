@@ -1,5 +1,8 @@
 # GonsGarage — despliegue remoto (plantilla Arnela).
 # Ajustá $SERVER, $USER, $REMOTE_DIR antes de usar.
+#
+# Este script copia el árbol local (backend/, frontend/, etc.) por scp: no hace git.
+# En esta carpeta del repo, ejecutá antes:  git pull
 
 $SERVER = "192.168.1.100"
 $USER = "root"
