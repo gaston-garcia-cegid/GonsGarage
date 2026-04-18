@@ -87,7 +87,7 @@ export const appointmentApi = {
 
   cancelAppointment: async (id: string): Promise<Appointment | null> => {
     try {
-      const response = await apiClient.patch<Appointment>(`/appointments/${id}/cancel`);
+      const response = await apiClient.put<Appointment>(`/appointments/${id}`, { status: 'cancelled' });
       return response.success ? response.data ?? null : null;
     } catch (error) {
       console.error('❌ Cancel appointment error:', error);
@@ -97,7 +97,7 @@ export const appointmentApi = {
 
   confirmAppointment: async (id: string): Promise<Appointment | null> => {
     try {
-      const response = await apiClient.patch<Appointment>(`/appointments/${id}/confirm`);
+      const response = await apiClient.put<Appointment>(`/appointments/${id}`, { status: 'confirmed' });
       return response.success ? response.data ?? null : null;
     } catch (error) {
       console.error('❌ Confirm appointment error:', error);
@@ -107,7 +107,7 @@ export const appointmentApi = {
 
   completeAppointment: async (id: string): Promise<Appointment | null> => {
     try {
-      const response = await apiClient.patch<Appointment>(`/appointments/${id}/complete`);
+      const response = await apiClient.put<Appointment>(`/appointments/${id}`, { status: 'completed' });
       return response.success ? response.data ?? null : null;
     } catch (error) {
       console.error('❌ Complete appointment error:', error);

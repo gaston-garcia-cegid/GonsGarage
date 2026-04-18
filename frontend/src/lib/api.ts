@@ -222,11 +222,9 @@ class ApiClient {
   }
 
   async logout(): Promise<ApiResponse<{ message: string }>> {
-    const response = await this.request<{ message: string }>('/auth/logout', {
-      method: 'POST',
-    });
+    // Backend no expone POST /auth/logout; cierre solo en cliente (alineado con auth.service).
     this.clearToken();
-    return response;
+    return { data: { message: 'Logged out successfully' } };
   }
 
   // Employee endpoints
@@ -262,7 +260,7 @@ class ApiClient {
 
   // Profile endpoint
   async getProfile(): Promise<ApiResponse<User>> {
-    return this.request<User>('/auth/profile');
+    return this.request<User>('/auth/me');
   }
 
   // Car endpoints
@@ -294,10 +292,9 @@ class ApiClient {
     });
   }
 
-  // Repair endpoints
-  async getRepairs(carId?: string): Promise<ApiResponse<Repair[]>> {
-    const url = carId ? `/repairs/car/${carId}` : '/repairs';
-    return this.request<Repair[]>(url);
+  // Repair endpoints (solo listado por coche está expuesto en Gin)
+  async getRepairs(carId: string): Promise<ApiResponse<Repair[]>> {
+    return this.request<Repair[]>(`/repairs/car/${carId}`);
   }
 
   async getRepair(id: string): Promise<ApiResponse<Repair>> {

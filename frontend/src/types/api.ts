@@ -103,7 +103,8 @@ export const API_ENDPOINTS = {
     GET: (id: string) => `/cars/${id}`,
     UPDATE: (id: string) => `/cars/${id}`,
     DELETE: (id: string) => `/cars/${id}`,
-    REPAIRS: (id: string) => `/cars/${id}/repairs`
+    /** Listado de reparaciones por coche (ver GET /api/v1/repairs/car/{carId}) */
+    REPAIRS_BY_CAR: (carId: string) => `/repairs/car/${carId}`
   },
   
   // Appointments
@@ -112,20 +113,12 @@ export const API_ENDPOINTS = {
     CREATE: '/appointments',
     GET: (id: string) => `/appointments/${id}`,
     UPDATE: (id: string) => `/appointments/${id}`,
-    DELETE: (id: string) => `/appointments/${id}`,
-    CONFIRM: (id: string) => `/appointments/${id}/confirm`,
-    CANCEL: (id: string) => `/appointments/${id}/cancel`
+    DELETE: (id: string) => `/appointments/${id}`
   },
   
-  // Repairs
+  // Repairs (solo GET por coche implementado en Gin; el resto reservado MVP+)
   REPAIRS: {
-    LIST: '/repairs',
-    CREATE: '/repairs',
-    GET: (id: string) => `/repairs/${id}`,
-    UPDATE: (id: string) => `/repairs/${id}`,
-    DELETE: (id: string) => `/repairs/${id}`,
-    COMPLETE: (id: string) => `/repairs/${id}/complete`,
-    INVOICE: (id: string) => `/repairs/${id}/invoice`
+    BY_CAR: (carId: string) => `/repairs/car/${carId}`
   }
 } as const;
 

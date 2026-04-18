@@ -163,9 +163,17 @@ class CarApiClient {
     });
   }
 
-  // Get cars with repairs (complex read operation)
+  // Car + repairs: Gin expone GET /repairs/car/:carId (no hay GET /cars/:id/repairs).
   async getCarWithRepairs(id: string): Promise<ApiResponse<Car>> {
-    return this.request<Car>(`/cars/${id}/repairs`);
+    const car = await this.getCar(id);
+    if (car.error || !car.data) {
+      return car;
+    }
+    const repairs = await this.request<Car['repairs']>(`/repairs/car/${id}`);
+    if (repairs.error) {
+      return { data: { ...car.data, repairs: [] }, error: null };
+    }
+    return { data: { ...car.data, repairs: repairs.data ?? [] }, error: null };
   }
 }
 

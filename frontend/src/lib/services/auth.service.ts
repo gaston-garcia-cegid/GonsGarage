@@ -75,27 +75,13 @@ export class AuthService {
     }
   }
 
-  // ✅ Logout method with token cleanup
+  // ✅ Logout method with token cleanup (no POST /auth/logout en el backend Gin actual)
   async logout(): Promise<ApiResponse<{ message: string }>> {
-    try {
-      const response = await apiClient.post<{ message: string }>('/auth/logout');
-      
-      // ✅ Clear token regardless of response status
-      apiClient.clearToken();
-      
-      return response.success ? response : {
-        success: true,
-        data: { message: 'Logged out successfully' }
-      };
-    } catch {
-      // ✅ Still clear token even if logout request fails
-      apiClient.clearToken();
-      
-      return {
-        success: true, // Logout should always succeed locally
-        data: { message: 'Logged out successfully' }
-      };
-    }
+    apiClient.clearToken();
+    return {
+      success: true,
+      data: { message: 'Logged out successfully' },
+    };
   }
 
   // ✅ Refresh token method for token renewal

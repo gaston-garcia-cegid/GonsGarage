@@ -53,8 +53,8 @@
 | ID | Tarea | Criterio de hecho |
 |----|--------|-------------------|
 | 2.1 | Revisar que **Swagger generado** (`backend/docs/`) refleje rutas reales en `cmd/api` (grupos `/api/v1/...`) | **Hecho** 2026-04-18 — faltaba `GET /api/v1/repairs/car/{carId}` en Swagger; añadidas anotaciones swag en `repair_handler_gin.go` y regenerado `swagger.json` / `swagger.yaml` / `docs.go`. Resto de paths alineados con `setupRoutes`. |
-| 2.2 | **Frontend:** buscar llamadas a endpoints que no existan o estén mal prefijados | `grep` / revisión; CI verde |
-| 2.3 | Mantener [application-analysis.md](./application-analysis.md) alineado cuando agregues rutas | Commit o “sin cambios necesarios” |
+| 2.2 | **Frontend:** buscar llamadas a endpoints que no existan o estén mal prefijados | **Hecho** 2026-04-18 — citas: `PATCH …/cancel|confirm|complete` → `PUT /appointments/{id}` con `{ status }`. Coches: `GET /cars/owner/:id` → `GET /cars?ownerId&limit&offset`. Repairs: `getCarWithRepairs` usa `/repairs/car/{id}`; `api.ts` `getRepairs` exige `carId`; `getProfile`→`/auth/me`; logout sin `POST /auth/logout`. Constantes `API_ENDPOINTS` alineadas. Tests Jest `auth.service` actualizados. |
+| 2.3 | Mantener [application-analysis.md](./application-analysis.md) alineado cuando agregues rutas | **Hecho** 2026-04-18 — citas `PUT`+`status`, coches `ownerId` query, nota cliente HTTP. |
 
 ---
 
@@ -111,7 +111,7 @@
 | Fase | Estado |
 |------|--------|
 | 1 Congelar alcance | **hecha** (1.1–1.3 cerradas 2026-04-17) |
-| 2 Contrato + docs | en curso — **2.1 hecha**; pendiente 2.2–2.3 |
+| 2 Contrato + docs | **hecha** (2.1–2.3, 2026-04-18) |
 | 3 Demo local | … |
 | 4 Servidor pruebas | … |
 | 5 Endurecimiento | … |

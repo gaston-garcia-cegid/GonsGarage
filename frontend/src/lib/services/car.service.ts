@@ -200,7 +200,8 @@ export class CarService {
   // ✅ Get cars by owner ID (for client dashboard)
   async getCarsByOwner(ownerId: string): Promise<ApiResponse<Car[]>> {
     try {
-      return await apiClient.get<Car[]>(`/cars/owner/${ownerId}`);
+      const q = new URLSearchParams({ ownerId, limit: '100', offset: '0' });
+      return await apiClient.get<Car[]>(`/cars?${q.toString()}`);
     } catch {
       return {
         success: false,

@@ -168,45 +168,10 @@ describe('AuthService', () => {
   });
 
   describe('Logout', () => {
-    it('should logout successfully and clear token', async () => {
-      const mockLogoutResponse = {
-        success: true,
-        data: { message: 'Logged out successfully' }
-      };
-
-      mockApiClient.post.mockResolvedValueOnce(mockLogoutResponse);
-
+    it('should clear token locally without calling /auth/logout', async () => {
       const result = await authService.logout();
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/logout');
-      expect(mockApiClient.clearToken).toHaveBeenCalled();
-      expect(result).toEqual(mockLogoutResponse);
-    });
-
-    it('should clear token even if logout request fails', async () => {
-      mockApiClient.post.mockRejectedValueOnce(new Error('Network error'));
-
-      const result = await authService.logout();
-
-      expect(mockApiClient.clearToken).toHaveBeenCalled();
-      expect(result.success).toBe(true);
-      expect(result.data?.message).toBe('Logged out successfully');
-    });
-
-    it('should handle unsuccessful logout response gracefully', async () => {
-      const mockErrorResponse = {
-        success: false,
-        error: {
-          message: 'Server error',
-          status: 500,
-          code: 'SERVER_ERROR'
-        }
-      };
-
-      mockApiClient.post.mockResolvedValueOnce(mockErrorResponse);
-
-      const result = await authService.logout();
-
+      expect(mockApiClient.post).not.toHaveBeenCalled();
       expect(mockApiClient.clearToken).toHaveBeenCalled();
       expect(result.success).toBe(true);
       expect(result.data?.message).toBe('Logged out successfully');

@@ -30,8 +30,8 @@ Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas
 
 - Sesión: `GET /api/v1/auth/me` (usuario actual, camelCase)
 - Empleados (**só admin/manager**): `POST|GET|GET/:id|PUT|DELETE /api/v1/employees/...`
-- Coches: `POST|GET|GET/:id|PUT|DELETE /api/v1/cars/...`
-- Citas: `POST|GET|GET/:id|PUT|DELETE /api/v1/appointments/...`
+- Coches: `POST|GET|GET/:id|PUT|DELETE /api/v1/cars/...` — listado de flota de un cliente (staff): `GET /api/v1/cars?ownerId=<uuid>&limit=&offset=` (no existe `GET /cars/owner/:id`).
+- Citas: `POST|GET|GET/:id|PUT|DELETE /api/v1/appointments/...` — cambiar estado (cancelar / confirmar / completar): **`PUT /api/v1/appointments/:id`** con JSON parcial (`status`, etc.); **no** hay `PATCH …/cancel|/confirm|/complete`.
 
 **Reparaciones** (JWT): `GET /api/v1/repairs/car/:carId` — listado de reparaciones por coche (permisos en `RepairService`). Otras operaciones REST de repairs pueden añadirse según [`docs/mvp-minimum-phases.md`](./mvp-minimum-phases.md) (fase C opcional).
 
@@ -44,7 +44,7 @@ Rutas de página localizadas bajo `frontend/src/app/`:
 - `/cars`, `/cars/[id]`
 - `/appointments`, `/appointments/new`
 
-La integración con la API debe alinearse con el prefijo `/api/v1` y JSON en camelCase (`Agent.md`).
+La integración con la API debe alinearse con el prefijo `/api/v1` y JSON en camelCase (`Agent.md`). El cliente HTTP principal está en `frontend/src/lib/api-client.ts`; citas en `lib/api/appointment.api.ts`; coches en `lib/services/car.service.ts`; el módulo legacy `lib/api.ts` (usado por dashboard/coches) debe limitarse a rutas realmente expuestas (p. ej. repairs solo `GET /repairs/car/:carId`).
 
 ## Infraestructura y documentación
 
