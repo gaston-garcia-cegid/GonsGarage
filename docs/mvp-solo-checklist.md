@@ -64,7 +64,7 @@
 |----|--------|-------------------|
 | 3.1 | Seguir solo [README.md](../README.md) + [development-guide.md](./development-guide.md): compose → API → `pnpm dev` | **Hecho** 2026-04-18 — nueva sección «Demo local (secuencia mínima, checklist 3.1)» en `development-guide.md`; README: `NEXT_PUBLIC_API_URL` sin `/api/v1`, nota Windows `cp`/`copy`, enlace a guía; seed unificado a `go run ./cmd/api`; aclaración Redis+compose y rutas `api-client` vs `lib/api.ts`. `go build ./cmd/api` verificado. |
 | 3.2 | Flujo mínimo manual: **login** → **coche** → **cita** → **ver repairs** en detalle coche (si aplica a tu MVP v1) | **Hecho** 2026-04-18 — flujo documentado en `development-guide.md` (subsection checklist 3.2); API verificada: login + `GET /cars` + `GET /appointments` OK; `GET /repairs/car/{id}` fallaba en BD legada sin `technician_id` → `ensureRepairsTechnicianIDColumn` en `cmd/api/main.go` al arrancar. Tras pull, reiniciar API para aplicar. |
-| 3.3 | Seed cliente demo (`go run ./cmd/seed-test-client`) documentado si lo usás en demos | Comando probado desde `backend/` |
+| 3.3 | Seed cliente demo (`go run ./cmd/seed-test-client`) documentado si lo usás en demos | **Hecho** 2026-04-18 — `go run ./cmd/seed-test-client` probado desde `backend/` (usuario demo ya existía → log idempotente, exit 0). `development-guide.md`: subsección 3.3 (consulta email antes de crear). `README.md`: tabla demo users (client + nota admin por registro). |
 
 ---
 
@@ -112,7 +112,7 @@
 |------|--------|
 | 1 Congelar alcance | **hecha** (1.1–1.3 cerradas 2026-04-17) |
 | 2 Contrato + docs | **hecha** (2.1–2.3, 2026-04-18) |
-| 3 Demo local | en curso — **3.1–3.2 hechas**; pendiente **3.3** |
+| 3 Demo local | **hecha** (3.1–3.3, 2026-04-18) |
 | 4 Servidor pruebas | … |
 | 5 Endurecimiento | … |
 | 6 MVP+ | N/A / pendiente |

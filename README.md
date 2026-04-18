@@ -128,7 +128,8 @@ The default **`pnpm test`** script runs **Vitest**. Jest remains available for l
 
 | Role | Email | Password | Notes |
 |------|-------|----------|--------|
-| Admin | `admin@gonsgarage.com` | `admin123` | Seeded / default for local dev (see codebase and `docs/`) |
+| Admin | `admin@gonsgarage.com` | `admin123` | Shown on login UI for local demos; create the user via **Register** if it does not exist (this repo does not auto-seed admin in the API). |
+| Client | `cliente.demo@gonsgarage.local` | `ClienteDemo123` | Created by **`go run ./cmd/seed-test-client`** when missing; safe to re-run (checks email first, exit 0, no duplicate). |
 
 **Demo client (optional seed)** from `backend/` with PostgreSQL up and schema migrated (e.g. after the API has run once):
 
@@ -137,7 +138,7 @@ cd backend
 go run ./cmd/seed-test-client
 ```
 
-Default client: `cliente.demo@gonsgarage.local` / `ClienteDemo123`. Override with `SEED_CLIENT_EMAIL` and `SEED_CLIENT_PASSWORD`. Command is idempotent if the email already exists.
+Default client: `cliente.demo@gonsgarage.local` / `ClienteDemo123`. Override with `SEED_CLIENT_EMAIL` and `SEED_CLIENT_PASSWORD`. If that email is **already** in `users`, the command does nothing and exits successfully.
 
 ## Project layout
 

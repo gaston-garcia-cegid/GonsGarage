@@ -62,7 +62,15 @@ Set-Location backend
 go run ./cmd/seed-test-client
 ```
 
-Por defecto crea **cliente.demo@gonsgarage.local** / **ClienteDemo123** (rol `client`). Variables opcionales: `SEED_CLIENT_EMAIL`, `SEED_CLIENT_PASSWORD`, `DATABASE_URL`.
+Por defecto intenta crear **cliente.demo@gonsgarage.local** / **ClienteDemo123** (rol `client`). Variables opcionales: `SEED_CLIENT_EMAIL`, `SEED_CLIENT_PASSWORD`, `DATABASE_URL`.
+
+### Comportamiento antes de crear (checklist 3.3)
+
+El comando **no** asume que haya que insertar siempre: consulta el email (`GetByEmail`). Si **ya existe** un usuario con ese email, escribe en log *«El usuario … ya existe … No se creó nada.»* y termina con **código de salida 0** (no duplica filas). Podés ejecutarlo en cada demo o máquina nueva sin riesgo de clonar el cliente.
+
+Si ya tenés usuarios de prueba creados por registro manual u otro flujo, **no hace falta** borrar nada: solo usá el seed cuando falte concretamente el cliente con el email configurado (por defecto el demo anterior).
+
+**No** crea usuarios **admin/manager/employee**; solo el rol **client** para el email indicado. Las credenciales de admin que aparezcan en la UI o en el README son independientes de este comando.
 
 ## Backend
 
