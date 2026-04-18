@@ -6,7 +6,7 @@ Archivos en la **raíz del repo**:
 |---------|-----|
 | [`docker-compose.prod.yml`](../docker-compose.prod.yml) | Redis + API + Next (standalone) + nginx en **8102**. |
 | [`.env.prod.example`](../.env.prod.example) | Plantilla; copiar a **`.env.prod`** en el servidor (no git). |
-| [`deploy.ps1`](../deploy.ps1) | `scp` + `docker compose` remoto (ajustar `$REMOTE_DIR`, usuario SSH). |
+| [`deploy.ps1`](../deploy.ps1) | `scp` + `docker compose` remoto. Por defecto `$REMOTE_DIR` = `/DATA/AppData/gonsgarage` (cambiar en el script si hace falta). |
 | [`docker-setup.prod.ps1`](../docker-setup.prod.ps1) | Mismo compose en local para probar antes de subir. |
 | [`nginx/default.conf`](../nginx/default.conf) | `/` → front, `/api/` y `/swagger/` → API. |
 | [`backend/Dockerfile`](../backend/Dockerfile) | Binario `gonsgarage-api`. |

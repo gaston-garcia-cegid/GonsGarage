@@ -3,7 +3,7 @@
 
 $SERVER = "192.168.1.100"
 $USER = "root"
-$REMOTE_DIR = "/DATA/AppData/GonsGarage"
+$REMOTE_DIR = "/DATA/AppData/gonsgarage"
 
 $ErrorActionPreference = "Stop"
 
