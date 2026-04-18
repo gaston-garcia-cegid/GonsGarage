@@ -1,0 +1,23 @@
+# Opcional: API en la misma red Docker que Arnela → Postgres por nombre `arnela-postgres:5432`
+# (sin publicar 5432 en el host).
+#
+# 1) Nombre real de la red (sustituí `name:` abajo si no coincide):
+#    docker inspect arnela-postgres -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}'
+# 2) En .env.prod usá host del contenedor Arnela, p. ej.:
+#    DATABASE_URL=postgres://TU_USER:TU_PASS@arnela-postgres:5432/gonsgarage?sslmode=disable
+# 3) Creá la base `gonsgarage` y el rol en ese Postgres (psql contra arnela-postgres).
+#
+# Levantar:
+#   docker compose -f docker-compose.prod.yml -f docker-compose.prod.arnela-network.yml --env-file .env.prod up -d --build
+
+services:
+  gonsgarage-api:
+    networks:
+      - gonsgarage-network
+      - arnela-network
+
+networks:
+  arnela-network:
+    external: true
+    # Valor típico si el proyecto Arnela se levantó desde carpeta "Arnela" y la red se llama arnela-network en su compose:
+    name: arnela_arnela-network

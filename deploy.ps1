@@ -15,6 +15,7 @@ Write-Host ""
 
 $items = @(
     "docker-compose.prod.yml",
+    "docker-compose.prod.arnela-network.yml",
     ".env.prod.example",
     "backend",
     "frontend",

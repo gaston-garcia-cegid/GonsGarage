@@ -20,11 +20,47 @@ Archivos en la **raíz del repo**:
 | [`nginx/default.conf`](../nginx/default.conf) | `/` → front, `/api/` y `/swagger/` → API. |
 | [`backend/Dockerfile`](../backend/Dockerfile) | Binario `gonsgarage-api`. |
 | [`frontend/Dockerfile`](../frontend/Dockerfile) | Activa `DOCKER_BUILD=1` para `output: "standalone"` (solo en build Linux/Docker; `pnpm build` local en Windows sigue sin standalone). |
+| [`docker-compose.prod.arnela-network.yml`](../docker-compose.prod.arnela-network.yml) | **Opción B (recomendada con Arnela):** une el API a la red Docker de Arnela y usá `arnela-postgres` como host en `DATABASE_URL`. |
 
-## Postgres en el host (Arnela / otro)
+## Postgres compartido con Arnela (mismo `homeos`)
 
-1. Crear base `gonsgarage` y usuario con contraseña fuerte en tu Postgres del servidor.
-2. En `.env.prod`, `DATABASE_URL` debe apuntar a **`host.docker.internal`** (Linux: ya está en `extra_hosts` del compose) si Postgres escucha en el mismo host que Docker.
+Si `docker ps` muestra `arnela-postgres` con **`5432/tcp` sin** `0.0.0.0:5432->…`, el Postgres **no está publicado en el host**: por eso fallan `host.docker.internal`, `172.17.0.1` y la IP LAN.
+
+### Opción **B** (recomendada): misma red Docker que Arnela
+
+- No abrís el puerto 5432 a la LAN.
+- El API resuelve el hostname **`arnela-postgres`** (nombre del contenedor de Arnela).
+
+1. Obtené el nombre **real** de la red Docker de Arnela:
+
+   ```bash
+   docker inspect arnela-postgres -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}'
+   ```
+
+   Si no es `arnela_arnela-network`, editá `name:` en [`docker-compose.prod.arnela-network.yml`](../docker-compose.prod.arnela-network.yml) para que coincida.
+
+2. Dentro de ese Postgres, creá la base **`gonsgarage`** y un usuario/contraseña (o reutilizá uno que ya exista y tenga permiso sobre esa base).
+
+3. En **`.env.prod`**:
+
+   ```env
+   DATABASE_URL=postgres://USUARIO:CONTRASEÑA@arnela-postgres:5432/gonsgarage?sslmode=disable
+   ```
+
+4. Levantá con **dos** ficheros compose:
+
+   ```bash
+   cd /DATA/AppData/gonsgarage
+   docker compose -f docker-compose.prod.yml -f docker-compose.prod.arnela-network.yml --env-file .env.prod up -d --build
+   ```
+
+### Opción **A** (rápida): publicar 5432 en el compose de Arnela
+
+En el `docker-compose` de Arnela, en el servicio `postgres`, añadí algo como `ports: - "5432:5432"` (o solo `127.0.0.1:5432:5432` si solo querés acceso desde el host). Reiniciá Arnela. Entonces `host.docker.internal` o `192.168.1.100` puede funcionar **si** Postgres escucha y `pg_hba` permite el origen. Suele ser menos limpio que la opción B (puerto expuesto, más superficie de ataque si no filtrás firewall).
+
+### Postgres “solo en el host” (sin Arnela)
+
+Creá rol + base en Postgres nativo, `listen_addresses` / `pg_hba` para Docker o LAN, y `DATABASE_URL` con `host.docker.internal` o la IP del servidor (ver en este mismo archivo la sección **connection refused** / `host.docker.internal`).
 
 ## CORS y `GIN_MODE=release`
 
