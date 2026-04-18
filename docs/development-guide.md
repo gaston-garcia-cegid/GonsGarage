@@ -1,11 +1,25 @@
 # Guía de desarrollo GonsGarage
 
+## Demo local (secuencia mínima, checklist 3.1)
+
+Orden para una máquina “limpia” siguiendo también el [README en la raíz](../README.md):
+
+1. **Clonar** el repo y entrar en la carpeta raíz.
+2. **Variables:** `backend/.env` desde `.env.example` y `frontend/.env.local` desde `.env.local.example` (en Windows: `Copy-Item` como en los bloques de abajo).
+3. **Bases de datos:** desde la raíz, `docker compose up -d` (Postgres + Redis; Redis no es opcional si usás el compose por defecto).
+4. **Backend:** carpeta `backend/`, `go mod download`, luego **`go run ./cmd/api`** (equivale a ejecutar el `main` del paquete `cmd/api`; AutoMigrate crea tablas al arrancar).
+5. **Comprobar:** `GET http://localhost:8080/health` y, si querés datos demo, `go run ./cmd/seed-test-client` (misma consola en `backend/`, con Postgres en marcha).
+6. **Frontend:** carpeta `frontend/`, `pnpm install`, `pnpm dev`.
+7. **Abrir** `http://localhost:3000` con el API en `http://localhost:8080` (o el valor de `NEXT_PUBLIC_API_URL` sin sufijo `/api/v1`).
+
+Si algo falla, revisá firewall/puertos **5432** (Postgres) y **6379** (Redis) no ocupados por otra instancia.
+
 ## Requisitos
 
 - Go 1.25+ (directiva `go` en `backend/go.mod`)
 - Node.js 22+ con **pnpm** 9+ (`corepack enable` recomendado)
 - PostgreSQL 16+ (o Docker)
-- Redis opcional (recomendado para probar cache real)
+- Redis: el `docker compose` de la raíz levanta Redis en **6379**; el API tolera fallo de conexión en desarrollo, pero conviene tenerlo en marcha para el mismo comportamiento que en servidor de pruebas
 
 ## Variables de entorno (backend)
 
@@ -32,7 +46,7 @@ Credenciales y nombres coinciden con `backend/.env.example` y con los valores po
 
 ## Cuenta cliente de prueba (seed)
 
-Con la API usando la misma base PostgreSQL (la tabla `users` debe existir: levantá **`go run ./cmd/api/main.go`** al menos una vez o aplicá migraciones; el seed **no** hace AutoMigrate).
+Con la API usando la misma base PostgreSQL (la tabla `users` debe existir: levantá **`go run ./cmd/api`** al menos una vez para que corra AutoMigrate; el seed **no** hace AutoMigrate).
 
 ```powershell
 Set-Location backend
@@ -72,7 +86,7 @@ pnpm install
 pnpm dev
 ```
 
-`NEXT_PUBLIC_API_URL` por defecto apunta a `http://localhost:8080` (coincide con el backend en el mismo host). El cliente en `src/lib/api` añade `/api/v1` donde corresponde.
+`NEXT_PUBLIC_API_URL` en `.env.local` debe ser la **URL base del API sin** path `/api/v1` (por defecto `http://localhost:8080`). El cliente en [`frontend/src/lib/api-client.ts`](../frontend/src/lib/api-client.ts) concatena `/api/v1`. El módulo legacy [`frontend/src/lib/api.ts`](../frontend/src/lib/api.ts) usa el mismo criterio en su `baseURL` por defecto.
 
 ## Tests (backend)
 

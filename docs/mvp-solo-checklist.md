@@ -62,7 +62,7 @@
 
 | ID | Tarea | Criterio de hecho |
 |----|--------|-------------------|
-| 3.1 | Seguir solo [README.md](../README.md) + [development-guide.md](./development-guide.md): compose → API → `pnpm dev` | Anotar cualquier paso faltante y corregir doc |
+| 3.1 | Seguir solo [README.md](../README.md) + [development-guide.md](./development-guide.md): compose → API → `pnpm dev` | **Hecho** 2026-04-18 — nueva sección «Demo local (secuencia mínima, checklist 3.1)» en `development-guide.md`; README: `NEXT_PUBLIC_API_URL` sin `/api/v1`, nota Windows `cp`/`copy`, enlace a guía; seed unificado a `go run ./cmd/api`; aclaración Redis+compose y rutas `api-client` vs `lib/api.ts`. `go build ./cmd/api` verificado. |
 | 3.2 | Flujo mínimo manual: **login** → **coche** → **cita** → **ver repairs** en detalle coche (si aplica a tu MVP v1) | Checklist mental OK; opcional: capturas en `docs/` |
 | 3.3 | Seed cliente demo (`go run ./cmd/seed-test-client`) documentado si lo usás en demos | Comando probado desde `backend/` |
 
@@ -112,7 +112,7 @@
 |------|--------|
 | 1 Congelar alcance | **hecha** (1.1–1.3 cerradas 2026-04-17) |
 | 2 Contrato + docs | **hecha** (2.1–2.3, 2026-04-18) |
-| 3 Demo local | … |
+| 3 Demo local | en curso — **3.1 hecha**; pendiente 3.2–3.3 |
 | 4 Servidor pruebas | … |
 | 5 Endurecimiento | … |
 | 6 MVP+ | N/A / pendiente |

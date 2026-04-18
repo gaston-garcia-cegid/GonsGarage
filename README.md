@@ -59,6 +59,8 @@ cp backend/.env.example backend/.env
 cp frontend/.env.local.example frontend/.env.local
 ```
 
+On **Windows** (CMD/PowerShell), use `copy .env.example .env` in `backend/` and `copy .env.local.example .env.local` in `frontend/`, or `Copy-Item` as in [`docs/development-guide.md`](docs/development-guide.md).
+
 ### 3. Databases (recommended)
 
 From the **repository root**:
@@ -96,7 +98,9 @@ pnpm install
 pnpm dev
 ```
 
-App: <http://localhost:3000>. Set `NEXT_PUBLIC_API_URL` in `frontend/.env.local` if the API is not on `http://localhost:8080`.
+App: <http://localhost:3000>. Set `NEXT_PUBLIC_API_URL` in `frontend/.env.local` if the API is not on `http://localhost:8080` (value is the **host only**, no `/api/v1`; the HTTP client adds `/api/v1` automatically).
+
+**Suggested first-time order:** clone → env (step 2) → `docker compose up -d` → `go run ./cmd/api` in `backend/` → `pnpm dev` in `frontend/`. Step-by-step (PowerShell, optional seed): [`docs/development-guide.md`](docs/development-guide.md) — section **Demo local (secuencia mínima, checklist 3.1)** at the top.
 
 ## Testing (mirrors CI)
 
