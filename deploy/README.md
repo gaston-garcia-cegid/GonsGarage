@@ -71,6 +71,38 @@ docker exec gonsgarage-nginx wget -qO- -S http://gonsgarage-api:8080/health 2>&1
 
 Si esto falla con *connection refused*, el API no está arriba → prioridad: logs de `gonsgarage-api`.
 
+### Logs: `connection refused` a `172.17.0.1:5432` (`host.docker.internal`)
+
+Suelen convivir **dos** cosas:
+
+1. **Contraseña / usuario de ejemplo**  
+   Si en el log aparece `CHANGE_ME_strong_password_here`, tu `.env.prod` **no** está listo: editá **`DATABASE_URL`** con la contraseña **real** del rol `gonsgarage_app` (o el usuario que hayas creado en Postgres).
+
+2. **Postgres solo escucha en `127.0.0.1`**  
+   Desde el contenedor, `host.docker.internal` apunta al host (a menudo `172.17.0.1`). Si Postgres está configurado con `listen_addresses = 'localhost'` (solo `127.0.0.1`), **no** atiende en esa IP del bridge → *connection refused*.
+
+**En el servidor (host Linux, fuera de Docker):**
+
+```bash
+ss -tlnp | grep 5432
+```
+
+- Si ves solo `127.0.0.1:5432`, tenés que ampliar escucha y permisos, por ejemplo:
+  - En `postgresql.conf`: `listen_addresses = '*'` (o al menos incluir la IP del host en la LAN si preferís algo más acotado).
+  - En `pg_hba.conf` una línea para la red Docker, p. ej.:  
+    `host  gonsgarage  gonsgarage_app  172.17.0.0/16  scram-sha-256`  
+    (ajustá método si usás `md5`. Reiniciá Postgres después: `systemctl restart postgresql` o el servicio que uses.)
+
+**Alternativa rápida:** si tras `listen_addresses = '*'` Postgres queda en `0.0.0.0:5432`, probá en `.env.prod` sustituir el host por la **IP LAN del servidor** (p. ej. `192.168.1.100`) en lugar de `host.docker.internal`, siempre que no haya firewall bloqueando el contenedor hacia esa IP.
+
+Después de cambiar `.env.prod`:
+
+```bash
+cd /DATA/AppData/gonsgarage
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+docker logs gonsgarage-api --tail 30
+```
+
 ## pgAdmin desde tu PC hacia Postgres del servidor
 
 **Recomendado (sin abrir el puerto 5432 a la LAN): túnel SSH**
