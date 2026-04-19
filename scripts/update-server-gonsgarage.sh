@@ -11,6 +11,10 @@
 #   ssh -i "$HOME/.ssh/tu_clave" user@host 'bash -s' < scripts/update-server-gonsgarage.sh
 #
 # Requisitos: git, Docker Compose v2, .env.prod en GONSGARAGE_DIR.
+#
+# Postgres en contenedor Arnela (`arnela-postgres` en DATABASE_URL):
+#   export COMPOSE_OVERRIDE=docker-compose.prod.arnela-network.yml
+# (y editar `name:` en ese YAML si la red externa no es `arnela_arnela-network`).
 
 set -euo pipefail
 
@@ -18,13 +22,24 @@ set -euo pipefail
 : "${GONSGARAGE_DIR:=/DATA/AppData/gonsgarage}"
 : "${GIT_REF:=main}"
 : "${COMPOSE_FILE:=docker-compose.prod.yml}"
+# Segundo `-f` opcional (red Arnela u otros overrides).
+: "${COMPOSE_OVERRIDE:=}"
 : "${ENV_FILE:=.env.prod}"
 
 cd "$GONSGARAGE_DIR"
 
+compose_args=( -f "$COMPOSE_FILE" )
+if [[ -n "$COMPOSE_OVERRIDE" ]]; then
+  if [[ ! -f "$COMPOSE_OVERRIDE" ]]; then
+    echo "Error: COMPOSE_OVERRIDE=$COMPOSE_OVERRIDE no existe en $(pwd)." >&2
+    exit 1
+  fi
+  compose_args+=( -f "$COMPOSE_OVERRIDE" )
+fi
+
 echo "==> Directorio: $(pwd)"
 echo "==> Rama/ref: $GIT_REF"
-echo "==> Compose: $COMPOSE_FILE"
+echo "==> Compose: ${compose_args[*]}"
 
 if [[ ! -f "$COMPOSE_FILE" ]]; then
   echo "Error: no se encuentra $COMPOSE_FILE en $GONSGARAGE_DIR" >&2
@@ -36,6 +51,12 @@ if [[ ! -f "$ENV_FILE" ]]; then
   exit 1
 fi
 
+if grep -qE '@arnela-postgres[:/]|//arnela-postgres' "$ENV_FILE" 2>/dev/null && [[ -z "$COMPOSE_OVERRIDE" ]]; then
+  echo "WARN: $ENV_FILE usa host arnela-postgres pero COMPOSE_OVERRIDE está vacío." >&2
+  echo "      Sin docker-compose.prod.arnela-network.yml el API no resuelve ese DNS (red distinta)." >&2
+  echo "      Ej.: export COMPOSE_OVERRIDE=docker-compose.prod.arnela-network.yml" >&2
+fi
+
 echo "==> git fetch"
 git fetch --all --prune
 
@@ -44,11 +65,11 @@ git checkout "$GIT_REF"
 git pull --ff-only origin "$GIT_REF"
 
 echo "==> docker compose up -d --build"
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build
+docker compose "${compose_args[@]}" --env-file "$ENV_FILE" up -d --build
 
 echo "==> Estado de contenedores"
 # Sin --env-file, Compose vuelve a interpolar el YAML y falla (p. ej. NEXT_PUBLIC_API_URL).
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps
+docker compose "${compose_args[@]}" --env-file "$ENV_FILE" ps
 
 echo "==> Health vía nginx (puerto 8102; el API no está publicado en el host)"
 health_code=$(curl -sS -o /dev/null -w "%{http_code}" http://127.0.0.1:8102/health || echo "000")

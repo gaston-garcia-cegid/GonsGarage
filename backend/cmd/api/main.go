@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -45,6 +46,16 @@ import (
 // @in              header
 // @name            Authorization
 // @description     JWT: cabecera Authorization con valor Bearer seguido del token (rutas bajo /api/v1 salvo /health).
+
+// redactDatabaseURL oculta la contraseña del DSN para logs (nunca loguear credenciales en prod).
+func redactDatabaseURL(dsn string) string {
+	u, err := url.Parse(dsn)
+	if err != nil {
+		return fmt.Sprintf("(dsn no parseable: %v)", err)
+	}
+	return u.Redacted()
+}
+
 func main() {
 	log.Printf("/*************** Start Main ***************/")
 
@@ -53,7 +64,7 @@ func main() {
 	if dsn == "" {
 		dsn = "postgres://admindb:gonsgarage123@localhost:5432/gonsgarage?sslmode=disable"
 	}
-	log.Printf("Connecting to database: %s", dsn)
+	log.Printf("Connecting to database: %s", redactDatabaseURL(dsn))
 
 	// Configure GORM with better logging and timeout
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
