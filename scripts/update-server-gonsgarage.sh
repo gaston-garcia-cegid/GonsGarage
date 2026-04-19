@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Arnela — actualiza el código en ESTE clone y reconstruye contenedores de producción.
+# GonsGarage — actualiza el código en ESTE clone y reconstruye contenedores de producción.
 # (Nombre explícito para servidores con varias apps en /DATA/AppData/…)
 #
 # IMPORTANTE: en producción se usa SOLO docker-compose.prod.yml. NO mezclar con
@@ -8,26 +8,26 @@
 # Compose deja frontend dependiendo de un servicio go-api "inexistente".
 #
 # Uso típico vía SSH:
-#   ssh -i "$HOME/.ssh/tu_clave" user@host 'bash -s' < scripts/update-server-arnela.sh
+#   ssh -i "$HOME/.ssh/tu_clave" user@host 'bash -s' < scripts/update-server-gonsgarage.sh
 #
-# Requisitos: git, Docker Compose v2, .env.prod en ARNELA_DIR.
+# Requisitos: git, Docker Compose v2, .env.prod en GONSGARAGE_DIR.
 
 set -euo pipefail
 
 # --- configuración (override con export VAR=... antes de ejecutar) ---
-: "${ARNELA_DIR:=/DATA/AppData/gonsgarage}"
+: "${GONSGARAGE_DIR:=/DATA/AppData/gonsgarage}"
 : "${GIT_REF:=main}"
 : "${COMPOSE_FILE:=docker-compose.prod.yml}"
 : "${ENV_FILE:=.env.prod}"
 
-cd "$ARNELA_DIR"
+cd "$GONSGARAGE_DIR"
 
 echo "==> Directorio: $(pwd)"
 echo "==> Rama/ref: $GIT_REF"
 echo "==> Compose: $COMPOSE_FILE"
 
 if [[ ! -f "$COMPOSE_FILE" ]]; then
-  echo "Error: no se encuentra $COMPOSE_FILE en $ARNELA_DIR" >&2
+  echo "Error: no se encuentra $COMPOSE_FILE en $GONSGARAGE_DIR" >&2
   exit 1
 fi
 
