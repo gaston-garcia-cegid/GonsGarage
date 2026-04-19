@@ -51,7 +51,16 @@ echo "==> Estado de contenedores"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps
 
 echo "==> Health vía nginx (puerto 8102; el API no está publicado en el host)"
-curl -sS -o /dev/null -w "GET /health -> %{http_code}\n" http://127.0.0.1:8102/health || true
+health_code=$(curl -sS -o /dev/null -w "%{http_code}" http://127.0.0.1:8102/health || echo "000")
+echo "GET /health -> ${health_code}"
 curl -sS -o /dev/null -w "GET /ready -> %{http_code}\n" http://127.0.0.1:8102/ready || true
+
+if [[ "${health_code}" != "200" ]]; then
+  echo "==> El API no responde OK (502/reinicios suelen ser DATABASE_URL, Postgres inalcanzable o JWT/CORS)."
+  echo "==> Estado del contenedor API:"
+  docker inspect -f '{{.State.Status}} exit={{.State.ExitCode}} err={{.State.Error}}' gonsgarage-api 2>/dev/null || true
+  echo "==> Últimas líneas de log (gonsgarage-api):"
+  docker logs gonsgarage-api --tail 80 2>&1 || true
+fi
 
 echo "==> Listo (GonsGarage)."

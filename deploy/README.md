@@ -128,6 +128,8 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod ps
 docker logs gonsgarage-api --tail 120
 ```
 
+Si **`gonsgarage-api`** aparece como **`Restarting`**, el proceso Go está saliendo al arrancar: los logs suelen mostrar fallo de conexión a Postgres (`DATABASE_URL`), credenciales, o panic de migración. Hasta que el API quede **Up** (no reiniciando), `/health` vía nginx dará **502**.
+
 - Si el API está **Exited** o en bucle de reinicio, casi siempre es **`DATABASE_URL`**: Postgres en el host debe escuchar en una interfaz alcanzable desde Docker (no solo `127.0.0.1`). Revisá `postgresql.conf` → `listen_addresses` y `pg_hba.conf` para permitir el bridge Docker (p. ej. `172.17.0.0/16`) o la IP del host. Alternativa: en `.env.prod`, probá el host real en lugar de `host.docker.internal` si Postgres escucha en `192.168.1.100:5432`.
 - Comprobar red interna (desde el contenedor nginx al API):
 
