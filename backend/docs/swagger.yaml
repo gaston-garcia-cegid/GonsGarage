@@ -112,6 +112,31 @@ definitions:
     - email
     - password
     type: object
+  handler.RepairAPIModel:
+    properties:
+      car_id:
+        type: string
+      completed_at:
+        type: string
+      cost:
+        type: number
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      started_at:
+        type: string
+      status:
+        type: string
+      technician_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
   handler.RepairResponse:
     properties:
       car:
@@ -257,6 +282,37 @@ definitions:
       id:
         type: string
       last_name:
+        type: string
+    type: object
+  handler.createRepairJSON:
+    properties:
+      car_id:
+        type: string
+      cost:
+        type: number
+      description:
+        type: string
+      start_date:
+        type: string
+      started_at:
+        type: string
+      status:
+        type: string
+    required:
+    - car_id
+    - description
+    type: object
+  handler.updateRepairJSON:
+    properties:
+      completed_at:
+        type: string
+      cost:
+        type: number
+      description:
+        type: string
+      started_at:
+        type: string
+      status:
         type: string
     type: object
   ports.CreateEmployeeRequest:
@@ -991,6 +1047,158 @@ paths:
       summary: Actualizar empleado
       tags:
       - employees
+  /api/v1/repairs:
+    post:
+      consumes:
+      - application/json
+      description: Personal del taller. Clientes reciben 403.
+      parameters:
+      - description: Datos (snake_case; started_at o start_date RFC3339 o fecha)
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.createRepairJSON'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.RepairAPIModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Crear reparación
+      tags:
+      - repairs
+  /api/v1/repairs/{id}:
+    delete:
+      parameters:
+      - description: UUID reparación
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Sin cuerpo
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Eliminar reparación (soft delete)
+      tags:
+      - repairs
+    get:
+      parameters:
+      - description: UUID reparación
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.RepairAPIModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Obtener reparación por ID
+      tags:
+      - repairs
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: UUID reparación
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Campos opcionales
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.updateRepairJSON'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.RepairAPIModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Actualizar reparación
+      tags:
+      - repairs
   /api/v1/repairs/car/{carId}:
     get:
       description: 'Cliente: solo su coche. Personal del taller según reglas del dominio.'

@@ -49,3 +49,18 @@ type SwaggerMessage struct {
 	Details string `json:"details,omitempty"`
 	Message string `json:"message,omitempty"`
 }
+
+// RepairAPIModel documenta el JSON de `domain.Repair` en respuestas Gin (POST/GET/PUT /repairs).
+type RepairAPIModel struct {
+	ID            string  `json:"id"`
+	CarID         string  `json:"car_id"`
+	TechnicianID  string  `json:"technician_id"`
+	Description   string  `json:"description"`
+	Status        string  `json:"status"`
+	Cost          float64 `json:"cost"`
+	StartedAt     *string `json:"started_at,omitempty"`
+	CompletedAt   *string `json:"completed_at,omitempty"`
+	CreatedAt     string  `json:"created_at"`
+	UpdatedAt     string  `json:"updated_at"`
+	DeletedAt     *string `json:"deleted_at,omitempty"`
+}

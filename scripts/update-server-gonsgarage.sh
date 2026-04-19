@@ -27,7 +27,7 @@ echo "==> Rama/ref: $GIT_REF"
 echo "==> Compose: $COMPOSE_FILE"
 
 if [[ ! -f "$COMPOSE_FILE" ]]; then
-  echo "Error: no se encuentra $COMPOSE_FILE en $GONSGARAGE_DIR" >&2
+  echo "Error: no se encuentra $COMPOSE_FILE en $ARNELA_DIR" >&2
   exit 1
 fi
 
@@ -47,10 +47,11 @@ echo "==> docker compose up -d --build"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build
 
 echo "==> Estado de contenedores"
-docker compose -f "$COMPOSE_FILE" ps
+# Sin --env-file, Compose vuelve a interpolar el YAML y falla (p. ej. NEXT_PUBLIC_API_URL).
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps
 
-echo "==> Health (backend en el host)"
-curl -sS -o /dev/null -w "GET /health -> %{http_code}\n" http://127.0.0.1:8080/health || true
-curl -sS -o /dev/null -w "GET /readiness -> %{http_code}\n" http://127.0.0.1:8080/readiness || true
+echo "==> Health vía nginx (puerto 8102; el API no está publicado en el host)"
+curl -sS -o /dev/null -w "GET /health -> %{http_code}\n" http://127.0.0.1:8102/health || true
+curl -sS -o /dev/null -w "GET /ready -> %{http_code}\n" http://127.0.0.1:8102/ready || true
 
 echo "==> Listo (GonsGarage)."

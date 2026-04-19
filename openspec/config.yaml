@@ -1,4 +1,4 @@
-# GonsGarage — SDD (Spec-Driven). Sincronizado por sdd-init.
+# GonsGarage — SDD (Spec-Driven). Sincronizado por sdd-init (2026-04-19).
 schema: spec-driven
 
 context: |
@@ -11,7 +11,7 @@ strict_tdd: true
 
 testing:
   strict_tdd: true
-  detected: "2026-04-17"
+  detected: "2026-04-19"
   test_runner:
     frontend: { framework: vitest, command: "cd frontend && pnpm test" }
     backend: { framework: go test, command: "cd backend && go test ./... -count=1" }
@@ -22,7 +22,7 @@ testing:
   coverage:
     frontend:
       available: false
-      note: "pnpm test:coverage falla sin devDependency @vitest/coverage-v8"
+      note: "Script pnpm test:coverage existe; falta proveedor p.ej. @vitest/coverage-v8 en devDependencies"
       command_if_installed: "cd frontend && pnpm test:coverage"
     backend:
       available: true

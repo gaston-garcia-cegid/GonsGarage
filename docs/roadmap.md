@@ -24,16 +24,16 @@ Este roadmap ordena el trabajo en fases. La parte “como Arnela” depende de c
 
 ## Fase 3 — Paridad funcional y API
 
-- [ ] Exponer rutas REST de **repairs** o documentar explícitamente el alcance MVP sin ellas.
+- [x] Rutas REST de **repairs** (listado por coche + `POST`/`GET`/`PUT`/`DELETE` por id, permisos staff) — ver [`application-analysis.md`](./application-analysis.md) y Swagger en `/swagger/`.
 - [x] Parte de permisos por rol: **`/employees/*`** solo **admin/manager**; **`/auth/me`** para sesión; registro con rol por defecto **client** (ver [mvp-minimum-phases.md](./mvp-minimum-phases.md) Fase B).
-- [ ] Sincronizar Swagger / tipos del frontend con los endpoints reales.
+- [x] Swagger regenerado con rutas Gin (`go run … swag init` en `backend/`); tipos de cliente en `frontend/src/types/api.ts` y `lib/api.ts` alineados con repairs CRUD.
 
 ## Fase 4 — Prácticas de ingeniería (espejo de Arnela, según Fase 0)
 
 Ajustar según lo que marque la matriz Arnela vs GonsGarage. Candidatos típicos:
 
 - [x] Pipeline CI: `.github/workflows/ci.yml` (Go + vet + test con CGO; pnpm install + lint + typecheck + test + build frontend).
-- [x] Workflow deploy placeholder: `.github/workflows/deploy.yml` (`workflow_dispatch`).
+- [x] Workflow deploy: `.github/workflows/deploy.yml` documenta **solo manual** (`workflow_dispatch` + paso que referencia `deploy/README.md`).
 - [ ] Política de versionado de API y changelog.
 - [ ] Plantillas de PR / issues (si Arnela las usa).
 - [ ] Observabilidad: logs estructurados, health agregado, métricas (si aplica).

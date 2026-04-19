@@ -38,8 +38,8 @@
   - **CRUD cars**
   - **CRUD appointments** (citas)
   - **CRUD repairs** (reparaciones)
-  - **CRUD invoices** (facturas clientes, facturas proveedores, recibos de sueldos de empleados)
-  - **CRUD billing** (cobros / facturación exclusiva de clientes)
+  - **CRUD invoices** — **diferido post‑MVP v1** (2026-04-17): sin rutas HTTP ni UI en esta entrega; dominio parcial en `internal/service/invoice`; decisión registrada en [`openspec/specs/p1-accounting-defer/spec.md`](../openspec/specs/p1-accounting-defer/spec.md) (change archivado: `openspec/changes/archive/2026-04-19-mvp-gap-roadmap-2026/`).
+  - **CRUD billing** — **diferido post‑MVP v1** (2026-04-17), mismo criterio que invoices.
 - Fuera (MVP v1):
   - **Cobro electrónico con terceros** — pasarelas (Stripe, Adyen, …), TPV con adquirente, **MB Way / transferencia como canal conectado** (API, webhooks, firma, devoluciones), tokenización de tarjeta y **conciliación bancaria automática**. Sí podés modelar *medio* e *importe* como **datos** en facturas/billing (efectivo, tarjeta, MB Way, transferencia como etiqueta o importe registrado); **no** integración ni cobro online end‑to‑end.
   - **i18n** — una sola lengua de interfaz y de documentación operativa en MVP v1.
@@ -74,8 +74,8 @@
 |----|--------|-------------------|
 | 4.1 | Definir **URL base** del front y del API (aunque sea IP + puerto) y anotarlas abajo | **Hecho** (repo) — bloque [Entorno remoto](#entorno-remoto-servidor-de-pruebas); mismo origen `http://192.168.1.100:8102` vía nginx. |
 | 4.2 | **Secretos:** `JWT_SECRET` fuerte; `DATABASE_URL` / Redis solo en el servidor (no en git) | **Hecho** (repo) — [`.env.prod.example`](../.env.prod.example), `.gitignore` → `.env.prod`; sección **Secretos** en [`deploy/README.md`](./deploy/README.md). Rellenar secretos reales solo en el servidor. |
-| 4.3 | **Backend:** build (`go build -o … ./cmd/api`) o imagen Docker; proceso bajo systemd/supervisor o compose en el servidor | **Plantilla** — [`backend/Dockerfile`](../backend/Dockerfile) + [`docker-compose.prod.yml`](../docker-compose.prod.yml); smoke `curl …/health` y `/ready` en [`deploy/README.md`](./deploy/README.md). Marcar “verificado en servidor” cuando lo ejecutes. |
-| 4.4 | **Frontend:** `pnpm build` con `NEXT_PUBLIC_API_URL` apuntando al API del servidor; servir con lo que elijas (nginx, Node, etc.) | **Plantilla** — build en imagen (`NEXT_PUBLIC_API_URL` + nginx en compose); mismo doc §**Verificación**. Confirmar login en LAN cuando el stack esté arriba. |
+| 4.3 | **Backend:** build (`go build -o … ./cmd/api`) o imagen Docker; proceso bajo systemd/supervisor o compose en el servidor | **Hecho** (LAN, 2026-04-17) — imagen Docker + compose prod; smoke `curl …/health` y `/ready` OK vía nginx; criterios en [`deploy/README.md`](./deploy/README.md) §**Verificación**. |
+| 4.4 | **Frontend:** `pnpm build` con `NEXT_PUBLIC_API_URL` apuntando al API del servidor; servir con lo que elijas (nginx, Node, etc.) | **Hecho** (LAN, 2026-04-17) — build en imagen + nginx; login y navegación (coche, cita, repairs en lectura donde aplique) contra `http://192.168.1.100:8102`; mismo doc §**Verificación**. |
 | 4.5 | **HTTPS** si el servidor es expuesto (certificado Let’s Encrypt o TLS detrás de proxy) | **Hecho** (doc) — excepción **HTTP en LAN** y cuándo pasar a TLS: [`deploy/README.md`](./deploy/README.md) §**HTTPS vs HTTP en LAN**. |
 | 4.6 | **Rollback:** una página o sección “cómo volver atrás” (versión anterior binario + migración si aplica) | **Hecho** (doc) — §**Rollback** en [`deploy/README.md`](./deploy/README.md). |
 
@@ -91,9 +91,9 @@
 
 | ID | Tarea | Criterio de hecho |
 |----|--------|-------------------|
-| 5.1 | **CORS:** origen permitido = URL real del front de pruebas (no `*` en `release` si podés evitarlo) | Revisión `main.go` / middleware |
-| 5.2 | **`GIN_MODE=release`** en el servidor de pruebas si simulás prod | Variable documentada |
-| 5.3 | **Backup BD:** comando o política mínima (pg_dump semanal, etc.) | Párrafo en `docs/` o runbook propio |
+| 5.1 | **CORS:** origen permitido = URL real del front de pruebas (no `*` en `release` si podés evitarlo) | **Hecho** (doc) — `CORS_ORIGINS` en [`.env.prod.example`](../.env.prod.example) y criterio en [`deploy/README.md`](./deploy/README.md) §**CORS, `GIN_MODE=release` y `JWT_SECRET`**. |
+| 5.2 | **`GIN_MODE=release`** en el servidor de pruebas si simulás prod | **Hecho** (doc) — `GIN_MODE=release` en `.env.prod.example` y checklist servidor en `deploy/README.md` § anterior. |
+| 5.3 | **Backup BD:** comando o política mínima (pg_dump semanal, etc.) | **Hecho** (doc) — §**Backup de BD** en [`deploy/README.md`](./deploy/README.md) (`pg_dump` + política mínima). |
 
 ---
 
@@ -101,8 +101,8 @@
 
 | ID | Tarea | Criterio de hecho |
 |----|--------|-------------------|
-| 6.1 | API + UI staff para **crear/editar** repairs | Solo si lo marcaste “incluido” en Fase 1 |
-| 6.2 | Automatizar **deploy** (GitHub Actions → tu servidor) | Solo si querés; [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) hoy es placeholder |
+| 6.1 | API + UI staff para **crear/editar** repairs | **Hecho** (2026-04-19) — Gin `POST|GET|PUT|DELETE /api/v1/repairs…` + panel staff en [`frontend/src/app/cars/[id]/page.tsx`](../frontend/src/app/cars/[id]/page.tsx). |
+| 6.2 | Automatizar **deploy** (GitHub Actions → tu servidor) | **Hecho** (doc, 2026-04-19) — política **solo manual** en [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml); despliegue real vía `deploy/README.md`. |
 
 ---
 
@@ -113,6 +113,6 @@
 | 1 Congelar alcance | **hecha** (1.1–1.3 cerradas 2026-04-17) |
 | 2 Contrato + docs | **hecha** (2.1–2.3, 2026-04-18) |
 | 3 Demo local | **hecha** (3.1–3.3, 2026-04-18) |
-| 4 Servidor pruebas | **Plantilla + runbook en repo** (4.1–4.2, 4.5–4.6 listos en doc); **4.3–4.4** pendiente tu smoke en `192.168.1.100:8102` |
-| 5 Endurecimiento | … |
-| 6 MVP+ | N/A / pendiente |
+| 4 Servidor pruebas | **Hecha** (4.1–4.6; smoke LAN 2026-04-17 en `192.168.1.100:8102`) |
+| 5 Endurecimiento | **Hecha** (5.1–5.3 documentadas en `deploy/README.md`, 2026-04-17) |
+| 6 MVP+ | **Parcial** (6.1 staff repairs + 6.2 política deploy doc; automatizar CI→servidor sigue opcional) |

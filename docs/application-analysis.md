@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas, empleados y dominio de reparaciones (lectura por coche expuesta en API; escritura staff opcional según MVP).
+Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas, empleados y dominio de reparaciones (lectura por coche + **escritura staff** en API y UI mínima en ficha de coche).
 
 ## Stack real (código actual)
 
@@ -34,7 +34,7 @@ Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas
 - Coches: `POST|GET|GET/:id|PUT|DELETE /api/v1/cars/...` — listado de flota de un cliente (staff): `GET /api/v1/cars?ownerId=<uuid>&limit=&offset=` (no existe `GET /cars/owner/:id`).
 - Citas: `POST|GET|GET/:id|PUT|DELETE /api/v1/appointments/...` — cambiar estado (cancelar / confirmar / completar): **`PUT /api/v1/appointments/:id`** con JSON parcial (`status`, etc.); **no** hay `PATCH …/cancel|/confirm|/complete`.
 
-**Reparaciones** (JWT): `GET /api/v1/repairs/car/:carId` — listado de reparaciones por coche (permisos en `RepairService`). Otras operaciones REST de repairs pueden añadirse según [`docs/mvp-minimum-phases.md`](./mvp-minimum-phases.md) (fase C opcional).
+**Reparaciones** (JWT): `GET /api/v1/repairs/car/:carId` (cliente: solo su coche; staff: cualquier coche); **`POST /api/v1/repairs`**, `GET|PUT|DELETE /api/v1/repairs/:id` — escritura solo personal (`RepairService` exige `IsEmployee()` para crear/actualizar/borrar). UI staff: formulario y acciones en `/cars/[id]` cuando el usuario no es `client`.
 
 ## Frontend (App Router)
 

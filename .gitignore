@@ -1,2 +1,8 @@
 # Secrets de despliegue (plantilla: .env.prod.example)
 .env.prod
+
+# Binario local Go (Windows)
+backend/api.exe
+
+# Generado por skill-registry / sdd-init (delegación local)
+.atl/

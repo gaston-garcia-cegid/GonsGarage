@@ -46,6 +46,7 @@ type stubRepairRepo struct {
 	created []*domain.Repair
 	byID    map[uuid.UUID]*domain.Repair
 	byCar   map[uuid.UUID][]*domain.Repair
+	deleted []uuid.UUID
 }
 
 func (s *stubRepairRepo) Create(ctx context.Context, repair *domain.Repair) error {
@@ -65,7 +66,16 @@ func (s *stubRepairRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Rep
 }
 
 func (s *stubRepairRepo) Update(ctx context.Context, repair *domain.Repair) error { return nil }
-func (s *stubRepairRepo) Delete(ctx context.Context, id uuid.UUID) error          { return nil }
+func (s *stubRepairRepo) Delete(ctx context.Context, id uuid.UUID) error {
+	if s.byID != nil {
+		if _, ok := s.byID[id]; !ok {
+			return domain.ErrRepairNotFound
+		}
+		delete(s.byID, id)
+	}
+	s.deleted = append(s.deleted, id)
+	return nil
+}
 
 func (s *stubRepairRepo) GetByCarID(ctx context.Context, carID uuid.UUID) ([]*domain.Repair, error) {
 	if s.byCar == nil {
@@ -260,4 +270,40 @@ func TestRepairService_UpdateRepair_ClientDenied(t *testing.T) {
 	require.Error(t, err)
 	assert.ErrorIs(t, err, domain.ErrUnauthorizedAccess)
 	assert.Nil(t, out)
+}
+
+func TestRepairService_DeleteRepair_ClientDenied(t *testing.T) {
+	t.Parallel()
+	clientID := uuid.New()
+	client, err := domain.NewUser("c@example.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	client.ID = clientID
+
+	userRepo := &repairTestUserRepo{users: map[uuid.UUID]*domain.User{clientID: client}}
+	svc := NewRepairService(&stubRepairRepo{}, &repairStubCarRepo{}, userRepo)
+
+	err = svc.DeleteRepair(context.Background(), uuid.New(), clientID)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, domain.ErrUnauthorizedAccess)
+}
+
+func TestRepairService_DeleteRepair_EmployeeOK(t *testing.T) {
+	t.Parallel()
+	empID := uuid.New()
+	repairID := uuid.New()
+	carID := uuid.New()
+
+	emp, err := domain.NewUser("mech@example.com", "pw", "M", "E", domain.RoleEmployee)
+	require.NoError(t, err)
+	emp.ID = empID
+
+	userRepo := &repairTestUserRepo{users: map[uuid.UUID]*domain.User{empID: emp}}
+	repairRepo := &stubRepairRepo{byID: map[uuid.UUID]*domain.Repair{
+		repairID: {ID: repairID, CarID: carID, Description: "x", Status: domain.RepairStatusPending, Cost: 1},
+	}}
+	svc := NewRepairService(repairRepo, &repairStubCarRepo{}, userRepo)
+
+	err = svc.DeleteRepair(context.Background(), repairID, empID)
+	require.NoError(t, err)
+	require.Contains(t, repairRepo.deleted, repairID)
 }

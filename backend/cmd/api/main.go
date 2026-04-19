@@ -427,6 +427,10 @@ func setupRoutes(
 		repairs := protected.Group("/repairs")
 		{
 			repairs.GET("/car/:carId", repairHandler.ListRepairsByCar)
+			repairs.POST("", repairHandler.GinCreateRepair)
+			repairs.GET("/:id", repairHandler.GinGetRepair)
+			repairs.PUT("/:id", repairHandler.GinUpdateRepair)
+			repairs.DELETE("/:id", repairHandler.GinDeleteRepair)
 		}
 	}
 }

@@ -1,7 +1,12 @@
-# Placeholder for deployment. Extend when you have a target (Docker registry, Fly.io, Azure, etc.).
-# Typical pattern: trigger on release or workflow_dispatch after CI passes (use workflow_run or reusable workflow).
+# GonsGarage — política de despliegue: **solo manual** (2026-04-19).
+#
+# El camino soportado en repo es SSH al servidor + `docker compose` con `deploy/README.md`
+# y `deploy.ps1` / `scripts/update-server-gonsgarage.sh`. No hay push automático a registry ni promote desde CI.
+#
+# Este workflow existe para dejar constancia en GitHub y para poder ampliarse (p. ej. `workflow_run`
+# tras CI, build de imágenes, etc.) cuando haya destino fijo. Hoy solo imprime la política.
 
-name: Deploy (placeholder)
+name: Deploy (manual — documentado)
 
 on:
   workflow_dispatch:
@@ -11,10 +16,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ready:
+  policy:
     runs-on: ubuntu-latest
     steps:
-      - name: Placeholder
+      - uses: actions/checkout@v4
+      - name: Record manual deploy policy
         run: |
-          echo "Add deploy steps here (build/push images, migrate DB, promote release)."
-          echo "Recommended: require successful CI on main before allowing deploy."
+          echo "Deploy no está automatizado en Actions."
+          echo "Ver deploy/README.md y README.md (sección despliegue / Swagger)."
+          echo "Compose prod: docker-compose.prod.yml (+ override Arnela si aplica)."

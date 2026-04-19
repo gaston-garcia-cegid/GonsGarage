@@ -81,7 +81,7 @@ Congelar en OpenSpec **qué falta** frente a **Entra MVP v1** ([`docs/mvp-solo-c
 
 ## Rollback Plan
 
-Archivar o revertir `openspec/changes/mvp-gap-roadmap-2026/`; deshacer rutas nuevas por PR revert; BD: migraciones reversibles o backup previo a P1.
+Archivar o revertir la carpeta archivada `openspec/changes/archive/2026-04-19-mvp-gap-roadmap-2026/` y el spec promovido `openspec/specs/p1-accounting-defer/` si aplica; deshacer rutas nuevas por PR revert; BD: migraciones reversibles o backup previo a P1.
 
 ## Dependencies
 
@@ -90,6 +90,6 @@ Archivar o revertir `openspec/changes/mvp-gap-roadmap-2026/`; deshacer rutas nue
 
 ## Success Criteria
 
-- [ ] P0: checklist Fase 4–5 verificado en servidor de pruebas con fechas.
-- [ ] P1: primera ruta `GET/POST` invoices o documento de recorte firmado en repo.
-- [ ] Deuda tabla arriba convertida en **≥3 issues** etiquetados `mvp` / `tech-debt`.
+- [x] P0: checklist Fase 4–5 verificado en servidor de pruebas con fechas.
+- [x] P1: primera ruta `GET/POST` invoices o documento de recorte firmado en repo — **recorte documentado** (`specs/p1-accounting-defer`, checklist Entra).
+- [ ] Deuda tabla arriba convertida en **≥3 issues** etiquetados `mvp` / `tech-debt` (opcional; fuera del batch apply).

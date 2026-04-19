@@ -535,6 +535,95 @@
   background-color: var(--color-error);
 }
 
+.staffRepairPanel {
+  margin: var(--space-4) 0 var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-subtle, #e5e7eb);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface-muted, #f9fafb);
+}
+
+.staffRepairTitle {
+  margin: 0 0 var(--space-3);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.staffRepairGrid {
+  display: grid;
+  grid-template-columns: 1fr 120px 140px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.staffField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.staffInput,
+.staffInputNarrow,
+.staffSelect {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-subtle, #d1d5db);
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.9rem;
+  background: #fff;
+}
+
+.staffInputNarrow {
+  max-width: 100px;
+}
+
+.staffPrimaryBtn,
+.staffSecondaryBtn,
+.staffGhostBtn,
+.staffDangerBtn {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.staffPrimaryBtn {
+  background: var(--color-primary, #2563eb);
+  color: #fff;
+}
+
+.staffPrimaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.staffSecondaryBtn {
+  background: var(--color-gray-200, #e5e7eb);
+  color: var(--color-text, #111827);
+}
+
+.staffGhostBtn {
+  background: transparent;
+  border: 1px solid var(--color-border-subtle, #d1d5db);
+}
+
+.staffDangerBtn {
+  background: var(--color-error-bg, #fef2f2);
+  color: var(--color-error, #b91c1c);
+}
+
+.repairStaffRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-top: 1px solid var(--color-border-subtle, #f3f4f6);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .carInfoHeader {
@@ -571,5 +660,9 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-2);
+  }
+
+  .staffRepairGrid {
+    grid-template-columns: 1fr;
   }
 }

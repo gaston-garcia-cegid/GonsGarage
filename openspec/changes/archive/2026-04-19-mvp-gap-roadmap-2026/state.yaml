@@ -5,8 +5,8 @@ phases:
   explore: complete
   propose: complete
   tasks: complete
-  spec: pending
+  spec: complete
   design: pending
-  apply: pending
-  verify: pending
-  archive: pending
+  apply: complete
+  verify: complete
+  archive: complete

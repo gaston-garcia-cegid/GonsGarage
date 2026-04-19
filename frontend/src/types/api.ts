@@ -116,9 +116,13 @@ export const API_ENDPOINTS = {
     DELETE: (id: string) => `/appointments/${id}`
   },
   
-  // Repairs (solo GET por coche implementado en Gin; el resto reservado MVP+)
+  // Repairs: listado por coche + CRUD por id (staff en servicio)
   REPAIRS: {
-    BY_CAR: (carId: string) => `/repairs/car/${carId}`
+    BY_CAR: (carId: string) => `/repairs/car/${carId}`,
+    CREATE: '/repairs',
+    GET: (id: string) => `/repairs/${id}`,
+    UPDATE: (id: string) => `/repairs/${id}`,
+    DELETE: (id: string) => `/repairs/${id}`
   }
 } as const;
 

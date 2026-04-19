@@ -123,7 +123,10 @@ export interface CreateRepairRequest {
   car_id: string;
   description: string;
   status?: string;
-  start_date: string;
+  /** ISO8601 (API Gin); preferido frente a start_date */
+  started_at?: string;
+  /** @deprecated usar started_at */
+  start_date?: string;
   cost: number;
 }
 
@@ -292,7 +295,7 @@ class ApiClient {
     });
   }
 
-  // Repair endpoints (solo listado por coche está expuesto en Gin)
+  // Repair endpoints (GET por coche + CRUD staff vía Gin)
   async getRepairs(carId: string): Promise<ApiResponse<Repair[]>> {
     return this.request<Repair[]>(`/repairs/car/${carId}`);
   }
@@ -302,16 +305,36 @@ class ApiClient {
   }
 
   async createRepair(repairData: CreateRepairRequest): Promise<ApiResponse<Repair>> {
+    const payload: Record<string, unknown> = {
+      car_id: repairData.car_id,
+      description: repairData.description,
+      cost: repairData.cost,
+    };
+    if (repairData.status) payload.status = repairData.status;
+    const started = repairData.started_at ?? repairData.start_date;
+    if (started) payload.started_at = started;
     return this.request<Repair>('/repairs', {
       method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateRepair(
+    id: string,
+    repairData: Partial<Pick<CreateRepairRequest, 'description' | 'status' | 'cost'>> & {
+      started_at?: string;
+      completed_at?: string;
+    }
+  ): Promise<ApiResponse<Repair>> {
+    return this.request<Repair>(`/repairs/${id}`, {
+      method: 'PUT',
       body: JSON.stringify(repairData),
     });
   }
 
-  async updateRepair(id: string, repairData: Partial<CreateRepairRequest>): Promise<ApiResponse<Repair>> {
-    return this.request<Repair>(`/repairs/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(repairData),
+  async deleteRepair(id: string): Promise<ApiResponse<{ ok?: boolean }>> {
+    return this.request<{ ok?: boolean }>(`/repairs/${id}`, {
+      method: 'DELETE',
     });
   }
 

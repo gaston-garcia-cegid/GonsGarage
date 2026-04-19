@@ -6,6 +6,7 @@ import { useAuth, useCars } from '@/stores';
 import { apiClient, Repair } from '@/lib/api';
 import AppShell from '@/components/layout/AppShell';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
+import { isClient } from '@/types/user';
 import styles from './car-details.module.css';
 
 function repairStatusPt(status: string): string {
@@ -21,6 +22,14 @@ function repairStatusPt(status: string): string {
 export default function CarDetailsPage() {
   const [repairs, setRepairs] = useState<Repair[]>([]);
   const [repairsLoading, setRepairsLoading] = useState(true);
+  const [newDescription, setNewDescription] = useState('');
+  const [newCost, setNewCost] = useState('0');
+  const [newStatus, setNewStatus] = useState<Repair['status']>('pending');
+  const [repairSaving, setRepairSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDescription, setEditDescription] = useState('');
+  const [editCost, setEditCost] = useState('');
+  const [editStatus, setEditStatus] = useState<Repair['status']>('pending');
 
   const { user, logout } = useAuth();
   const authHydrated = useAuthHydrationReady();
@@ -77,6 +86,80 @@ export default function CarDetailsPage() {
       style: 'currency',
       currency: 'EUR',
     }).format(amount);
+  };
+
+  const staff = Boolean(user && !isClient(user));
+
+  const handleCreateRepair = async () => {
+    if (!staff || !car) return;
+    const desc = newDescription.trim();
+    if (!desc) return;
+    const costNum = Number.parseFloat(newCost.replace(',', '.')) || 0;
+    setRepairSaving(true);
+    try {
+      const { data, error } = await apiClient.createRepair({
+        car_id: car.id,
+        description: desc,
+        cost: costNum,
+        status: newStatus,
+        started_at: new Date().toISOString(),
+      });
+      if (error || !data) {
+        console.error('createRepair', error);
+        return;
+      }
+      setNewDescription('');
+      setNewCost('0');
+      setNewStatus('pending');
+      await fetchCarRepairs();
+    } finally {
+      setRepairSaving(false);
+    }
+  };
+
+  const startEdit = (r: Repair) => {
+    setEditingId(r.id);
+    setEditDescription(r.description);
+    setEditCost(String(r.cost));
+    setEditStatus(r.status);
+  };
+
+  const handleSaveEdit = async (repairId: string) => {
+    if (!staff) return;
+    const costNum = Number.parseFloat(editCost.replace(',', '.')) || 0;
+    setRepairSaving(true);
+    try {
+      const { error } = await apiClient.updateRepair(repairId, {
+        description: editDescription.trim(),
+        status: editStatus,
+        cost: costNum,
+      });
+      if (error) {
+        console.error('updateRepair', error);
+        return;
+      }
+      setEditingId(null);
+      await fetchCarRepairs();
+    } finally {
+      setRepairSaving(false);
+    }
+  };
+
+  const handleDeleteRepair = async (repairId: string) => {
+    if (!staff) return;
+    if (!window.confirm('Eliminar esta reparação? (operação do staff)')) return;
+    setRepairSaving(true);
+    try {
+      const { error } = await apiClient.deleteRepair(repairId);
+      if (error) {
+        console.error('deleteRepair', error);
+        return;
+      }
+      if (editingId === repairId) setEditingId(null);
+      await fetchCarRepairs();
+    } finally {
+      setRepairSaving(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -221,6 +304,55 @@ export default function CarDetailsPage() {
             </div>
           </div>
 
+          {staff && (
+            <div className={styles.staffRepairPanel}>
+              <h4 className={styles.staffRepairTitle}>Staff — nova reparação</h4>
+              <div className={styles.staffRepairGrid}>
+                <label className={styles.staffField}>
+                  <span>Descrição</span>
+                  <input
+                    type="text"
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                    placeholder="Ex.: revisão de travões"
+                    className={styles.staffInput}
+                  />
+                </label>
+                <label className={styles.staffField}>
+                  <span>Custo (EUR)</span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={newCost}
+                    onChange={(e) => setNewCost(e.target.value)}
+                    className={styles.staffInput}
+                  />
+                </label>
+                <label className={styles.staffField}>
+                  <span>Estado</span>
+                  <select
+                    value={newStatus}
+                    onChange={(e) => setNewStatus(e.target.value as Repair['status'])}
+                    className={styles.staffSelect}
+                  >
+                    <option value="pending">Pendente</option>
+                    <option value="in_progress">Em curso</option>
+                    <option value="completed">Concluída</option>
+                    <option value="cancelled">Cancelada</option>
+                  </select>
+                </label>
+              </div>
+              <button
+                type="button"
+                className={styles.staffPrimaryBtn}
+                disabled={repairSaving || !newDescription.trim()}
+                onClick={() => void handleCreateRepair()}
+              >
+                {repairSaving ? 'A guardar…' : 'Registar reparação'}
+              </button>
+            </div>
+          )}
+
           {repairsLoading ? (
             <div className={styles.repairsLoading}>
               <div className={styles.spinner}></div>
@@ -305,6 +437,75 @@ export default function CarDetailsPage() {
                       ></div>
                     </div>
                   </div>
+
+                  {staff && (
+                    <div className={styles.repairStaffRow}>
+                      {editingId === repair.id ? (
+                        <>
+                          <input
+                            type="text"
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                            className={styles.staffInput}
+                            aria-label="Editar descrição"
+                          />
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={editCost}
+                            onChange={(e) => setEditCost(e.target.value)}
+                            className={styles.staffInputNarrow}
+                            aria-label="Editar custo"
+                          />
+                          <select
+                            value={editStatus}
+                            onChange={(e) => setEditStatus(e.target.value as Repair['status'])}
+                            className={styles.staffSelect}
+                            aria-label="Editar estado"
+                          >
+                            <option value="pending">Pendente</option>
+                            <option value="in_progress">Em curso</option>
+                            <option value="completed">Concluída</option>
+                            <option value="cancelled">Cancelada</option>
+                          </select>
+                          <button
+                            type="button"
+                            className={styles.staffSecondaryBtn}
+                            disabled={repairSaving}
+                            onClick={() => void handleSaveEdit(repair.id)}
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.staffGhostBtn}
+                            disabled={repairSaving}
+                            onClick={() => setEditingId(null)}
+                          >
+                            Cancelar
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className={styles.staffSecondaryBtn}
+                            onClick={() => startEdit(repair)}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.staffDangerBtn}
+                            disabled={repairSaving}
+                            onClick={() => void handleDeleteRepair(repair.id)}
+                          >
+                            Eliminar
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

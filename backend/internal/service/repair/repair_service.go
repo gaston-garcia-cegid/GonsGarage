@@ -169,6 +169,21 @@ func (uc *RepairService) UpdateRepair(ctx context.Context, repair *domain.Repair
 	return repair, nil
 }
 
+// DeleteRepair soft-deletes a repair (staff only).
+func (uc *RepairService) DeleteRepair(ctx context.Context, repairID uuid.UUID, userID uuid.UUID) error {
+	user, err := uc.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+	if !user.IsEmployee() {
+		return domain.ErrUnauthorizedAccess
+	}
+	if _, err := uc.repairRepo.GetByID(ctx, repairID); err != nil {
+		return err
+	}
+	return uc.repairRepo.Delete(ctx, repairID)
+}
+
 func (uc *RepairService) validateRepair(repair *domain.Repair) error {
 	if repair.Description == "" {
 		return fmt.Errorf("description is required")

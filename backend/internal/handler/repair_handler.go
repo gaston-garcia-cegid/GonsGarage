@@ -301,13 +301,17 @@ func (h *RepairHandler) UpdateRepair(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *RepairHandler) toRepairResponse(repair *domain.Repair) *RepairResponse {
+	start := ""
+	if repair.StartedAt != nil {
+		start = repair.StartedAt.Format("2006-01-02T15:04:05Z")
+	}
 	response := &RepairResponse{
 		ID:          repair.ID.String(),
 		CarID:       repair.CarID.String(),
 		EmployeeID:  repair.TechnicianID.String(),
 		Description: repair.Description,
 		Status:      string(repair.Status),
-		StartDate:   repair.StartedAt.Format("2006-01-02T15:04:05Z"),
+		StartDate:   start,
 		Cost:        repair.Cost,
 		CreatedAt:   repair.CreatedAt.Format("2006-01-02T15:04:05Z"),
 		UpdatedAt:   repair.UpdatedAt.Format("2006-01-02T15:04:05Z"),
