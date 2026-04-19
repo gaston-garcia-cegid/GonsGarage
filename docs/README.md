@@ -13,7 +13,8 @@
 | [testing-tdd.md](./testing-tdd.md) | TDD obligatorio, backend/frontend, CI y exclusiones Jest documentadas. |
 | [mvp-minimum-phases.md](./mvp-minimum-phases.md) | Fases mínimas sugeridas para un primer MVP. |
 | [mvp-solo-checklist.md](./mvp-solo-checklist.md) | Checklist operativo (solo dev, servidor de pruebas = staging). |
-| [../openspec/changes/mvp-gap-roadmap-2026/proposal.md](../openspec/changes/mvp-gap-roadmap-2026/proposal.md) | Brecha MVP vs Entra 1.1, roadmap P0–P3 con fechas, deuda técnica. |
+| [../openspec/changes/mvp-gap-roadmap-2026/proposal.md](../openspec/changes/mvp-gap-roadmap-2026/proposal.md) | Brecha MVP vs Entra 1.1, roadmap P0–P3, deuda técnica. |
+| [../openspec/changes/mvp-gap-roadmap-2026/tasks.md](../openspec/changes/mvp-gap-roadmap-2026/tasks.md) | Desglose SDD (Fase checklist 1.1–1.3 + P0–P3). |
 
 ## Documentación ya existente en el repo
 

@@ -85,6 +85,7 @@ Archivar o revertir `openspec/changes/mvp-gap-roadmap-2026/`; deshacer rutas nue
 
 ## Dependencies
 
+- **Alcance MVP v1 congelado** (checklist Fase 1.1–1.3, 2026-04-17): [`docs/mvp-solo-checklist.md` § Decisiones cerradas](../../../docs/mvp-solo-checklist.md#decisiones-cerradas-mvp-v1) — Entra / Fuera / Repairs staff **incluido**.
 - Decisión producto: **¿P1 full invoices/billing o recorte documentado de Entra 1.1?**
 
 ## Success Criteria

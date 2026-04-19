@@ -4,9 +4,9 @@ created: "2026-04-18"
 phases:
   explore: complete
   propose: complete
+  tasks: complete
   spec: pending
   design: pending
-  tasks: pending
   apply: pending
   verify: pending
   archive: pending
