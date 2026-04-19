@@ -1,0 +1,12 @@
+# SDD change state — mvp-gap-roadmap-2026
+change: mvp-gap-roadmap-2026
+created: "2026-04-18"
+phases:
+  explore: complete
+  propose: complete
+  spec: pending
+  design: pending
+  tasks: pending
+  apply: pending
+  verify: pending
+  archive: pending
