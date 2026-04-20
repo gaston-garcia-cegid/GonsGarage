@@ -19,6 +19,7 @@ Technical deep-dives (architecture, env vars, TDD, roadmap) live under **[`docs/
 | TDD / testing | [`docs/testing-tdd.md`](docs/testing-tdd.md) |
 | Contributing | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Agent / code standards | [`Agent.md`](Agent.md) |
+| P1 accounting (recibidas, billing, suppliers, facturas cliente) | Specs: [`openspec/specs/invoices/`](openspec/specs/invoices/spec.md), [`billing/`](openspec/specs/billing/spec.md), [`suppliers/`](openspec/specs/suppliers/spec.md); change archivado [`openspec/changes/archive/2026-04-20-p1-invoices-billing-suppliers/`](openspec/changes/archive/2026-04-20-p1-invoices-billing-suppliers/) — API `/api/v1/`; UI staff `/accounting`, cliente `/my-invoices` |
 
 ## Verified stack (source of truth)
 

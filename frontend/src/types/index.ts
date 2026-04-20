@@ -57,6 +57,16 @@ export type {
   Repair
 } from './car';
 
+// ✅ Accounting / P1 billing types
+export type {
+  BillingDocumentKind,
+  Supplier,
+  ReceivedInvoice,
+  BillingDocument,
+  IssuedInvoice,
+  ItemsTotal
+} from './accounting';
+
 // ✅ API types per Agent.md
 export type {
   ApiResponse,

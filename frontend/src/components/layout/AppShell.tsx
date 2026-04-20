@@ -4,9 +4,15 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { User } from '@/types';
+import { isClient } from '@/types/user';
 import styles from './AppShell.module.css';
 
-export type AppShellNavId = 'dashboard' | 'cars' | 'appointments';
+export type AppShellNavId =
+  | 'dashboard'
+  | 'cars'
+  | 'appointments'
+  | 'accounting'
+  | 'my_invoices';
 
 export interface AppShellProps {
   user: User;
@@ -101,6 +107,23 @@ export default function AppShell({
         >
           Marcações
         </button>
+        {isClient(user) ? (
+          <button
+            type="button"
+            onClick={() => router.push('/my-invoices')}
+            className={`${styles.navButton} ${activeNav === 'my_invoices' ? styles.active : ''}`}
+          >
+            As minhas faturas
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => router.push('/accounting')}
+            className={`${styles.navButton} ${activeNav === 'accounting' ? styles.active : ''}`}
+          >
+            Contabilidade
+          </button>
+        )}
       </nav>
 
       <main className={styles.main}>

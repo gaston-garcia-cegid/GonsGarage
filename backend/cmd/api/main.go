@@ -30,16 +30,20 @@ import (
 	redisRepo "github.com/gaston-garcia-cegid/gonsgarage/internal/repository/redis"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/appointment"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/auth"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/billing_document"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/car"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/employee"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/invoice"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/received_invoice"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/repair"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/supplier"
 
 	_ "github.com/gaston-garcia-cegid/gonsgarage/docs" // swagger (swag)
 )
 
 // @title           GonsGarage API
 // @version         1.0
-// @description     API de gestión de taller: autenticación JWT, coches, citas y empleados.
+// @description     API de gestión de taller: autenticación JWT, coches, citas, empleados, proveedores, facturas recibidas/emitidas y documentos de facturación.
 // @host            localhost:8080
 // @BasePath        /
 // @securityDefinitions.apikey BearerAuth
@@ -124,6 +128,10 @@ func main() {
 		&domain.Car{},
 		&domain.Repair{},
 		&domain.Appointment{},
+		&domain.Supplier{},
+		&domain.ReceivedInvoice{},
+		&domain.BillingDocument{},
+		&domain.Invoice{},
 	}
 
 	for _, model := range models {
@@ -182,6 +190,10 @@ func main() {
 	carRepo := postgresRepo.NewPostgresCarRepository(db)
 	appointmentRepo := postgresRepo.NewPostgresAppointmentRepository(db)
 	repairRepo := postgresRepo.NewPostgresRepairRepository(db)
+	supplierRepo := postgresRepo.NewPostgresSupplierRepository(db)
+	receivedInvoiceRepo := postgresRepo.NewPostgresReceivedInvoiceRepository(db)
+	billingDocRepo := postgresRepo.NewPostgresBillingDocumentRepository(db)
+	invoiceRepo := postgresRepo.NewPostgresInvoiceRepository(db)
 	log.Printf("Repositories initialized")
 
 	// Initialize use cases
@@ -196,6 +208,10 @@ func main() {
 	carService := car.NewCarService(carRepo, userRepo, cacheRepo)
 	appointmentService := appointment.NewAppointmentService(appointmentRepo, userRepo, carRepo)
 	repairService := repair.NewRepairService(repairRepo, carRepo, userRepo)
+	supplierService := supplier.NewSupplierService(supplierRepo, userRepo)
+	receivedInvoiceService := received_invoice.NewReceivedInvoiceService(receivedInvoiceRepo, userRepo)
+	billingDocumentService := billing_document.NewBillingDocumentService(billingDocRepo, userRepo)
+	invoiceService := invoice.NewInvoiceService(invoiceRepo, userRepo)
 
 	log.Printf("Use cases initialized")
 
@@ -210,6 +226,10 @@ func main() {
 	// Initialize appointment handler
 	appointmentHandler := handler.NewAppointmentHandler(appointmentService)
 	repairHandler := handler.NewRepairHandler(repairService)
+	supplierHandler := handler.NewSupplierHandler(supplierService)
+	receivedInvoiceHandler := handler.NewReceivedInvoiceHandler(receivedInvoiceService)
+	billingDocumentHandler := handler.NewBillingDocumentHandler(billingDocumentService)
+	invoiceHandler := handler.NewInvoiceHandler(invoiceService)
 
 	log.Printf("Handlers initialized")
 
@@ -224,7 +244,9 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Setup routes
-	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, repairHandler, authMiddleware, sqlxDB)
+	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, repairHandler,
+		supplierHandler, receivedInvoiceHandler, billingDocumentHandler, invoiceHandler,
+		authMiddleware, sqlxDB)
 
 	log.Printf("Routes set up")
 
@@ -244,6 +266,10 @@ func dropAllTables(db *gorm.DB) error {
 	tables := []string{
 		"appointments",
 		"repairs",
+		"received_invoices",
+		"billing_documents",
+		"invoices",
+		"suppliers",
 		"cars",
 		"employees",
 		"users",
@@ -363,6 +389,10 @@ func setupRoutes(
 	carHandler *handler.CarHandler,
 	appointmentHandler *handler.AppointmentHandler,
 	repairHandler *handler.RepairHandler,
+	supplierHandler *handler.SupplierHandler,
+	receivedInvoiceHandler *handler.ReceivedInvoiceHandler,
+	billingDocumentHandler *handler.BillingDocumentHandler,
+	invoiceHandler *handler.InvoiceHandler,
 	authMiddleware *middleware.AuthMiddleware,
 	sqlxDB *sqlx.DB,
 ) {
@@ -442,6 +472,50 @@ func setupRoutes(
 			repairs.GET("/:id", repairHandler.GinGetRepair)
 			repairs.PUT("/:id", repairHandler.GinUpdateRepair)
 			repairs.DELETE("/:id", repairHandler.GinDeleteRepair)
+		}
+
+		suppliers := protected.Group("/suppliers")
+		suppliers.Use(middleware.RequireWorkshopStaff())
+		{
+			suppliers.POST("", supplierHandler.CreateSupplier)
+			suppliers.GET("", supplierHandler.ListSuppliers)
+			suppliers.GET("/:id", supplierHandler.GetSupplier)
+			suppliers.PUT("/:id", supplierHandler.UpdateSupplier)
+			suppliers.DELETE("/:id", supplierHandler.DeleteSupplier)
+		}
+
+		receivedInvoices := protected.Group("/received-invoices")
+		receivedInvoices.Use(middleware.RequireWorkshopStaff())
+		{
+			receivedInvoices.POST("", receivedInvoiceHandler.CreateReceivedInvoice)
+			receivedInvoices.GET("", receivedInvoiceHandler.ListReceivedInvoices)
+			receivedInvoices.GET("/:id", receivedInvoiceHandler.GetReceivedInvoice)
+			receivedInvoices.PUT("/:id", receivedInvoiceHandler.UpdateReceivedInvoice)
+			receivedInvoices.DELETE("/:id", receivedInvoiceHandler.DeleteReceivedInvoice)
+		}
+
+		billingDocs := protected.Group("/billing-documents")
+		billingDocs.Use(middleware.RequireWorkshopStaff())
+		{
+			billingDocs.POST("", billingDocumentHandler.CreateBillingDocument)
+			billingDocs.GET("", billingDocumentHandler.ListBillingDocuments)
+			billingDocs.GET("/:id", billingDocumentHandler.GetBillingDocument)
+			billingDocs.PUT("/:id", billingDocumentHandler.UpdateBillingDocument)
+			billingDocs.DELETE("/:id", billingDocumentHandler.DeleteBillingDocument)
+		}
+
+		invoices := protected.Group("/invoices")
+		{
+			invoices.GET("/me", invoiceHandler.ListMyInvoices)
+			staffInvoices := invoices.Group("")
+			staffInvoices.Use(middleware.RequireWorkshopStaff())
+			{
+				staffInvoices.POST("", invoiceHandler.CreateIssuedInvoice)
+				staffInvoices.GET("", invoiceHandler.ListIssuedInvoicesStaff)
+				staffInvoices.DELETE("/:id", invoiceHandler.DeleteIssuedInvoice)
+			}
+			invoices.GET("/:id", invoiceHandler.GetIssuedInvoice)
+			invoices.PATCH("/:id", invoiceHandler.PatchIssuedInvoice)
 		}
 	}
 }

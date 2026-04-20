@@ -74,6 +74,39 @@ func (s *stubInvoiceRepo) ListByCustomerID(ctx context.Context, customerID uuid.
 	return s.byCust[customerID], s.listTotal, nil
 }
 
+func (s *stubInvoiceRepo) Create(ctx context.Context, invoice *domain.Invoice) error {
+	if s.byID == nil {
+		s.byID = make(map[uuid.UUID]*domain.Invoice)
+	}
+	if invoice == nil {
+		return errors.New("nil invoice")
+	}
+	cp := *invoice
+	s.byID[invoice.ID] = &cp
+	return nil
+}
+
+func (s *stubInvoiceRepo) ListForStaff(ctx context.Context, limit, offset int) ([]*domain.Invoice, int64, error) {
+	if s.byID == nil {
+		return nil, 0, nil
+	}
+	out := make([]*domain.Invoice, 0, len(s.byID))
+	for _, v := range s.byID {
+		if v != nil {
+			cp := *v
+			out = append(out, &cp)
+		}
+	}
+	return out, int64(len(out)), nil
+}
+
+func (s *stubInvoiceRepo) Delete(ctx context.Context, id uuid.UUID) error {
+	if s.byID != nil {
+		delete(s.byID, id)
+	}
+	return nil
+}
+
 func TestInvoiceService_GetInvoice_ClientOwn(t *testing.T) {
 	t.Parallel()
 	cust := uuid.New()
@@ -186,6 +219,127 @@ func TestInvoiceService_ListMyInvoices_ClientOnly(t *testing.T) {
 	assert.Equal(t, int64(1), total)
 
 	_, _, err = svc.ListMyInvoices(context.Background(), empID, 10, 0)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, domain.ErrUnauthorizedAccess)
+}
+
+func TestInvoiceService_CreateInvoice_StaffForClient(t *testing.T) {
+	t.Parallel()
+	custID := uuid.New()
+	empID := uuid.New()
+	cust, err := domain.NewUser("c@x.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	cust.ID = custID
+	emp, err := domain.NewUser("e@x.com", "pw", "E", "E", domain.RoleEmployee)
+	require.NoError(t, err)
+	emp.ID = empID
+
+	repo := &stubInvoiceRepo{byID: map[uuid.UUID]*domain.Invoice{}}
+	svc := NewInvoiceService(repo, &invTestUserRepo{users: map[uuid.UUID]*domain.User{custID: cust, empID: emp}})
+
+	in := &domain.Invoice{CustomerID: custID, Amount: 42, Notes: "svc"}
+	out, err := svc.CreateInvoice(context.Background(), in, empID)
+	require.NoError(t, err)
+	require.NotNil(t, out)
+	assert.NotEqual(t, uuid.Nil, out.ID)
+	assert.Equal(t, custID, out.CustomerID)
+	assert.Equal(t, 42.0, out.Amount)
+	assert.Equal(t, "open", out.Status)
+	assert.Equal(t, "svc", out.Notes)
+}
+
+func TestInvoiceService_CreateInvoice_ClientDenied(t *testing.T) {
+	t.Parallel()
+	custID := uuid.New()
+	cust, err := domain.NewUser("c@x.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	cust.ID = custID
+
+	svc := NewInvoiceService(&stubInvoiceRepo{}, &invTestUserRepo{users: map[uuid.UUID]*domain.User{custID: cust}})
+	out, err := svc.CreateInvoice(context.Background(), &domain.Invoice{CustomerID: custID, Amount: 1}, custID)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, domain.ErrUnauthorizedAccess)
+	assert.Nil(t, out)
+}
+
+func TestInvoiceService_CreateInvoice_CustomerMustBeClient(t *testing.T) {
+	t.Parallel()
+	custID := uuid.New()
+	empID := uuid.New()
+	empAsCust, err := domain.NewUser("e2@x.com", "pw", "E", "E", domain.RoleEmployee)
+	require.NoError(t, err)
+	empAsCust.ID = custID
+	actor, err := domain.NewUser("mgr@x.com", "pw", "M", "M", domain.RoleManager)
+	require.NoError(t, err)
+	actor.ID = empID
+
+	svc := NewInvoiceService(&stubInvoiceRepo{}, &invTestUserRepo{users: map[uuid.UUID]*domain.User{custID: empAsCust, empID: actor}})
+	out, err := svc.CreateInvoice(context.Background(), &domain.Invoice{CustomerID: custID, Amount: 10}, empID)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "client")
+	assert.Nil(t, out)
+}
+
+func TestInvoiceService_ListInvoicesForStaff_EmployeeOk(t *testing.T) {
+	t.Parallel()
+	empID := uuid.New()
+	emp, err := domain.NewUser("e@x.com", "pw", "E", "E", domain.RoleEmployee)
+	require.NoError(t, err)
+	emp.ID = empID
+	inv := &domain.Invoice{ID: uuid.New(), CustomerID: uuid.New(), Amount: 9, Status: "open", CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	repo := &stubInvoiceRepo{byID: map[uuid.UUID]*domain.Invoice{inv.ID: inv}}
+
+	svc := NewInvoiceService(repo, &invTestUserRepo{users: map[uuid.UUID]*domain.User{empID: emp}})
+	list, total, err := svc.ListInvoicesForStaff(context.Background(), empID, 10, 0)
+	require.NoError(t, err)
+	assert.Equal(t, int64(1), total)
+	require.Len(t, list, 1)
+	assert.Equal(t, inv.ID, list[0].ID)
+}
+
+func TestInvoiceService_ListInvoicesForStaff_ClientDenied(t *testing.T) {
+	t.Parallel()
+	custID := uuid.New()
+	cust, err := domain.NewUser("c@x.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	cust.ID = custID
+
+	svc := NewInvoiceService(&stubInvoiceRepo{}, &invTestUserRepo{users: map[uuid.UUID]*domain.User{custID: cust}})
+	_, _, err = svc.ListInvoicesForStaff(context.Background(), custID, 10, 0)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, domain.ErrUnauthorizedAccess)
+}
+
+func TestInvoiceService_DeleteInvoice_StaffOk(t *testing.T) {
+	t.Parallel()
+	empID := uuid.New()
+	invID := uuid.New()
+	emp, err := domain.NewUser("e@x.com", "pw", "E", "E", domain.RoleEmployee)
+	require.NoError(t, err)
+	emp.ID = empID
+	inv := &domain.Invoice{ID: invID, CustomerID: uuid.New(), Amount: 1, Status: "open", CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	repo := &stubInvoiceRepo{byID: map[uuid.UUID]*domain.Invoice{invID: inv}}
+
+	svc := NewInvoiceService(repo, &invTestUserRepo{users: map[uuid.UUID]*domain.User{empID: emp}})
+	err = svc.DeleteInvoice(context.Background(), invID, empID)
+	require.NoError(t, err)
+	got, gerr := repo.GetByID(context.Background(), invID)
+	require.NoError(t, gerr)
+	assert.Nil(t, got)
+}
+
+func TestInvoiceService_DeleteInvoice_ClientDenied(t *testing.T) {
+	t.Parallel()
+	custID := uuid.New()
+	invID := uuid.New()
+	cust, err := domain.NewUser("c@x.com", "pw", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	cust.ID = custID
+	inv := &domain.Invoice{ID: invID, CustomerID: custID, Amount: 1, Status: "open", CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	repo := &stubInvoiceRepo{byID: map[uuid.UUID]*domain.Invoice{invID: inv}}
+
+	svc := NewInvoiceService(repo, &invTestUserRepo{users: map[uuid.UUID]*domain.User{custID: cust}})
+	err = svc.DeleteInvoice(context.Background(), invID, custID)
 	require.Error(t, err)
 	assert.ErrorIs(t, err, domain.ErrUnauthorizedAccess)
 }

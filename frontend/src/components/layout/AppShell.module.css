@@ -117,6 +117,7 @@
   margin: 0 auto;
   padding: 0 var(--space-4);
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
 

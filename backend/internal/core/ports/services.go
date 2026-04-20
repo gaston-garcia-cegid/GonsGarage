@@ -144,4 +144,34 @@ type InvoiceService interface {
 	GetInvoice(ctx context.Context, invoiceID uuid.UUID, requestingUserID uuid.UUID) (*domain.Invoice, error)
 	UpdateInvoice(ctx context.Context, invoice *domain.Invoice, requestingUserID uuid.UUID) (*domain.Invoice, error)
 	ListMyInvoices(ctx context.Context, requestingUserID uuid.UUID, limit, offset int) ([]*domain.Invoice, int64, error)
+	CreateInvoice(ctx context.Context, invoice *domain.Invoice, requestingUserID uuid.UUID) (*domain.Invoice, error)
+	ListInvoicesForStaff(ctx context.Context, requestingUserID uuid.UUID, limit, offset int) ([]*domain.Invoice, int64, error)
+	DeleteInvoice(ctx context.Context, invoiceID uuid.UUID, requestingUserID uuid.UUID) error
+}
+
+// ReceivedInvoiceService manages received (purchase-side) invoices.
+type ReceivedInvoiceService interface {
+	Create(ctx context.Context, inv *domain.ReceivedInvoice, requestingUserID uuid.UUID) (*domain.ReceivedInvoice, error)
+	Get(ctx context.Context, id uuid.UUID, requestingUserID uuid.UUID) (*domain.ReceivedInvoice, error)
+	List(ctx context.Context, requestingUserID uuid.UUID, limit, offset int) ([]*domain.ReceivedInvoice, int64, error)
+	Update(ctx context.Context, inv *domain.ReceivedInvoice, requestingUserID uuid.UUID) (*domain.ReceivedInvoice, error)
+	Delete(ctx context.Context, id uuid.UUID, requestingUserID uuid.UUID) error
+}
+
+// BillingDocumentService manages issued billing documents.
+type BillingDocumentService interface {
+	Create(ctx context.Context, doc *domain.BillingDocument, requestingUserID uuid.UUID) (*domain.BillingDocument, error)
+	Get(ctx context.Context, id uuid.UUID, requestingUserID uuid.UUID) (*domain.BillingDocument, error)
+	List(ctx context.Context, requestingUserID uuid.UUID, limit, offset int) ([]*domain.BillingDocument, int64, error)
+	Update(ctx context.Context, doc *domain.BillingDocument, requestingUserID uuid.UUID) (*domain.BillingDocument, error)
+	Delete(ctx context.Context, id uuid.UUID, requestingUserID uuid.UUID) error
+}
+
+// SupplierService manages supplier master data.
+type SupplierService interface {
+	Create(ctx context.Context, s *domain.Supplier, requestingUserID uuid.UUID) (*domain.Supplier, error)
+	Get(ctx context.Context, id uuid.UUID, requestingUserID uuid.UUID) (*domain.Supplier, error)
+	List(ctx context.Context, requestingUserID uuid.UUID, limit, offset int) ([]*domain.Supplier, int64, error)
+	Update(ctx context.Context, s *domain.Supplier, requestingUserID uuid.UUID) (*domain.Supplier, error)
+	Delete(ctx context.Context, id uuid.UUID, requestingUserID uuid.UUID) error
 }

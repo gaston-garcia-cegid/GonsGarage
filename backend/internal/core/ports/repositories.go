@@ -119,8 +119,39 @@ type RepairRepository interface {
 // InvoiceRepository persists invoices (customer-scoped access enforced in InvoiceService).
 type InvoiceRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Invoice, error)
+	Create(ctx context.Context, invoice *domain.Invoice) error
 	Update(ctx context.Context, invoice *domain.Invoice) error
+	Delete(ctx context.Context, id uuid.UUID) error
 	ListByCustomerID(ctx context.Context, customerID uuid.UUID, limit, offset int) ([]*domain.Invoice, int64, error)
+	// ListForStaff lists customer invoices for workshop staff (issued to clients).
+	ListForStaff(ctx context.Context, limit, offset int) ([]*domain.Invoice, int64, error)
+}
+
+// ReceivedInvoiceRepository persists purchase-side invoices received by the workshop.
+type ReceivedInvoiceRepository interface {
+	Create(ctx context.Context, inv *domain.ReceivedInvoice) error
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.ReceivedInvoice, error)
+	Update(ctx context.Context, inv *domain.ReceivedInvoice) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	List(ctx context.Context, limit, offset int) ([]*domain.ReceivedInvoice, int64, error)
+}
+
+// BillingDocumentRepository persists issued billing documents (payroll, IRS, client invoice, etc.).
+type BillingDocumentRepository interface {
+	Create(ctx context.Context, doc *domain.BillingDocument) error
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.BillingDocument, error)
+	Update(ctx context.Context, doc *domain.BillingDocument) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	List(ctx context.Context, limit, offset int) ([]*domain.BillingDocument, int64, error)
+}
+
+// SupplierRepository persists suppliers.
+type SupplierRepository interface {
+	Create(ctx context.Context, s *domain.Supplier) error
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Supplier, error)
+	Update(ctx context.Context, s *domain.Supplier) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	List(ctx context.Context, limit, offset int) ([]*domain.Supplier, int64, error)
 }
 
 // Logger defines the interface for logging

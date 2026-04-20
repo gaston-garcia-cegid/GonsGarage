@@ -14,6 +14,8 @@ type InvoiceService struct {
 	userRepo    ports.UserRepository
 }
 
+var _ ports.InvoiceService = (*InvoiceService)(nil)
+
 func NewInvoiceService(invoiceRepo ports.InvoiceRepository, userRepo ports.UserRepository) *InvoiceService {
 	return &InvoiceService{invoiceRepo: invoiceRepo, userRepo: userRepo}
 }
@@ -106,6 +108,11 @@ func (s *InvoiceService) ListMyInvoices(ctx context.Context, requestingUserID uu
 	if !u.IsClient() {
 		return nil, 0, domain.ErrUnauthorizedAccess
 	}
+	limit, offset = clampInvoiceListParams(limit, offset)
+	return s.invoiceRepo.ListByCustomerID(ctx, requestingUserID, limit, offset)
+}
+
+func clampInvoiceListParams(limit, offset int) (int, int) {
 	if limit <= 0 {
 		limit = 20
 	}
@@ -115,5 +122,88 @@ func (s *InvoiceService) ListMyInvoices(ctx context.Context, requestingUserID uu
 	if offset < 0 {
 		offset = 0
 	}
-	return s.invoiceRepo.ListByCustomerID(ctx, requestingUserID, limit, offset)
+	return limit, offset
+}
+
+// CreateInvoice persists a customer invoice. Only workshop staff may create.
+func (s *InvoiceService) CreateInvoice(ctx context.Context, invoice *domain.Invoice, requestingUserID uuid.UUID) (*domain.Invoice, error) {
+	if invoice == nil {
+		return nil, fmt.Errorf("invoice is required")
+	}
+	u, err := s.userRepo.GetByID(ctx, requestingUserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+	if u == nil {
+		return nil, domain.ErrUserNotFound
+	}
+	if !u.IsEmployee() {
+		return nil, domain.ErrUnauthorizedAccess
+	}
+	if invoice.CustomerID == uuid.Nil {
+		return nil, fmt.Errorf("customer id is required")
+	}
+	if invoice.Amount <= 0 {
+		return nil, fmt.Errorf("amount must be positive")
+	}
+	cust, err := s.userRepo.GetByID(ctx, invoice.CustomerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get customer: %w", err)
+	}
+	if cust == nil {
+		return nil, domain.ErrUserNotFound
+	}
+	if !cust.IsClient() {
+		return nil, fmt.Errorf("invoice customer must be a client user")
+	}
+
+	toSave := *invoice
+	if toSave.ID == uuid.Nil {
+		toSave.ID = uuid.New()
+	}
+	if toSave.Status == "" {
+		toSave.Status = "open"
+	}
+	if err := s.invoiceRepo.Create(ctx, &toSave); err != nil {
+		return nil, err
+	}
+	return s.invoiceRepo.GetByID(ctx, toSave.ID)
+}
+
+// ListInvoicesForStaff lists issued customer invoices for staff.
+func (s *InvoiceService) ListInvoicesForStaff(ctx context.Context, requestingUserID uuid.UUID, limit, offset int) ([]*domain.Invoice, int64, error) {
+	u, err := s.userRepo.GetByID(ctx, requestingUserID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get user: %w", err)
+	}
+	if u == nil {
+		return nil, 0, domain.ErrUserNotFound
+	}
+	if !u.IsEmployee() {
+		return nil, 0, domain.ErrUnauthorizedAccess
+	}
+	limit, offset = clampInvoiceListParams(limit, offset)
+	return s.invoiceRepo.ListForStaff(ctx, limit, offset)
+}
+
+// DeleteInvoice removes a customer invoice. Only workshop staff may delete.
+func (s *InvoiceService) DeleteInvoice(ctx context.Context, invoiceID uuid.UUID, requestingUserID uuid.UUID) error {
+	u, err := s.userRepo.GetByID(ctx, requestingUserID)
+	if err != nil {
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+	if u == nil {
+		return domain.ErrUserNotFound
+	}
+	if !u.IsEmployee() {
+		return domain.ErrUnauthorizedAccess
+	}
+	existing, err := s.invoiceRepo.GetByID(ctx, invoiceID)
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return domain.ErrInvoiceNotFound
+	}
+	return s.invoiceRepo.Delete(ctx, invoiceID)
 }
