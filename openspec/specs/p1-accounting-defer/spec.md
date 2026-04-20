@@ -36,7 +36,7 @@ El roadmap `mvp-gap-roadmap-2026` prevé P1 como **rutas Gin + Swagger + UI mín
 
 ### Requirement: R-2 Tareas condicionais 3.2 / 3.3
 
-**The OpenSpec tasks** do change archivado do roadmap **MUST** conservarse como **N/A** para a entrega MVP v1 histórica. **The tasks** do change `2026-04-20-p1-invoices-billing-suppliers` (archivado) **SHALL** reflictir a implementación HTTP/UI de P1 sen contradicer o peche 3.2–3.3 do arquivo antigo.
+**The OpenSpec tasks** do change archivado do roadmap **MUST** conservarse como **N/A** para a entrega MVP v1 histórica. **The tasks** do change `2026-04-20-p1-invoices-billing-suppliers` (archivado) **SHALL** reflejar la implementación HTTP/UI de P1 sen contradicer o peche 3.2–3.3 do arquivo antigo.
 
 #### Scenario: Sen dobre conteo MVP
 
