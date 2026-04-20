@@ -104,12 +104,12 @@ func (m *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 
 		// Add user info to request context
 		if email, exists := claims["email"]; exists {
-			if emailStr, ok := email.(string); ok {
+			if emailStr, ok := jwtClaimString(email); ok && emailStr != "" {
 				ctx = context.WithValue(ctx, "userEmail", emailStr)
 			}
 		}
 		if role, exists := claims["role"]; exists {
-			if roleStr, ok := role.(string); ok {
+			if roleStr, ok := jwtClaimString(role); ok && roleStr != "" {
 				ctx = context.WithValue(ctx, "userRole", roleStr)
 			}
 		}

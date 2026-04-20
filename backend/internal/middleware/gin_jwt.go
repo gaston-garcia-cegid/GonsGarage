@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,6 +11,18 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
+
+// jwtClaimString coerces JWT MapClaims values that may decode as string, json.Number, or float64.
+func jwtClaimString(v interface{}) (string, bool) {
+	switch t := v.(type) {
+	case string:
+		return t, true
+	case json.Number:
+		return t.String(), true
+	default:
+		return "", false
+	}
+}
 
 // GinBearerJWT validates Authorization: Bearer <JWT> and sets userID (string), userRole, userEmail on Gin context.
 // Mirrors production auth used by API handlers (see cmd/api).
@@ -82,12 +95,12 @@ func GinBearerJWT(auth *AuthMiddleware) gin.HandlerFunc {
 		c.Set("userID", userID.String())
 
 		if email, exists := claims["email"]; exists {
-			if emailStr, ok := email.(string); ok {
+			if emailStr, ok := jwtClaimString(email); ok && emailStr != "" {
 				c.Set("userEmail", emailStr)
 			}
 		}
 		if role, exists := claims["role"]; exists {
-			if roleStr, ok := role.(string); ok {
+			if roleStr, ok := jwtClaimString(role); ok && roleStr != "" {
 				c.Set("userRole", roleStr)
 			}
 		}

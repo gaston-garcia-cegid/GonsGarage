@@ -16,7 +16,7 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
 )
 
-const sqlAppointmentSelectList = `SELECT id, customer_id, car_id, scheduled_at, notes, status, service_type, created_at, updated_at, deleted_at FROM appointments`
+const sqlAppointmentSelectList = `SELECT id, customer_id, car_id, scheduled_at, COALESCE(notes, '') AS notes, status, service_type, created_at, updated_at, deleted_at FROM appointments`
 
 // postgresAppointmentRepository implements AppointmentRepository using PostgreSQL
 type postgresAppointmentRepository struct {

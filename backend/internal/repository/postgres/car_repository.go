@@ -15,7 +15,8 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
 )
 
-const sqlSelectCarBase = `SELECT id, make, model, year, license_plate, vin, color, mileage, client_id, created_at, updated_at, deleted_at
+// Column owner_id must match domain.Car (GORM AutoMigrate). Do not use legacy client_id here.
+const sqlSelectCarBase = `SELECT id, make, model, year, license_plate, COALESCE(vin, '') AS vin, color, mileage, owner_id, created_at, updated_at, deleted_at
 FROM cars WHERE deleted_at IS NULL`
 
 // postgresCarRepository implements CarRepository using PostgreSQL
@@ -39,7 +40,7 @@ type CarModel struct {
 	VIN          string     `gorm:"column:vin" db:"vin"`
 	Color        string     `gorm:"not null" db:"color"`
 	Mileage      int        `gorm:"not null;default:0" db:"mileage"`
-	OwnerID      uuid.UUID  `gorm:"type:uuid;column:client_id;not null;index" db:"client_id"`
+	OwnerID      uuid.UUID  `gorm:"type:uuid;column:owner_id;not null;index" db:"owner_id"`
 	CreatedAt    time.Time  `gorm:"column:created_at;autoCreateTime" db:"created_at"`
 	UpdatedAt    time.Time  `gorm:"column:updated_at;autoUpdateTime" db:"updated_at"`
 	DeletedAt    *time.Time `gorm:"column:deleted_at;index" db:"deleted_at"`
@@ -68,7 +69,7 @@ func (r *postgresCarRepository) Create(ctx context.Context, car *domain.Car) err
 
 func (r *postgresCarRepository) createCarSQLX(ctx context.Context, car *domain.Car) error {
 	now := time.Now().UTC()
-	const q = `INSERT INTO cars (id, make, model, year, license_plate, vin, color, mileage, client_id, created_at, updated_at)
+	const q = `INSERT INTO cars (id, make, model, year, license_plate, vin, color, mileage, owner_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 	_, err := r.sqlx.ExecContext(ctx, q,
 		car.ID, car.Make, car.Model, car.Year, car.LicensePlate, car.VIN, car.Color, car.Mileage, car.OwnerID, now, now,
@@ -115,7 +116,7 @@ func (r *postgresCarRepository) GetByID(ctx context.Context, id uuid.UUID) (*dom
 // GetByOwnerID retrieves all cars owned by a specific user
 func (r *postgresCarRepository) GetByOwnerID(ctx context.Context, ownerID uuid.UUID) ([]*domain.Car, error) {
 	if r.sqlx != nil {
-		dbCars, err := r.selectCarsSQLX(ctx, "client_id = $1", []interface{}{ownerID}, 0, 0, "failed to get cars by owner ID")
+		dbCars, err := r.selectCarsSQLX(ctx, "owner_id = $1", []interface{}{ownerID}, 0, 0, "failed to get cars by owner ID")
 		if err != nil {
 			return nil, err
 		}
@@ -126,7 +127,7 @@ func (r *postgresCarRepository) GetByOwnerID(ctx context.Context, ownerID uuid.U
 	}
 	var dbCars []CarModel
 	err := r.db.WithContext(ctx).
-		Where("client_id = ? AND deleted_at IS NULL", ownerID).
+		Where("owner_id = ? AND deleted_at IS NULL", ownerID).
 		Preload("Owner").
 		Order("created_at DESC").
 		Find(&dbCars).Error
@@ -210,7 +211,7 @@ func (r *postgresCarRepository) Update(ctx context.Context, car *domain.Car) err
 	if r.sqlx != nil {
 		now := time.Now().UTC()
 		const q = `UPDATE cars SET
-make = $1, model = $2, year = $3, license_plate = $4, vin = $5, color = $6, mileage = $7, client_id = $8, updated_at = $9
+make = $1, model = $2, year = $3, license_plate = $4, vin = $5, color = $6, mileage = $7, owner_id = $8, updated_at = $9
 WHERE id = $10 AND deleted_at IS NULL`
 		res, err := r.sqlx.ExecContext(ctx, q,
 			car.Make, car.Model, car.Year, car.LicensePlate, car.VIN, car.Color, car.Mileage, car.OwnerID, now, car.ID,
@@ -316,7 +317,7 @@ func (r *postgresCarRepository) GetDeletedByLicensePlate(ctx context.Context, li
 	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if r.sqlx != nil {
-		const q = `SELECT id, make, model, year, license_plate, vin, color, mileage, client_id, created_at, updated_at, deleted_at
+		const q = `SELECT id, make, model, year, license_plate, COALESCE(vin, '') AS vin, color, mileage, owner_id, created_at, updated_at, deleted_at
 FROM cars WHERE license_plate = $1 AND deleted_at IS NOT NULL LIMIT 1`
 		var row CarModel
 		err := r.sqlx.GetContext(queryCtx, &row, q, licensePlate)
