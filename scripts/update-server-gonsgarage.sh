@@ -14,6 +14,7 @@
 #
 # Postgres en contenedor Arnela (`arnela-postgres` en DATABASE_URL):
 #   export COMPOSE_OVERRIDE=docker-compose.prod.arnela-network.yml
+#   …y ejecutá este script (el export aplica al proceso actual).
 # (y editar `name:` en ese YAML si la red externa no es `arnela_arnela-network`).
 
 set -euo pipefail
@@ -51,10 +52,18 @@ if [[ ! -f "$ENV_FILE" ]]; then
   exit 1
 fi
 
-if grep -qE '@arnela-postgres[:/]|//arnela-postgres' "$ENV_FILE" 2>/dev/null && [[ -z "$COMPOSE_OVERRIDE" ]]; then
+if grep -qE '@arnela-postgres[:/]|//arnela-postgres' "$ENV_FILE" 2>/dev/null && [[ -z "${COMPOSE_OVERRIDE:-}" ]]; then
+  arnela_override="docker-compose.prod.arnela-network.yml"
+  if [[ -f "$arnela_override" ]]; then
+    echo "Error: $ENV_FILE referencia arnela-postgres pero COMPOSE_OVERRIDE está vacío." >&2
+    echo "      Sin -f $arnela_override el API no resuelve ese DNS (red distinta) y suele reiniciar en bucle (502)." >&2
+    echo "      Ej.: export COMPOSE_OVERRIDE=$arnela_override" >&2
+    echo "      Luego volvé a ejecutar este script." >&2
+    exit 1
+  fi
   echo "WARN: $ENV_FILE usa host arnela-postgres pero COMPOSE_OVERRIDE está vacío." >&2
-  echo "      Sin docker-compose.prod.arnela-network.yml el API no resuelve ese DNS (red distinta)." >&2
-  echo "      Ej.: export COMPOSE_OVERRIDE=docker-compose.prod.arnela-network.yml" >&2
+  echo "      Sin $arnela_override el API no resuelve ese DNS (red distinta)." >&2
+  echo "      Ej.: export COMPOSE_OVERRIDE=$arnela_override" >&2
 fi
 
 echo "==> git fetch"

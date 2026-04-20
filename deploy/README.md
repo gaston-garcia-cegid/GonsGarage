@@ -7,6 +7,18 @@
 
 Si trabajás **solo en el servidor** con una carpeta que rellenás a mano o con `git clone` allí, entonces el equivalente es **`git pull`** en `/DATA/AppData/gonsgarage` (si usás git en el servidor) y después `docker compose … up -d --build` — no hace falta `deploy.ps1` en ese flujo.
 
+## Script del servidor (`git pull` + compose)
+
+El repo incluye [`scripts/update-server-gonsgarage.sh`](../scripts/update-server-gonsgarage.sh) para el clon en el servidor: `git fetch`, `git pull` y `docker compose … up -d --build` con `--env-file .env.prod`.
+
+Si **`DATABASE_URL`** usa el hostname **`arnela-postgres`**, el API tiene que estar en la **misma red Docker** que ese contenedor (ver [Opción B](#opción-b-recomendada-misma-red-docker-que-arnela)). **Antes** de ejecutar el script:
+
+```bash
+export COMPOSE_OVERRIDE=docker-compose.prod.arnela-network.yml
+```
+
+Sin el segundo `-f` (override vacío), el API suele entrar en **bucle de reinicio** y nginx devuelve **502** en `/health` (*no such host* al resolver `arnela-postgres`).
+
 ---
 
 Archivos en la **raíz del repo**:

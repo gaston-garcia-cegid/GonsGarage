@@ -1,6 +1,7 @@
 # GonsGarage — producción / LAN (plantilla inspirada en Arnela).
 # Postgres: ver deploy/README.md — si Arnela ya tiene `arnela-postgres` sin puerto en el host,
 # añadí también `-f docker-compose.prod.arnela-network.yml` y `DATABASE_URL=@arnela-postgres:5432/...`.
+# Si DATABASE_URL usa host arnela-postgres: compose DEBE incluir ese segundo -f (o COMPOSE_OVERRIDE en scripts/update-server-gonsgarage.sh).
 # Uso: docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
 #
 # Puerto público del stack: 8102 → nginx → front + /api/* al API.

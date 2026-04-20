@@ -2,6 +2,17 @@
 
 Priorización después del cierre operativo del checklist MVP (fases 1–5) y de [`mvp-role-access`](../openspec/specs/mvp-role-access/spec.md). **Accounting** HTTP/UI sigue fuera: [`p1-accounting-defer`](../openspec/specs/p1-accounting-defer/spec.md).
 
+## Orden sugerido
+
+1. **P0** — filas P0 de la [tabla](#tabla-p0--p1--p2) (seeds, CI `-race`, secretos).  
+2. **Fiabilidad deploy (Arnela)** — si `DATABASE_URL` usa `arnela-postgres`, cerrar red y `COMPOSE_OVERRIDE` **antes** de depender del API en servidor: [Incidente DNS arnela-postgres](#incidente-dns-arnela-postgres) y [`deploy/README.md`](../deploy/README.md) (script del servidor).  
+3. **P1** — misma tabla (admin `/employees`, issue GitHub).  
+4. **P2** — misma tabla y [`roadmap.md`](./roadmap.md).
+
+## Incidente DNS arnela-postgres
+
+Con **`.env.prod`** apuntando a **`arnela-postgres`** pero un `docker compose` **solo** con `docker-compose.prod.yml`, el API queda en la red `gonsgarage-network` y **no** resuelve ese hostname (Postgres vive en la red de Arnela): *lookup arnela-postgres … no such host*, contenedor en **reinicio**, **502** en `/health`. **Fix:** `export COMPOSE_OVERRIDE=docker-compose.prod.arnela-network.yml` (y verificar `name:` de la red externa en ese YAML) antes de `up`, o el equivalente manual con dos `-f`. Detalle: [`deploy/README.md`](../deploy/README.md).
+
 ## Tabla P0 / P1 / P2
 
 | P | Ítem | Criterio “hecho” observable |
