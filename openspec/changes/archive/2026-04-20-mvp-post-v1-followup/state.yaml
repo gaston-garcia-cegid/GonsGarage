@@ -1,0 +1,12 @@
+# SDD change state — mvp-post-v1-followup
+change: mvp-post-v1-followup
+created: "2026-04-20"
+phases:
+  explore: complete
+  propose: complete
+  spec: skipped
+  design: skipped
+  tasks: complete
+  apply: complete
+  verify: complete
+  archive: complete

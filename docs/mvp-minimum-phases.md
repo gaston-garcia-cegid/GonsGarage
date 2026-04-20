@@ -2,7 +2,7 @@
 
 Objetivo del MVP: **un taller puede registrar usuarios, clientes con coches, pedir citas y el personal puede ver/gestionar lo básico** con despliegue reproducible y calidad mínima aceptable.
 
-**Plan consolidado hasta “MVP funcionando” (staging/prod, contrato, demo):** [openspec/changes/mvp-funcionando-plan/proposal.md](../openspec/changes/mvp-funcionando-plan/proposal.md) (aprobado; usar como épica para issues).
+**Plan consolidado (archivado):** [mvp-funcionando-plan proposal](../openspec/changes/archive/2026-04-20-mvp-funcionando-plan/proposal.md). **Siguientes pasos:** [mvp-next-steps.md](./mvp-next-steps.md).
 
 **Brecha MVP vs Entra 1.1 + roadmap P0–P3 (tareas SDD):** [proposal archivado](../openspec/changes/archive/2026-04-19-mvp-gap-roadmap-2026/proposal.md) · [`tasks.md` archivado](../openspec/changes/archive/2026-04-19-mvp-gap-roadmap-2026/tasks.md).
 

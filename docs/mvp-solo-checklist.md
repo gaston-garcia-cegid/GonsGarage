@@ -5,7 +5,9 @@
 - **Equipo:** una sola persona (vos); las decisiones de alcance las cerrás vos en la **Fase 1** y podés validar el resto con el asistente tarea por tarea.
 - **Entorno:** no hay URL “staging” separada de “producción”. Tu **servidor de pruebas** es hoy el único entorno remoto: tratálo como **staging = prod de pruebas** (mismas reglas de secretos y CORS que usarías en prod real).
 
-**Plan maestro:** [openspec/changes/mvp-funcionando-plan/proposal.md](../openspec/changes/mvp-funcionando-plan/proposal.md) · Fases técnicas históricas: [mvp-minimum-phases.md](./mvp-minimum-phases.md).
+**Plan maestro (archivado):** [mvp-funcionando-plan proposal](../openspec/changes/archive/2026-04-20-mvp-funcionando-plan/proposal.md) · Fases técnicas históricas: [mvp-minimum-phases.md](./mvp-minimum-phases.md).
+
+**Post‑MVP v1:** [mvp-next-steps.md](./mvp-next-steps.md) (prioridades P0/P1/P2).
 
 **Verificación por rol (MVP):** matriz y escenarios en [openspec/specs/mvp-role-access/spec.md](../openspec/specs/mvp-role-access/spec.md). Seeds: `go run ./cmd/seed-test-client` (cliente demo) y `go run ./cmd/seed-mvp-users` (admin / manager / employee); credenciales vía variables de entorno (`SEED_*`, ver comentarios en cada `main.go`). **Solo desarrollo** — no ejecutar seeds contra producción.
 

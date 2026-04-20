@@ -1,6 +1,6 @@
 # Roadmap: documentación, configuración y alineación tipo Arnela
 
-Este roadmap ordena el trabajo en fases. La parte “como Arnela” depende de completar las especificaciones reales en [arnela-specs.md](./arnela-specs.md).
+**Post‑MVP v1 (prioridades operativas):** ver [mvp-next-steps.md](./mvp-next-steps.md) (P0/P1/P2). Este roadmap ordena el trabajo en fases. La parte “como Arnela” depende de completar las especificaciones reales en [arnela-specs.md](./arnela-specs.md).
 
 ## Fase 0 — Especificaciones Arnela (bloqueante para paridad)
 

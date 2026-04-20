@@ -9,4 +9,4 @@ phases:
   tasks: skipped
   apply: complete
   verify: complete
-  archive: pending
+  archive: complete

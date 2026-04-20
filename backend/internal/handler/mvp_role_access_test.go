@@ -108,6 +108,31 @@ func TestMVPAccess_EmployeesGET_ManagerReachesHandler(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "ok")
 }
 
+func TestMVPAccess_EmployeesGET_AdminReachesHandler(t *testing.T) {
+	t.Parallel()
+	gin.SetMode(gin.TestMode)
+	secret := "mvp-role-access-secret-adm"
+	am := middleware.NewAuthMiddleware(secret)
+	uid := uuid.New()
+
+	r := gin.New()
+	api := r.Group("/api/v1")
+	api.Use(middleware.GinBearerJWT(am))
+	employees := api.Group("/employees")
+	employees.Use(middleware.RequireStaffManagers())
+	employees.GET("", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"ok": true})
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/employees", nil)
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, uid, domain.RoleAdmin))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), "ok")
+}
+
 // --- Repairs POST: client 403; employee 201 with stubs ---
 
 type mvpUserRepo struct {

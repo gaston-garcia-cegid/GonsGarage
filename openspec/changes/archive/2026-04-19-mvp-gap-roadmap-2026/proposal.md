@@ -2,7 +2,7 @@
 
 ## Intent
 
-Congelar en OpenSpec **qué falta** frente a **Entra MVP v1** ([`docs/mvp-solo-checklist.md`](../../../docs/mvp-solo-checklist.md)), **deuda técnica** observable, y un **roadmap ejecutable** con prioridades y fechas orientativas (abril–junio 2026). Complementa [`openspec/changes/mvp-funcionando-plan/proposal.md`](../mvp-funcionando-plan/proposal.md) (fases operativas ya avanzadas: local, contrato, deploy LAN).
+Congelar en OpenSpec **qué falta** frente a **Entra MVP v1** ([`docs/mvp-solo-checklist.md`](../../../docs/mvp-solo-checklist.md)), **deuda técnica** observable, y un **roadmap ejecutable** con prioridades y fechas orientativas (abril–junio 2026). Complementa [`openspec/changes/archive/2026-04-20-mvp-funcionando-plan/proposal.md`](../2026-04-20-mvp-funcionando-plan/proposal.md) (fases operativas ya avanzadas: local, contrato, deploy LAN).
 
 ## Scope
 
