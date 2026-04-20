@@ -31,13 +31,13 @@ func NewPostgresAppointmentRepository(db *gorm.DB) ports.AppointmentRepository {
 
 // AppointmentModel represents the database table structure
 type AppointmentModel struct {
-	ID            uuid.UUID  `gorm:"type:uuid;primary_key;default:gen_random_uuid()" db:"id"`
+	ID            uuid.UUID  `gorm:"type:uuid;primary_key" db:"id"`
 	CustomerID    uuid.UUID  `gorm:"type:uuid" db:"customer_id"`
 	CarID         uuid.UUID  `gorm:"type:uuid" db:"car_id"`
-	ScheduledTime time.Time  `gorm:"column:scheduled_at;type:timestamptz" db:"scheduled_at"`
-	Notes         string     `gorm:"column:notes;type:text" db:"notes"`
-	Status        string     `gorm:"type:text" db:"status"`
-	ServiceType   string     `gorm:"column:service_type;type:text" db:"service_type"`
+	ScheduledTime time.Time  `gorm:"column:scheduled_at" db:"scheduled_at"` // sin timestamptz: compat AutoMigrate + SQLite en tests
+	Notes         string     `gorm:"column:notes" db:"notes"`
+	Status        string     `gorm:"column:status" db:"status"`
+	ServiceType   string     `gorm:"column:service_type" db:"service_type"`
 	CreatedAt     time.Time  `gorm:"column:created_at;autoCreateTime" db:"created_at"`
 	UpdatedAt     time.Time  `gorm:"column:updated_at;autoUpdateTime" db:"updated_at"`
 	DeletedAt     *time.Time `gorm:"column:deleted_at;index" db:"deleted_at"`

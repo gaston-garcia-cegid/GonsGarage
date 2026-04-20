@@ -395,7 +395,7 @@ func (r *PostgresEmployeeRepository) toDomainEmployee(dbEmployee *EmployeeModel)
 
 // EmployeeModel represents the database table structure
 type EmployeeModel struct {
-	ID           uuid.UUID  `gorm:"type:uuid;primary_key;default:gen_random_uuid()" db:"id"`
+	ID           uuid.UUID  `gorm:"type:uuid;primary_key" db:"id"`
 	UserID       uuid.UUID  `gorm:"type:uuid;not null;index" db:"user_id"`
 	EmployeeCode string     `gorm:"uniqueIndex;not null" db:"employee_code"`
 	Position     string     `gorm:"not null" db:"position"`

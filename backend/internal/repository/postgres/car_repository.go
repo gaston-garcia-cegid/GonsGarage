@@ -31,7 +31,7 @@ func NewPostgresCarRepository(db *gorm.DB) ports.CarRepository {
 
 // CarModel represents the database table structure
 type CarModel struct {
-	ID           uuid.UUID  `gorm:"type:uuid;primary_key;default:gen_random_uuid()" db:"id"`
+	ID           uuid.UUID  `gorm:"type:uuid;primary_key" db:"id"`
 	Make         string     `gorm:"not null" db:"make"`
 	Model        string     `gorm:"not null" db:"model"`
 	Year         int        `gorm:"not null" db:"year"`

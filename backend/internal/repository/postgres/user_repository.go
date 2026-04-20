@@ -382,7 +382,7 @@ func (r *PostgresUserRepository) toDomainUser(dbUser *UserModel) *domain.User {
 
 // UserModel represents the database table structure
 type UserModel struct {
-	ID           uuid.UUID  `gorm:"type:uuid;primary_key;default:gen_random_uuid()" db:"id"`
+	ID           uuid.UUID  `gorm:"type:uuid;primary_key" db:"id"` // UUID por app; migraciones Postgres pueden tener DEFAULT gen_random_uuid()
 	Email        string     `gorm:"uniqueIndex;not null" db:"email"`
 	PasswordHash string     `gorm:"not null" db:"password_hash"`
 	FirstName    string     `gorm:"not null" db:"first_name"`

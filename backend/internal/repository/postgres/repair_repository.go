@@ -30,7 +30,7 @@ func NewPostgresRepairRepository(db *gorm.DB) ports.RepairRepository {
 
 // RepairModel maps the repairs table as created by GORM from domain.Repair.
 type RepairModel struct {
-	ID           uuid.UUID  `gorm:"type:uuid;primary_key;default:gen_random_uuid()" db:"id"`
+	ID           uuid.UUID  `gorm:"type:uuid;primary_key" db:"id"`
 	CarID        uuid.UUID  `gorm:"type:uuid;not null;index" db:"car_id"`
 	TechnicianID uuid.UUID  `gorm:"type:uuid;not null;index" db:"technician_id"`
 	Description  string     `gorm:"not null" db:"description"`

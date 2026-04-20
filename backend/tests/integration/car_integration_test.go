@@ -89,7 +89,8 @@ func (suite *CarIntegrationTestSuite) testAuthMiddleware() gin.HandlerFunc {
 		if userID != "" {
 			parsedID, err := uuid.Parse(userID)
 			if err == nil {
-				c.Set("userID", parsedID)
+				// Handlers expect string (same as middleware.GinBearerJWT).
+				c.Set("userID", parsedID.String())
 			}
 		}
 		c.Next()

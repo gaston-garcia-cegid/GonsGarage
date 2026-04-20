@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -120,15 +121,15 @@ func (h *CarHandler) CreateCar(c *gin.Context) {
 	// Create car (service will validate permissions)
 	createdCar, err := h.carService.CreateCar(c.Request.Context(), car, userID)
 	if err != nil {
-		if err == domain.ErrUnauthorizedAccess {
+		if errors.Is(err, domain.ErrUnauthorizedAccess) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
-		if err == domain.ErrCarAlreadyExists {
+		if errors.Is(err, domain.ErrCarAlreadyExists) {
 			c.JSON(http.StatusConflict, gin.H{"error": "car with this license plate already exists"})
 			return
 		}
-		if err == domain.ErrInvalidCarData {
+		if errors.Is(err, domain.ErrInvalidCarData) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car data"})
 			return
 		}
@@ -177,11 +178,11 @@ func (h *CarHandler) GetCar(c *gin.Context) {
 
 	car, err := h.carService.GetCar(c.Request.Context(), carID, userID)
 	if err != nil {
-		if err == domain.ErrCarNotFound {
+		if errors.Is(err, domain.ErrCarNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "car not found"})
 			return
 		}
-		if err == domain.ErrUnauthorizedAccess {
+		if errors.Is(err, domain.ErrUnauthorizedAccess) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
@@ -242,7 +243,7 @@ func (h *CarHandler) ListCars(c *gin.Context) {
 		cars, err = h.carService.GetCarsByOwner(c.Request.Context(), userID, userID)
 	}
 	if err != nil {
-		if err == domain.ErrUnauthorizedAccess {
+		if errors.Is(err, domain.ErrUnauthorizedAccess) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
@@ -317,15 +318,15 @@ func (h *CarHandler) UpdateCar(c *gin.Context) {
 	// Update car
 	updatedCar, err := h.carService.UpdateCar(c.Request.Context(), car, userID)
 	if err != nil {
-		if err == domain.ErrCarNotFound {
+		if errors.Is(err, domain.ErrCarNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "car not found"})
 			return
 		}
-		if err == domain.ErrUnauthorizedAccess {
+		if errors.Is(err, domain.ErrUnauthorizedAccess) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
-		if err == domain.ErrInvalidCarData {
+		if errors.Is(err, domain.ErrInvalidCarData) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car data"})
 			return
 		}
@@ -375,11 +376,11 @@ func (h *CarHandler) DeleteCar(c *gin.Context) {
 	// Delete car
 	err = h.carService.DeleteCar(c.Request.Context(), carID, userID)
 	if err != nil {
-		if err == domain.ErrCarNotFound {
+		if errors.Is(err, domain.ErrCarNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "car not found"})
 			return
 		}
-		if err == domain.ErrUnauthorizedAccess {
+		if errors.Is(err, domain.ErrUnauthorizedAccess) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
