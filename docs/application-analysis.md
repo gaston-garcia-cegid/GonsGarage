@@ -36,6 +36,8 @@ Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas
 
 **Reparaciones** (JWT): `GET /api/v1/repairs/car/:carId` (cliente: solo su coche; staff: cualquier coche); **`POST /api/v1/repairs`**, `GET|PUT|DELETE /api/v1/repairs/:id` — escritura solo personal (`RepairService` exige `IsEmployee()` para crear/actualizar/borrar). UI staff: formulario y acciones en `/cars/[id]` cuando el usuario no es `client`.
 
+**Regresión por rol (tests):** `GET /api/v1/employees` solo `admin`/`manager` (middleware `RequireStaffManagers`); `POST /api/v1/repairs` devuelve **403** para JWT `client` y **201** para `employee` en condiciones válidas — cubierto en `backend/internal/handler/mvp_role_access_test.go`; spec [`openspec/specs/mvp-role-access/spec.md`](../openspec/specs/mvp-role-access/spec.md).
+
 ## Frontend (App Router)
 
 Rutas de página localizadas bajo `frontend/src/app/`:

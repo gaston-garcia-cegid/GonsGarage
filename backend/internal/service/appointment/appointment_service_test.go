@@ -296,7 +296,9 @@ func TestAppointmentService_UpdateAppointment_RepoError(t *testing.T) {
 		CarID:       uuid.New(),
 		Status:      domain.AppointmentStatusScheduled,
 		ServiceType: "svc",
-		ScheduledAt: time.Now().UTC(),
+		// Fixed local wall time inside validateWorkshopClock windows (09:30–12:30 / 14:00–17:30).
+		// time.Now().UTC() is non-deterministic vs. local business hours and can skip repo.Update entirely.
+		ScheduledAt: time.Date(2026, 6, 15, 10, 0, 0, 0, time.Local),
 	}
 	updErr := errors.New("update failed")
 	svc := NewAppointmentService(

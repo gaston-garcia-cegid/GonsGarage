@@ -7,6 +7,8 @@
 
 **Plan maestro:** [openspec/changes/mvp-funcionando-plan/proposal.md](../openspec/changes/mvp-funcionando-plan/proposal.md) · Fases técnicas históricas: [mvp-minimum-phases.md](./mvp-minimum-phases.md).
 
+**Verificación por rol (MVP):** matriz y escenarios en [openspec/specs/mvp-role-access/spec.md](../openspec/specs/mvp-role-access/spec.md). Seeds: `go run ./cmd/seed-test-client` (cliente demo) y `go run ./cmd/seed-mvp-users` (admin / manager / employee); credenciales vía variables de entorno (`SEED_*`, ver comentarios en cada `main.go`). **Solo desarrollo** — no ejecutar seeds contra producción.
+
 ---
 
 ## Cómo avanzar con el asistente (aprobado)
