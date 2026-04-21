@@ -7,7 +7,6 @@ import AppointmentModal from './AppointmentModal';
 import LoadingSpinner from '@/components/ui/Loading/LoadingSpinner';
 import ErrorAlert from '@/components/ui/Error/ErrorAlert';
 import ConfirmModal from '@/components/ui/Modal/ConfirmModal';
-import { useRouter } from 'next/navigation';
 import styles from './AppointmentContainer.module.css';
 import { useAppointments } from '@/stores';
 import EmptyAppointmentState from '@/components/empty-states/EmptyAppointmentState';
@@ -44,7 +43,6 @@ export default function AppointmentsContainer({
   renderHeader,
   renderEmptyState,
 }: AppointmentsContainerProps) {
-  const router = useRouter();
   const { appointments, isLoading, error, createAppointment, updateAppointment, deleteAppointment, fetchAppointments } = useAppointments();
 
   // Modal states
@@ -297,13 +295,6 @@ export default function AppointmentsContainer({
         appointments={appointments}
         onEdit={handleEditAppointment}
         onDelete={handleDeleteAppointment}
-        onViewDetails={(id) => router.push(`/appointments/${id}`)}
-        onScheduleService={(appointmentId) => {
-          const apt = appointments.find((a) => a.id === appointmentId);
-          if (apt) {
-            router.push(`/appointments?schedule=1&carId=${encodeURIComponent(apt.carId)}`);
-          }
-        }}
       />
 
       {/* Appointment Modal */}

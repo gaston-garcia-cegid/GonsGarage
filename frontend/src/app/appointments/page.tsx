@@ -7,6 +7,12 @@ import { useCarStore } from '@/stores/car.store';
 import EmptyAppointmentState from '@/components/empty-states/EmptyAppointmentState';
 import AppointmentCard from '@/components/appointments/AppointmentCard';
 import NewAppointmentModal from '@/components/appointments/NewAppointmentModal';
+import AppointmentModal from '@/app/appointments/components/AppointmentModal';
+import type {
+  Appointment,
+  CreateAppointmentRequest,
+  UpdateAppointmentRequest,
+} from '@/types/appointment';
 import { useAuth } from '@/stores';
 import AppShell from '@/components/layout/AppShell';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
@@ -24,12 +30,14 @@ function AppointmentsPageContent() {
 
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleCarId, setScheduleCarId] = useState<string | undefined>();
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
 
   const {
     appointments,
     isLoading: appointmentsLoading,
     error: appointmentsError,
     fetchAppointments,
+    updateAppointment,
   } = useAppointmentStore();
 
   const { cars, isLoading: carsLoading, fetchCars } = useCarStore();
@@ -85,6 +93,32 @@ function AppointmentsPageContent() {
     setScheduleOpen(false);
     setScheduleCarId(undefined);
   }, []);
+
+  const closeEditModal = useCallback(() => {
+    setEditingAppointment(null);
+  }, []);
+
+  const handleCreateNoop = useCallback(async (_data: CreateAppointmentRequest): Promise<boolean> => {
+    return false;
+  }, []);
+
+  const handleUpdateAppointmentFromModal = useCallback(
+    async (id: string, appointmentData: Partial<UpdateAppointmentRequest>): Promise<boolean> => {
+      try {
+        const success = await updateAppointment(id, appointmentData as UpdateAppointmentRequest);
+        if (success) {
+          await fetchAppointments();
+          setEditingAppointment(null);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Failed to update appointment:', error);
+        return false;
+      }
+    },
+    [updateAppointment, fetchAppointments]
+  );
 
   if (!authHydrated || !user || !isAuthenticated) {
     return (
@@ -180,6 +214,7 @@ function AppointmentsPageContent() {
               <AppointmentCard
                 key={appointment.id}
                 appointment={appointment}
+                onEdit={(apt) => setEditingAppointment(apt)}
                 onReschedule={(carId) => openSchedule(carId)}
               />
             ))}
@@ -195,6 +230,15 @@ function AppointmentsPageContent() {
           fetchAppointments().catch(() => {});
         }}
       />
+
+      {editingAppointment && (
+        <AppointmentModal
+          appointment={editingAppointment}
+          onClose={closeEditModal}
+          onCreate={handleCreateNoop}
+          onUpdate={handleUpdateAppointmentFromModal}
+        />
+      )}
     </>
   );
 }

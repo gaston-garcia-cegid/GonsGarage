@@ -1,7 +1,7 @@
 import React from 'react';
 import { Appointment } from '@/types/appointment';
 import styles from '../appointments.module.css';
-import { useRouter } from 'next/dist/client/components/navigation';
+import { useRouter } from 'next/navigation';
 import { useCarStore } from '@/stores/car.store';
 import { useAppointmentStore } from '@/stores/appointment.store';
 
@@ -10,8 +10,6 @@ interface AppointmentCardProps {
   onStatusChange?: (appointmentId: string, action: 'cancel' | 'confirm' | 'complete') => void;
   onEdit: () => void;
   onDelete: () => void;
-  onViewDetails: () => void;
-  onScheduleService: () => void;
 }
 
 // Individual appointment card component following Agent.md clean patterns
@@ -19,9 +17,7 @@ export default function AppointmentCard({
   appointment,
   onEdit,
   onDelete,
-  onViewDetails,
-  onScheduleService,
-  onStatusChange
+  onStatusChange,
 }: AppointmentCardProps) {
   const router = useRouter();
   const { cars } = useCarStore();

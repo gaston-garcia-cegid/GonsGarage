@@ -7,8 +7,6 @@ interface AppointmentListProps {
   appointments: Appointment[];
   onEdit: (appointment: Appointment) => void;
   onDelete: (id: string) => void;
-  onViewDetails: (id: string) => void;
-  onScheduleService: (id: string) => void;
 }
 
 // Appointment list component following Agent.md component conventions
@@ -16,8 +14,6 @@ export default function AppointmentList({
   appointments,
   onEdit,
   onDelete,
-  onViewDetails,
-  onScheduleService
 }: AppointmentListProps) {
   if (appointments.length === 0) {
     return (
@@ -37,8 +33,6 @@ export default function AppointmentList({
           appointment={appointment}
           onEdit={() => onEdit(appointment)}
           onDelete={() => onDelete(appointment.id)}
-          onViewDetails={() => onViewDetails(appointment.id)}
-          onScheduleService={() => onScheduleService(appointment.id)}
         />
       ))}
     </div>

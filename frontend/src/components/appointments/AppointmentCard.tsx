@@ -22,11 +22,13 @@ function appointmentStatusLabel(status: string): string {
 interface AppointmentCardProps {
   appointment: Appointment;
   onStatusChange?: (appointmentId: string, action: 'cancel' | 'confirm' | 'complete') => void;
+  /** Opens edit UI (e.g. modal). If omitted, no Editar action is shown — there is no dedicated /edit route. */
+  onEdit?: (appointment: Appointment) => void;
   /** Opens in-app scheduling (e.g. modal on /appointments). Falls back to navigation if omitted. */
   onReschedule?: (carId: string) => void;
 }
 
-export default function AppointmentCard({ appointment, onStatusChange, onReschedule }: AppointmentCardProps) {
+export default function AppointmentCard({ appointment, onStatusChange, onEdit, onReschedule }: AppointmentCardProps) {
   const router = useRouter();
   const { cars } = useCarStore();
   const { 
@@ -142,12 +144,15 @@ export default function AppointmentCard({ appointment, onStatusChange, onResched
               >
                 {isUpdating ? 'A atualizar…' : 'Confirmar'}
               </button>
-              <button 
-                onClick={() => router.push(`/appointments/${appointment.id}/edit`)}
-                className={styles.editButton}
-              >
-                Editar
-              </button>
+              {onEdit && (
+                <button
+                  type="button"
+                  onClick={() => onEdit(appointment)}
+                  className={styles.editButton}
+                >
+                  Editar
+                </button>
+              )}
               <button 
                 onClick={() => handleStatusChange('cancel')}
                 className={styles.cancelButton}

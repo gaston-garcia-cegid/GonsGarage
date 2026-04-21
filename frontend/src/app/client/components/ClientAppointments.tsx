@@ -5,12 +5,10 @@ import { Appointment } from '@/types/appointment';
 import AppointmentsContainer from '@/app/appointments/components/AppointmentContainer';
 
 interface ClientAppointmentsProps {
-  appointments: Appointment[];
   onAddAppointment?: (appointment: Appointment) => void;
   onUpdateAppointment?: (appointments: Appointment[]) => void;
   showAddButton?: boolean;
   maxAppointments?: number;
-  onScheduleService: (id: string) => void;
 }
 
 export default function ClientAppointments({

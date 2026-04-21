@@ -1,0 +1,28 @@
+---
+description: Navegación Next.js App Router — rutas reales vs enlaces rotos
+alwaysApply: true
+---
+
+# Navegación y rutas (`frontend`)
+
+## Regla principal
+
+Cada `router.push` / `router.replace` / `<Link href>` a una **ruta de página** debe corresponder a un segmento bajo `frontend/src/app/` con `page.tsx` (o `route.ts`). Las rutas del **API backend** (`/api/...`, `apiClient`, etc.) no cuentan como páginas Next.
+
+## Antes de añadir navegación
+
+1. Comprobar en `src/app/**/page.tsx` que existe el path (incluidos dinámicos `[id]`, `[...slug]`).
+2. Si no hay página de detalle o edición, usar el patrón ya usado en el dominio: **modal**, **query** (`?schedule=1`), o **lista** — no inventar URLs como `/recurso/[id]/edit` sin implementar el segmento.
+
+## Evitar duplicar UI con comportamientos distintos
+
+Dos componentes con el mismo nombre o rol (p. ej. tarjeta de citas en `components/` vs `app/.../components/`) suelen **divergir** y uno acaba enlazando rutas inexistentes. Preferir **un flujo** o documentar explícitamente la diferencia en el PR.
+
+## Revisiones útiles
+
+- Tras cambios de navegación: `pnpm exec tsc --noEmit` en `frontend`.
+- Considerar pruebas que monten la vista y verifiquen que no se navega a paths no listados en el árbol `app/`, o smoke E2E en flujos críticos.
+
+## Referencia del bug corregido
+
+Se devolvía **404** al ir a `/appointments/[uuid]/edit` y `/appointments/[uuid]` sin `app/appointments/[id]/.../page.tsx`. Edición en lista: **modal + callback**; no depender de rutas no creadas.

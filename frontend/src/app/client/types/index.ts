@@ -18,8 +18,10 @@ export interface ClientCarsProps {
   onAddCar: () => void;
 }
 
+/** Props alinhados com `ClientAppointments` (dados vêm do store em `AppointmentsContainer`). */
 export interface ClientAppointmentsProps {
-  appointments: Appointment[];
-  cars: Car[];
-  onScheduleService: () => void;
+  onAddAppointment?: (appointment: Appointment) => void;
+  onUpdateAppointment?: (appointments: Appointment[]) => void;
+  showAddButton?: boolean;
+  maxAppointments?: number;
 }

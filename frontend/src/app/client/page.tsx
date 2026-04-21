@@ -70,7 +70,7 @@ export default function ClientPage() {
         showAddButton={true}
         maxCars={5} />;
       case 'appointments':
-        return <ClientAppointments onScheduleService={() => { } } appointments={[]} />;
+        return <ClientAppointments />;
     }
   };
 

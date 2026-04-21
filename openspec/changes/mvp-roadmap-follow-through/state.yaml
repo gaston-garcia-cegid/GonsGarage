@@ -8,5 +8,5 @@ phases:
   design: skipped
   tasks: pending
   apply: pending
-  verify: pending
+  verify: complete
   archive: pending
