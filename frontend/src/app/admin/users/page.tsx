@@ -73,7 +73,7 @@ export default function AdminUsersPage() {
     <AppShell
       user={user}
       subtitle="Utilizadores"
-      activeNav="dashboard"
+      activeNav="admin_users"
       carsNavLabel="Viaturas"
       onLogout={logout}
       logoVariant="branded"

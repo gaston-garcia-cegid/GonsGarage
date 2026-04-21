@@ -8,6 +8,8 @@ import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import AppShell from '@/components/layout/AppShell';
 import { AppLoading } from '@/components/ui/AppLoading';
 import { Button } from '@/components/ui/button';
+import { StaffUsersDashboardCta } from './StaffUsersDashboardCta';
+import { canManageUsers } from '@/types/user';
 import styles from './dashboard.module.css';
 
 function repairStatusPt(status: string): string {
@@ -129,6 +131,10 @@ export default function ClientDashboardPage() {
             <span>{error}</span>
           </div>
         )}
+
+        {canManageUsers(user) ? (
+          <StaffUsersDashboardCta onManageUsers={() => router.push('/admin/users')} />
+        ) : null}
 
         {/* Stats Grid */}
         <div className={styles.statsGrid}>
