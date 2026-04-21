@@ -13,6 +13,7 @@ export type BrandHeroBannerProps = {
 
 /**
  * Hero full-bleed: tenta foto da oficina; se falhar, usa SVG de fallback no repo.
+ * Ver `BrandLogo` — `unoptimized` para carregar ficheiros em `public/` sem pipeline `/_next/image`.
  */
 export function BrandHeroBanner({ alt, priority }: Readonly<BrandHeroBannerProps>) {
   const [src, setSrc] = useState(BANNER_JPEG_SRC);
@@ -28,6 +29,7 @@ export function BrandHeroBanner({ alt, priority }: Readonly<BrandHeroBannerProps
       fill
       style={{ objectFit: 'cover' }}
       priority={priority}
+      unoptimized
       onError={handleError}
     />
   );

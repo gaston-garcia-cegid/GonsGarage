@@ -22,6 +22,8 @@ export type BrandLogoProps = {
 
 /**
  * Logótipo de marca: tenta o JPG da oficina; se falhar (404, clone sem asset), usa SVG em repo.
+ * `unoptimized`: evita `/_next/image` — o loader por defeito pode 404 no JPG e tratar SVG local
+ * de forma pouco fiável; `<img>` directo garante `onError` e fallback visível.
  */
 export function BrandLogo({
   width,
@@ -47,6 +49,7 @@ export function BrandLogo({
       className={className}
       style={style}
       priority={priority}
+      unoptimized
       onError={handleError}
       data-testid={dataTestId}
     />
