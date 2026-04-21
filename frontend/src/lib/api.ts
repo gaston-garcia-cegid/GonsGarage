@@ -171,16 +171,25 @@ class ApiClient {
     }
   }
 
+  /** Token Bearer: preferir localStorage no browser (login via Zustand só actualiza @/lib/api-client). */
+  private bearerToken(): string | null {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('auth_token') || localStorage.getItem('token') || this.token;
+    }
+    return this.token;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+    const token = this.bearerToken();
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
