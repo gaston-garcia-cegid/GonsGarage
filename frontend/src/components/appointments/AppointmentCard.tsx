@@ -129,12 +129,8 @@ export default function AppointmentCard({ appointment, onStatusChange, onResched
         )}
       </div>
       
-      {/* Footer with ID and actions */}
+      {/* Footer: acções (o ID interno não é mostrado ao utilizador) */}
       <div className={styles.appointmentFooter}>
-        <span className={styles.appointmentId}>
-          Ref.: {appointment.id.slice(0, 8)}…
-        </span>
-        
         <div className={styles.appointmentActions}>
           {/* Actions based on appointment status */}
           {appointment.status === 'scheduled' && (
