@@ -1,0 +1,12 @@
+# SDD change state — admin-users-app-shell-modal-parity
+change: admin-users-app-shell-modal-parity
+created: "2026-04-21"
+phases:
+  explore: skipped
+  propose: complete
+  spec: complete
+  design: complete
+  tasks: complete
+  apply: complete
+  verify: complete
+  archive: complete
