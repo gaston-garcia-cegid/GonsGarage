@@ -224,9 +224,35 @@ html[data-theme='dark'] .alertError {
   color: var(--text-muted);
 }
 
+/* Unified app loading spinner — sizes from `tokens.css` `--app-loading-size-*` */
+.app-loading {
+  display: inline-block;
+  flex-shrink: 0;
+  border: 2px solid var(--border-default);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.app-loading--sm {
+  width: var(--app-loading-size-sm);
+  height: var(--app-loading-size-sm);
+}
+
+.app-loading--md {
+  width: var(--app-loading-size-md);
+  height: var(--app-loading-size-md);
+}
+
+.app-loading--lg {
+  width: var(--app-loading-size-lg);
+  height: var(--app-loading-size-lg);
+}
+
+/* Legacy class names — alias same dimensions as AppLoading */
 .spinnerLg {
-  width: 3rem;
-  height: 3rem;
+  width: var(--app-loading-size-lg);
+  height: var(--app-loading-size-lg);
   border: 2px solid var(--border-default);
   border-top-color: var(--color-primary);
   border-radius: 50%;
@@ -234,8 +260,8 @@ html[data-theme='dark'] .alertError {
 }
 
 .spinnerMd {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: var(--app-loading-size-md);
+  height: var(--app-loading-size-md);
   border: 2px solid var(--border-default);
   border-top-color: var(--color-primary);
   border-radius: 50%;

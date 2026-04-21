@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAuth, useCars } from '@/stores';
 import { apiClient, Repair } from '@/lib/api';
 import AppShell from '@/components/layout/AppShell';
+import { AppLoading } from '@/components/ui/AppLoading';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import { isClient } from '@/types/user';
 import styles from './car-details.module.css';
@@ -174,16 +175,16 @@ export default function CarDetailsPage() {
 
   if (!authHydrated || !user) {
     return (
-      <div className="loadingScreen">
-        <div className="spinnerLg" aria-hidden />
+      <div className="loadingScreen" aria-busy="true">
+        <AppLoading size="lg" aria-busy={false} label="A sessão a carregar" />
       </div>
     );
   }
 
   if (carId === 'new') {
     return (
-      <div className="loadingScreen">
-        <div className="spinnerLg" aria-hidden />
+      <div className="loadingScreen" aria-busy="true">
+        <AppLoading size="lg" aria-busy={false} label="A redirecionar" />
       </div>
     );
   }
@@ -191,8 +192,8 @@ export default function CarDetailsPage() {
   if (loading) {
     return (
       <AppShell user={user} subtitle="Detalhe do automóvel" activeNav="cars" onLogout={logout}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.spinner}></div>
+        <div className={styles.loadingContainer} aria-busy="true">
+          <AppLoading size="md" aria-busy={false} />
           <span>A carregar detalhes…</span>
         </div>
       </AppShell>
@@ -354,8 +355,8 @@ export default function CarDetailsPage() {
           )}
 
           {repairsLoading ? (
-            <div className={styles.repairsLoading}>
-              <div className={styles.spinner}></div>
+            <div className={styles.repairsLoading} aria-busy="true">
+              <AppLoading size="sm" aria-busy={false} />
               <span>A carregar reparações…</span>
             </div>
           ) : repairs.length === 0 ? (

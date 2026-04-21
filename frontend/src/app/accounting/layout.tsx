@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/stores';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import { isClient } from '@/types/user';
+import { AppLoading } from '@/components/ui/AppLoading';
 
 export default function AccountingLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const { user } = useAuth();
@@ -24,8 +25,8 @@ export default function AccountingLayout({ children }: Readonly<{ children: Reac
 
   if (!authHydrated || !user || isClient(user)) {
     return (
-      <div className="loadingScreen">
-        <div className="spinnerLg" aria-hidden />
+      <div className="loadingScreen" aria-busy="true">
+        <AppLoading size="lg" aria-busy={false} label="A carregar contabilidade" />
       </div>
     );
   }

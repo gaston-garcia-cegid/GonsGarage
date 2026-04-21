@@ -6,6 +6,7 @@ import { useAuth, useCars, useAppointments, UserRole } from '@/stores';
 import { apiClient, Repair } from '@/lib/api';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import AppShell from '@/components/layout/AppShell';
+import { AppLoading } from '@/components/ui/AppLoading';
 import styles from './dashboard.module.css';
 
 function repairStatusPt(status: string): string {
@@ -86,8 +87,8 @@ export default function ClientDashboardPage() {
 
   if (!authHydrated || !user) {
     return (
-      <div className="loadingScreen">
-        <div className="spinnerLg" aria-hidden />
+      <div className="loadingScreen" aria-busy="true">
+        <AppLoading size="lg" aria-busy={false} label="A sessão a carregar" />
       </div>
     );
   }
@@ -104,8 +105,8 @@ export default function ClientDashboardPage() {
         carsNavLabel={carsLabel}
         onLogout={logout}
       >
-        <div className={styles.loadingContainer}>
-          <div className={styles.spinner}></div>
+        <div className={styles.loadingContainer} aria-busy="true">
+          <AppLoading size="md" aria-busy={false} />
           <span>A carregar o painel…</span>
         </div>
       </AppShell>

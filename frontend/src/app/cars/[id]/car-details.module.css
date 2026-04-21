@@ -154,19 +154,6 @@
   gap: var(--space-3);
 }
 
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--color-gray-200);
-  border-top: 2px solid var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .errorContainer {
   min-height: 100vh;
   display: flex;

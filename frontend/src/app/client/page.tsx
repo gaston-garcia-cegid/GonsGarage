@@ -9,6 +9,7 @@ import { useClientData } from './hooks/useClientData';
 import { Car } from '@/types/car';
 import ClientDashboard from './components/ClientDashboard';
 import ClientAppointments from './components/ClientAppointments';
+import { AppLoading } from '@/components/ui/AppLoading';
 
 type ActiveTab = 'dashboard' | 'cars' | 'appointments';
 
@@ -34,8 +35,12 @@ export default function ClientPage() {
     // updateUserCarsContext(updatedCars);
   }, []);
 
-  if (authLoading || loading) {// || !isAuthenticated
-    return <div>A carregar área do cliente…</div>;
+  if (authLoading || loading) {
+    return (
+      <div className="loadingScreen" aria-busy="true">
+        <AppLoading size="lg" aria-busy={false} label="A carregar área do cliente" />
+      </div>
+    );
   }
 
   const navigationItems = [

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/stores';
 import CarsContainer from '@/app/cars/components/CarsContainer';
 import AppShell from '@/components/layout/AppShell';
+import { AppLoading } from '@/components/ui/AppLoading';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import styles from './cars.module.css';
 
@@ -22,8 +23,8 @@ export default function CarsPage() {
 
   if (!authHydrated || !user) {
     return (
-      <div className="loadingScreen">
-        <div className="spinnerLg" aria-hidden />
+      <div className="loadingScreen" aria-busy="true">
+        <AppLoading size="lg" aria-busy={false} label="A sessão a carregar" />
       </div>
     );
   }
@@ -38,8 +39,8 @@ export default function CarsPage() {
     >
       <Suspense
         fallback={
-          <div className="loadingStack">
-            <div className="spinnerMd" aria-hidden />
+          <div className="loadingStack" aria-busy="true">
+            <AppLoading size="md" aria-busy={false} />
             <span>A carregar…</span>
           </div>
         }

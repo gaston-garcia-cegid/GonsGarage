@@ -1,13 +1,13 @@
-/* src/components/layouts/DashboardLayout.module.css */
+/* src/components/layouts/DashboardLayout.module.css — tokens (mvp-ui-visual-parity Fase 2) */
 .container {
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: var(--surface-page);
 }
 
 .header {
-  background-color: white;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--surface-header);
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .headerContent {
@@ -34,25 +34,25 @@
 .logoIcon {
   width: 32px;
   height: 32px;
-  background-color: white;
-  border-radius: 6px;
+  background-color: var(--surface-panel);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .logoSection h1 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .logoSection p {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -64,28 +64,28 @@
 
 .userSection span {
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--text-secondary);
 }
 
 .logoutButton {
-  background-color: #dc2626;
-  color: white;
+  background-color: var(--brand-signal);
+  color: var(--text-on-signal);
   padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
   font-weight: 500;
   border: none;
   cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
+  transition: background-color var(--transition-fast);
 }
 
 .logoutButton:hover {
-  background-color: #b91c1c;
+  background-color: var(--brand-signal-hover);
 }
 
 .navigation {
-  background-color: white;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--surface-header);
+  border-bottom: 1px solid var(--border-default);
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
@@ -99,19 +99,19 @@
   border: none;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-muted);
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: all 0.15s ease-in-out;
+  transition: all var(--transition-fast);
 }
 
 .navButton:hover {
-  color: #2563eb;
+  color: var(--color-primary);
 }
 
 .navButton.active {
-  color: #2563eb;
-  border-bottom-color: #2563eb;
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 .main {
@@ -127,6 +127,6 @@
 .pageHeader h2 {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
   margin: 0;
 }

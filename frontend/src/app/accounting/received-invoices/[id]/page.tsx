@@ -8,6 +8,7 @@ import AppShell from '@/components/layout/AppShell';
 import { receivedInvoiceService } from '@/lib/services/received-invoice.service';
 import type { ReceivedInvoice } from '@/types/accounting';
 import styles from '../../accounting.module.css';
+import { AppLoading } from '@/components/ui/AppLoading';
 
 export default function ReceivedInvoiceDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -135,8 +136,8 @@ export default function ReceivedInvoiceDetailPage() {
           </div>
         </form>
       ) : !error ? (
-        <div className="loadingStack">
-          <div className="spinnerMd" aria-hidden />
+        <div className="loadingStack" aria-busy="true">
+          <AppLoading size="md" aria-busy={false} />
           <span>A carregar…</span>
         </div>
       ) : null}

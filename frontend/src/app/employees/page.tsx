@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/contexts/AuthContext";
 import { CreateEmployeeRequest, Employee, apiClient } from '@/lib/api';
+import { AppLoading } from '@/components/ui/AppLoading';
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -78,50 +79,8 @@ export default function EmployeesPage() {
 
   if (loading && employees.length === 0) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'var(--color-gray-50)',
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-2)',
-        }}>
-          <svg 
-            style={{ 
-              animation: 'spin 1s linear infinite',
-              width: '20px', 
-              height: '20px',
-              color: 'var(--color-primary)'
-            }} 
-            xmlns="http://www.w3.org/2000/svg" 
-            fill="none" 
-            viewBox="0 0 24 24"
-          >
-            <circle 
-              style={{ opacity: 0.25 }} 
-              cx="12" 
-              cy="12" 
-              r="10" 
-              stroke="currentColor" 
-              strokeWidth="4"
-            />
-            <path 
-              style={{ opacity: 0.75 }} 
-              fill="currentColor" 
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
-          <span style={{
-            fontSize: '0.875rem',
-            color: 'var(--color-gray-600)',
-          }}>
-            A carregar colaboradores…
-          </span>
-        </div>
+      <div className="loadingScreen" aria-busy="true">
+        <AppLoading size="lg" aria-busy={false} label="A carregar colaboradores" />
       </div>
     );
   }
@@ -129,11 +88,11 @@ export default function EmployeesPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: 'var(--color-gray-50)',
+      backgroundColor: 'var(--surface-page)',
     }}>
       {/* Header */}
       <header style={{
-        backgroundColor: 'white',
+        backgroundColor: 'var(--surface-header)',
         boxShadow: 'var(--shadow-sm)',
         borderBottom: '1px solid var(--color-gray-200)',
       }}>
@@ -163,7 +122,7 @@ export default function EmployeesPage() {
                 justifyContent: 'center',
               }}>
                 <svg 
-                  style={{ width: '16px', height: '16px', color: 'white' }} 
+                  style={{ width: '16px', height: '16px', color: 'var(--text-on-primary)' }} 
                   fill="none" 
                   viewBox="0 0 24 24" 
                   stroke="currentColor"
@@ -203,8 +162,8 @@ export default function EmployeesPage() {
               <button
                 onClick={logout}
                 style={{
-                  backgroundColor: '#dc2626',
-                  color: 'white',
+                  backgroundColor: 'var(--color-error)',
+                  color: 'var(--text-on-signal)',
                   padding: 'var(--space-2) var(--space-3)',
                   borderRadius: 'var(--radius)',
                   fontSize: '0.875rem',
@@ -214,10 +173,10 @@ export default function EmployeesPage() {
                   transition: 'background-color var(--transition-fast)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#b91c1c';
+                  e.currentTarget.style.backgroundColor = 'var(--brand-signal-hover)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#dc2626';
+                  e.currentTarget.style.backgroundColor = 'var(--color-error)';
                 }}
               >
                 Terminar sessão
@@ -299,7 +258,7 @@ export default function EmployeesPage() {
               onClick={() => setShowCreateModal(true)}
               style={{
                 backgroundColor: 'var(--color-primary)',
-                color: 'white',
+                color: 'var(--text-on-primary)',
                 padding: 'var(--space-2) var(--space-4)',
                 borderRadius: 'var(--radius)',
                 fontSize: '0.875rem',
@@ -335,9 +294,9 @@ export default function EmployeesPage() {
         {error && (
           <div style={{
             marginBottom: 'var(--space-4)',
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca',
-            color: '#dc2626',
+            backgroundColor: 'var(--chip-danger-bg)',
+            border: '1px solid var(--chip-danger-border)',
+            color: 'var(--color-error)',
             padding: 'var(--space-3)',
             borderRadius: 'var(--radius)',
             display: 'flex',
@@ -357,7 +316,7 @@ export default function EmployeesPage() {
 
         {/* Employee Table Container */}
         <div style={{
-          backgroundColor: 'white',
+          backgroundColor: 'var(--surface-header)',
           borderRadius: 'var(--radius-lg)',
           boxShadow: 'var(--shadow-md)',
           overflow: 'hidden',
@@ -392,7 +351,7 @@ export default function EmployeesPage() {
               borderCollapse: 'collapse',
             }}>
               <thead style={{
-                backgroundColor: 'var(--color-gray-50)',
+                backgroundColor: 'var(--surface-page)',
               }}>
                 <tr>
                   <th style={{
@@ -475,7 +434,7 @@ export default function EmployeesPage() {
                 </tr>
               </thead>
               <tbody style={{
-                backgroundColor: 'white',
+                backgroundColor: 'var(--surface-header)',
               }}>
                 {filteredEmployees.length === 0 ? (
                   <tr>
@@ -500,10 +459,10 @@ export default function EmployeesPage() {
                         transition: 'background-color var(--transition-fast)',
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'var(--color-gray-50)';
+                        e.currentTarget.style.backgroundColor = 'var(--surface-muted)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'white';
+                        e.currentTarget.style.backgroundColor = 'var(--surface-header)';
                       }}
                     >
                       <td style={{
@@ -528,7 +487,7 @@ export default function EmployeesPage() {
                             <span style={{
                               fontSize: '0.75rem',
                               fontWeight: '500',
-                              color: 'white',
+                              color: 'var(--text-on-primary)',
                             }}>
                               {employee.first_name[0]}{employee.last_name[0]}
                             </span>
@@ -592,8 +551,8 @@ export default function EmployeesPage() {
                           fontSize: '0.75rem',
                           fontWeight: '500',
                           borderRadius: 'var(--radius)',
-                          backgroundColor: employee.is_active ? '#ecfdf5' : '#fef2f2',
-                          color: employee.is_active ? '#065f46' : '#991b1b',
+                          backgroundColor: employee.is_active ? 'var(--chip-success-bg)' : 'var(--chip-danger-bg)',
+                          color: employee.is_active ? 'var(--chip-success-fg)' : 'var(--chip-danger-fg)',
                         }}>
                           {employee.is_active ? 'Ativo' : 'Inativo'}
                         </span>
@@ -630,7 +589,7 @@ export default function EmployeesPage() {
                           <button
                             onClick={() => handleDelete(employee.id)}
                             style={{
-                              color: '#dc2626',
+                              color: 'var(--color-error)',
                               backgroundColor: 'transparent',
                               border: 'none',
                               cursor: 'pointer',
@@ -640,10 +599,10 @@ export default function EmployeesPage() {
                               transition: 'color var(--transition-fast)',
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.color = '#b91c1c';
+                              e.currentTarget.style.color = 'var(--brand-signal-hover)';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.color = '#dc2626';
+                              e.currentTarget.style.color = 'var(--color-error)';
                             }}
                           >
                             Eliminar
@@ -660,7 +619,7 @@ export default function EmployeesPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div style={{
-              backgroundColor: 'white',
+              backgroundColor: 'var(--surface-header)',
               padding: 'var(--space-3) var(--space-6)',
               display: 'flex',
               alignItems: 'center',
@@ -694,7 +653,7 @@ export default function EmployeesPage() {
                   style={{
                     padding: 'var(--space-2) var(--space-3)',
                     border: '1px solid var(--color-gray-300)',
-                    backgroundColor: 'white',
+                    backgroundColor: 'var(--surface-header)',
                     fontSize: '0.875rem',
                     fontWeight: '500',
                     color: currentPage === 1 ? 'var(--color-gray-400)' : 'var(--color-gray-700)',
@@ -704,11 +663,11 @@ export default function EmployeesPage() {
                   }}
                   onMouseEnter={(e) => {
                     if (currentPage !== 1) {
-                      e.currentTarget.style.backgroundColor = 'var(--color-gray-50)';
+                      e.currentTarget.style.backgroundColor = 'var(--surface-muted)';
                     }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'white';
+                    e.currentTarget.style.backgroundColor = 'var(--surface-header)';
                   }}
                 >
                   Anterior
@@ -722,22 +681,24 @@ export default function EmployeesPage() {
                       style={{
                         padding: 'var(--space-2) var(--space-3)',
                         border: '1px solid var(--color-gray-300)',
-                        backgroundColor: pageNum === currentPage ? 'var(--color-primary)' : 'white',
+                        backgroundColor:
+                          pageNum === currentPage ? 'var(--color-primary)' : 'var(--surface-panel)',
                         fontSize: '0.875rem',
                         fontWeight: '500',
-                        color: pageNum === currentPage ? 'white' : 'var(--color-gray-700)',
+                        color:
+                          pageNum === currentPage ? 'var(--text-on-primary)' : 'var(--color-gray-700)',
                         cursor: 'pointer',
                         borderRadius: 'var(--radius)',
                         transition: 'all var(--transition-fast)',
                       }}
                       onMouseEnter={(e) => {
                         if (pageNum !== currentPage) {
-                          e.currentTarget.style.backgroundColor = 'var(--color-gray-50)';
+                          e.currentTarget.style.backgroundColor = 'var(--surface-muted)';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (pageNum !== currentPage) {
-                          e.currentTarget.style.backgroundColor = 'white';
+                          e.currentTarget.style.backgroundColor = 'var(--surface-panel)';
                         }
                       }}
                     >
@@ -751,7 +712,7 @@ export default function EmployeesPage() {
                   style={{
                     padding: 'var(--space-2) var(--space-3)',
                     border: '1px solid var(--color-gray-300)',
-                    backgroundColor: 'white',
+                    backgroundColor: 'var(--surface-header)',
                     fontSize: '0.875rem',
                     fontWeight: '500',
                     color: currentPage === totalPages ? 'var(--color-gray-400)' : 'var(--color-gray-700)',
@@ -761,11 +722,11 @@ export default function EmployeesPage() {
                   }}
                   onMouseEnter={(e) => {
                     if (currentPage !== totalPages) {
-                      e.currentTarget.style.backgroundColor = 'var(--color-gray-50)';
+                      e.currentTarget.style.backgroundColor = 'var(--surface-muted)';
                     }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'white';
+                    e.currentTarget.style.backgroundColor = 'var(--surface-header)';
                   }}
                 >
                   Seguinte
@@ -891,7 +852,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
       zIndex: 50,
     }}>
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: 'var(--surface-header)',
         borderRadius: 'var(--radius-lg)',
         boxShadow: 'var(--shadow-lg)',
         width: '100%',
@@ -948,9 +909,9 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
           <form onSubmit={handleSubmit}>
             {errors.general && (
               <div style={{
-                backgroundColor: '#fef2f2',
-                border: '1px solid #fecaca',
-                color: '#dc2626',
+                backgroundColor: 'var(--chip-danger-bg)',
+                border: '1px solid var(--chip-danger-border)',
+                color: 'var(--color-error)',
                 padding: 'var(--space-3)',
                 borderRadius: 'var(--radius)',
                 marginBottom: 'var(--space-4)',
@@ -984,7 +945,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   style={{
                     width: '100%',
                     padding: 'var(--space-2)',
-                    border: `1px solid ${errors.first_name ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    border: `1px solid ${errors.first_name ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
                     borderRadius: 'var(--radius)',
                     fontSize: '0.875rem',
                     outline: 'none',
@@ -995,7 +956,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                     e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = errors.first_name ? '#fca5a5' : 'var(--color-gray-300)';
+                    e.target.style.borderColor = errors.first_name ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
                     e.target.style.boxShadow = 'none';
                   }}
                 />
@@ -1003,7 +964,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   <p style={{
                     marginTop: 'var(--space-1)',
                     fontSize: '0.75rem',
-                    color: '#dc2626',
+                    color: 'var(--color-error)',
                   }}>
                     {errors.first_name}
                   </p>
@@ -1028,7 +989,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   style={{
                     width: '100%',
                     padding: 'var(--space-2)',
-                    border: `1px solid ${errors.last_name ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    border: `1px solid ${errors.last_name ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
                     borderRadius: 'var(--radius)',
                     fontSize: '0.875rem',
                     outline: 'none',
@@ -1039,7 +1000,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                     e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = errors.last_name ? '#fca5a5' : 'var(--color-gray-300)';
+                    e.target.style.borderColor = errors.last_name ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
                     e.target.style.boxShadow = 'none';
                   }}
                 />
@@ -1047,7 +1008,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   <p style={{
                     marginTop: 'var(--space-1)',
                     fontSize: '0.75rem',
-                    color: '#dc2626',
+                    color: 'var(--color-error)',
                   }}>
                     {errors.last_name}
                   </p>
@@ -1073,7 +1034,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                 style={{
                   width: '100%',
                   padding: 'var(--space-2)',
-                  border: `1px solid ${errors.email ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                  border: `1px solid ${errors.email ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
                   borderRadius: 'var(--radius)',
                   fontSize: '0.875rem',
                   outline: 'none',
@@ -1084,7 +1045,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = errors.email ? '#fca5a5' : 'var(--color-gray-300)';
+                  e.target.style.borderColor = errors.email ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
                   e.target.style.boxShadow = 'none';
                 }}
               />
@@ -1092,7 +1053,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                 <p style={{
                   marginTop: 'var(--space-1)',
                   fontSize: '0.75rem',
-                  color: '#dc2626',
+                  color: 'var(--color-error)',
                 }}>
                   {errors.email}
                 </p>
@@ -1122,7 +1083,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   style={{
                     width: '100%',
                     padding: 'var(--space-2)',
-                    border: `1px solid ${errors.department ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    border: `1px solid ${errors.department ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
                     borderRadius: 'var(--radius)',
                     fontSize: '0.875rem',
                     outline: 'none',
@@ -1140,7 +1101,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   <p style={{
                     marginTop: 'var(--space-1)',
                     fontSize: '0.75rem',
-                    color: '#dc2626',
+                    color: 'var(--color-error)',
                   }}>
                     {errors.department}
                   </p>
@@ -1165,7 +1126,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   style={{
                     width: '100%',
                     padding: 'var(--space-2)',
-                    border: `1px solid ${errors.position ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    border: `1px solid ${errors.position ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
                     borderRadius: 'var(--radius)',
                     fontSize: '0.875rem',
                     outline: 'none',
@@ -1176,7 +1137,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                     e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = errors.position ? '#fca5a5' : 'var(--color-gray-300)';
+                    e.target.style.borderColor = errors.position ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
                     e.target.style.boxShadow = 'none';
                   }}
                 />
@@ -1184,7 +1145,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   <p style={{
                     marginTop: 'var(--space-1)',
                     fontSize: '0.75rem',
-                    color: '#dc2626',
+                    color: 'var(--color-error)',
                   }}>
                     {errors.position}
                   </p>
@@ -1216,7 +1177,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   style={{
                     width: '100%',
                     padding: 'var(--space-2)',
-                    border: `1px solid ${errors.hire_date ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    border: `1px solid ${errors.hire_date ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
                     borderRadius: 'var(--radius)',
                     fontSize: '0.875rem',
                     outline: 'none',
@@ -1227,7 +1188,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                     e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = errors.hire_date ? '#fca5a5' : 'var(--color-gray-300)';
+                    e.target.style.borderColor = errors.hire_date ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
                     e.target.style.boxShadow = 'none';
                   }}
                 />
@@ -1235,7 +1196,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   <p style={{
                     marginTop: 'var(--space-1)',
                     fontSize: '0.75rem',
-                    color: '#dc2626',
+                    color: 'var(--color-error)',
                   }}>
                     {errors.hire_date}
                   </p>
@@ -1262,7 +1223,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   style={{
                     width: '100%',
                     padding: 'var(--space-2)',
-                    border: `1px solid ${errors.salary ? '#fca5a5' : 'var(--color-gray-300)'}`,
+                    border: `1px solid ${errors.salary ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
                     borderRadius: 'var(--radius)',
                     fontSize: '0.875rem',
                     outline: 'none',
@@ -1273,7 +1234,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                     e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = errors.salary ? '#fca5a5' : 'var(--color-gray-300)';
+                    e.target.style.borderColor = errors.salary ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
                     e.target.style.boxShadow = 'none';
                   }}
                 />
@@ -1281,7 +1242,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   <p style={{
                     marginTop: 'var(--space-1)',
                     fontSize: '0.75rem',
-                    color: '#dc2626',
+                    color: 'var(--color-error)',
                   }}>
                     {errors.salary}
                   </p>
@@ -1306,15 +1267,15 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   fontSize: '0.875rem',
                   fontWeight: '500',
                   color: 'var(--color-gray-700)',
-                  backgroundColor: 'white',
+                  backgroundColor: 'var(--surface-header)',
                   cursor: 'pointer',
                   transition: 'background-color var(--transition-fast)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--color-gray-50)';
+                  e.currentTarget.style.backgroundColor = 'var(--surface-muted)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.backgroundColor = 'var(--surface-header)';
                 }}
               >
                 Cancelar
@@ -1328,7 +1289,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
                   borderRadius: 'var(--radius)',
                   fontSize: '0.875rem',
                   fontWeight: '500',
-                  color: 'white',
+                  color: 'var(--text-on-primary)',
                   backgroundColor: isLoading ? 'var(--color-gray-400)' : 'var(--color-primary)',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
                   transition: 'background-color var(--transition-fast)',

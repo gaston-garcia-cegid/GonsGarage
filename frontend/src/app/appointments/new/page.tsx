@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useEffect } from 'react';
+import { AppLoading } from '@/components/ui/AppLoading';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 /**
@@ -20,8 +21,8 @@ function RedirectInner() {
   }, [router, searchParams]);
 
   return (
-    <div className="loadingScreen">
-      <div className="spinnerLg" aria-hidden />
+    <div className="loadingScreen" aria-busy="true">
+      <AppLoading size="lg" aria-busy={false} label="A redirecionar" />
     </div>
   );
 }
@@ -30,8 +31,8 @@ export default function LegacyNewAppointmentPage() {
   return (
     <Suspense
       fallback={
-        <div className="loadingScreen">
-          <div className="spinnerLg" aria-hidden />
+        <div className="loadingScreen" aria-busy="true">
+          <AppLoading size="lg" aria-busy={false} label="A carregar" />
         </div>
       }
     >

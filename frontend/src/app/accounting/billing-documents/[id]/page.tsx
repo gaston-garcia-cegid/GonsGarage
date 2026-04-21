@@ -8,6 +8,7 @@ import AppShell from '@/components/layout/AppShell';
 import { billingDocumentService } from '@/lib/services/billing-document.service';
 import type { BillingDocument, BillingDocumentKind } from '@/types/accounting';
 import styles from '../../accounting.module.css';
+import { AppLoading } from '@/components/ui/AppLoading';
 
 const KINDS: { value: BillingDocumentKind; label: string }[] = [
   { value: 'client_invoice', label: 'Fatura cliente' },
@@ -148,8 +149,8 @@ export default function BillingDocumentDetailPage() {
           </div>
         </form>
       ) : !error ? (
-        <div className="loadingStack">
-          <div className="spinnerMd" aria-hidden />
+        <div className="loadingStack" aria-busy="true">
+          <AppLoading size="md" aria-busy={false} />
           <span>A carregar…</span>
         </div>
       ) : null}

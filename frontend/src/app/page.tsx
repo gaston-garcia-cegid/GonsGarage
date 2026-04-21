@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import Image from 'next/image';
 import styles from './landing.module.css';
+import { AppLoading } from '@/components/ui/AppLoading';
 
 export default function LandingPage() {
   const { isAuthenticated, user, isLoading } = useAuth();
@@ -88,17 +89,17 @@ export default function LandingPage() {
 
   if (isLoading) {
     return (
-      <div className="loadingScreen">
-        <div className="spinnerLg" aria-hidden />
+      <div className="loadingScreen" aria-busy="true">
+        <AppLoading size="lg" aria-busy={false} label="A carregar" />
       </div>
     );
   }
 
   if (isAuthenticated && user) {
     return (
-      <div className="loadingScreen">
+      <div className="loadingScreen" aria-busy="true">
         <div className="loadingScreenInner">
-          <div className="spinnerLg" aria-hidden />
+          <AppLoading size="lg" aria-busy={false} label="A redirecionar para o painel" />
           <p>A redirecionar para o painel…</p>
         </div>
       </div>

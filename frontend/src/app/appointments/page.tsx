@@ -12,6 +12,7 @@ import AppShell from '@/components/layout/AppShell';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import styles from './appointments.module.css';
 import emptyStyles from '@/components/empty-states/EmptyState.module.css';
+import { AppLoading } from '@/components/ui/AppLoading';
 
 function AppointmentsPageContent() {
   const router = useRouter();
@@ -86,8 +87,8 @@ function AppointmentsPageContent() {
 
   if (!authHydrated || !user || !isAuthenticated) {
     return (
-      <div className="loadingScreen">
-        <div className="spinnerLg" aria-hidden />
+      <div className="loadingScreen" aria-busy="true">
+        <AppLoading size="lg" aria-busy={false} label="A sessão a carregar" />
       </div>
     );
   }
@@ -100,8 +101,8 @@ function AppointmentsPageContent() {
   if (isBootstrapping) {
     return (
       <AppShell user={user} subtitle="Marcações" activeNav="appointments" onLogout={logout}>
-        <div className="loadingStack">
-          <div className="spinnerMd" aria-hidden />
+        <div className="loadingStack" aria-busy="true">
+          <AppLoading size="md" aria-busy={false} />
           <span>A carregar marcações…</span>
         </div>
       </AppShell>
@@ -201,8 +202,8 @@ function AppointmentsPageContent() {
 
 function AppointmentsFallback() {
   return (
-    <div className="loadingScreen">
-      <div className="spinnerLg" aria-hidden />
+    <div className="loadingScreen" aria-busy="true">
+      <AppLoading size="lg" aria-busy={false} label="A carregar marcações" />
     </div>
   );
 }

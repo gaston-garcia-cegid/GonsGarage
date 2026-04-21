@@ -148,6 +148,11 @@
   --ring-focus-input: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent);
   --ring-focus-error: 0 0 0 3px color-mix(in srgb, var(--color-error) 14%, transparent);
   --shadow-primary-glow: 0 4px 6px color-mix(in srgb, var(--color-primary) 22%, transparent);
+
+  /* App loading — single rem sizes (`AppLoading`, `.spinnerLg` / `.spinnerMd` aliases). See `docs/ui-audit-mvp-dark.md`. */
+  --app-loading-size-sm: 1.25rem;
+  --app-loading-size-md: 1.75rem;
+  --app-loading-size-lg: 2.25rem;
 }
 
 html[data-theme='light'] {
@@ -179,16 +184,18 @@ html[data-theme='dark'] {
   --color-gray-900: #f8fafc;
 
   --surface-page: var(--color-gray-50);
-  --surface-panel: var(--color-gray-100);
-  --surface-elevated: #141c28;
-  --surface-muted: #141c28;
+  /* Panels ligeramente más claros que la página para jerarquía (evita “todo negro plano”). */
+  --surface-panel: #0e1522;
+  --surface-elevated: #141d2d;
+  --surface-muted: #121a28;
   --surface-header: #0f141c;
   --border-default: var(--color-gray-200);
   --border-strong: var(--color-gray-300);
 
   --text-primary: var(--color-gray-900);
   --text-secondary: var(--color-gray-600);
-  --text-muted: var(--color-gray-500);
+  /* Más legible sobre `--surface-page` / paneles oscuros que gray-500 puro. */
+  --text-muted: var(--color-gray-400);
   --text-on-primary: #0f172a;
   --text-on-signal: #ffffff;
 
