@@ -191,7 +191,7 @@ export default function CarDetailsPage() {
 
   if (loading) {
     return (
-      <AppShell user={user} subtitle="Detalhe do automóvel" activeNav="cars" onLogout={logout}>
+      <AppShell user={user} subtitle="Detalhe do automóvel" activeNav="cars" logoVariant="branded" onLogout={logout}>
         <div className={styles.loadingContainer} aria-busy="true">
           <AppLoading size="md" aria-busy={false} />
           <span>A carregar detalhes…</span>
@@ -202,7 +202,7 @@ export default function CarDetailsPage() {
 
   if (error || !car) {
     return (
-      <AppShell user={user} subtitle="Detalhe do automóvel" activeNav="cars" onLogout={logout}>
+      <AppShell user={user} subtitle="Detalhe do automóvel" activeNav="cars" logoVariant="branded" onLogout={logout}>
         <div className={styles.errorContainer}>
           <div className={styles.errorContent}>
             <div className={styles.errorIcon}>⚠️</div>
@@ -218,7 +218,7 @@ export default function CarDetailsPage() {
   }
 
   return (
-    <AppShell user={user} subtitle="Detalhe do automóvel" activeNav="cars" onLogout={logout}>
+    <AppShell user={user} subtitle="Detalhe do automóvel" activeNav="cars" logoVariant="branded" onLogout={logout}>
       <div className={styles.breadcrumbs}>
         <button onClick={() => router.push('/cars')} className={styles.breadcrumbLink}>
           Os meus automóveis

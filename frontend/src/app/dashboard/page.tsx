@@ -104,6 +104,7 @@ export default function ClientDashboardPage() {
         subtitle={shellSubtitle}
         activeNav="dashboard"
         carsNavLabel={carsLabel}
+        logoVariant="branded"
         onLogout={logout}
       >
         <div className={styles.loadingContainer} aria-busy="true">
@@ -120,6 +121,7 @@ export default function ClientDashboardPage() {
       subtitle={shellSubtitle}
       activeNav="dashboard"
       carsNavLabel={carsLabel}
+      logoVariant="branded"
       onLogout={logout}
     >
         {error && (

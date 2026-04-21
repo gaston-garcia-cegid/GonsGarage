@@ -137,14 +137,26 @@ export interface CreateAppointmentRequest {
   notes?: string;
 }
 
-//const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+/**
+ * Igual que `api-client.ts` e `carApi`: `NEXT_PUBLIC_API_URL` é a origem (host:porta),
+ * sem path; o cliente fala sempre com `/api/v1/...` (nginx em prod expõe `/api/` → Gin).
+ */
+function resolveApiV1BaseUrl(raw: string): string {
+  const trimmed = raw.trim().replace(/\/+$/, '');
+  if (trimmed.endsWith('/api/v1')) return trimmed;
+  return `${trimmed}/api/v1`;
+}
 
 class ApiClient {
   private baseURL: string;
   private token: string | null = null;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+    const raw =
+      process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.trim() !== ''
+        ? process.env.NEXT_PUBLIC_API_URL
+        : 'http://localhost:8080';
+    this.baseURL = resolveApiV1BaseUrl(raw);
     if (typeof window !== 'undefined') {
       // Same session as Zustand / api-client (auth_token); legacy key was "token"
       this.token = localStorage.getItem('auth_token') || localStorage.getItem('token');
@@ -187,29 +199,54 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (response.status === 204) {
         return { data: {} as T };
       }
 
-      const data = await response.json();
+      const text = await response.text();
+      let data: unknown = null;
+      if (text.length > 0) {
+        try {
+          data = JSON.parse(text) as unknown;
+        } catch {
+          if (!response.ok) {
+            const isHtml = text.trimStart().startsWith('<');
+            return {
+              error: {
+                message: isHtml
+                  ? `HTTP ${response.status}: o servidor devolveu HTML em vez de JSON (verifique NEXT_PUBLIC_API_URL e o proxy /api/).`
+                  : text.slice(0, 240),
+                status: response.status,
+              },
+            };
+          }
+          return {
+            error: {
+              message: 'Resposta do servidor não é JSON válido.',
+              status: response.status,
+            },
+          };
+        }
+      }
 
       if (!response.ok) {
+        const body = (data ?? {}) as Record<string, unknown>;
         return {
           error: {
-            message: data.error || data.message || 'An error occurred',
+            message: (body.error as string) || (body.message as string) || `HTTP ${response.status}`,
             status: response.status,
-            code: data.code,
+            code: body.code as string | undefined,
           },
         };
       }
 
-      return { data };
+      return { data: data as T };
     } catch (error) {
       console.error('API request failed:', error);
       return {
         error: {
-          message: 'Network error occurred, Line 134',
+          message: error instanceof Error ? error.message : 'Erro de rede',
           status: 0,
         },
       };

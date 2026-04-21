@@ -101,7 +101,7 @@ function AppointmentsPageContent() {
 
   if (isBootstrapping) {
     return (
-      <AppShell user={user} subtitle="Marcações" activeNav="appointments" onLogout={logout}>
+      <AppShell user={user} subtitle="Marcações" activeNav="appointments" logoVariant="branded" onLogout={logout}>
         <div className="loadingStack" aria-busy="true">
           <AppLoading size="md" aria-busy={false} />
           <span>A carregar marcações…</span>
@@ -112,7 +112,7 @@ function AppointmentsPageContent() {
 
   if (appointmentsError) {
     return (
-      <AppShell user={user} subtitle="Marcações" activeNav="appointments" onLogout={logout}>
+      <AppShell user={user} subtitle="Marcações" activeNav="appointments" logoVariant="branded" onLogout={logout}>
         <div className="alertError">
           <p>Erro ao carregar marcações: {appointmentsError}</p>
           <Button type="button" className="mt-3" onClick={() => fetchAppointments()}>
@@ -130,6 +130,7 @@ function AppointmentsPageContent() {
         user={user}
         subtitle="Marcações"
         activeNav="appointments"
+        logoVariant="branded"
         onLogout={logout}
         toolbar={toolbarNoCars}
       >
@@ -167,6 +168,7 @@ function AppointmentsPageContent() {
         user={user}
         subtitle="Marcações"
         activeNav="appointments"
+        logoVariant="branded"
         onLogout={logout}
         toolbar={toolbar}
       >
