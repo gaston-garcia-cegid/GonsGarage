@@ -54,9 +54,6 @@
   --text-on-primary: #ffffff;
   --text-on-signal: #ffffff;
 
-  --background: var(--surface-page);
-  --foreground: var(--text-primary);
-
   --font-sans: var(--font-geist-sans, 'Geist'), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: var(--font-geist-mono, 'Geist Mono'), ui-monospace, monospace;
 
@@ -198,9 +195,6 @@ html[data-theme='dark'] {
   --text-muted: var(--color-gray-400);
   --text-on-primary: #0f172a;
   --text-on-signal: #ffffff;
-
-  --background: var(--surface-page);
-  --foreground: var(--text-primary);
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.35);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.45);

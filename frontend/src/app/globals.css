@@ -1,13 +1,16 @@
 @import '../styles/tokens.css';
+@import '../styles/shadcn-theme.css';
 @import '../styles/utilities.css';
 
-/* Reset and base */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset and base (complementa Tailwind preflight) */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html {

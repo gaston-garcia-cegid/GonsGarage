@@ -5,6 +5,8 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/stores';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import styles from './DashboardLayout.module.css';
 
 interface NavigationItem {
@@ -70,9 +72,9 @@ export default function DashboardLayout({
           
           <div className={styles.userSection}>
             <span>Welcome, {user?.firstName} {user?.lastName}</span>
-            <button onClick={logout} className={styles.logoutButton}>
+            <Button type="button" variant="outline" size="sm" onClick={logout} className={styles.logoutButton}>
               Logout
-            </button>
+            </Button>
           </div>
         </div>
       </header>
@@ -80,15 +82,15 @@ export default function DashboardLayout({
       {/* Navigation */}
       <nav className={styles.navigation}>
         {navigationItems.map((item) => (
-          <button
+          <Button
             key={item.key}
+            type="button"
+            variant="ghost"
             onClick={() => handleNavigation(item)}
-            className={`${styles.navButton} ${
-              activeTab === item.key ? styles.active : ''
-            }`}
+            className={cn(styles.navButton, activeTab === item.key && styles.active)}
           >
             {item.label}
-          </button>
+          </Button>
         ))}
       </nav>
 

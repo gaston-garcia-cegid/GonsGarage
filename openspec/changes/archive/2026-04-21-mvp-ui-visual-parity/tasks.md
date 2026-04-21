@@ -26,17 +26,17 @@
 
 ## Phase 4 — Shadcn desde cero
 
-- [ ] 4.1 `docs/adr/NNNN-shadcn-stack.md`: stack, carpeta `frontend/src/components/ui/`, relación Fase 3.
-- [ ] 4.2 PR fundación: shadcn init + `Button` `Input` `Label` `Dialog` en `components/ui/` sin rutas MVP aún; build+test verdes.
-- [ ] 4.3 `docs/ui-shadcn-theme.md`: tabla marca ↔ variables tema shadcn.
-- [ ] 4.4 PR auth: `app/auth/login`, `register`, `AuthShell.tsx` solo con `components/ui` en CTA/campos.
-- [ ] 4.5 PR shell: `AppShell.tsx` nav/header con primitives.
-- [ ] 4.6 PR: `app/dashboard`, `cars`, `appointments` — controles repetidos a `components/ui`.
-- [ ] 4.7 PR: `employees`, `client`, `app/accounting/**` — mismo; sin form crítico legacy sin issue.
-- [ ] 4.8 Inventario forms sin `components/ui`: cero o lista fechada en verify (propietario).
-- [ ] 4.9 `frontend/README.md`: cómo añadir componentes shadcn; UI canónica = `components/ui`.
+- [x] 4.1 `docs/adr/0002-shadcn-stack.md`: stack, carpeta `frontend/src/components/ui/`, relación Fase 3.
+- [x] 4.2 PR fundación: shadcn init + `Button` `Input` `Label` `Dialog` en `components/ui/` sin rutas MVP aún; build+test verdes.
+- [x] 4.3 `docs/ui-shadcn-theme.md`: tabla marca ↔ variables tema shadcn.
+- [x] 4.4 PR auth: `app/auth/login`, `register`, `AuthShell.tsx` solo con `components/ui` en CTA/campos.
+- [x] 4.5 PR shell: `AppShell.tsx` nav/header con primitives.
+- [x] 4.6 PR: `app/dashboard`, `cars`, `appointments` — controles repetidos a `components/ui`.
+- [x] 4.7 PR: `employees`, `client`, `app/accounting/**` — mismo; sin form crítico legacy sin issue.
+- [x] 4.8 Inventario forms sin `components/ui`: cero o lista fechada en verify (propietario).
+- [x] 4.9 `frontend/README.md`: cómo añadir componentes shadcn; UI canónica = `components/ui`.
 
 ## Phase 5 — Cierre verify
 
-- [ ] 5.1 `pnpm lint`, `build`, `test` en `frontend/` tras hito Fase 4.
-- [ ] 5.2 Completar matriz light/dark en `docs/ui-audit-mvp-dark.md` para rutas migradas.
+- [x] 5.1 `pnpm lint`, `build`, `test` en `frontend/` tras hito Fase 4.
+- [x] 5.2 Completar matriz light/dark en `docs/ui-audit-mvp-dark.md` para rutas migradas.

@@ -1,0 +1,49 @@
+/**
+ * HSL triples (no `hsl()` wrapper) for shadcn/ui + Tailwind (`hsl(var(--primary))`).
+ * Valores alineados aprox. a `tokens.css`; tabla en `docs/ui-shadcn-theme.md`.
+ * Sin `@layer base` aquí: el import va antes de `@tailwind base` en `globals.css`.
+ */
+:root {
+    --background: 210 20% 97%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 16% 47%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 20% 94%;
+    --muted-foreground: 215 16% 40%;
+    --accent: 210 20% 94%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    --radius: 0.5rem;
+}
+
+html[data-theme='dark'] {
+    --background: 220 35% 6%;
+    --foreground: 210 40% 98%;
+    --card: 220 28% 9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 220 28% 9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 215 20% 65%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 220 22% 12%;
+    --muted-foreground: 215 16% 60%;
+    --accent: 220 22% 14%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 18% 18%;
+    --input: 220 18% 22%;
+    --ring: 217 91% 60%;
+}

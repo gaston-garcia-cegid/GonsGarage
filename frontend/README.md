@@ -14,6 +14,7 @@ pnpm dev          # http://localhost:3000
 pnpm lint
 pnpm typecheck
 pnpm test         # Vitest (default; same as CI)
+pnpm test:coverage # Vitest + V8 coverage (text + coverage/coverage-summary.json)
 pnpm build
 ```
 
@@ -22,3 +23,10 @@ Copy [`./.env.local.example`](./.env.local.example) to `.env.local` and set `NEX
 ## Create Next App
 
 This app was originally bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app). For framework docs see [Next.js Documentation](https://nextjs.org/docs).
+
+## UI canónica (Shadcn)
+
+- **Primitives:** `src/components/ui/` — ficheiros estilo shadcn (`button.tsx`, `input.tsx`, `label.tsx`, `dialog.tsx`, …) + `AppLoading.tsx` e outros legados por pastas até migração.
+- **Utilidades:** `pnpm dlx shadcn@latest add <componente>` na pasta `frontend/` (lê `components.json`). Depois ajustar imports a `@/components/ui/...`.
+- **Tema:** ver [../docs/ui-shadcn-theme.md](../docs/ui-shadcn-theme.md) e `src/styles/shadcn-theme.css` (HSL) + `tailwind.config.ts`.
+- **Stack:** [ADR 0002](../docs/adr/0002-shadcn-stack.md).

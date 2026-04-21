@@ -9,6 +9,7 @@ import { supplierService } from '@/lib/services/supplier.service';
 import type { Supplier } from '@/types/accounting';
 import styles from '../../accounting.module.css';
 import { AppLoading } from '@/components/ui/AppLoading';
+import { Button } from '@/components/ui/button';
 
 export default function SupplierDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -122,12 +123,12 @@ export default function SupplierDetailPage() {
             </label>
           </div>
           <div className={styles.rowActions}>
-            <button type="submit" className={styles.submitButton} disabled={saving}>
+            <Button type="submit" className={styles.submitButton} disabled={saving}>
               {saving ? 'A guardar…' : 'Guardar'}
-            </button>
-            <button type="button" className={styles.dangerButton} onClick={() => void onDelete()}>
+            </Button>
+            <Button type="button" variant="destructive" className={styles.dangerButton} onClick={() => void onDelete()}>
               Eliminar
-            </button>
+            </Button>
           </div>
         </form>
       ) : !error ? (

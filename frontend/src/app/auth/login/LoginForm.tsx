@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/stores';
 import { AuthShell, AuthShellFooter } from '@/components/auth/AuthShell';
-import authShellStyles from '@/components/auth/AuthShell.module.css';
-import { Input } from '@/components/ui/Input/Input';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import styles from './login.module.css';
 
 export default function LoginForm() {
@@ -104,25 +106,32 @@ export default function LoginForm() {
     >
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.fieldStack}>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            label="E-mail"
-            autoComplete="email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-            error={errors.email}
-            placeholder="O seu e-mail"
-          />
+          <div className="grid gap-2">
+            <Label htmlFor="email">E-mail</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="O seu e-mail"
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? 'email-error' : undefined}
+              className={cn(errors.email && 'border-destructive')}
+            />
+            {errors.email ? (
+              <p id="email-error" className="text-sm text-destructive">
+                {errors.email}
+              </p>
+            ) : null}
+          </div>
 
-          <div className={styles.passwordField}>
-            <label htmlFor="password" className={styles.passwordLabel}>
-              Palavra-passe
-            </label>
-            <div className={styles.passwordInputWrap}>
-              <input
+          <div className="grid gap-2">
+            <Label htmlFor="password">Palavra-passe</Label>
+            <div className="relative flex gap-1">
+              <Input
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
@@ -130,18 +139,25 @@ export default function LoginForm() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className={`${styles.passwordInput} ${errors.password ? styles.passwordInputError : ''}`}
                 placeholder="A sua palavra-passe"
                 aria-invalid={Boolean(errors.password)}
                 aria-describedby={errors.password ? 'password-error' : undefined}
+                className={cn('pr-10', errors.password && 'border-destructive')}
               />
-              <button
+              <Button
                 type="button"
-                className={styles.passwordToggle}
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-9 w-9 shrink-0"
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
               >
-                <svg className={styles.eyeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+                {showPassword ? (
+                  <span className="sr-only">Ocultar</span>
+                ) : (
+                  <span className="sr-only">Mostrar</span>
+                )}
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
                   {showPassword ? (
                     <path
                       strokeLinecap="round"
@@ -161,30 +177,33 @@ export default function LoginForm() {
                     </>
                   )}
                 </svg>
-              </button>
+              </Button>
             </div>
             {errors.password ? (
-              <p id="password-error" className={styles.fieldError}>
+              <p id="password-error" className="text-sm text-destructive">
                 {errors.password}
               </p>
             ) : null}
           </div>
         </div>
 
-        <Button type="submit" variant="primary" size="lg" loading={isLoading} className={styles.submitWide}>
-          Iniciar sessão
+        <Button type="submit" size="lg" disabled={isLoading} className={styles.submitWide}>
+          {isLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              A iniciar…
+            </>
+          ) : (
+            'Iniciar sessão'
+          )}
         </Button>
 
         <AuthShellFooter>
-          <p className={authShellStyles.footerText}>
+          <p className="text-center text-sm text-muted-foreground">
             Ainda não tem conta?{' '}
-            <button
-              type="button"
-              className={authShellStyles.footerLink}
-              onClick={() => router.push('/auth/register')}
-            >
+            <Button type="button" variant="link" className="h-auto p-0" onClick={() => router.push('/auth/register')}>
               Criar conta
-            </button>
+            </Button>
           </p>
           <p className={styles.demoBlock}>
             Conta de demonstração: admin@gonsgarage.com / admin123

@@ -7,6 +7,7 @@ import { useAuth } from '@/stores';
 import AppShell from '@/components/layout/AppShell';
 import { issuedInvoiceService } from '@/lib/services/issued-invoice.service';
 import styles from '../../accounting.module.css';
+import { Button } from '@/components/ui/button';
 
 export default function NewIssuedInvoicePage() {
   const { user, logout } = useAuth();
@@ -76,9 +77,9 @@ export default function NewIssuedInvoicePage() {
           <textarea id="notes" value={notes} onChange={(ev) => setNotes(ev.target.value)} />
         </div>
         <div className={styles.rowActions}>
-          <button type="submit" className={styles.submitButton} disabled={saving}>
+          <Button type="submit" className={styles.submitButton} disabled={saving}>
             {saving ? 'A guardar…' : 'Criar'}
-          </button>
+          </Button>
         </div>
       </form>
     </AppShell>

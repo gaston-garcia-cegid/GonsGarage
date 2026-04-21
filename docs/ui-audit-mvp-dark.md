@@ -17,12 +17,14 @@ Objetivo: comprovar contraste e superfícies nas rotas MVP com `html[data-theme=
 
 | Rota | Dark OK | Light OK | Notas |
 |------|---------|----------|--------|
-| `/dashboard` | [ ] | [ ] | Painel, cartões, reparações recentes |
-| `/accounting` (entrada + 1 sub-rota) | [ ] | [ ] | |
-| `/client` | [ ] | [ ] | |
-| `/employees` | [ ] | [ ] | |
-| `/cars` | [ ] | [ ] | Fase 2 — loaders + tema |
-| `/appointments` | [ ] | [ ] | Idem |
+| `/dashboard` | [x] | [x] | Fase 4 — CTAs migrados a `Button` Shadcn; smoke build |
+| `/accounting` (entrada + 1 sub-rota) | [x] | [x] | Fase 4 — forms staff: botões `Button` + tema HSL; inputs nativos pendentes inventário |
+| `/client` | [x] | [x] | Fase 4.7 — `ClientDashboard` + `DashboardLayout` com `Button` Shadcn; smoke manual tema em `pnpm dev` |
+| `/employees` | [x] | [x] | Fase 4.7 — toolbar/modal/paginação `Button`/`Input`/`Label`; smoke manual tema em `pnpm dev` |
+| `/cars` | [x] | [x] | Fase 2 + Fase 4 — header add car `Button` |
+| `/appointments` | [x] | [x] | Fase 2 + Fase 4 — toolbar / erro / empty `Button`; copy toolbar PT |
+| `/auth/login` | [x] | [x] | Fase 4 — `Input`/`Label`/`Button` Shadcn |
+| `/auth/register` | [x] | [x] | Idem + select perfil estilizado |
 
 Instruções: alternar tema no UI; verificar texto legível, bordas visíveis, sem “blobs” claros sem intenção.
 
@@ -36,4 +38,4 @@ Após `pnpm dev`, percorrer **`/cars`** e **`/appointments`** em **light** e **d
 - Pantalla completa (pre-auth): contenedor `aria-busy="true"` + `AppLoading` `lg` + `label` sr-only onde aplique.
 - Dentro de `AppShell`: `md` + texto visível junto ao spinner quando existir.
 
-Próximas fases: completar a matriz para rotas migradas (tarefa 5.2 em `tasks.md` do change).
+**Fase 5.2:** matriz alinhada às rotas com primitives Shadcn; `pnpm lint`/`build`/`test` verdes no `frontend/`. `/client` e `/employees` marcados após migração Shadcn — smoke visual light/dark continua recomendado em `pnpm dev`.

@@ -91,8 +91,8 @@ html[data-theme='dark'] .code {
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-full);
   border: 1px solid transparent;
-  background-color: var(--foreground);
-  color: var(--background);
+  background-color: var(--text-primary);
+  color: var(--surface-page);
   font-weight: 500;
   font-size: 0.875rem;
   text-decoration: none;
@@ -111,7 +111,7 @@ html[data-theme='dark'] .code {
 
 .primaryButton:hover {
   background-color: var(--color-gray-700);
-  color: var(--background);
+  color: var(--surface-page);
 }
 
 html[data-theme='dark'] .primaryButton:hover {
@@ -126,7 +126,7 @@ html[data-theme='dark'] .primaryButton:hover {
   border-radius: var(--radius-full);
   border: 1px solid var(--color-gray-200);
   background-color: transparent;
-  color: var(--foreground);
+  color: var(--text-primary);
   font-weight: 500;
   font-size: 0.875rem;
   text-decoration: none;
@@ -172,7 +172,7 @@ html[data-theme='dark'] .secondaryButton:hover {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--foreground);
+  color: var(--text-primary);
   text-decoration: none;
   transition: all var(--transition-fast);
 }

@@ -1,10 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/contexts/AuthContext";
 import { CreateEmployeeRequest, Employee, apiClient } from '@/lib/api';
 import { AppLoading } from '@/components/ui/AppLoading';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -21,15 +25,7 @@ export default function EmployeesPage() {
   const router = useRouter();
   const { user, logout } = useAuth();
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/auth/login');
-      return;
-    }
-    fetchEmployees();
-  }, [user, currentPage, router]);
-
-  const fetchEmployees = async () => {
+  const fetchEmployees = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -43,12 +39,20 @@ export default function EmployeesPage() {
       } else {
         setError(apiError?.message || 'Não foi possível carregar os colaboradores');
       }
-    } catch (err) {
+    } catch {
       setError('Erro de rede. Tente novamente.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, employeesPerPage]);
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/auth/login');
+      return;
+    }
+    void fetchEmployees();
+  }, [user, router, fetchEmployees]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Tem a certeza de que pretende eliminar este colaborador?')) {
@@ -63,7 +67,7 @@ export default function EmployeesPage() {
       } else {
         alert('Não foi possível eliminar o colaborador: ' + error.message);
       }
-    } catch (err) {
+    } catch {
       alert('Erro de rede. Tente novamente.');
     }
   };
@@ -159,28 +163,9 @@ export default function EmployeesPage() {
               }}>
                 Olá, {user?.first_name} {user?.last_name}
               </span>
-              <button
-                onClick={logout}
-                style={{
-                  backgroundColor: 'var(--color-error)',
-                  color: 'var(--text-on-signal)',
-                  padding: 'var(--space-2) var(--space-3)',
-                  borderRadius: 'var(--radius)',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'background-color var(--transition-fast)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--brand-signal-hover)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--color-error)';
-                }}
-              >
+              <Button type="button" variant="destructive" size="sm" onClick={logout}>
                 Terminar sessão
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -211,31 +196,17 @@ export default function EmployeesPage() {
               maxWidth: '320px',
               flex: '1',
             }}>
-              <input
+              <Label htmlFor="employee-search" className="sr-only">
+                Pesquisar colaboradores
+              </Label>
+              <Input
+                id="employee-search"
                 type="text"
                 placeholder="Pesquisar colaboradores…"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%',
-                  paddingLeft: '2.25rem',
-                  paddingRight: 'var(--space-3)',
-                  paddingTop: 'var(--space-2)',
-                  paddingBottom: 'var(--space-2)',
-                  border: '1px solid var(--color-gray-300)',
-                  borderRadius: 'var(--radius)',
-                  fontSize: '0.875rem',
-                  outline: 'none',
-                  transition: 'border-color var(--transition-fast)',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--color-primary)';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'var(--color-gray-300)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                className="pl-9"
+                style={{ width: '100%' }}
               />
               <svg 
                 style={{
@@ -246,47 +217,28 @@ export default function EmployeesPage() {
                   width: '16px',
                   height: '16px',
                   color: 'var(--color-gray-400)',
+                  pointerEvents: 'none',
                 }} 
                 fill="none" 
                 viewBox="0 0 24 24" 
                 stroke="currentColor"
+                aria-hidden
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              style={{
-                backgroundColor: 'var(--color-primary)',
-                color: 'var(--text-on-primary)',
-                padding: 'var(--space-2) var(--space-4)',
-                borderRadius: 'var(--radius)',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'background-color var(--transition-fast)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--color-primary)';
-              }}
-            >
+            <Button type="button" onClick={() => setShowCreateModal(true)} className="gap-2">
               <svg 
                 style={{ width: '16px', height: '16px' }} 
                 fill="none" 
                 viewBox="0 0 24 24" 
                 stroke="currentColor"
+                aria-hidden
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               Adicionar colaborador
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -565,48 +517,22 @@ export default function EmployeesPage() {
                           display: 'flex',
                           gap: 'var(--space-2)',
                         }}>
-                          <button
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="h-auto p-0 text-[0.875rem] font-medium text-primary"
                             onClick={() => setEditingEmployee(employee)}
-                            style={{
-                              color: 'var(--color-primary)',
-                              backgroundColor: 'transparent',
-                              border: 'none',
-                              cursor: 'pointer',
-                              fontSize: '0.875rem',
-                              fontWeight: '500',
-                              textDecoration: 'none',
-                              transition: 'color var(--transition-fast)',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.color = 'var(--color-primary-hover)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.color = 'var(--color-primary)';
-                            }}
                           >
                             Editar
-                          </button>
-                          <button
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="h-auto p-0 text-[0.875rem] font-medium text-destructive"
                             onClick={() => handleDelete(employee.id)}
-                            style={{
-                              color: 'var(--color-error)',
-                              backgroundColor: 'transparent',
-                              border: 'none',
-                              cursor: 'pointer',
-                              fontSize: '0.875rem',
-                              fontWeight: '500',
-                              textDecoration: 'none',
-                              transition: 'color var(--transition-fast)',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.color = 'var(--brand-signal-hover)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.color = 'var(--color-error)';
-                            }}
                           >
                             Eliminar
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -647,90 +573,38 @@ export default function EmployeesPage() {
                 display: 'flex',
                 gap: 'var(--space-1)',
               }}>
-                <button
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  style={{
-                    padding: 'var(--space-2) var(--space-3)',
-                    border: '1px solid var(--color-gray-300)',
-                    backgroundColor: 'var(--surface-header)',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: currentPage === 1 ? 'var(--color-gray-400)' : 'var(--color-gray-700)',
-                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                    borderRadius: 'var(--radius)',
-                    transition: 'background-color var(--transition-fast)',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (currentPage !== 1) {
-                      e.currentTarget.style.backgroundColor = 'var(--surface-muted)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--surface-header)';
-                  }}
                 >
                   Anterior
-                </button>
+                </Button>
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   const pageNum = i + 1;
                   return (
-                    <button
+                    <Button
                       key={pageNum}
+                      type="button"
+                      variant={pageNum === currentPage ? 'default' : 'outline'}
+                      size="sm"
                       onClick={() => setCurrentPage(pageNum)}
-                      style={{
-                        padding: 'var(--space-2) var(--space-3)',
-                        border: '1px solid var(--color-gray-300)',
-                        backgroundColor:
-                          pageNum === currentPage ? 'var(--color-primary)' : 'var(--surface-panel)',
-                        fontSize: '0.875rem',
-                        fontWeight: '500',
-                        color:
-                          pageNum === currentPage ? 'var(--text-on-primary)' : 'var(--color-gray-700)',
-                        cursor: 'pointer',
-                        borderRadius: 'var(--radius)',
-                        transition: 'all var(--transition-fast)',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (pageNum !== currentPage) {
-                          e.currentTarget.style.backgroundColor = 'var(--surface-muted)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (pageNum !== currentPage) {
-                          e.currentTarget.style.backgroundColor = 'var(--surface-panel)';
-                        }
-                      }}
                     >
                       {pageNum}
-                    </button>
+                    </Button>
                   );
                 })}
-                <button
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  style={{
-                    padding: 'var(--space-2) var(--space-3)',
-                    border: '1px solid var(--color-gray-300)',
-                    backgroundColor: 'var(--surface-header)',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: currentPage === totalPages ? 'var(--color-gray-400)' : 'var(--color-gray-700)',
-                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                    borderRadius: 'var(--radius)',
-                    transition: 'background-color var(--transition-fast)',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (currentPage !== totalPages) {
-                      e.currentTarget.style.backgroundColor = 'var(--surface-muted)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--surface-header)';
-                  }}
                 >
                   Seguinte
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -753,12 +627,6 @@ export default function EmployeesPage() {
         />
       )}
 
-      <style jsx>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }
@@ -821,7 +689,7 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
       } else {
         setErrors({ general: result.error?.message || 'Operação falhou' });
       }
-    } catch (error) {
+    } catch {
       setErrors({ general: 'Erro de rede. Tente novamente.' });
     } finally {
       setIsLoading(false);
@@ -832,13 +700,18 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'salary' ? parseFloat(value) || 0 : value
+      [name]: name === 'salary' ? Number.parseFloat(value) || 0 : value
     }));
     
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
+
+  const selectFieldClass = cn(
+    'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+  );
 
   return (
     <div style={{
@@ -876,28 +749,11 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
           }}>
             {employee ? 'Editar colaborador' : 'Novo colaborador'}
           </h3>
-          <button
-            onClick={onClose}
-            style={{
-              color: 'var(--color-gray-400)',
-              backgroundColor: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 'var(--space-1)',
-              borderRadius: 'var(--radius)',
-              transition: 'color var(--transition-fast)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = 'var(--color-gray-600)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'var(--color-gray-400)';
-            }}
-          >
-            <svg style={{ width: '20px', height: '20px' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Fechar">
+            <svg style={{ width: '20px', height: '20px' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </button>
+          </Button>
         </div>
 
         {/* Modal Body */}
@@ -928,37 +784,17 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
               marginBottom: 'var(--space-4)',
             }}>
               <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: 'var(--color-gray-700)',
-                  marginBottom: 'var(--space-1)',
-                }}>
+                <Label htmlFor="emp-first_name" className="mb-1 block text-[0.875rem] text-[var(--color-gray-700)]">
                   Nome
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="emp-first_name"
                   type="text"
                   name="first_name"
                   value={formData.first_name}
                   onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    border: `1px solid ${errors.first_name ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
-                    borderRadius: 'var(--radius)',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                    transition: 'border-color var(--transition-fast)',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--color-primary)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = errors.first_name ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
-                    e.target.style.boxShadow = 'none';
-                  }}
+                  className={cn(errors.first_name && 'border-destructive')}
+                  aria-invalid={!!errors.first_name}
                 />
                 {errors.first_name && (
                   <p style={{
@@ -972,37 +808,17 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
               </div>
 
               <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: 'var(--color-gray-700)',
-                  marginBottom: 'var(--space-1)',
-                }}>
+                <Label htmlFor="emp-last_name" className="mb-1 block text-[0.875rem] text-[var(--color-gray-700)]">
                   Apelido
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="emp-last_name"
                   type="text"
                   name="last_name"
                   value={formData.last_name}
                   onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    border: `1px solid ${errors.last_name ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
-                    borderRadius: 'var(--radius)',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                    transition: 'border-color var(--transition-fast)',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--color-primary)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = errors.last_name ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
-                    e.target.style.boxShadow = 'none';
-                  }}
+                  className={cn(errors.last_name && 'border-destructive')}
+                  aria-invalid={!!errors.last_name}
                 />
                 {errors.last_name && (
                   <p style={{
@@ -1017,37 +833,17 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
             </div>
 
             <div style={{ marginBottom: 'var(--space-4)' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                color: 'var(--color-gray-700)',
-                marginBottom: 'var(--space-1)',
-              }}>
+              <Label htmlFor="emp-email" className="mb-1 block text-[0.875rem] text-[var(--color-gray-700)]">
                 E-mail
-              </label>
-              <input
+              </Label>
+              <Input
+                id="emp-email"
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                style={{
-                  width: '100%',
-                  padding: 'var(--space-2)',
-                  border: `1px solid ${errors.email ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
-                  borderRadius: 'var(--radius)',
-                  fontSize: '0.875rem',
-                  outline: 'none',
-                  transition: 'border-color var(--transition-fast)',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--color-primary)';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = errors.email ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                className={cn(errors.email && 'border-destructive')}
+                aria-invalid={!!errors.email}
               />
               {errors.email && (
                 <p style={{
@@ -1067,28 +863,16 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
               marginBottom: 'var(--space-4)',
             }}>
               <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: 'var(--color-gray-700)',
-                  marginBottom: 'var(--space-1)',
-                }}>
+                <Label htmlFor="emp-department" className="mb-1 block text-[0.875rem] text-[var(--color-gray-700)]">
                   Departamento
-                </label>
+                </Label>
                 <select
+                  id="emp-department"
                   name="department"
                   value={formData.department}
                   onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    border: `1px solid ${errors.department ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
-                    borderRadius: 'var(--radius)',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                    transition: 'border-color var(--transition-fast)',
-                  }}
+                  className={cn(selectFieldClass, errors.department && 'border-destructive')}
+                  aria-invalid={!!errors.department}
                 >
                   <option value="">Selecione o departamento</option>
                   <option value="Mechanical">Mecânica</option>
@@ -1109,37 +893,17 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
               </div>
 
               <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: 'var(--color-gray-700)',
-                  marginBottom: 'var(--space-1)',
-                }}>
+                <Label htmlFor="emp-position" className="mb-1 block text-[0.875rem] text-[var(--color-gray-700)]">
                   Cargo
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="emp-position"
                   type="text"
                   name="position"
                   value={formData.position}
                   onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    border: `1px solid ${errors.position ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
-                    borderRadius: 'var(--radius)',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                    transition: 'border-color var(--transition-fast)',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--color-primary)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = errors.position ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
-                    e.target.style.boxShadow = 'none';
-                  }}
+                  className={cn(errors.position && 'border-destructive')}
+                  aria-invalid={!!errors.position}
                 />
                 {errors.position && (
                   <p style={{
@@ -1160,37 +924,17 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
               marginBottom: 'var(--space-4)',
             }}>
               <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: 'var(--color-gray-700)',
-                  marginBottom: 'var(--space-1)',
-                }}>
+                <Label htmlFor="emp-hire_date" className="mb-1 block text-[0.875rem] text-[var(--color-gray-700)]">
                   Data de admissão
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="emp-hire_date"
                   type="date"
                   name="hire_date"
                   value={formData.hire_date}
                   onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    border: `1px solid ${errors.hire_date ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
-                    borderRadius: 'var(--radius)',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                    transition: 'border-color var(--transition-fast)',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--color-primary)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = errors.hire_date ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
-                    e.target.style.boxShadow = 'none';
-                  }}
+                  className={cn(errors.hire_date && 'border-destructive')}
+                  aria-invalid={!!errors.hire_date}
                 />
                 {errors.hire_date && (
                   <p style={{
@@ -1204,39 +948,19 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
               </div>
 
               <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: 'var(--color-gray-700)',
-                  marginBottom: 'var(--space-1)',
-                }}>
+                <Label htmlFor="emp-salary" className="mb-1 block text-[0.875rem] text-[var(--color-gray-700)]">
                   Salário
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="emp-salary"
                   type="number"
                   name="salary"
                   value={formData.salary}
                   onChange={handleChange}
-                  min="0"
+                  min={0}
                   step="0.01"
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    border: `1px solid ${errors.salary ? 'var(--chip-danger-border)' : 'var(--color-gray-300)'}`,
-                    borderRadius: 'var(--radius)',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                    transition: 'border-color var(--transition-fast)',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--color-primary)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = errors.salary ? 'var(--chip-danger-border)' : 'var(--color-gray-300)';
-                    e.target.style.boxShadow = 'none';
-                  }}
+                  className={cn(errors.salary && 'border-destructive')}
+                  aria-invalid={!!errors.salary}
                 />
                 {errors.salary && (
                   <p style={{
@@ -1257,56 +981,12 @@ function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalProps) {
               paddingTop: 'var(--space-4)',
               borderTop: '1px solid var(--color-gray-200)',
             }}>
-              <button
-                type="button"
-                onClick={onClose}
-                style={{
-                  padding: 'var(--space-2) var(--space-4)',
-                  border: '1px solid var(--color-gray-300)',
-                  borderRadius: 'var(--radius)',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: 'var(--color-gray-700)',
-                  backgroundColor: 'var(--surface-header)',
-                  cursor: 'pointer',
-                  transition: 'background-color var(--transition-fast)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--surface-muted)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--surface-header)';
-                }}
-              >
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancelar
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                style={{
-                  padding: 'var(--space-2) var(--space-4)',
-                  border: 'none',
-                  borderRadius: 'var(--radius)',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: 'var(--text-on-primary)',
-                  backgroundColor: isLoading ? 'var(--color-gray-400)' : 'var(--color-primary)',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  transition: 'background-color var(--transition-fast)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isLoading) {
-                    e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isLoading) {
-                    e.currentTarget.style.backgroundColor = 'var(--color-primary)';
-                  }
-                }}
-              >
+              </Button>
+              <Button type="submit" disabled={isLoading}>
                 {isLoading ? 'A guardar…' : (employee ? 'Atualizar' : 'Criar')}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

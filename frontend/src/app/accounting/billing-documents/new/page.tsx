@@ -8,6 +8,7 @@ import AppShell from '@/components/layout/AppShell';
 import { billingDocumentService } from '@/lib/services/billing-document.service';
 import type { BillingDocumentKind } from '@/types/accounting';
 import styles from '../../accounting.module.css';
+import { Button } from '@/components/ui/button';
 
 const KINDS: { value: BillingDocumentKind; label: string }[] = [
   { value: 'client_invoice', label: 'Fatura cliente' },
@@ -103,9 +104,9 @@ export default function NewBillingDocumentPage() {
           <textarea id="notes" value={notes} onChange={(ev) => setNotes(ev.target.value)} />
         </div>
         <div className={styles.rowActions}>
-          <button type="submit" className={styles.submitButton} disabled={saving}>
+          <Button type="submit" className={styles.submitButton} disabled={saving}>
             {saving ? 'A guardar…' : 'Criar'}
-          </button>
+          </Button>
         </div>
       </form>
     </AppShell>

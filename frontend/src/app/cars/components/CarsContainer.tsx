@@ -8,6 +8,7 @@ import CarModal from '@/app/cars/components/CarModal';
 import LoadingSpinner from '@/components/ui/Loading/LoadingSpinner';
 import ErrorAlert from '@/components/ui/Error/ErrorAlert';
 import ConfirmModal from '@/components/ui/Modal/ConfirmModal';
+import { Button } from '@/components/ui/button';
 import EmptyCarState from '@/components/empty-states/EmptyCarState';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './CarsContainer.module.css'; // ✅ Import styles
@@ -261,17 +262,17 @@ export default function CarsContainer({
             <h2>{headerTitle}</h2>
             <p>{computedSubtitle}</p>
           </div>
-          <button 
+          <Button
+            type="button"
             onClick={handleAddCarClick}
             className={styles.addButton}
             disabled={isCreating || !canAddCars}
           >
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             {isCreating ? 'A adicionar…' : addButtonText}
-          </button>
+          </Button>
         </div>
       ) : null}
 

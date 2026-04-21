@@ -62,7 +62,7 @@ Revertir por PR/milestone; mantener `main` sin fundación Shadcn hasta PR explí
 
 ## Success Criteria
 
-- [ ] Fase 1–2: como antes (dark, loading, homogeneidad).
-- [ ] Fase 3: ADR GO/NO-GO Next 16 + Tailwind v4.
-- [ ] Fase 4: fundación Shadcn mergeada; ≥90% rutas MVP en el nuevo sistema o excepciones fechadas; guía marca↔tema en `docs/`.
-- [ ] `pnpm lint` + `pnpm build` (+ tests) verdes por hito.
+- [x] Fase 1–2: como antes (dark, loading, homogeneidad).
+- [x] Fase 3: ADR GO/NO-GO Next 16 + Tailwind v4.
+- [x] Fase 4: fundación Shadcn mergeada; rutas MVP migradas salvo excepciones listadas en `docs/ui-forms-shadcn-inventory.md`; guía marca↔tema en `docs/ui-shadcn-theme.md`.
+- [x] `pnpm lint` + `pnpm build` (+ tests) verdes por hito.

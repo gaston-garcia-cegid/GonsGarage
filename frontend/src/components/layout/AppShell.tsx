@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { User } from '@/types';
 import { isClient } from '@/types/user';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import styles from './AppShell.module.css';
 
 export type AppShellNavId =
@@ -43,9 +45,10 @@ export default function AppShell({
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <button
+          <Button
             type="button"
-            className={styles.logoSection}
+            variant="ghost"
+            className={cn(styles.logoSection, 'h-auto gap-0 px-2 py-2')}
             onClick={() => router.push('/')}
             aria-label="Ir para a página inicial"
           >
@@ -73,56 +76,61 @@ export default function AppShell({
               <h1>GonsGarage</h1>
               <p>{subtitle}</p>
             </div>
-          </button>
+          </Button>
           <div className={styles.userSection}>
             <span>
               Olá, {user.firstName} {user.lastName}
             </span>
-            <button type="button" onClick={onLogout} className={styles.logoutButton}>
+            <Button type="button" variant="outline" size="sm" onClick={onLogout} className={styles.logoutButton}>
               Terminar sessão
-            </button>
+            </Button>
           </div>
         </div>
       </header>
 
       <nav className={styles.navigation} aria-label="Principal">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => router.push('/dashboard')}
-          className={`${styles.navButton} ${activeNav === 'dashboard' ? styles.active : ''}`}
+          className={cn(styles.navButton, activeNav === 'dashboard' && styles.active)}
         >
           Painel
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => router.push('/cars')}
-          className={`${styles.navButton} ${activeNav === 'cars' ? styles.active : ''}`}
+          className={cn(styles.navButton, activeNav === 'cars' && styles.active)}
         >
           {carsNavLabel}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => router.push('/appointments')}
-          className={`${styles.navButton} ${activeNav === 'appointments' ? styles.active : ''}`}
+          className={cn(styles.navButton, activeNav === 'appointments' && styles.active)}
         >
           Marcações
-        </button>
+        </Button>
         {isClient(user) ? (
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => router.push('/my-invoices')}
-            className={`${styles.navButton} ${activeNav === 'my_invoices' ? styles.active : ''}`}
+            className={cn(styles.navButton, activeNav === 'my_invoices' && styles.active)}
           >
             As minhas faturas
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => router.push('/accounting')}
-            className={`${styles.navButton} ${activeNav === 'accounting' ? styles.active : ''}`}
+            className={cn(styles.navButton, activeNav === 'accounting' && styles.active)}
           >
             Contabilidade
-          </button>
+          </Button>
         )}
       </nav>
 

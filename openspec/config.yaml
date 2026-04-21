@@ -24,8 +24,8 @@ testing:
     e2e: { available: false, tools: [] }
   coverage:
     frontend:
-      available: false
-      note: "pnpm test:coverage definido; sin @vitest/coverage-v8 (u otro proveedor) en devDependencies"
+      available: true
+      note: "V8 via @vitest/coverage-v8; ver vitest.config.ts (reporter text + json-summary)"
       command_if_installed: "cd frontend && pnpm test:coverage"
     backend:
       available: true

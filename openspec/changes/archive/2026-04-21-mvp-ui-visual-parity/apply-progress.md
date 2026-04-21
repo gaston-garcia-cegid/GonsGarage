@@ -34,9 +34,34 @@
 | 3.3 | CI local | N/A | ⚠️ lint **falla** (26 errores hooks); typecheck / test / build **OK** — volcado en ADR | — |
 | 3.4 | decisión | N/A | ✅ ADR: **NO-GO** merge a `main` hasta lint verde; pasos si GO | — |
 
+### Phase 4 — Shadcn (Tailwind 3 + primitives)
+
+| Task | Layer | RED | GREEN | Refactor |
+|------|-------|-----|--------|----------|
+| 4.1 | ADR | N/A | ✅ `docs/adr/0002-shadcn-stack.md` | — |
+| 4.2 | tooling + UI | ✅ `utils.test.ts`, `button.test.tsx` | ✅ `tailwind.config.ts`, `postcss.config.mjs`, `shadcn-theme.css`, `components.json`, `button/input/label/dialog.tsx`, `lib/utils.ts` | — |
+| 4.3 | Doc | N/A | ✅ `docs/ui-shadcn-theme.md` | — |
+| 4.4 | auth | N/A (tests existentes Login/Register) | ✅ `LoginForm.tsx`, `register/page.tsx` con Shadcn | — |
+| 4.5 | shell | N/A | ✅ `AppShell.tsx` nav + logout `Button` | — |
+| 4.6 | rutas | N/A | ✅ `dashboard/page.tsx`, `CarsContainer`, `appointments/page.tsx` | — |
+| 4.7 | employees/client/accounting | ✅ `ClientDashboard.test.tsx`, `DashboardLayout.test.tsx`, `employees/page.test.tsx` (approval + interação; baseline 30 → 38 tests) | ✅ `employees/page.tsx` (`Button`/`Input`/`Label`, modal); `ClientDashboard.tsx`; `DashboardLayout.tsx` | ✅ Mantido verde após migração |
+| 4.8 | inventário | N/A | ✅ `docs/ui-forms-shadcn-inventory.md` | — |
+| 4.9 | README | N/A | ✅ `frontend/README.md` secção Shadcn | — |
+
+### Phase 5 — Cierre
+
+| Task | Layer | RED | GREEN | Refactor |
+|------|-------|-----|--------|----------|
+| 5.1 | CI | N/A | ✅ `pnpm lint` (0 erros), `typecheck`, `test` 38, `build` | — |
+| 5.2 | Doc audit | N/A | ✅ matriz actualizada em `ui-audit-mvp-dark.md` | — |
+
 ## Files changed (cumulative)
 
 **Fase 1:** ver histórico git.  
 **Fase 2:** `employees/page.tsx`, `client/page.tsx`, `components/layouts/DashboardLayout.module.css`, `accounting/layout.tsx`, `accounting/**/[id]/page.tsx` (4), `my-invoices/layout.tsx`, `my-invoices/[id]/page.tsx`, `appointments/page.tsx`, `appointments/new/page.tsx`, `app/page.tsx`, `dashboard.module.css`, `car-details.module.css`, `docs/ui-loader-exceptions.md`, `docs/ui-audit-mvp-dark.md`.
 
-**Estado:** Fases 1–3 completas (**15/26** tarefas). Fase 3: spike en rama `spike/next16-tailwind4`, **NO-GO** merge por ESLint. Siguiente: Fase 4 (shadcn) o PR de remediação de lint antes de subir Next en `main`.
+**Fase 4–5 (esta sesión):** Tailwind 3 + shadcn primitives, migración auth/shell/dashboard/cars/appointments/accounting botones, **4.7** `employees/page.tsx`, `client/components/ClientDashboard.tsx`, `components/layouts/DashboardLayout.tsx`, tests `ClientDashboard`/`DashboardLayout`/`employees/page`, docs ADR0002 + tema + inventario, README, tests `utils`/`button`, matriz auditoría.
+
+**Estado:** **26/26** tarefas. Fase 4.7 fechada (`employees` + área `client`). Listo para verify/archive.
+
+**Pós-verify (2026-04-21):** `docs/ui-audit-mvp-dark.md` + `proposal.md` alinhados; `employees/page.tsx` (hooks/catches, sem `style jsx`); `button.test.tsx` comportamental; `@vitest/coverage-v8` + `vitest.config.ts` coverage `src/`; `openspec/config.yaml` + `frontend/README.md` atualizados; `verify-report.md` addendum.

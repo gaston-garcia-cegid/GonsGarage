@@ -7,6 +7,7 @@ import { useAuth } from '@/stores';
 import AppShell from '@/components/layout/AppShell';
 import { supplierService } from '@/lib/services/supplier.service';
 import styles from '../../accounting.module.css';
+import { Button } from '@/components/ui/button';
 
 export default function NewSupplierPage() {
   const { user, logout } = useAuth();
@@ -84,9 +85,9 @@ export default function NewSupplierPage() {
           </label>
         </div>
         <div className={styles.rowActions}>
-          <button type="submit" className={styles.submitButton} disabled={saving}>
+          <Button type="submit" className={styles.submitButton} disabled={saving}>
             {saving ? 'A guardar…' : 'Criar'}
-          </button>
+          </Button>
         </div>
       </form>
     </AppShell>

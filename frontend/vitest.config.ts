@@ -14,6 +14,17 @@ export default defineConfig({
       '__tests__/app/**',
     ],
     passWithNoTests: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'node_modules/**',
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.spec.{ts,tsx}',
+        'src/**/vitest.setup.ts',
+      ],
+    },
   },
   resolve: {
     alias: {

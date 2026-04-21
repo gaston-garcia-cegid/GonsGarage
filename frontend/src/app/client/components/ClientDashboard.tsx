@@ -2,6 +2,8 @@
 'use client';
 
 import React from 'react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { ClientDashboardProps } from '../types';
 import styles from '../client.module.css';
 
@@ -69,23 +71,22 @@ export default function ClientDashboard({
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h3>My Cars</h3>
-            <button 
+            <Button
+              type="button"
+              variant="link"
+              className={cn('h-auto p-0 font-medium', styles.linkButton)}
               onClick={() => onNavigate('cars')}
-              className={styles.linkButton}
             >
               View All
-            </button>
+            </Button>
           </div>
           <div className={styles.cardBody}>
             {cars.length === 0 ? (
               <div className={styles.emptyState}>
                 <p>No cars registered yet</p>
-                <button 
-                  onClick={() => onNavigate('cars')}
-                  className={styles.primaryButton}
-                >
+                <Button type="button" onClick={() => onNavigate('cars')}>
                   Add Your First Car
-                </button>
+                </Button>
               </div>
             ) : (
               <div className={styles.carsList}>
@@ -98,12 +99,15 @@ export default function ClientDashboard({
                       <h4>{car.year} {car.make} {car.model}</h4>
                       <p>{car.licensePlate}</p>
                     </div>
-                    <button 
-                      onClick={() => onNavigate('cars')}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
                       className={styles.viewButton}
+                      onClick={() => onNavigate('cars')}
                     >
                       View
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -115,12 +119,14 @@ export default function ClientDashboard({
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h3>Recent Repairs</h3>
-            <button 
+            <Button
+              type="button"
+              variant="link"
+              className={cn('h-auto p-0 font-medium', styles.linkButton)}
               onClick={() => onNavigate('appointments')}
-              className={styles.linkButton}
             >
               View All
-            </button>
+            </Button>
           </div>
           <div className={styles.cardBody}>
             {recentRepairs.length === 0 ? (

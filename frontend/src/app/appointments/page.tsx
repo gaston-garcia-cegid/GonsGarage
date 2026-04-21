@@ -13,6 +13,7 @@ import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import styles from './appointments.module.css';
 import emptyStyles from '@/components/empty-states/EmptyState.module.css';
 import { AppLoading } from '@/components/ui/AppLoading';
+import { Button } from '@/components/ui/button';
 
 function AppointmentsPageContent() {
   const router = useRouter();
@@ -114,9 +115,9 @@ function AppointmentsPageContent() {
       <AppShell user={user} subtitle="Marcações" activeNav="appointments" onLogout={logout}>
         <div className="alertError">
           <p>Erro ao carregar marcações: {appointmentsError}</p>
-          <button type="button" className="btn-primary mt-3" onClick={() => fetchAppointments()}>
+          <Button type="button" className="mt-3" onClick={() => fetchAppointments()}>
             Tentar novamente
-          </button>
+          </Button>
         </div>
       </AppShell>
     );
@@ -143,13 +144,9 @@ function AppointmentsPageContent() {
           <p className={`${emptyStyles.emptyStateDescription} ${styles.noCarsRedirectHint}`}>
             A redirecionar para os seus automóveis dentro de momentos…
           </p>
-          <button
-            type="button"
-            className={emptyStyles.emptyStateButton}
-            onClick={() => router.replace('/cars?addCar=1')}
-          >
+          <Button type="button" className={emptyStyles.emptyStateButton} onClick={() => router.replace('/cars?addCar=1')}>
             Ir já para os meus automóveis
-          </button>
+          </Button>
         </div>
       </AppShell>
     );
@@ -157,10 +154,10 @@ function AppointmentsPageContent() {
 
   const toolbar = (
     <>
-      <h1>Mis turnos ({appointments.length})</h1>
-      <button type="button" className="btn-primary" onClick={() => openSchedule()}>
-        Nuevo turno
-      </button>
+      <h1>As minhas marcações ({appointments.length})</h1>
+      <Button type="button" onClick={() => openSchedule()}>
+        Nova marcação
+      </Button>
     </>
   );
 

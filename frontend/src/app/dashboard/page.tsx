@@ -7,6 +7,7 @@ import { apiClient, Repair } from '@/lib/api';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import AppShell from '@/components/layout/AppShell';
 import { AppLoading } from '@/components/ui/AppLoading';
+import { Button } from '@/components/ui/button';
 import styles from './dashboard.module.css';
 
 function repairStatusPt(status: string): string {
@@ -175,23 +176,17 @@ export default function ClientDashboardPage() {
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h3>{isClientRole ? 'Os meus automóveis' : 'Viaturas'}</h3>
-              <button 
-                onClick={() => router.push('/cars')}
-                className={styles.linkButton}
-              >
+              <Button type="button" variant="ghost" onClick={() => router.push('/cars')} className={styles.linkButton}>
                 Ver tudo
-              </button>
+              </Button>
             </div>
             <div className={styles.cardBody}>
               {cars.length === 0 ? (
                 <div className={styles.emptyState}>
                   <p>{isClientRole ? 'Ainda sem automóveis registados' : 'Sem viaturas na lista'}</p>
-                  <button 
-                    onClick={() => router.push('/cars')}
-                    className={styles.primaryButton}
-                  >
+                  <Button type="button" onClick={() => router.push('/cars')} className={styles.primaryButton}>
                     {isClientRole ? 'Adicionar o primeiro automóvel' : 'Abrir viaturas'}
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <div className={styles.carsList}>
@@ -204,12 +199,15 @@ export default function ClientDashboardPage() {
                         <h4>{car.year} {car.make} {car.model}</h4>
                         <p>{car.licensePlate}</p>
                       </div>
-                      <button 
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
                         onClick={() => router.push(`/cars/${car.id}`)}
                         className={styles.viewButton}
                       >
                         Ver
-                      </button>
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -221,13 +219,9 @@ export default function ClientDashboardPage() {
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h3>Reparações recentes</h3>
-              <button
-                type="button"
-                onClick={() => router.push('/cars')}
-                className={styles.linkButton}
-              >
+              <Button type="button" variant="ghost" onClick={() => router.push('/cars')} className={styles.linkButton}>
                 Ver nos automóveis
-              </button>
+              </Button>
             </div>
             <div className={styles.cardBody}>
               {repairsLoading ? (
