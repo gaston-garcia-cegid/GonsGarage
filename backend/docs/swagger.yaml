@@ -25,6 +25,27 @@ definitions:
       updatedAt:
         type: string
     type: object
+  handler.BillingDocumentResponse:
+    properties:
+      amount:
+        type: number
+      createdAt:
+        type: string
+      customerId:
+        type: string
+      id:
+        type: string
+      kind:
+        type: string
+      notes:
+        type: string
+      reference:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   handler.CarResponse:
     properties:
       color:
@@ -81,6 +102,21 @@ definitions:
       status:
         type: string
     type: object
+  handler.CreateBillingDocumentRequest:
+    properties:
+      amount:
+        type: number
+      customerId:
+        type: string
+      kind:
+        type: string
+      notes:
+        type: string
+      reference:
+        type: string
+      title:
+        type: string
+    type: object
   handler.CreateCarRequest:
     properties:
       color:
@@ -102,6 +138,64 @@ definitions:
       year:
         type: integer
     type: object
+  handler.CreateIssuedInvoiceRequest:
+    properties:
+      amount:
+        type: number
+      customerId:
+        type: string
+      notes:
+        type: string
+      status:
+        type: string
+    type: object
+  handler.CreateReceivedInvoiceRequest:
+    properties:
+      amount:
+        type: number
+      category:
+        type: string
+      invoiceDate:
+        type: string
+      notes:
+        type: string
+      supplierId:
+        type: string
+      vendorName:
+        type: string
+    type: object
+  handler.CreateSupplierRequest:
+    properties:
+      contactEmail:
+        type: string
+      contactPhone:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+      notes:
+        type: string
+      taxId:
+        type: string
+    type: object
+  handler.IssuedInvoiceResponse:
+    properties:
+      amount:
+        type: number
+      createdAt:
+        type: string
+      customerId:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   handler.LoginRequest:
     properties:
       email:
@@ -111,6 +205,36 @@ definitions:
     required:
     - email
     - password
+    type: object
+  handler.PatchIssuedInvoiceRequest:
+    properties:
+      amount:
+        type: number
+      notes:
+        type: string
+      status:
+        type: string
+    type: object
+  handler.ReceivedInvoiceResponse:
+    properties:
+      amount:
+        type: number
+      category:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      invoiceDate:
+        type: string
+      notes:
+        type: string
+      supplierId:
+        type: string
+      updatedAt:
+        type: string
+      vendorName:
+        type: string
     type: object
   handler.RepairAPIModel:
     properties:
@@ -164,6 +288,27 @@ definitions:
       updated_at:
         type: string
     type: object
+  handler.SupplierResponse:
+    properties:
+      contactEmail:
+        type: string
+      contactPhone:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+      notes:
+        type: string
+      taxId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   handler.SwaggerLoginOK:
     properties:
       message:
@@ -203,6 +348,11 @@ definitions:
         type: string
       message:
         type: string
+    type: object
+  handler.SwaggerProvisionUserOK:
+    properties:
+      user:
+        $ref: '#/definitions/handler.SwaggerMeUser'
     type: object
   handler.SwaggerRegisterOK:
     properties:
@@ -255,6 +405,21 @@ definitions:
       status:
         type: string
     type: object
+  handler.UpdateBillingDocumentRequest:
+    properties:
+      amount:
+        type: number
+      customerId:
+        type: string
+      kind:
+        type: string
+      notes:
+        type: string
+      reference:
+        type: string
+      title:
+        type: string
+    type: object
   handler.UpdateCarRequest:
     properties:
       color:
@@ -272,6 +437,36 @@ definitions:
         type: string
       year:
         type: integer
+    type: object
+  handler.UpdateReceivedInvoiceRequest:
+    properties:
+      amount:
+        type: number
+      category:
+        type: string
+      invoiceDate:
+        type: string
+      notes:
+        type: string
+      supplierId:
+        type: string
+      vendorName:
+        type: string
+    type: object
+  handler.UpdateSupplierRequest:
+    properties:
+      contactEmail:
+        type: string
+      contactPhone:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+      notes:
+        type: string
+      taxId:
+        type: string
     type: object
   handler.UserResponse:
     properties:
@@ -355,6 +550,26 @@ definitions:
     - email
     - position
     type: object
+  ports.ProvisionUserRequest:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        type: string
+    required:
+    - email
+    - firstName
+    - lastName
+    - password
+    - role
+    type: object
   ports.RegisterRequest:
     properties:
       email:
@@ -390,10 +605,52 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: 'API de gestión de taller: autenticación JWT, coches, citas y empleados.'
+  description: 'API de gestión de taller: autenticación JWT, coches, citas, empleados,
+    proveedores, facturas recibidas/emitidas y documentos de facturación.'
   title: GonsGarage API
   version: "1.0"
 paths:
+  /api/v1/admin/users:
+    post:
+      consumes:
+      - application/json
+      description: Cria utilizador com papel manager, employee ou client. Admin pode
+        todos; manager não pode criar manager. Nunca cria admin por este fluxo.
+      parameters:
+      - description: Dados do novo utilizador
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ports.ProvisionUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.SwaggerProvisionUserOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Aprovisionar utilizador (staff)
+      tags:
+      - admin
   /api/v1/appointments:
     get:
       parameters:
@@ -679,6 +936,105 @@ paths:
       summary: Registro
       tags:
       - auth
+  /api/v1/billing-documents:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{items,total}'
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Listar documentos
+      tags:
+      - billing-documents
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Datos
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateBillingDocumentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.BillingDocumentResponse'
+      security:
+      - BearerAuth: []
+      summary: Crear documento de facturación emitido
+      tags:
+      - billing-documents
+  /api/v1/billing-documents/{id}:
+    delete:
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Eliminar documento (baja lógica)
+      tags:
+      - billing-documents
+    get:
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.BillingDocumentResponse'
+      security:
+      - BearerAuth: []
+      summary: Obtener documento
+      tags:
+      - billing-documents
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Datos
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateBillingDocumentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.BillingDocumentResponse'
+      security:
+      - BearerAuth: []
+      summary: Actualizar documento
+      tags:
+      - billing-documents
   /api/v1/cars:
     get:
       parameters:
@@ -1047,6 +1403,228 @@ paths:
       summary: Actualizar empleado
       tags:
       - employees
+  /api/v1/invoices:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{items,total}'
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Listar todas las facturas emitidas (taller)
+      tags:
+      - invoices
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Datos
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateIssuedInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.IssuedInvoiceResponse'
+      security:
+      - BearerAuth: []
+      summary: Crear factura emitida a cliente
+      tags:
+      - invoices
+  /api/v1/invoices/{id}:
+    delete:
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Eliminar factura emitida
+      tags:
+      - invoices
+    get:
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.IssuedInvoiceResponse'
+      security:
+      - BearerAuth: []
+      summary: Obtener factura emitida al cliente
+      tags:
+      - invoices
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Campos
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.PatchIssuedInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.IssuedInvoiceResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Actualizar factura (notas cliente; staff: estado/importe)'
+      tags:
+      - invoices
+  /api/v1/invoices/me:
+    get:
+      parameters:
+      - description: Límite (default 20, max 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{items,total}'
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Listar mis facturas (cliente)
+      tags:
+      - invoices
+  /api/v1/received-invoices:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{items,total}'
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Listar facturas recibidas
+      tags:
+      - received-invoices
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Datos
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateReceivedInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.ReceivedInvoiceResponse'
+      security:
+      - BearerAuth: []
+      summary: Registrar factura recibida
+      tags:
+      - received-invoices
+  /api/v1/received-invoices/{id}:
+    delete:
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Eliminar factura recibida (baja lógica)
+      tags:
+      - received-invoices
+    get:
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ReceivedInvoiceResponse'
+      security:
+      - BearerAuth: []
+      summary: Obtener factura recibida
+      tags:
+      - received-invoices
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Datos
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateReceivedInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ReceivedInvoiceResponse'
+      security:
+      - BearerAuth: []
+      summary: Actualizar factura recibida
+      tags:
+      - received-invoices
   /api/v1/repairs:
     post:
       consumes:
@@ -1238,6 +1816,132 @@ paths:
       summary: Listar reparaciones por coche
       tags:
       - repairs
+  /api/v1/suppliers:
+    get:
+      parameters:
+      - description: Límite (default 50, max 500)
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{items,total}'
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Listar proveedores
+      tags:
+      - suppliers
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Datos
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateSupplierRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.SupplierResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Crear proveedor
+      tags:
+      - suppliers
+  /api/v1/suppliers/{id}:
+    delete:
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Eliminar proveedor (baja lógica)
+      tags:
+      - suppliers
+    get:
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.SupplierResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.SwaggerMessage'
+      security:
+      - BearerAuth: []
+      summary: Obtener proveedor
+      tags:
+      - suppliers
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Datos
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateSupplierRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.SupplierResponse'
+      security:
+      - BearerAuth: []
+      summary: Actualizar proveedor
+      tags:
+      - suppliers
   /health:
     get:
       description: Estado del proceso API (sin autenticación).

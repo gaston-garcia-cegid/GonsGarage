@@ -43,7 +43,12 @@ type SwaggerMeOK struct {
 	User SwaggerMeUser `json:"user"`
 }
 
-// SwaggerMessage error o mensaje genérico.
+// SwaggerProvisionUserOK respuesta de POST /admin/users (aprovisionamento staff).
+type SwaggerProvisionUserOK struct {
+	User SwaggerMeUser `json:"user"`
+}
+
+// SwaggerMessage error o mensagem genérico.
 type SwaggerMessage struct {
 	Error   string `json:"error,omitempty"`
 	Details string `json:"details,omitempty"`

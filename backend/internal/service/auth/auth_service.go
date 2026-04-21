@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
@@ -85,6 +86,54 @@ func (uc *AuthService) Register(ctx context.Context, req ports.RegisterRequest) 
 	// Remove password from response
 	user.Password = ""
 
+	return user, nil
+}
+
+func (uc *AuthService) ProvisionUser(ctx context.Context, callerUserID uuid.UUID, callerRole string, req ports.ProvisionUserRequest) (*domain.User, error) {
+	_ = callerUserID // reserved for audit / future checks; JWT + middleware already scope the caller
+
+	switch callerRole {
+	case domain.RoleAdmin, domain.RoleManager:
+	default:
+		return nil, domain.ErrPermissionDenied
+	}
+
+	target := strings.TrimSpace(req.Role)
+	if target == domain.RoleAdmin {
+		return nil, domain.ErrInvalidRole
+	}
+	switch target {
+	case domain.RoleManager, domain.RoleEmployee, domain.RoleClient:
+	default:
+		return nil, domain.ErrInvalidRole
+	}
+
+	switch callerRole {
+	case domain.RoleAdmin:
+		// may assign manager, employee, client
+	case domain.RoleManager:
+		if target == domain.RoleManager {
+			return nil, domain.ErrPermissionDenied
+		}
+	default:
+		return nil, domain.ErrPermissionDenied
+	}
+
+	existingUser, _ := uc.userRepo.GetByEmail(ctx, req.Email)
+	if existingUser != nil {
+		return nil, domain.ErrUserAlreadyExists
+	}
+
+	user, err := domain.NewUser(req.Email, req.Password, req.FirstName, req.LastName, target)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := uc.userRepo.Create(ctx, user); err != nil {
+		return nil, err
+	}
+
+	user.Password = ""
 	return user, nil
 }
 

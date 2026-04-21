@@ -206,3 +206,91 @@ func TestAuthService_GenerateToken_UsesExpireTimeFromConstructor(t *testing.T) {
 	assert.NotEmpty(t, token)
 	assert.WithinDuration(t, time.Now().Add(2*time.Hour), exp, 5*time.Second)
 }
+
+func TestAuthService_ProvisionUser_AdminCreatesManager(t *testing.T) {
+	t.Parallel()
+	repo := newStubUserRepo()
+	svc := NewAuthService(repo, "secret", 24)
+	caller := uuid.New()
+
+	user, err := svc.ProvisionUser(context.Background(), caller, domain.RoleAdmin, ports.ProvisionUserRequest{
+		Email: "mgr@example.com", Password: "secret12", FirstName: "M", LastName: "R", Role: domain.RoleManager,
+	})
+	require.NoError(t, err)
+	require.NotNil(t, user)
+	assert.Equal(t, domain.RoleManager, user.Role)
+	assert.Empty(t, user.Password)
+}
+
+func TestAuthService_ProvisionUser_ManagerCannotCreateManager(t *testing.T) {
+	t.Parallel()
+	repo := newStubUserRepo()
+	svc := NewAuthService(repo, "secret", 24)
+	caller := uuid.New()
+
+	_, err := svc.ProvisionUser(context.Background(), caller, domain.RoleManager, ports.ProvisionUserRequest{
+		Email: "x@example.com", Password: "secret12", FirstName: "A", LastName: "B", Role: domain.RoleManager,
+	})
+	assert.ErrorIs(t, err, domain.ErrPermissionDenied)
+}
+
+func TestAuthService_ProvisionUser_TargetAdminRejected(t *testing.T) {
+	t.Parallel()
+	repo := newStubUserRepo()
+	svc := NewAuthService(repo, "secret", 24)
+
+	_, err := svc.ProvisionUser(context.Background(), uuid.New(), domain.RoleAdmin, ports.ProvisionUserRequest{
+		Email: "root@example.com", Password: "secret12", FirstName: "A", LastName: "B", Role: domain.RoleAdmin,
+	})
+	assert.ErrorIs(t, err, domain.ErrInvalidRole)
+}
+
+func TestAuthService_ProvisionUser_UnknownTargetRole(t *testing.T) {
+	t.Parallel()
+	repo := newStubUserRepo()
+	svc := NewAuthService(repo, "secret", 24)
+
+	_, err := svc.ProvisionUser(context.Background(), uuid.New(), domain.RoleAdmin, ports.ProvisionUserRequest{
+		Email: "u@example.com", Password: "secret12", FirstName: "A", LastName: "B", Role: "superuser",
+	})
+	assert.ErrorIs(t, err, domain.ErrInvalidRole)
+}
+
+func TestAuthService_ProvisionUser_CallerEmployeeRejected(t *testing.T) {
+	t.Parallel()
+	repo := newStubUserRepo()
+	svc := NewAuthService(repo, "secret", 24)
+
+	_, err := svc.ProvisionUser(context.Background(), uuid.New(), domain.RoleEmployee, ports.ProvisionUserRequest{
+		Email: "u@example.com", Password: "secret12", FirstName: "A", LastName: "B", Role: domain.RoleClient,
+	})
+	assert.ErrorIs(t, err, domain.ErrPermissionDenied)
+}
+
+func TestAuthService_ProvisionUser_DuplicateEmail(t *testing.T) {
+	t.Parallel()
+	repo := newStubUserRepo()
+	existing, err := domain.NewUser("dupprov@example.com", "x", "E", "X", domain.RoleClient)
+	require.NoError(t, err)
+	repo.byEmail[existing.Email] = existing
+
+	svc := NewAuthService(repo, "secret", 24)
+	_, err = svc.ProvisionUser(context.Background(), uuid.New(), domain.RoleAdmin, ports.ProvisionUserRequest{
+		Email: "dupprov@example.com", Password: "secret12", FirstName: "A", LastName: "B", Role: domain.RoleClient,
+	})
+	assert.ErrorIs(t, err, domain.ErrUserAlreadyExists)
+}
+
+func TestAuthService_ProvisionUser_TrimsTargetRoleWhitespace(t *testing.T) {
+	t.Parallel()
+	repo := newStubUserRepo()
+	svc := NewAuthService(repo, "secret", 24)
+
+	user, err := svc.ProvisionUser(context.Background(), uuid.New(), domain.RoleAdmin, ports.ProvisionUserRequest{
+		Email: "trim@example.com", Password: "secret12", FirstName: "A", LastName: "B",
+		Role: "  " + domain.RoleClient + "  ",
+	})
+	require.NoError(t, err)
+	require.NotNil(t, user)
+	assert.Equal(t, domain.RoleClient, user.Role)
+}

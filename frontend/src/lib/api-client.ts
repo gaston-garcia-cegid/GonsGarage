@@ -1,6 +1,8 @@
 // ✅ Centralized API client following Agent.md standards
 // Handles HTTP requests, error management, authentication, and interceptors
 
+import type { User } from '@/types';
+
 import { getPublicApiOrigin } from './api-public-origin';
 
 // ✅ Base configuration constants
@@ -399,6 +401,17 @@ export class ApiClient {
 
   async post<T>(endpoint: string, body?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { ...config, method: 'POST', body });
+  }
+
+  /** Staff-only: POST /api/v1/admin/users (JWT required; backend enforces admin/manager + role matrix). */
+  async provisionUser(body: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    role: 'manager' | 'employee' | 'client';
+  }): Promise<ApiResponse<{ user: User }>> {
+    return this.post<{ user: User }>('/admin/users', body);
   }
 
   async put<T>(endpoint: string, body?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {

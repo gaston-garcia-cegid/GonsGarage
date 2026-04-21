@@ -16,6 +16,69 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/admin/users": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Cria utilizador com papel manager, employee ou client. Admin pode todos; manager não pode criar manager. Nunca cria admin por este fluxo.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Aprovisionar utilizador (staff)",
+                "parameters": [
+                    {
+                        "description": "Dados do novo utilizador",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ports.ProvisionUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerProvisionUserOK"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/appointments": {
             "get": {
                 "security": [
@@ -457,6 +520,168 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handler.SwaggerMessage"
                         }
+                    }
+                }
+            }
+        },
+        "/api/v1/billing-documents": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing-documents"
+                ],
+                "summary": "Listar documentos",
+                "responses": {
+                    "200": {
+                        "description": "{items,total}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing-documents"
+                ],
+                "summary": "Crear documento de facturación emitido",
+                "parameters": [
+                    {
+                        "description": "Datos",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateBillingDocumentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.BillingDocumentResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/billing-documents/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing-documents"
+                ],
+                "summary": "Obtener documento",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.BillingDocumentResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing-documents"
+                ],
+                "summary": "Actualizar documento",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Datos",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateBillingDocumentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.BillingDocumentResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "billing-documents"
+                ],
+                "summary": "Eliminar documento (baja lógica)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -1040,6 +1265,369 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/invoices": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Listar todas las facturas emitidas (taller)",
+                "responses": {
+                    "200": {
+                        "description": "{items,total}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Crear factura emitida a cliente",
+                "parameters": [
+                    {
+                        "description": "Datos",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateIssuedInvoiceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.IssuedInvoiceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/invoices/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Listar mis facturas (cliente)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Límite (default 20, max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{items,total}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/invoices/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Obtener factura emitida al cliente",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.IssuedInvoiceResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Eliminar factura emitida",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Actualizar factura (notas cliente; staff: estado/importe)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Campos",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.PatchIssuedInvoiceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.IssuedInvoiceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/received-invoices": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "received-invoices"
+                ],
+                "summary": "Listar facturas recibidas",
+                "responses": {
+                    "200": {
+                        "description": "{items,total}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "received-invoices"
+                ],
+                "summary": "Registrar factura recibida",
+                "parameters": [
+                    {
+                        "description": "Datos",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateReceivedInvoiceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ReceivedInvoiceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/received-invoices/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "received-invoices"
+                ],
+                "summary": "Obtener factura recibida",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ReceivedInvoiceResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "received-invoices"
+                ],
+                "summary": "Actualizar factura recibida",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Datos",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateReceivedInvoiceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ReceivedInvoiceResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "received-invoices"
+                ],
+                "summary": "Eliminar factura recibida (baja lógica)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/api/v1/repairs": {
             "post": {
                 "security": [
@@ -1340,6 +1928,209 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/suppliers": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "suppliers"
+                ],
+                "summary": "Listar proveedores",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Límite (default 50, max 500)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{items,total}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "suppliers"
+                ],
+                "summary": "Crear proveedor",
+                "parameters": [
+                    {
+                        "description": "Datos",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateSupplierRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SupplierResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/suppliers/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "suppliers"
+                ],
+                "summary": "Obtener proveedor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SupplierResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwaggerMessage"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "suppliers"
+                ],
+                "summary": "Actualizar proveedor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Datos",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateSupplierRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SupplierResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "suppliers"
+                ],
+                "summary": "Eliminar proveedor (baja lógica)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "Estado del proceso API (sin autenticación).",
@@ -1435,6 +2226,38 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.BillingDocumentResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "customerId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "reference": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.CarResponse": {
             "type": "object",
             "properties": {
@@ -1515,6 +2338,29 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateBillingDocumentRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "customerId": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "reference": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.CreateCarRequest": {
             "type": "object",
             "properties": {
@@ -1545,6 +2391,95 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateIssuedInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "customerId": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.CreateReceivedInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "invoiceDate": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "supplierId": {
+                    "type": "string"
+                },
+                "vendorName": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.CreateSupplierRequest": {
+            "type": "object",
+            "properties": {
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhone": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "taxId": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.IssuedInvoiceResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "customerId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.LoginRequest": {
             "type": "object",
             "required": [
@@ -1556,6 +2491,52 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.PatchIssuedInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.ReceivedInvoiceResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invoiceDate": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "supplierId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "vendorName": {
                     "type": "string"
                 }
             }
@@ -1639,6 +2620,38 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.SupplierResponse": {
+            "type": "object",
+            "properties": {
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhone": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "taxId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.SwaggerLoginOK": {
             "type": "object",
             "properties": {
@@ -1698,6 +2711,14 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.SwaggerProvisionUserOK": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "$ref": "#/definitions/handler.SwaggerMeUser"
                 }
             }
         },
@@ -1777,6 +2798,29 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.UpdateBillingDocumentRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "customerId": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "reference": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.UpdateCarRequest": {
             "type": "object",
             "properties": {
@@ -1801,6 +2845,52 @@ const docTemplate = `{
                 },
                 "year": {
                     "type": "integer"
+                }
+            }
+        },
+        "handler.UpdateReceivedInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "invoiceDate": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "supplierId": {
+                    "type": "string"
+                },
+                "vendorName": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.UpdateSupplierRequest": {
+            "type": "object",
+            "properties": {
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhone": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "taxId": {
+                    "type": "string"
                 }
             }
         },
@@ -1928,6 +3018,34 @@ const docTemplate = `{
                 }
             }
         },
+        "ports.ProvisionUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "firstName",
+                "lastName",
+                "password",
+                "role"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
         "ports.RegisterRequest": {
             "type": "object",
             "required": [
@@ -1993,7 +3111,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "GonsGarage API",
-	Description:      "API de gestión de taller: autenticación JWT, coches, citas y empleados.",
+	Description:      "API de gestión de taller: autenticación JWT, coches, citas, empleados, proveedores, facturas recibidas/emitidas y documentos de facturación.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

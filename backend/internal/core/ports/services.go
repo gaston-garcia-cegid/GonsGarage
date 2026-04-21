@@ -15,6 +15,17 @@ type AuthService interface {
 	CurrentUser(ctx context.Context, userID uuid.UUID) (*domain.User, error)
 	ValidateToken(token string) (*domain.User, error)
 	RefreshToken(ctx context.Context, token string) (string, error)
+	// ProvisionUser creates a user with manager/employee/client roles only (staff flow; caller must be admin or manager per service rules).
+	ProvisionUser(ctx context.Context, callerUserID uuid.UUID, callerRole string, req ProvisionUserRequest) (*domain.User, error)
+}
+
+// ProvisionUserRequest is the body for POST /api/v1/admin/users (staff provisioning).
+type ProvisionUserRequest struct {
+	Email     string `json:"email" binding:"required,email"`
+	Password  string `json:"password" binding:"required,min=6"`
+	FirstName string `json:"firstName" binding:"required"`
+	LastName  string `json:"lastName" binding:"required"`
+	Role      string `json:"role" binding:"required"`
 }
 
 // RegisterRequest representa os dados para registro

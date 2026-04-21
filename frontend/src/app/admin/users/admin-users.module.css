@@ -1,0 +1,48 @@
+.wrap {
+  max-width: 28rem;
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.hint {
+  margin: 0 0 1.25rem;
+  color: var(--muted-foreground, #64748b);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+}
+
+.select {
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 1rem;
+  background: var(--background, #fff);
+}
+
+.error {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 0.875rem;
+}
+
+.ok {
+  margin: 0;
+  color: #15803d;
+  font-size: 0.875rem;
+}

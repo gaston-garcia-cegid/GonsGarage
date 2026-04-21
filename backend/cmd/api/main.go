@@ -220,6 +220,7 @@ func main() {
 
 	// Initialize handlers
 	authHandler := handler.NewAuthHandler(authService)
+	adminUserHandler := handler.NewAdminUserHandler(authService)
 	employeeHandler := handler.NewEmployeeHandler(employeeService)
 	carHandler := handler.NewCarHandler(carService)
 
@@ -244,7 +245,7 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Setup routes
-	setupRoutes(router, authHandler, employeeHandler, carHandler, appointmentHandler, repairHandler,
+	setupRoutes(router, authHandler, adminUserHandler, employeeHandler, carHandler, appointmentHandler, repairHandler,
 		supplierHandler, receivedInvoiceHandler, billingDocumentHandler, invoiceHandler,
 		authMiddleware, sqlxDB)
 
@@ -385,6 +386,7 @@ func corsMiddleware() gin.HandlerFunc {
 func setupRoutes(
 	router *gin.Engine,
 	authHandler *handler.AuthHandler,
+	adminUserHandler *handler.AdminUserHandler,
 	employeeHandler *handler.EmployeeHandler,
 	carHandler *handler.CarHandler,
 	appointmentHandler *handler.AppointmentHandler,
@@ -433,6 +435,12 @@ func setupRoutes(
 	protected.Use(middleware.GinBearerJWT(authMiddleware))
 	{
 		protected.GET("/auth/me", authHandler.Me)
+
+		adminUsers := protected.Group("/admin")
+		adminUsers.Use(middleware.RequireStaffManagers())
+		{
+			adminUsers.POST("/users", adminUserHandler.ProvisionUser)
+		}
 
 		// Employee routes (admin / manager only)
 		employees := protected.Group("/employees")

@@ -30,6 +30,7 @@ Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas
 **Protegidas** (middleware JWT en contexto Gin)
 
 - Sesión: `GET /api/v1/auth/me` (usuario actual, camelCase)
+- Aprovisionamiento de usuarios (**solo admin/manager**; matriz de roles en API): `POST /api/v1/admin/users` (cuerpo JSON camelCase; no crea `admin` por este flujo). UI: `/admin/users`.
 - Empleados (**só admin/manager**): `POST|GET|GET/:id|PUT|DELETE /api/v1/employees/...`
 - Coches: `POST|GET|GET/:id|PUT|DELETE /api/v1/cars/...` — listado de flota de un cliente (staff): `GET /api/v1/cars?ownerId=<uuid>&limit=&offset=` (no existe `GET /cars/owner/:id`).
 - Citas: `POST|GET|GET/:id|PUT|DELETE /api/v1/appointments/...` — cambiar estado (cancelar / confirmar / completar): **`PUT /api/v1/appointments/:id`** con JSON parcial (`status`, etc.); **no** hay `PATCH …/cancel|/confirm|/complete`.
@@ -42,7 +43,7 @@ Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas
 
 Rutas de página localizadas bajo `frontend/src/app/`:
 
-- `/`, `/dashboard`, `/client`, `/employees`
+- `/`, `/dashboard`, `/client`, `/employees`, `/admin/users` (formulario crear usuario; solo admin/manager)
 - `/auth/login`, `/auth/register`
 - `/cars`, `/cars/[id]`
 - `/appointments`, `/appointments/new`
