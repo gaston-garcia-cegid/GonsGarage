@@ -1,17 +1,30 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/stores';
 import AppShell from '@/components/layout/AppShell';
 import { supplierService } from '@/lib/services/supplier.service';
 import type { Supplier } from '@/types/accounting';
 import styles from '../accounting.module.css';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { SupplierCreateForm } from './SupplierCreateForm';
 
-export default function SuppliersListPage() {
+function SuppliersListContent() {
   const { user, logout } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [items, setItems] = useState<Supplier[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const openedFromCreateQuery = useRef(false);
 
   const load = useCallback(async () => {
     setError(null);
@@ -24,7 +37,19 @@ export default function SuppliersListPage() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (searchParams.get('create') !== '1' || openedFromCreateQuery.current) return;
+    openedFromCreateQuery.current = true;
+    setCreateOpen(true);
+    router.replace('/accounting/suppliers');
+  }, [searchParams, router]);
+
   if (!user) return null;
+
+  const handleCreated = () => {
+    setCreateOpen(false);
+    void load();
+  };
 
   return (
     <AppShell
@@ -37,9 +62,9 @@ export default function SuppliersListPage() {
     >
       <div className={styles.toolbar}>
         <h1>Fornecedores</h1>
-        <Link href="/accounting/suppliers/new" className={styles.primaryLink}>
+        <Button type="button" onClick={() => setCreateOpen(true)}>
           Novo fornecedor
-        </Link>
+        </Button>
       </div>
       <p className={styles.intro}>
         <Link href="/accounting" className={styles.mutedLink}>
@@ -70,13 +95,34 @@ export default function SuppliersListPage() {
               <tr>
                 <td colSpan={3}>
                   Sem fornecedores.{' '}
-                  <Link href="/accounting/suppliers/new">Criar o primeiro</Link>
+                  <button type="button" className={styles.inlineTextButton} onClick={() => setCreateOpen(true)}>
+                    Criar o primeiro
+                  </button>
                 </td>
               </tr>
             ) : null}
           </tbody>
         </table>
       </div>
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-lg" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle>Novo fornecedor</DialogTitle>
+          </DialogHeader>
+          <div className={styles.dialogFormBody}>
+            <SupplierCreateForm onSuccess={handleCreated} onCancel={() => setCreateOpen(false)} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppShell>
+  );
+}
+
+export default function SuppliersListPage() {
+  return (
+    <Suspense fallback={null}>
+      <SuppliersListContent />
+    </Suspense>
   );
 }

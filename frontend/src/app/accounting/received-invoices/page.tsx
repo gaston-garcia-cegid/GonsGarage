@@ -1,17 +1,30 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/stores';
 import AppShell from '@/components/layout/AppShell';
 import { receivedInvoiceService } from '@/lib/services/received-invoice.service';
 import type { ReceivedInvoice } from '@/types/accounting';
 import styles from '../accounting.module.css';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { ReceivedInvoiceCreateForm } from './ReceivedInvoiceCreateForm';
 
-export default function ReceivedInvoicesListPage() {
+function ReceivedInvoicesListContent() {
   const { user, logout } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [items, setItems] = useState<ReceivedInvoice[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const openedFromCreateQuery = useRef(false);
 
   const load = useCallback(async () => {
     setError(null);
@@ -24,7 +37,19 @@ export default function ReceivedInvoicesListPage() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (searchParams.get('create') !== '1' || openedFromCreateQuery.current) return;
+    openedFromCreateQuery.current = true;
+    setCreateOpen(true);
+    router.replace('/accounting/received-invoices');
+  }, [searchParams, router]);
+
   if (!user) return null;
+
+  const handleCreated = () => {
+    setCreateOpen(false);
+    void load();
+  };
 
   return (
     <AppShell
@@ -37,9 +62,9 @@ export default function ReceivedInvoicesListPage() {
     >
       <div className={styles.toolbar}>
         <h1>Faturas recebidas</h1>
-        <Link href="/accounting/received-invoices/new" className={styles.primaryLink}>
+        <Button type="button" onClick={() => setCreateOpen(true)}>
           Nova fatura
-        </Link>
+        </Button>
       </div>
       <p className={styles.intro}>
         <Link href="/accounting" className={styles.mutedLink}>
@@ -71,13 +96,35 @@ export default function ReceivedInvoicesListPage() {
             {items.length === 0 && !error ? (
               <tr>
                 <td colSpan={4}>
-                  Sem registos. <Link href="/accounting/received-invoices/new">Criar o primeiro</Link>
+                  Sem registos.{' '}
+                  <button type="button" className={styles.inlineTextButton} onClick={() => setCreateOpen(true)}>
+                    Criar o primeiro
+                  </button>
                 </td>
               </tr>
             ) : null}
           </tbody>
         </table>
       </div>
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-lg" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle>Nova fatura recebida</DialogTitle>
+          </DialogHeader>
+          <div className={styles.dialogFormBody}>
+            <ReceivedInvoiceCreateForm onSuccess={handleCreated} onCancel={() => setCreateOpen(false)} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppShell>
+  );
+}
+
+export default function ReceivedInvoicesListPage() {
+  return (
+    <Suspense fallback={null}>
+      <ReceivedInvoicesListContent />
+    </Suspense>
   );
 }
