@@ -1,7 +1,7 @@
 # Arnela — resumen para GonsGarage
 
 **Fuente canónica (local):** `D:\Repos\Arnela`  
-**Fecha de lectura:** 2026-04-16  
+**Fecha de lectura / revisión:** 2026-04-16 · **Revisión GonsGarage:** 2026-04-20 (`arnela-parity`)  
 **Nota:** Este archivo es un resumen operativo; el detalle vive en el repo Arnela (especialmente `arnela-rules/` y `docs/`).
 
 ## Qué es Arnela
@@ -36,7 +36,7 @@ Idioma principal: **español**.
 - `internal/domain`, `repository` (+ `postgres/`, `mocks/`), `service`, `handler`, `middleware`  
 - `pkg/`: database, cache, email, errors, gcal, jwt, logger, pdf, queue, etc.  
 - Endpoints de ejemplo documentados: `POST/GET /api/v1/auth/*`, **GET `/api/v1/auth/me`**, CRUD `/api/v1/users`, `/api/v1/clients` (ver `arnela-rules/api-endpoints.md`).  
-- Health adicional: **readiness** en `http://localhost:8080/readiness` (README Arnela).
+- Health adicional: **readiness** en `http://localhost:8080/readiness` (README Arnela). **En GonsGarage** el contrato equivalente de “listo para tráfico” es **`GET /ready`** (mismo proceso que `/health` con chequeos adicionales en código); detrás de nginx en prod: `http://<host>:8102/ready`.
 
 ## Estructura frontend (reglas)
 
@@ -63,8 +63,8 @@ Idioma principal: **español**.
 | Dominio | Clientes (CRM), citas, facturación, tareas, integraciones (GCal, email, PDF) | Taller: coches, citas, empleados, reparaciones (API repairs aún no expuesta) |
 | Persistencia | sqlx + migraciones SQL versionadas | GORM + AutoMigrate en `cmd/api` (+ scripts SQL sueltos) |
 | Compose | `docker-compose.yml` en **raíz** (PG + Redis) | **Actualizado:** `docker-compose.yml` raíz (PG+Redis) alineado con defaults del backend |
-| CI | GitHub Actions | No hay workflows en el árbol actual |
-| Frontend | pnpm, Tailwind v4, Shadcn | **pnpm** + CI; Tailwind v4 / Shadcn no replicados; carpetas por rol distintas |
+| CI | GitHub Actions | **`.github/workflows/ci.yml`** (Go + frontend) y `deploy.yml` (manual) |
+| Frontend | pnpm, Tailwind v4, Shadcn | **pnpm**, Next 15; Tailwind v4 / Shadcn no replicados; estructura `app/` por features (auth, cars, accounting, etc.) |
 
 ## Archivos clave a abrir en Arnela
 

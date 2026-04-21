@@ -8,6 +8,10 @@
 - [x] Resumen en GonsGarage: [specs/arnela/ARNELA_SYNOPSIS.md](./specs/arnela/ARNELA_SYNOPSIS.md) e índice [specs/arnela/README.md](./specs/arnela/README.md); matriz en [arnela-specs.md](./arnela-specs.md).
 - [ ] Revisión conjunta con el equipo: priorizar filas de la matriz (compose, CI, auth, migraciones) y convertir en issues/tareas.
 
+### P2 — Paridad Arnela (backlog)
+
+Change SDD (archivado): [openspec/changes/archive/2026-04-21-arnela-parity/](../openspec/changes/archive/2026-04-21-arnela-parity/) (`proposal.md`, `tasks.md`). Después de cerrar Fase 0, usar la matriz en [arnela-specs.md](./arnela-specs.md) y los **títulos de issue sugeridos** en la sección **P2 — Paridad Arnela** de [mvp-next-steps.md](./mvp-next-steps.md).
+
 ## Fase 1 — Documentación y descubribilidad (este repo)
 
 - [x] Carpeta `docs/` con índice, análisis de aplicación y guía de desarrollo.

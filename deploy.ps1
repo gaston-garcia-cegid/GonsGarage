@@ -7,6 +7,10 @@
 $SERVER = "192.168.1.100"
 $USER = "root"
 $REMOTE_DIR = "/DATA/AppData/gonsgarage"
+# Segundo `-f` opcional (misma idea que `COMPOSE_OVERRIDE` en `scripts/update-server-gonsgarage.sh`).
+# Si `.env.prod` usa `arnela-postgres`, el API debe unirse a la red de Arnela; p. ej.:
+#   $COMPOSE_OVERRIDE = "docker-compose.prod.arnela-network.yml"
+$COMPOSE_OVERRIDE = ""
 
 $ErrorActionPreference = "Stop"
 
@@ -41,13 +45,18 @@ Write-Host "[3/4] .env.prod en el servidor (si no existe)..." -ForegroundColor Y
 ssh "${USER}@${SERVER}" "cd ${REMOTE_DIR} && if [ ! -f .env.prod ]; then cp .env.prod.example .env.prod && echo '.env.prod creado desde example — editar JWT_SECRET y DATABASE_URL antes del up'; else echo '.env.prod ya existe'; fi"
 
 Write-Host "[4/4] build + up (Docker)..." -ForegroundColor Yellow
+$composeArgs = "-f docker-compose.prod.yml"
+if ($COMPOSE_OVERRIDE.Trim().Length -gt 0) {
+    $composeArgs += " -f $COMPOSE_OVERRIDE"
+}
 ssh "${USER}@${SERVER}" @"
 cd ${REMOTE_DIR}
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+docker compose $composeArgs --env-file .env.prod up -d --build
 "@
 
 Write-Host ""
 Write-Host "=== Listo ===" -ForegroundColor Green
 Write-Host "App:     http://${SERVER}:8102" -ForegroundColor Cyan
 Write-Host "Health:  http://${SERVER}:8102/health" -ForegroundColor Cyan
+Write-Host "Ready:   http://${SERVER}:8102/ready" -ForegroundColor Cyan
 Write-Host "Swagger: http://${SERVER}:8102/swagger/index.html" -ForegroundColor Cyan

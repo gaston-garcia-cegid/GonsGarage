@@ -25,6 +25,16 @@ Con **`.env.prod`** apuntando a **`arnela-postgres`** pero un `docker compose` *
 | **P2** | Matriz Arnela Fase 0 | De [`roadmap.md`](./roadmap.md): filas de `arnela-specs.md` convertidas en issues priorizados. |
 | **P2** | Changelog / versionado API | Documento o sección en `docs/` + regla en PR (roadmap Fase 4). |
 
+## P2 — Paridad Arnela (issues sugeridos)
+
+Change SDD (archivado): [`openspec/changes/archive/2026-04-21-arnela-parity/`](../openspec/changes/archive/2026-04-21-arnela-parity/) — matriz en [`arnela-specs.md`](./arnela-specs.md). Crear issues (o tareas) con estos títulos; cuerpo: enlace a este doc + fila de la matriz.
+
+1. **`docs: evaluar golang-migrate vs GORM AutoMigrate`** — Trazabilidad SQL y revisión de esquema al estilo Arnela sin romper el arranque actual en `cmd/api`.
+2. **`docs: índice DOCUMENTATION_INDEX.md`** — Espejo opcional de Arnela para descubribilidad (`docs/DOCUMENTATION_INDEX.md`).
+3. **`api: rate limiting (paridad Arnela)`** — Alinear con políticas de Arnela si el producto lo exige.
+4. **`spike: Next / Tailwind / Shadcn (alcance mínimo)`** — Upgrade solo si el beneficio justifica el churn (matriz: Arnela Next 16 + Tailwind v4).
+5. **`docs: matriz roles GonsGarage vs arnela-rules`** — Comparación explícita de permisos por rol frente a `arnela-rules/`.
+
 ## Checklist issue GitHub (P1)
 
 - [ ] Issue creado en el repositorio con enlace a `docs/mvp-next-steps.md` y a `openspec/specs/mvp-role-access/spec.md`.

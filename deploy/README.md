@@ -19,6 +19,18 @@ export COMPOSE_OVERRIDE=docker-compose.prod.arnela-network.yml
 
 Sin el segundo `-f` (override vacío), el API suele entrar en **bucle de reinicio** y nginx devuelve **502** en `/health` (*no such host* al resolver `arnela-postgres`).
 
+En **PowerShell** desde tu PC, [`deploy.ps1`](../deploy.ps1) admite la variable **`$COMPOSE_OVERRIDE`** (segundo `-f` en el `docker compose` remoto). Dejala vacía por defecto; si usás Postgres Arnela por hostname, asignala antes de ejecutar el script (mismo fichero que en bash).
+
+## Paridad Arnela (checklist)
+
+1. **Red Docker** — [Opción B (misma red que Arnela)](#opción-b-recomendada-misma-red-docker-que-arnela); en el servidor, `export COMPOSE_OVERRIDE=…` antes del script bash, o `$COMPOSE_OVERRIDE` en `deploy.ps1`.
+2. **`DATABASE_URL`** — Host resoluble desde el contenedor del API; [Postgres compartido con Arnela](#postgres-compartido-con-arnela-mismo-homeos). Si ves *lookup arnela-postgres*, revisá también [Incidente DNS en mvp-next-steps](../docs/mvp-next-steps.md#incidente-dns-arnela-postgres).
+3. **`CORS_ORIGINS` / `GIN_MODE` / `JWT_SECRET`** — [CORS, `GIN_MODE=release` y `JWT_SECRET`](#cors-gin_moderelease-y-jwt_secret-checklist-51-52).
+4. **`/health` y `/ready`** — [Verificación tras el primer `up`](#verificación-tras-el-primer-up-43--44).
+5. **Backup** — [Backup de BD](#backup-de-bd-checklist-53).
+
+Backlog documentado (archivado): [openspec/changes/archive/2026-04-21-arnela-parity/](../openspec/changes/archive/2026-04-21-arnela-parity/).
+
 ---
 
 Archivos en la **raíz del repo**:

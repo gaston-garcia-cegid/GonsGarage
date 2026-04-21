@@ -13,19 +13,22 @@ No forma parte del workspace de GonsGarage; la información se consulta **leyend
 Para no duplicar mantenimiento, el equipo puede usar:
 
 - **[docs/specs/arnela/README.md](./specs/arnela/README.md)** — Índice y punteros.  
-- **[docs/specs/arnela/ARNELA_SYNOPSIS.md](./specs/arnela/ARNELA_SYNOPSIS.md)** — Resumen de producto, stack, estructura, convenciones y diferencias frente a GonsGarage (última extracción: 2026-04-16).
+- **[docs/specs/arnela/ARNELA_SYNOPSIS.md](./specs/arnela/ARNELA_SYNOPSIS.md)** — Resumen de producto, stack, convenciones y diferencias frente a GonsGarage.  
+- **Change SDD (paridad / backlog, archivado):** [openspec/changes/archive/2026-04-21-arnela-parity/](../openspec/changes/archive/2026-04-21-arnela-parity/) (`proposal.md`, `tasks.md`).
 
-## Matriz de comparación (borrador)
+## Matriz de comparación
 
-| Tema | Arnela | GonsGarage hoy | Acción propuesta |
-|------|--------|----------------|------------------|
-| **Compose / DB** | `docker-compose.yml` en raíz: PostgreSQL + Redis; `.env.example` | **Hecho en GonsGarage:** `docker-compose.yml` raíz + `backend/.env.example` alineados con `cmd/api` | Perfiles opcionales para app en contenedor; endurecer secretos en prod |
-| **Migraciones** | `golang-migrate`, SQL en `migrations/` | GORM `AutoMigrate` en `cmd/api` | Decidir: mantener GORM o acercarse al modelo Arnela si se exige trazabilidad SQL |
-| **CI** | GitHub Actions (README) | Sin workflows `.github` | Añadir pipeline similar (Go test + frontend lint/test) |
-| **Estructura docs** | `docs/DOCUMENTATION_INDEX.md` + muchos temas + `arnela-rules/` | `docs/` reciente, sin índice tan grande | Opcional: `docs/DOCUMENTATION_INDEX.md` propio enlazando análisis, dev, roadmap |
-| **Auth / API** | JWT + roles; `GET /auth/me`; rate limiting; CRUD users/clients documentado | JWT; register/login; sin `auth/me` en el listado revisado; cars/employees/appointments | Evaluar `auth/me`, rate limit, políticas por rol según necesidad del taller |
-| **Frontend** | Next 16, pnpm, Tailwind v4, Shadcn, rutas por `(auth)`/`(client)`/`(backoffice)` | Next 15, npm, estructura `app/` plana en parte | Roadmap: subir versión/herramientas solo si hay beneficio claro |
-| **Observabilidad** | `/health` y `/readiness` (README Arnela) | `/health` | Añadir readiness si se despliega en orquestador |
+**Última revisión:** 2026-04-20 (change `arnela-parity`). Revisar Arnela en `D:\Repos\Arnela` cuando cambie su README o `arnela-rules/`.
+
+| Tema | Arnela | GonsGarage hoy | Acción propuesta | Última revisión |
+|------|--------|----------------|------------------|-----------------|
+| **Compose / DB** | `docker-compose.yml` en raíz: PostgreSQL + Redis; `.env.example` | `docker-compose.yml` raíz + `backend/.env.example`; prod: `docker-compose.prod.yml` + opción red Arnela (`docker-compose.prod.arnela-network.yml`) | Mantener docs deploy; perfiles opcionales app en contenedor si hace falta | 2026-04-20 |
+| **Migraciones** | golang-migrate, SQL en `migrations/` | GORM `AutoMigrate` en `cmd/api` + SQL idempotente en `backend/migrations/` | Issue P2: evaluar trazabilidad SQL vs solo AutoMigrate | 2026-04-20 |
+| **CI** | GitHub Actions | **`.github/workflows/ci.yml`** (Go vet + test `-race` en Linux; pnpm lint, typecheck, test, build frontend) + `deploy.yml` manual | Mantener verde en PR; ampliar cobertura si aplica | 2026-04-20 |
+| **Estructura docs** | `docs/DOCUMENTATION_INDEX.md` + `arnela-rules/` | `docs/` con índice, guías, roadmap, esta matriz | Issue P2: `docs/DOCUMENTATION_INDEX.md` propio (opcional) | 2026-04-20 |
+| **Auth / API** | JWT; `GET /api/v1/auth/me`; rate limiting; CRUD documentado | JWT; **`GET /api/v1/auth/me`** (`auth_handler.Me`); register/login; cars, appointments, employees, repairs, accounting P1, etc. | Issue P2: rate limiting y políticas finas vs Arnela | 2026-04-20 |
+| **Frontend** | Next 16, pnpm, Tailwind v4, Shadcn, grupos de rutas | **Next 15**, **pnpm**, App Router, sin Tailwind v4/Shadcn replicados | Spike P2: upgrade solo con beneficio claro | 2026-04-20 |
+| **Observabilidad** | `/health` y readiness (p. ej. `/readiness` en README Arnela) | **`GET /health`** y **`GET /ready`** en API; nginx proxifica ambos en el mismo origen (`:8102`) | Documentar equivalencia nombre; métricas = roadmap Fase 4 | 2026-04-20 |
 
 ## Si la ruta cambia de máquina
 
