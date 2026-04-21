@@ -96,6 +96,18 @@ En **`.env.prod`** del servidor (ver [`.env.prod.example`](../.env.prod.example)
 
 El API lee estas variables en arranque; detalle de middleware en `backend/cmd/api/main.go`.
 
+## Acceso por hostname (p. ej. DuckDNS) desde la **misma LAN** que el servidor
+
+Si con **`http://192.168.1.100:8102`** todo responde al instante pero con **`http://gonsgarage.duckdns.org:8102`** las peticiones del navegador quedan mucho tiempo en **Pending** y luego acaban:
+
+1. **Ruta de red distinta** — El nombre suele resolver al **IP pública del router** (WAN). Un PC en la WiFi/LAN puede mandar el tráfico “fuera” y volver (**NAT hairpin** / loopback NAT). Muchos routers domésticos lo hacen **mal, lento o con timeouts**; no es un fallo de nginx ni del código de GonsGarage.
+
+2. **IPv6 (AAAA)** — Si DuckDNS publica **AAAA** y la ruta IPv6 hasta tu casa no funciona bien, el navegador puede **esperar** a que falle IPv6 antes de usar IPv4 (**Happy Eyeballs**), lo que se ve como muchos `fetch` en Pending unos **20–75 s**.
+
+**Qué hacer:** desde la LAN, o bien usá la **IP local** (`192.168…`), o bien forzá que el hostname resuelva a la **IP LAN** en ese segmento (**DNS local / split-horizon**, Pi-hole, `hosts` en el PC de prueba, o router con DNS override). Otra opción es revisar en DuckDNS si conviene **quitar AAAA** mientras no tengáis IPv6 estable. Desde **fuera** de la casa, el hostname con WAN suele ir bien.
+
+Incluí **ambos** orígenes en `CORS_ORIGINS` si usáis IP y hostname (ver [`.env.prod.example`](../.env.prod.example)).
+
 ## Secretos (checklist 4.2)
 
 - En el servidor solo **`/DATA/AppData/gonsgarage/.env.prod`** (o la ruta que uses); **no** subir `.env.prod` al git (está en [`.gitignore`](../.gitignore)).
