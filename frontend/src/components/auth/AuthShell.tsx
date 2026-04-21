@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import styles from './AuthShell.module.css';
 
 export type AuthShellBanner = {
@@ -23,13 +23,13 @@ export function AuthShell({ title, subtitle, banner, children }: Readonly<AuthSh
         <div className={styles.card}>
           <header className={styles.header}>
             <div className={styles.logoWrap}>
-              <Image
-                src="/images/LogoGonsGarage.jpg"
+              <BrandLogo
                 alt="Logótipo GonsGarage"
                 width={48}
                 height={48}
                 className={styles.logoImage}
                 priority
+                dataTestId="brand-logo"
               />
             </div>
             <h1 className={styles.title}>{title}</h1>

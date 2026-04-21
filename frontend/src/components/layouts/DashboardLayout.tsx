@@ -4,7 +4,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/stores';
-import Image from 'next/image';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import styles from './DashboardLayout.module.css';
@@ -56,13 +56,7 @@ export default function DashboardLayout({
             style={{ cursor: 'pointer' }}
           >
             <div className={styles.logoIcon}>
-              <Image
-                src="/images/LogoGonsGarage.jpg"
-                alt="GonsGarage Logo"
-                width={24}
-                height={24}
-                style={{ objectFit: 'contain' }}
-              />
+              <BrandLogo alt="GonsGarage Logo" width={24} height={24} style={{ objectFit: 'contain' }} />
             </div>
             <div>
               <h1>GonsGarage</h1>

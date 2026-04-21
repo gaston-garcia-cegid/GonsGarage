@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import type { User } from '@/types';
 import { isClient } from '@/types/user';
 import { Button } from '@/components/ui/button';
@@ -54,8 +54,7 @@ export default function AppShell({
           >
             <div className={styles.logoIcon}>
               {logoVariant === 'branded' ? (
-                <Image
-                  src="/images/LogoGonsGarage.jpg"
+                <BrandLogo
                   alt=""
                   width={32}
                   height={32}

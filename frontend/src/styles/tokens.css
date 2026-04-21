@@ -3,7 +3,7 @@
  * Dark mode: `html[data-theme="dark"]`; preferencia en `data-theme-pref` (light|dark|system).
  *
  * ## Brand (vs. logo)
- * Referência visual: `frontend/public/images/LogoGonsGarage.jpg`
+ * Referência visual: `frontend/public/images/LogoGonsGarage.jpg` (opcional; fallback em `logo-gonsgarage-mark.svg`)
  * - `--brand-navy` / `--brand-navy-muted`: fundo escuro / barra do logótipo (carbón).
  * - `--brand-accent` / `--brand-accent-soft`: azul de confiança (texto/marca no logo).
  * - `--brand-signal` / `--color-error`: vermelho de sinalética e ações destrutivas.

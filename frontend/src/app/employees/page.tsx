@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -116,23 +117,16 @@ export default function EmployeesPage() {
               alignItems: 'center',
               gap: 'var(--space-3)',
             }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                backgroundColor: 'var(--color-primary)',
-                borderRadius: 'var(--radius)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <svg 
-                  style={{ width: '16px', height: '16px', color: 'var(--text-on-primary)' }} 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-2 0H7m5 0v-5a2 2 0 012-2h2a2 2 0 012 2v5" />
-                </svg>
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: 'var(--radius)',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                }}
+              >
+                <BrandLogo alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
               </div>
               <div>
                 <h1 style={{

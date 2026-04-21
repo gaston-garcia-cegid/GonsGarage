@@ -3,7 +3,8 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import Image from 'next/image';
+import { BrandLogo } from '@/components/brand/BrandLogo';
+import { BrandHeroBanner } from '@/components/brand/BrandHeroBanner';
 import styles from './landing.module.css';
 import { AppLoading } from '@/components/ui/AppLoading';
 
@@ -112,13 +113,7 @@ export default function LandingPage() {
         <div className={styles.headerContent}>
           <div className={styles.logoSection} onClick={() => router.push('/')}>
             <div className={styles.logo}>
-              <Image
-                src="/images/LogoGonsGarage.jpg"
-                alt="Logótipo GonsGarage"
-                width={32}
-                height={32}
-                style={{ objectFit: 'contain' }}
-              />
+              <BrandLogo alt="Logótipo GonsGarage" width={32} height={32} style={{ objectFit: 'contain' }} />
             </div>
             <div className={styles.logoText}>
               <h1>GonsGarage</h1>
@@ -152,16 +147,7 @@ export default function LandingPage() {
       <section className={styles.hero}>
         <div className={styles.heroBackground}>
           <div className={styles.bannerImage}>
-            <Image
-              src="/images/BannerGonsGarage.jpg"
-              alt="Oficina GonsGarage"
-              fill
-              style={{ objectFit: 'cover' }}
-              priority
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
+            <BrandHeroBanner alt="Oficina GonsGarage" priority />
           </div>
           <div className={styles.heroOverlay} />
         </div>
@@ -292,13 +278,7 @@ export default function LandingPage() {
           <div className={styles.footerSection} onClick={() => router.push('/')}>
             <div className={styles.footerLogo}>
               <div className={styles.logo}>
-                <Image
-                  src="/images/LogoGonsGarage.jpg"
-                  alt="Logótipo GonsGarage"
-                  width={32}
-                  height={32}
-                  style={{ objectFit: 'contain' }}
-                />
+                <BrandLogo alt="Logótipo GonsGarage" width={32} height={32} style={{ objectFit: 'contain' }} />
               </div>
               <div>
                 <h4>GonsGarage</h4>
