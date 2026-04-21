@@ -1,8 +1,9 @@
 // ✅ Centralized API client following Agent.md standards
 // Handles HTTP requests, error management, authentication, and interceptors
 
+import { getPublicApiOrigin } from './api-public-origin';
+
 // ✅ Base configuration constants
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 const API_VERSION = 'v1';
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 
@@ -66,7 +67,7 @@ export class ApiClient {
   private responseInterceptors: ResponseInterceptor[] = [];
 
   constructor(baseURL?: string) {
-    this.baseURL = baseURL || `${API_BASE_URL}/api/${API_VERSION}`;
+    this.baseURL = baseURL || `${getPublicApiOrigin()}/api/${API_VERSION}`;
     
     // ✅ Initialize token from localStorage (client-side only)
     if (typeof window !== 'undefined') {

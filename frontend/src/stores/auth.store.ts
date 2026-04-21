@@ -5,6 +5,7 @@ import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
 import { User, UserRole, RegisterRequest } from '@/types';
 import { apiClient } from '@/lib/api-client';
+import { getPublicApiOrigin } from '@/lib/api-public-origin';
 
 // ✅ Store state interface following Agent.md
 interface AuthState {
@@ -39,9 +40,6 @@ interface AuthActions {
 // ✅ Complete store type
 type AuthStore = AuthState & AuthActions;
 
-// ✅ API configuration per Agent.md
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
 function mapMeUser(raw: Record<string, unknown>): User {
   const u = raw as Record<string, unknown>;
   const idVal = u.id;
@@ -58,7 +56,7 @@ function mapMeUser(raw: Record<string, unknown>): User {
 }
 
 async function fetchCurrentUser(token: string): Promise<User> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
+  const response = await fetch(`${getPublicApiOrigin()}/api/v1/auth/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -122,7 +120,7 @@ const storage = {
 // ✅ API functions following Agent.md
 const authAPI = {
   login: async (email: string, password: string) => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+    const response = await fetch(`${getPublicApiOrigin()}/api/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -148,7 +146,7 @@ const authAPI = {
   },
 
   register: async (data: RegisterRequest) => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
+    const response = await fetch(`${getPublicApiOrigin()}/api/v1/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

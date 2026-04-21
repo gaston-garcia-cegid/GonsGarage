@@ -1,3 +1,5 @@
+import { getPublicApiOrigin } from './api-public-origin';
+
 interface ApiError {
   message: string;
   status: number;
@@ -137,26 +139,13 @@ export interface CreateAppointmentRequest {
   notes?: string;
 }
 
-/**
- * Igual que `api-client.ts` e `carApi`: `NEXT_PUBLIC_API_URL` é a origem (host:porta),
- * sem path; o cliente fala sempre com `/api/v1/...` (nginx em prod expõe `/api/` → Gin).
- */
-function resolveApiV1BaseUrl(raw: string): string {
-  const trimmed = raw.trim().replace(/\/+$/, '');
-  if (trimmed.endsWith('/api/v1')) return trimmed;
-  return `${trimmed}/api/v1`;
-}
-
 class ApiClient {
   private baseURL: string;
   private token: string | null = null;
 
   constructor() {
-    const raw =
-      process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.trim() !== ''
-        ? process.env.NEXT_PUBLIC_API_URL
-        : 'http://localhost:8080';
-    this.baseURL = resolveApiV1BaseUrl(raw);
+    const origin = getPublicApiOrigin().replace(/\/+$/, '');
+    this.baseURL = `${origin}/api/v1`;
     if (typeof window !== 'undefined') {
       // Same session as Zustand / api-client (auth_token); legacy key was "token"
       this.token = localStorage.getItem('auth_token') || localStorage.getItem('token');

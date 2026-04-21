@@ -1,4 +1,5 @@
 import { Car, CreateCarRequest, UpdateCarRequest } from '@/types/car';
+import { getPublicApiOrigin } from '@/lib/api-public-origin';
 
 export interface ApiResponse<T> {
   data: T | null;
@@ -11,8 +12,9 @@ export interface ApiResponse<T> {
 class CarApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080') {
-    this.baseUrl = `${baseUrl}/api/v1`;
+  constructor(baseUrl?: string) {
+    const origin = (baseUrl?.trim() || getPublicApiOrigin()).replace(/\/+$/, '').replace(/\/api\/v1$/, '');
+    this.baseUrl = `${origin}/api/v1`;
   }
 
   // ✅ Fixed: Safe token retrieval that works in both client and server
