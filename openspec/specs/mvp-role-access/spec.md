@@ -1,6 +1,6 @@
 # mvp-role-access Specification
 
-> **Promoción:** catálogo principal desde el change archivado `openspec/changes/archive/2026-04-20-mvp-role-verification/` (2026-04-20). Actualizado desde `openspec/changes/archive/2026-04-20-admin-provision-user-roles/` — fila de aprovisionamiento staff y CI (2026-04-20). Actualizado desde `openspec/changes/archive/2026-04-21-ui-admin-users-discoverability/` — matriz UI `/admin/users`, CI UI y `openspec/specs/staff-user-management-ui/spec.md` (2026-04-21).
+> **Promoción:** catálogo principal desde el change archivado `openspec/changes/archive/2026-04-20-mvp-role-verification/` (2026-04-20). Actualizado desde `openspec/changes/archive/2026-04-20-admin-provision-user-roles/` — fila de aprovisionamiento staff y CI (2026-04-20). Actualizado desde `openspec/changes/archive/2026-04-21-ui-admin-users-discoverability/` — matriz UI `/admin/users`, CI UI y `openspec/specs/staff-user-management-ui/spec.md` (2026-04-21). Actualizado desde `openspec/changes/archive/2026-04-22-workshop-mechanic-vehicle-lifecycle/` — taller (service job), fila de matriz y pruebas CI (2026-04-22).
 
 ## Purpose
 
@@ -17,6 +17,7 @@ Reproducible **MVP verification** by **role** (`client`, `employee`, `manager`, 
 | `/api/v1/employees` | MUST NOT | MUST NOT | MUST | MUST |
 | Staff user provisioning `POST /api/v1/admin/users` | MUST NOT | MUST NOT | MUST** | MUST |
 | Staff user management UI (`/admin/users` via shell) | MUST NOT | MUST NOT | MUST | MUST |
+| Workshop / service job (taller) `POST/PUT/PATCH` bajo `/api/v1/service-jobs` y *checklists* (muta) | MUST NOT | MUST* | MUST* | MUST* |
 | Invoices HTTP/UI (MVP v1) | **Deferred** (`p1-accounting-defer`) | — | — | — |
 
 \*Subject to existing service rules (car ownership, etc.).  
@@ -26,7 +27,7 @@ Reproducible **MVP verification** by **role** (`client`, `employee`, `manager`, 
 
 ### Requirement: Published role–surface matrix
 
-MVP verification docs **SHALL** expose the matrix above (or equivalent), including **staff user provisioning** as a distinct API row.
+MVP verification docs **SHALL** expose the matrix above (or equivalent), including **staff user provisioning** and **workshop (service job)** (taller visit) como filas de API/superficie distintas, alineadas con `openspec/specs/workshop-repair-execution/spec.md` donde aplica.
 
 #### Scenario: Four roles listed
 
@@ -45,6 +46,12 @@ MVP verification docs **SHALL** expose the matrix above (or equivalent), includi
 - GIVEN the matrix excerpt
 - WHEN a reviewer scans API rows
 - THEN the staff user provisioning row appears with correct MUST/MUST NOT per column
+
+#### Scenario: Matrix row for workshop (service job)
+
+- GIVEN the normative matrix summary
+- WHEN the matrix is read
+- THEN a row documents `Workshop / service job` and distinguishes `client` **MUST NOT** on mutating those routes from staff (`employee` / `manager` / `admin`) **MUST\*** for the HTTP surface in `workshop-repair-execution` scope
 
 ### Requirement: Staff user provisioning HTTP surface
 
@@ -122,7 +129,9 @@ The repo **SHALL** ship idempotent seed command(s) creating ≥1 user per role w
 
 ### Requirement: Client cannot mutate repairs via HTTP
 
-`client` **MUST NOT** get 2xx from repair **POST/PUT/DELETE**; staff **SHALL** mutate per service rules.
+`client` **MUST NOT** get 2xx from repair **POST/PUT/DELETE** **nor** from any **workshop service job** (taller visit) or subresource (checklists) **POST/PUT/PATCH** that mutates; staff **SHALL** mutate per service rules.
+
+(Previously, antes do change `workshop-mechanic-vehicle-lifecycle`: solo `repairs` HTTP, sen *service job* normativo.)
 
 #### Scenario: Client POST repair fails
 
@@ -130,11 +139,27 @@ The repo **SHALL** ship idempotent seed command(s) creating ≥1 user per role w
 - WHEN `POST /api/v1/repairs` with otherwise valid payload
 - THEN response is not 2xx success
 
+#### Scenario: Client mutates service job is denied
+
+- GIVEN JWT role `client`
+- WHEN `POST`/`PUT`/`PATCH` to a documented service-job or checklist path for the workshop feature
+- THEN response is not 2xx success
+
 #### Scenario: Employee may mutate
 
-- GIVEN JWT role `employee` and payload allowed by `RepairService`
+- GIVEN JWT role `employee` and payload allowed by `RepairService` (or workshop rules when they apply to the request)
 - WHEN `POST /api/v1/repairs`
 - THEN response is not rejected **only** because role is `employee`
+
+### Requirement: CI must fail if client mutates service job
+
+Automated tests **SHALL** fail CI if a `client` gets 2xx from mutating a documented service-job or checklist `POST/PUT/PATCH` route in scope of the `workshop-repair-execution` feature.
+
+#### Scenario: CI client denied on create visit
+
+- GIVEN `go test` in CI
+- WHEN a test sends a service-job *create* with JWT `client`
+- THEN the response is not 2xx success
 
 ### Requirement: Invoices not in MVP acceptance
 
@@ -148,7 +173,7 @@ MVP completion **SHALL NOT** depend on invoice Gin routes nor Next invoice pages
 
 ### Requirement: CI authorization regression tests
 
-Tests **SHALL** fail CI if employees list opens to `client`/`employee`, if `client` gains 2xx repair mutation, if staff user provisioning rules in `staff-user-provisioning` are violated, **or** if `AppShell` omits the `/admin/users` nav entry when `canManageUsers` is true (regression on staff user management UI discovery).
+Tests **SHALL** fail CI if employees list opens to `client`/`employee`, if `client` gains 2xx repair mutation, if `client` gains 2xx on mutating a workshop service job (see prior requirement), if staff user provisioning rules in `staff-user-provisioning` are violated, **or** if `AppShell` omits the `/admin/users` nav entry when `canManageUsers` is true (regression on staff user management UI discovery).
 
 #### Scenario: Employees gate tested
 

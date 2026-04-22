@@ -14,6 +14,7 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/middleware"
 	repairsvc "github.com/gaston-garcia-cegid/gonsgarage/internal/service/repair"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/servicejob"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -210,6 +211,106 @@ var _ ports.UserRepository = (*mvpUserRepo)(nil)
 var _ ports.CarRepository = (*mvpCarRepo)(nil)
 var _ ports.RepairRepository = (*mvpRepairRepo)(nil)
 
+// mvpSJRepo is a minimal in-memory ServiceJobRepository for auth / flow tests.
+type mvpSJRepo struct {
+	byID  map[uuid.UUID]*domain.ServiceJob
+	byCar map[uuid.UUID][]*domain.ServiceJob
+	rec   map[uuid.UUID]*domain.ServiceJobReception
+	ho    map[uuid.UUID]*domain.ServiceJobHandover
+}
+
+func (m *mvpSJRepo) Create(_ context.Context, j *domain.ServiceJob) error {
+	if m.byID == nil {
+		m.byID = make(map[uuid.UUID]*domain.ServiceJob)
+	}
+	if m.byCar == nil {
+		m.byCar = make(map[uuid.UUID][]*domain.ServiceJob)
+	}
+	m.byID[j.ID] = j
+	m.byCar[j.CarID] = append(m.byCar[j.CarID], j)
+	return nil
+}
+
+func (m *mvpSJRepo) GetByID(_ context.Context, id uuid.UUID) (*domain.ServiceJob, error) {
+	j, ok := m.byID[id]
+	if !ok {
+		return nil, domain.ErrServiceJobNotFound
+	}
+	return j, nil
+}
+
+func (m *mvpSJRepo) Update(_ context.Context, j *domain.ServiceJob) error {
+	if _, ok := m.byID[j.ID]; !ok {
+		return domain.ErrServiceJobNotFound
+	}
+	m.byID[j.ID] = j
+	return nil
+}
+
+func (m *mvpSJRepo) ListByCarID(_ context.Context, carID uuid.UUID) ([]*domain.ServiceJob, error) {
+	if m.byCar == nil {
+		return nil, nil
+	}
+	return m.byCar[carID], nil
+}
+
+func (m *mvpSJRepo) SaveReception(_ context.Context, r *domain.ServiceJobReception) error {
+	if m.rec == nil {
+		m.rec = make(map[uuid.UUID]*domain.ServiceJobReception)
+	}
+	cp := *r
+	m.rec[r.ServiceJobID] = &cp
+	return nil
+}
+
+func (m *mvpSJRepo) GetReception(_ context.Context, id uuid.UUID) (*domain.ServiceJobReception, error) {
+	if m.rec == nil {
+		return nil, nil
+	}
+	return m.rec[id], nil
+}
+
+func (m *mvpSJRepo) SaveHandover(_ context.Context, h *domain.ServiceJobHandover) error {
+	if m.ho == nil {
+		m.ho = make(map[uuid.UUID]*domain.ServiceJobHandover)
+	}
+	cp := *h
+	m.ho[h.ServiceJobID] = &cp
+	return nil
+}
+
+func (m *mvpSJRepo) GetHandover(_ context.Context, id uuid.UUID) (*domain.ServiceJobHandover, error) {
+	if m.ho == nil {
+		return nil, nil
+	}
+	return m.ho[id], nil
+}
+
+var _ ports.ServiceJobRepository = (*mvpSJRepo)(nil)
+
+func serviceJobWorkshopRouter(t *testing.T, secret string, userRepo ports.UserRepository, carRepo ports.CarRepository, jobRepo ports.ServiceJobRepository) *gin.Engine {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	am := middleware.NewAuthMiddleware(secret)
+	svc := servicejob.NewService(jobRepo, carRepo, userRepo)
+	h := NewServiceJobHandler(svc)
+
+	r := gin.New()
+	api := r.Group("/api/v1")
+	api.Use(middleware.GinBearerJWT(am))
+	sj := api.Group("/service-jobs")
+	sj.Use(middleware.RequireWorkshopStaff())
+	{
+		sj.POST("", h.CreateServiceJob)
+		sj.GET("/car/:carId", h.ListServiceJobsByCar)
+		sj.GET("/:id/obd", h.StubOBD)
+		sj.GET("/:id", h.GetServiceJob)
+		sj.PUT("/:id/reception", h.PutReception)
+		sj.PUT("/:id/handover", h.PutHandover)
+	}
+	return r
+}
+
 func repairPOSTRouter(t *testing.T, secret string, userRepo ports.UserRepository, carRepo ports.CarRepository, repRepo ports.RepairRepository) *gin.Engine {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
@@ -287,4 +388,108 @@ func TestMVPAccess_RepairPOST_EmployeeCreated(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
+}
+
+// --- Service jobs: client 403 (workshop staff only); employee 201 ---
+
+func TestMVPAccess_ServiceJobPOST_ClientForbidden(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-sj-client"
+	clientID := uuid.New()
+	carID := uuid.New()
+	u, err := domain.NewUser("c2@test.local", "x", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	u.ID = clientID
+	users := &mvpUserRepo{byID: map[uuid.UUID]*domain.User{clientID: u}}
+	cars := &mvpCarRepo{car: &domain.Car{ID: carID, OwnerID: clientID}}
+	sj := &mvpSJRepo{byID: map[uuid.UUID]*domain.ServiceJob{}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {}}}
+
+	r := serviceJobWorkshopRouter(t, secret, users, cars, sj)
+	body, _ := json.Marshal(map[string]any{"car_id": carID.String()})
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/service-jobs", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, clientID, domain.RoleClient))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}
+
+func TestMVPAccess_ServiceJobPOST_EmployeeCreated(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-sj-emp"
+	empID := uuid.New()
+	carID := uuid.New()
+	ownerID := uuid.New()
+	emp, err := domain.NewUser("e2@test.local", "x", "E", "M", domain.RoleEmployee)
+	require.NoError(t, err)
+	emp.ID = empID
+	users := &mvpUserRepo{byID: map[uuid.UUID]*domain.User{empID: emp}}
+	cars := &mvpCarRepo{car: &domain.Car{ID: carID, OwnerID: ownerID}}
+	sj := &mvpSJRepo{byID: map[uuid.UUID]*domain.ServiceJob{}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {}}}
+
+	r := serviceJobWorkshopRouter(t, secret, users, cars, sj)
+	body, _ := json.Marshal(map[string]any{"car_id": carID.String()})
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/service-jobs", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, empID, domain.RoleEmployee))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusCreated, w.Code)
+}
+
+func TestMVPAccess_ServiceJobFlow_ReceptionHandoverGetClosed(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-sj-flow"
+	empID := uuid.New()
+	carID := uuid.New()
+	ownerID := uuid.New()
+	emp, err := domain.NewUser("eflow@test.local", "x", "E", "M", domain.RoleEmployee)
+	require.NoError(t, err)
+	emp.ID = empID
+	users := &mvpUserRepo{byID: map[uuid.UUID]*domain.User{empID: emp}}
+	cars := &mvpCarRepo{car: &domain.Car{ID: carID, OwnerID: ownerID}}
+	sj := &mvpSJRepo{byID: map[uuid.UUID]*domain.ServiceJob{}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {}}}
+
+	r := serviceJobWorkshopRouter(t, secret, users, cars, sj)
+	auth := "Bearer " + testJWT(t, secret, empID, domain.RoleEmployee)
+
+	postBody, _ := json.Marshal(map[string]any{"car_id": carID.String()})
+	preq := httptest.NewRequest(http.MethodPost, "/api/v1/service-jobs", bytes.NewReader(postBody))
+	preq.Header.Set("Content-Type", "application/json")
+	preq.Header.Set("Authorization", auth)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, preq)
+	require.Equal(t, http.StatusCreated, w.Code, w.Body.String())
+	var created domain.ServiceJob
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &created))
+	jid := created.ID.String()
+
+	putR, _ := json.Marshal(map[string]any{
+		"odometer_km":  5000,
+		"general_notes": "reception ok",
+	})
+	rr := httptest.NewRequest(http.MethodPut, "/api/v1/service-jobs/"+jid+"/reception", bytes.NewReader(putR))
+	rr.Header.Set("Content-Type", "application/json")
+	rr.Header.Set("Authorization", auth)
+	w2 := httptest.NewRecorder()
+	r.ServeHTTP(w2, rr)
+	require.Equal(t, http.StatusOK, w2.Code, w2.Body.String())
+
+	putH, _ := json.Marshal(map[string]any{"odometer_km": 5010, "general_notes": "handover ok"})
+	hr := httptest.NewRequest(http.MethodPut, "/api/v1/service-jobs/"+jid+"/handover", bytes.NewReader(putH))
+	hr.Header.Set("Content-Type", "application/json")
+	hr.Header.Set("Authorization", auth)
+	w3 := httptest.NewRecorder()
+	r.ServeHTTP(w3, hr)
+	require.Equal(t, http.StatusOK, w3.Code, w3.Body.String())
+
+	gr := httptest.NewRequest(http.MethodGet, "/api/v1/service-jobs/"+jid, nil)
+	gr.Header.Set("Authorization", auth)
+	w4 := httptest.NewRecorder()
+	r.ServeHTTP(w4, gr)
+	require.Equal(t, http.StatusOK, w4.Code, w4.Body.String())
+	var detail serviceJobDetailResponse
+	require.NoError(t, json.Unmarshal(w4.Body.Bytes(), &detail))
+	assert.Equal(t, domain.ServiceJobStatusClosed, detail.Job.Status)
+	assert.NotNil(t, detail.Handover)
 }

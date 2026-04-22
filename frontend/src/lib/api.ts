@@ -132,6 +132,48 @@ export interface CreateRepairRequest {
   cost: number;
 }
 
+export type ServiceJobStatus = 'open' | 'in_progress' | 'closed' | 'cancelled';
+
+export interface ServiceJob {
+  id: string;
+  car_id: string;
+  status: ServiceJobStatus;
+  opened_by_user_id: string;
+  opened_at: string;
+  closed_at?: string;
+  appointment_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ServiceJobReception {
+  service_job_id: string;
+  odometer_km: number;
+  oil_level?: string;
+  coolant_level?: string;
+  tires_note?: string;
+  general_notes?: string;
+  recorded_by_user_id: string;
+  recorded_at: string;
+  schema_version: number;
+}
+
+export interface ServiceJobHandover {
+  service_job_id: string;
+  odometer_km: number;
+  tires_note?: string;
+  general_notes?: string;
+  recorded_by_user_id: string;
+  recorded_at: string;
+  schema_version: number;
+}
+
+export interface ServiceJobDetail {
+  job: ServiceJob;
+  reception?: ServiceJobReception;
+  handover?: ServiceJobHandover;
+}
+
 export interface CreateAppointmentRequest {
   car_id: string;
   service_type: string;
@@ -370,6 +412,48 @@ class ApiClient {
   async deleteRepair(id: string): Promise<ApiResponse<{ ok?: boolean }>> {
     return this.request<{ ok?: boolean }>(`/repairs/${id}`, {
       method: 'DELETE',
+    });
+  }
+
+  // Workshop service jobs (RequireWorkshopStaff no backend)
+  async createServiceJob(carId: string): Promise<ApiResponse<ServiceJob>> {
+    return this.request<ServiceJob>('/service-jobs', {
+      method: 'POST',
+      body: JSON.stringify({ car_id: carId }),
+    });
+  }
+
+  async getServiceJob(id: string): Promise<ApiResponse<ServiceJobDetail>> {
+    return this.request<ServiceJobDetail>(`/service-jobs/${id}`);
+  }
+
+  async listServiceJobsByCar(carId: string): Promise<ApiResponse<ServiceJob[]>> {
+    return this.request<ServiceJob[]>(`/service-jobs/car/${carId}`);
+  }
+
+  async putServiceJobReception(
+    id: string,
+    body: {
+      odometer_km: number;
+      oil_level?: string;
+      coolant_level?: string;
+      tires_note?: string;
+      general_notes?: string;
+    }
+  ): Promise<ApiResponse<ServiceJobReception>> {
+    return this.request<ServiceJobReception>(`/service-jobs/${id}/reception`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async putServiceJobHandover(
+    id: string,
+    body: { odometer_km: number; tires_note?: string; general_notes?: string }
+  ): Promise<ApiResponse<ServiceJobHandover>> {
+    return this.request<ServiceJobHandover>(`/service-jobs/${id}/handover`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
     });
   }
 

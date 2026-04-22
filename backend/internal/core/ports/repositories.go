@@ -116,6 +116,18 @@ type RepairRepository interface {
 	GetByCarID(ctx context.Context, carID uuid.UUID) ([]*domain.Repair, error)
 }
 
+// ServiceJobRepository persists workshop visits (service jobs) and 1:1 reception/handover.
+type ServiceJobRepository interface {
+	Create(ctx context.Context, job *domain.ServiceJob) error
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.ServiceJob, error)
+	Update(ctx context.Context, job *domain.ServiceJob) error
+	ListByCarID(ctx context.Context, carID uuid.UUID) ([]*domain.ServiceJob, error)
+	SaveReception(ctx context.Context, r *domain.ServiceJobReception) error
+	GetReception(ctx context.Context, serviceJobID uuid.UUID) (*domain.ServiceJobReception, error)
+	SaveHandover(ctx context.Context, h *domain.ServiceJobHandover) error
+	GetHandover(ctx context.Context, serviceJobID uuid.UUID) (*domain.ServiceJobHandover, error)
+}
+
 // InvoiceRepository persists invoices (customer-scoped access enforced in InvoiceService).
 type InvoiceRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Invoice, error)

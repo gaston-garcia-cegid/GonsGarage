@@ -47,6 +47,8 @@ export interface UserQueryParams {
 
 // Helper functions for role checking (Agent.md pattern)
 export const isClient = (user: User): boolean => user.role === UserRole.CLIENT;
+/** Personal do taller: employee, manager ou admin (navegação e API de visitas). */
+export const isWorkshopStaff = (user: User): boolean => !isClient(user);
 export const isEmployee = (user: User): boolean => user.role === UserRole.EMPLOYEE;
 export const isAdmin = (user: User): boolean => user.role === UserRole.ADMIN;
 export const canManageUsers = (user: User): boolean =>

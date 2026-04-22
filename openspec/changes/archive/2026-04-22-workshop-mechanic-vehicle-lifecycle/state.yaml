@@ -1,0 +1,12 @@
+# SDD change state — workshop-mechanic-vehicle-lifecycle
+change: workshop-mechanic-vehicle-lifecycle
+created: "2026-04-21"
+phases:
+  explore: complete
+  propose: complete
+  spec: complete
+  design: complete
+  tasks: complete
+  apply: complete
+  verify: complete
+  archive: pending

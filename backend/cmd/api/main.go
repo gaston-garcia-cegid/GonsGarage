@@ -36,6 +36,7 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/invoice"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/received_invoice"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/repair"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/servicejob"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/supplier"
 
 	_ "github.com/gaston-garcia-cegid/gonsgarage/docs" // swagger (swag)
@@ -127,6 +128,9 @@ func main() {
 		&domain.Employee{},
 		&domain.Car{},
 		&domain.Repair{},
+		&domain.ServiceJob{},
+		&domain.ServiceJobReception{},
+		&domain.ServiceJobHandover{},
 		&domain.Appointment{},
 		&domain.Supplier{},
 		&domain.ReceivedInvoice{},
@@ -144,6 +148,7 @@ func main() {
 		log.Printf("Successfully migrated %T", model)
 	}
 
+	// Optional future: repairs.service_job_id (NULL) FK a service_jobs al enlazar reparos a visitas (change workshop-mechanic-vehicle-lifecycle; no aplicado aún).
 	// Bases creadas antes de domain.Repair.technician_id: AutoMigrate puede haber fallado y el repo sqlx asume la columna.
 	if err := ensureRepairsTechnicianIDColumn(db); err != nil {
 		log.Fatalf("repairs.technician_id schema fix: %v", err)
@@ -190,6 +195,7 @@ func main() {
 	carRepo := postgresRepo.NewPostgresCarRepository(db)
 	appointmentRepo := postgresRepo.NewPostgresAppointmentRepository(db)
 	repairRepo := postgresRepo.NewPostgresRepairRepository(db)
+	serviceJobRepo := postgresRepo.NewPostgresServiceJobRepository(db)
 	supplierRepo := postgresRepo.NewPostgresSupplierRepository(db)
 	receivedInvoiceRepo := postgresRepo.NewPostgresReceivedInvoiceRepository(db)
 	billingDocRepo := postgresRepo.NewPostgresBillingDocumentRepository(db)
@@ -208,6 +214,7 @@ func main() {
 	carService := car.NewCarService(carRepo, userRepo, cacheRepo)
 	appointmentService := appointment.NewAppointmentService(appointmentRepo, userRepo, carRepo)
 	repairService := repair.NewRepairService(repairRepo, carRepo, userRepo)
+	serviceJobService := servicejob.NewService(serviceJobRepo, carRepo, userRepo)
 	supplierService := supplier.NewSupplierService(supplierRepo, userRepo)
 	receivedInvoiceService := received_invoice.NewReceivedInvoiceService(receivedInvoiceRepo, userRepo)
 	billingDocumentService := billing_document.NewBillingDocumentService(billingDocRepo, userRepo)
@@ -227,6 +234,7 @@ func main() {
 	// Initialize appointment handler
 	appointmentHandler := handler.NewAppointmentHandler(appointmentService)
 	repairHandler := handler.NewRepairHandler(repairService)
+	serviceJobHandler := handler.NewServiceJobHandler(serviceJobService)
 	supplierHandler := handler.NewSupplierHandler(supplierService)
 	receivedInvoiceHandler := handler.NewReceivedInvoiceHandler(receivedInvoiceService)
 	billingDocumentHandler := handler.NewBillingDocumentHandler(billingDocumentService)
@@ -245,7 +253,7 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Setup routes
-	setupRoutes(router, authHandler, adminUserHandler, employeeHandler, carHandler, appointmentHandler, repairHandler,
+	setupRoutes(router, authHandler, adminUserHandler, employeeHandler, carHandler, appointmentHandler, repairHandler, serviceJobHandler,
 		supplierHandler, receivedInvoiceHandler, billingDocumentHandler, invoiceHandler,
 		authMiddleware, sqlxDB)
 
@@ -316,6 +324,9 @@ func createIndexes(db *gorm.DB) error {
 		"CREATE INDEX IF NOT EXISTS idx_appointments_customer_id ON appointments(customer_id)",
 		"CREATE INDEX IF NOT EXISTS idx_appointments_car_id ON appointments(car_id)",
 		"CREATE INDEX IF NOT EXISTS idx_appointments_deleted_at ON appointments(deleted_at)",
+		"CREATE INDEX IF NOT EXISTS idx_service_jobs_car_id ON service_jobs(car_id)",
+		"CREATE INDEX IF NOT EXISTS idx_service_jobs_opened_by_user_id ON service_jobs(opened_by_user_id)",
+		"CREATE INDEX IF NOT EXISTS idx_service_jobs_deleted_at ON service_jobs(deleted_at)",
 	}
 
 	for _, idx := range indexes {
@@ -391,6 +402,7 @@ func setupRoutes(
 	carHandler *handler.CarHandler,
 	appointmentHandler *handler.AppointmentHandler,
 	repairHandler *handler.RepairHandler,
+	serviceJobHandler *handler.ServiceJobHandler,
 	supplierHandler *handler.SupplierHandler,
 	receivedInvoiceHandler *handler.ReceivedInvoiceHandler,
 	billingDocumentHandler *handler.BillingDocumentHandler,
@@ -480,6 +492,17 @@ func setupRoutes(
 			repairs.GET("/:id", repairHandler.GinGetRepair)
 			repairs.PUT("/:id", repairHandler.GinUpdateRepair)
 			repairs.DELETE("/:id", repairHandler.GinDeleteRepair)
+		}
+
+		svcJobs := protected.Group("/service-jobs")
+		svcJobs.Use(middleware.RequireWorkshopStaff())
+		{
+			svcJobs.POST("", serviceJobHandler.CreateServiceJob)
+			svcJobs.GET("/car/:carId", serviceJobHandler.ListServiceJobsByCar)
+			svcJobs.GET("/:id/obd", serviceJobHandler.StubOBD)
+			svcJobs.GET("/:id", serviceJobHandler.GetServiceJob)
+			svcJobs.PUT("/:id/reception", serviceJobHandler.PutReception)
+			svcJobs.PUT("/:id/handover", serviceJobHandler.PutHandover)
 		}
 
 		suppliers := protected.Group("/suppliers")

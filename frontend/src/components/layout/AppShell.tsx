@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import type { User } from '@/types';
-import { canManageUsers, isClient } from '@/types/user';
+import { canManageUsers, isClient, isWorkshopStaff } from '@/types/user';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import styles from './AppShell.module.css';
@@ -15,7 +15,8 @@ export type AppShellNavId =
   | 'appointments'
   | 'admin_users'
   | 'accounting'
-  | 'my_invoices';
+  | 'my_invoices'
+  | 'workshop';
 
 export interface AppShellProps {
   user: User;
@@ -113,6 +114,16 @@ export default function AppShell({
         >
           Marcações
         </Button>
+        {isWorkshopStaff(user) ? (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => router.push('/workshop')}
+            className={cn(styles.navButton, activeNav === 'workshop' && styles.active)}
+          >
+            Taller
+          </Button>
+        ) : null}
         {canManageUsers(user) ? (
           <Button
             type="button"

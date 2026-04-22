@@ -1,0 +1,79 @@
+.page {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 2rem;
+}
+
+.select {
+  margin: 1rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.select label {
+  font-weight: 500;
+}
+
+.select select {
+  min-width: 18rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border, #ccc);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border, #e5e5e5);
+}
+
+.table tr:hover td {
+  background: var(--muted, #f9fafb);
+}
+
+.err {
+  color: #b91c1c;
+  margin: 0.5rem 0;
+}
+
+.hint {
+  color: var(--muted-foreground, #666);
+  font-size: 0.9rem;
+}
+
+.formGrid {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 24rem;
+  margin-top: 1rem;
+}
+
+.formGrid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.formGrid input,
+.formGrid textarea {
+  padding: 0.45rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border, #ccc);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
