@@ -172,6 +172,8 @@ export interface ServiceJobDetail {
   job: ServiceJob;
   reception?: ServiceJobReception;
   handover?: ServiceJobHandover;
+  /** ISO repair row IDs linked to this visit (may be empty). */
+  repair_ids?: string[];
 }
 
 export interface CreateAppointmentRequest {
@@ -429,6 +431,12 @@ class ApiClient {
 
   async listServiceJobsByCar(carId: string): Promise<ApiResponse<ServiceJob[]>> {
     return this.request<ServiceJob[]>(`/service-jobs/car/${carId}`);
+  }
+
+  /** Visits with `OpenedAt` in the UTC calendar day [openedOn 00:00, next day 00:00). Param format YYYY-MM-DD. */
+  async listServiceJobsByOpenedOn(openedOn: string): Promise<ApiResponse<ServiceJob[]>> {
+    const q = new URLSearchParams({ opened_on: openedOn });
+    return this.request<ServiceJob[]>(`/service-jobs?${q.toString()}`);
   }
 
   async putServiceJobReception(

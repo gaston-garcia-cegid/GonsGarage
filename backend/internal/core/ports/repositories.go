@@ -114,6 +114,8 @@ type RepairRepository interface {
 	Update(ctx context.Context, repair *domain.Repair) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByCarID(ctx context.Context, carID uuid.UUID) ([]*domain.Repair, error)
+	// ListIDsByServiceJobID returns repair row IDs linked to a visit; empty if none.
+	ListIDsByServiceJobID(ctx context.Context, serviceJobID uuid.UUID) ([]uuid.UUID, error)
 }
 
 // ServiceJobRepository persists workshop visits (service jobs) and 1:1 reception/handover.
@@ -122,6 +124,8 @@ type ServiceJobRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.ServiceJob, error)
 	Update(ctx context.Context, job *domain.ServiceJob) error
 	ListByCarID(ctx context.Context, carID uuid.UUID) ([]*domain.ServiceJob, error)
+	// ListByOpenedOn returns visits whose OpenedAt falls in [day 00:00 UTC, next day 00:00 UTC). Day is normalized to UTC date (year, month, day only).
+	ListByOpenedOn(ctx context.Context, day time.Time) ([]*domain.ServiceJob, error)
 	SaveReception(ctx context.Context, r *domain.ServiceJobReception) error
 	GetReception(ctx context.Context, serviceJobID uuid.UUID) (*domain.ServiceJobReception, error)
 	SaveHandover(ctx context.Context, h *domain.ServiceJobHandover) error

@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -25,9 +26,10 @@ type createServiceJobJSON struct {
 }
 
 type serviceJobDetailResponse struct {
-	Job       domain.ServiceJob            `json:"job"`
-	Reception *domain.ServiceJobReception `json:"reception,omitempty"`
-	Handover  *domain.ServiceJobHandover  `json:"handover,omitempty"`
+	Job        domain.ServiceJob            `json:"job"`
+	Reception  *domain.ServiceJobReception `json:"reception,omitempty"`
+	Handover   *domain.ServiceJobHandover  `json:"handover,omitempty"`
+	RepairIDs  []uuid.UUID                   `json:"repair_ids"`
 }
 
 type putReceptionJSON struct {
@@ -99,7 +101,7 @@ func (h *ServiceJobHandler) GetServiceJob(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
-	job, rec, ho, err := h.svc.GetWithDetails(c.Request.Context(), jid, uid)
+	job, rec, ho, repIDs, err := h.svc.GetWithDetails(c.Request.Context(), jid, uid)
 	if err != nil {
 		if err == domain.ErrServiceJobNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "service job not found"})
@@ -116,7 +118,42 @@ func (h *ServiceJobHandler) GetServiceJob(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, serviceJobDetailResponse{Job: *job, Reception: rec, Handover: ho})
+	c.JSON(http.StatusOK, serviceJobDetailResponse{Job: *job, Reception: rec, Handover: ho, RepairIDs: repIDs})
+}
+
+// ListServiceJobsByOpenedOn GET /api/v1/service-jobs?opened_on=YYYY-MM-DD
+// Visits with OpenedAt in [date 00:00 UTC, next day 00:00 UTC).
+// @Param       opened_on query string true "Calendar day in UTC (YYYY-MM-DD)"
+// @Success     200 {array} domain.ServiceJob
+// @Router      /api/v1/service-jobs [get]
+func (h *ServiceJobHandler) ListServiceJobsByOpenedOn(c *gin.Context) {
+	uid, ok := parseGinUserID(c)
+	if !ok {
+		return
+	}
+	q := strings.TrimSpace(c.Query("opened_on"))
+	if q == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "opened_on is required (YYYY-MM-DD, UTC day window)"})
+		return
+	}
+	day, err := time.Parse("2006-01-02", q)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid opened_on"})
+		return
+	}
+	list, err := h.svc.ListOpenedOn(c.Request.Context(), day, uid)
+	if err != nil {
+		if err == domain.ErrUnauthorizedAccess {
+			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if list == nil {
+		list = []*domain.ServiceJob{}
+	}
+	c.JSON(http.StatusOK, list)
 }
 
 // ListServiceJobsByCar GET /api/v1/service-jobs/car/:carId

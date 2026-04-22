@@ -41,7 +41,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ports.ProvisionUserRequest"
+                            "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.ProvisionUserRequest"
                         }
                     }
                 ],
@@ -49,31 +49,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerProvisionUserOK"
+                            "$ref": "#/definitions/internal_handler.SwaggerProvisionUserOK"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -143,26 +143,26 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.AppointmentResponse"
+                                "$ref": "#/definitions/internal_handler.AppointmentResponse"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -190,7 +190,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateAppointmentRequest"
+                            "$ref": "#/definitions/internal_handler.CreateAppointmentRequest"
                         }
                     }
                 ],
@@ -198,25 +198,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.AppointmentResponse"
+                            "$ref": "#/definitions/internal_handler.AppointmentResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -249,31 +249,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.AppointmentResponse"
+                            "$ref": "#/definitions/internal_handler.AppointmentResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -308,7 +308,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateAppointmentRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateAppointmentRequest"
                         }
                     }
                 ],
@@ -316,31 +316,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.AppointmentResponse"
+                            "$ref": "#/definitions/internal_handler.AppointmentResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -371,25 +371,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -415,7 +415,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.LoginRequest"
+                            "$ref": "#/definitions/internal_handler.LoginRequest"
                         }
                     }
                 ],
@@ -423,19 +423,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerLoginOK"
+                            "$ref": "#/definitions/internal_handler.SwaggerLoginOK"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -460,19 +460,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMeOK"
+                            "$ref": "#/definitions/internal_handler.SwaggerMeOK"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -498,7 +498,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ports.RegisterRequest"
+                            "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.RegisterRequest"
                         }
                     }
                 ],
@@ -506,19 +506,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerRegisterOK"
+                            "$ref": "#/definitions/internal_handler.SwaggerRegisterOK"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -571,7 +571,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateBillingDocumentRequest"
+                            "$ref": "#/definitions/internal_handler.CreateBillingDocumentRequest"
                         }
                     }
                 ],
@@ -579,7 +579,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.BillingDocumentResponse"
+                            "$ref": "#/definitions/internal_handler.BillingDocumentResponse"
                         }
                     }
                 }
@@ -612,7 +612,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.BillingDocumentResponse"
+                            "$ref": "#/definitions/internal_handler.BillingDocumentResponse"
                         }
                     }
                 }
@@ -647,7 +647,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateBillingDocumentRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateBillingDocumentRequest"
                         }
                     }
                 ],
@@ -655,7 +655,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.BillingDocumentResponse"
+                            "$ref": "#/definitions/internal_handler.BillingDocumentResponse"
                         }
                     }
                 }
@@ -726,26 +726,26 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.CarResponse"
+                                "$ref": "#/definitions/internal_handler.CarResponse"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -773,7 +773,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateCarRequest"
+                            "$ref": "#/definitions/internal_handler.CreateCarRequest"
                         }
                     }
                 ],
@@ -781,31 +781,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.CarResponse"
+                            "$ref": "#/definitions/internal_handler.CarResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -838,31 +838,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.CarResponse"
+                            "$ref": "#/definitions/internal_handler.CarResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -897,7 +897,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateCarRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateCarRequest"
                         }
                     }
                 ],
@@ -905,31 +905,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.CarResponse"
+                            "$ref": "#/definitions/internal_handler.CarResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -960,25 +960,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1029,13 +1029,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1063,7 +1063,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ports.CreateEmployeeRequest"
+                            "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.CreateEmployeeRequest"
                         }
                     }
                 ],
@@ -1078,19 +1078,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1130,25 +1130,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1183,7 +1183,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ports.UpdateEmployeeRequest"
+                            "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.UpdateEmployeeRequest"
                         }
                     }
                 ],
@@ -1198,19 +1198,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1241,25 +1241,25 @@ const docTemplate = `{
                     "200": {
                         "description": "message",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1312,7 +1312,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateIssuedInvoiceRequest"
+                            "$ref": "#/definitions/internal_handler.CreateIssuedInvoiceRequest"
                         }
                     }
                 ],
@@ -1320,7 +1320,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.IssuedInvoiceResponse"
+                            "$ref": "#/definitions/internal_handler.IssuedInvoiceResponse"
                         }
                     }
                 }
@@ -1392,7 +1392,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.IssuedInvoiceResponse"
+                            "$ref": "#/definitions/internal_handler.IssuedInvoiceResponse"
                         }
                     }
                 }
@@ -1452,7 +1452,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.PatchIssuedInvoiceRequest"
+                            "$ref": "#/definitions/internal_handler.PatchIssuedInvoiceRequest"
                         }
                     }
                 ],
@@ -1460,7 +1460,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.IssuedInvoiceResponse"
+                            "$ref": "#/definitions/internal_handler.IssuedInvoiceResponse"
                         }
                     }
                 }
@@ -1513,7 +1513,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateReceivedInvoiceRequest"
+                            "$ref": "#/definitions/internal_handler.CreateReceivedInvoiceRequest"
                         }
                     }
                 ],
@@ -1521,7 +1521,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.ReceivedInvoiceResponse"
+                            "$ref": "#/definitions/internal_handler.ReceivedInvoiceResponse"
                         }
                     }
                 }
@@ -1554,7 +1554,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ReceivedInvoiceResponse"
+                            "$ref": "#/definitions/internal_handler.ReceivedInvoiceResponse"
                         }
                     }
                 }
@@ -1589,7 +1589,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateReceivedInvoiceRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateReceivedInvoiceRequest"
                         }
                     }
                 ],
@@ -1597,7 +1597,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ReceivedInvoiceResponse"
+                            "$ref": "#/definitions/internal_handler.ReceivedInvoiceResponse"
                         }
                     }
                 }
@@ -1653,7 +1653,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.createRepairJSON"
+                            "$ref": "#/definitions/internal_handler.createRepairJSON"
                         }
                     }
                 ],
@@ -1661,31 +1661,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.RepairAPIModel"
+                            "$ref": "#/definitions/internal_handler.RepairAPIModel"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1721,32 +1721,32 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.RepairResponse"
+                                "$ref": "#/definitions/internal_handler.RepairResponse"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1779,31 +1779,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.RepairAPIModel"
+                            "$ref": "#/definitions/internal_handler.RepairAPIModel"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1838,7 +1838,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.updateRepairJSON"
+                            "$ref": "#/definitions/internal_handler.updateRepairJSON"
                         }
                     }
                 ],
@@ -1846,31 +1846,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.RepairAPIModel"
+                            "$ref": "#/definitions/internal_handler.RepairAPIModel"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -1904,28 +1904,160 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
+            }
+        },
+        "/api/v1/service-jobs": {
+            "get": {
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Calendar day in UTC (YYYY-MM-DD)",
+                        "name": "opened_on",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJob"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service-jobs"
+                ],
+                "summary": "Abrir visita (service job)",
+                "parameters": [
+                    {
+                        "description": "car_id",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.createServiceJobJSON"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJob"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/service-jobs/car/{carId}": {
+            "get": {
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID coche",
+                        "name": "carId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJob"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/service-jobs/{id}": {
+            "get": {
+                "tags": [
+                    "service-jobs"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID service job",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.serviceJobDetailResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/service-jobs/{id}/handover": {
+            "put": {
+                "responses": {}
+            }
+        },
+        "/api/v1/service-jobs/{id}/obd": {
+            "get": {
+                "responses": {}
+            }
+        },
+        "/api/v1/service-jobs/{id}/reception": {
+            "put": {
+                "responses": {}
             }
         },
         "/api/v1/suppliers": {
@@ -1989,7 +2121,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateSupplierRequest"
+                            "$ref": "#/definitions/internal_handler.CreateSupplierRequest"
                         }
                     }
                 ],
@@ -1997,25 +2129,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.SupplierResponse"
+                            "$ref": "#/definitions/internal_handler.SupplierResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -2048,13 +2180,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.SupplierResponse"
+                            "$ref": "#/definitions/internal_handler.SupplierResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.SwaggerMessage"
+                            "$ref": "#/definitions/internal_handler.SwaggerMessage"
                         }
                     }
                 }
@@ -2089,7 +2221,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateSupplierRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateSupplierRequest"
                         }
                     }
                 ],
@@ -2097,7 +2229,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.SupplierResponse"
+                            "$ref": "#/definitions/internal_handler.SupplierResponse"
                         }
                     }
                 }
@@ -2188,777 +2320,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.AppointmentResponse": {
-            "type": "object",
-            "properties": {
-                "carId": {
-                    "type": "string"
-                },
-                "clientName": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "service": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "time": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.BillingDocumentResponse": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "customerId": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "kind": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "reference": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.CarResponse": {
-            "type": "object",
-            "properties": {
-                "color": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "licensePlate": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "make": {
-                    "type": "string"
-                },
-                "mileage": {
-                    "type": "integer"
-                },
-                "model": {
-                    "type": "string"
-                },
-                "ownerID": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "vin": {
-                    "type": "string"
-                },
-                "year": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handler.CreateAppointmentRequest": {
-            "type": "object",
-            "properties": {
-                "carId": {
-                    "description": "frontend / Agent.md",
-                    "type": "string"
-                },
-                "customerID": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "employeeID": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "scheduledAt": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "scheduledTime": {
-                    "description": "legacy",
-                    "type": "string"
-                },
-                "serviceType": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.CreateBillingDocumentRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "customerId": {
-                    "type": "string"
-                },
-                "kind": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "reference": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.CreateCarRequest": {
-            "type": "object",
-            "properties": {
-                "color": {
-                    "type": "string"
-                },
-                "licensePlate": {
-                    "type": "string"
-                },
-                "make": {
-                    "type": "string"
-                },
-                "mileage": {
-                    "type": "integer"
-                },
-                "model": {
-                    "type": "string"
-                },
-                "ownerID": {
-                    "description": "OwnerID optional: solo personal del taller (admin/manager/employee) asigna el cliente dueño.",
-                    "type": "string"
-                },
-                "vin": {
-                    "type": "string"
-                },
-                "year": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handler.CreateIssuedInvoiceRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "customerId": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.CreateReceivedInvoiceRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "category": {
-                    "type": "string"
-                },
-                "invoiceDate": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "supplierId": {
-                    "type": "string"
-                },
-                "vendorName": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.CreateSupplierRequest": {
-            "type": "object",
-            "properties": {
-                "contactEmail": {
-                    "type": "string"
-                },
-                "contactPhone": {
-                    "type": "string"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "taxId": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.IssuedInvoiceResponse": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "customerId": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.LoginRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.PatchIssuedInvoiceRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.ReceivedInvoiceResponse": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "category": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "invoiceDate": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "supplierId": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "vendorName": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.RepairAPIModel": {
-            "type": "object",
-            "properties": {
-                "car_id": {
-                    "type": "string"
-                },
-                "completed_at": {
-                    "type": "string"
-                },
-                "cost": {
-                    "type": "number"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "deleted_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "started_at": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "technician_id": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.RepairResponse": {
-            "type": "object",
-            "properties": {
-                "car": {
-                    "$ref": "#/definitions/handler.CarResponse"
-                },
-                "car_id": {
-                    "type": "string"
-                },
-                "cost": {
-                    "type": "number"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "employee": {
-                    "$ref": "#/definitions/handler.UserResponse"
-                },
-                "employee_id": {
-                    "type": "string"
-                },
-                "end_date": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SupplierResponse": {
-            "type": "object",
-            "properties": {
-                "contactEmail": {
-                    "type": "string"
-                },
-                "contactPhone": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "taxId": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SwaggerLoginOK": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SwaggerMeOK": {
-            "type": "object",
-            "properties": {
-                "user": {
-                    "$ref": "#/definitions/handler.SwaggerMeUser"
-                }
-            }
-        },
-        "handler.SwaggerMeUser": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SwaggerMessage": {
-            "type": "object",
-            "properties": {
-                "details": {
-                    "type": "string"
-                },
-                "error": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SwaggerProvisionUserOK": {
-            "type": "object",
-            "properties": {
-                "user": {
-                    "$ref": "#/definitions/handler.SwaggerMeUser"
-                }
-            }
-        },
-        "handler.SwaggerRegisterOK": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/handler.SwaggerRegisterUser"
-                }
-            }
-        },
-        "handler.SwaggerRegisterUser": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateAppointmentRequest": {
-            "type": "object",
-            "properties": {
-                "carId": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "customerID": {
-                    "type": "string"
-                },
-                "employeeID": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "scheduledAt": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "scheduledTime": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "serviceType": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateBillingDocumentRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "customerId": {
-                    "type": "string"
-                },
-                "kind": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "reference": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateCarRequest": {
-            "type": "object",
-            "properties": {
-                "color": {
-                    "type": "string"
-                },
-                "licensePlate": {
-                    "description": "✅ camelCase",
-                    "type": "string"
-                },
-                "make": {
-                    "type": "string"
-                },
-                "mileage": {
-                    "type": "integer"
-                },
-                "model": {
-                    "type": "string"
-                },
-                "vin": {
-                    "type": "string"
-                },
-                "year": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handler.UpdateReceivedInvoiceRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "category": {
-                    "type": "string"
-                },
-                "invoiceDate": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "supplierId": {
-                    "type": "string"
-                },
-                "vendorName": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateSupplierRequest": {
-            "type": "object",
-            "properties": {
-                "contactEmail": {
-                    "type": "string"
-                },
-                "contactPhone": {
-                    "type": "string"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "taxId": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UserResponse": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "last_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.createRepairJSON": {
-            "type": "object",
-            "required": [
-                "car_id",
-                "description"
-            ],
-            "properties": {
-                "car_id": {
-                    "type": "string"
-                },
-                "cost": {
-                    "type": "number"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "started_at": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.updateRepairJSON": {
-            "type": "object",
-            "properties": {
-                "completed_at": {
-                    "type": "string"
-                },
-                "cost": {
-                    "type": "number"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "started_at": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "ports.CreateEmployeeRequest": {
+        "github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.CreateEmployeeRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -3018,7 +2380,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ports.ProvisionUserRequest": {
+        "github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.ProvisionUserRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -3046,7 +2408,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ports.RegisterRequest": {
+        "github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.RegisterRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -3073,7 +2435,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ports.UpdateEmployeeRequest": {
+        "github_com_gaston-garcia-cegid_gonsgarage_internal_core_ports.UpdateEmployeeRequest": {
             "type": "object",
             "properties": {
                 "department": {
@@ -3089,6 +2451,915 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "position": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJob": {
+            "type": "object",
+            "properties": {
+                "appointment_id": {
+                    "type": "string"
+                },
+                "car_id": {
+                    "type": "string"
+                },
+                "closed_at": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "opened_at": {
+                    "type": "string"
+                },
+                "opened_by_user_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJobStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJobHandover": {
+            "type": "object",
+            "properties": {
+                "general_notes": {
+                    "type": "string"
+                },
+                "odometer_km": {
+                    "type": "integer"
+                },
+                "recorded_at": {
+                    "type": "string"
+                },
+                "recorded_by_user_id": {
+                    "type": "string"
+                },
+                "schema_version": {
+                    "type": "integer"
+                },
+                "service_job_id": {
+                    "type": "string"
+                },
+                "tires_note": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJobReception": {
+            "type": "object",
+            "properties": {
+                "coolant_level": {
+                    "type": "string"
+                },
+                "general_notes": {
+                    "type": "string"
+                },
+                "odometer_km": {
+                    "type": "integer"
+                },
+                "oil_level": {
+                    "type": "string"
+                },
+                "recorded_at": {
+                    "type": "string"
+                },
+                "recorded_by_user_id": {
+                    "type": "string"
+                },
+                "schema_version": {
+                    "type": "integer"
+                },
+                "service_job_id": {
+                    "type": "string"
+                },
+                "tires_note": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJobStatus": {
+            "type": "string",
+            "enum": [
+                "open",
+                "in_progress",
+                "closed",
+                "cancelled"
+            ],
+            "x-enum-varnames": [
+                "ServiceJobStatusOpen",
+                "ServiceJobStatusInProgress",
+                "ServiceJobStatusClosed",
+                "ServiceJobStatusCancelled"
+            ]
+        },
+        "internal_handler.AppointmentResponse": {
+            "type": "object",
+            "properties": {
+                "carId": {
+                    "type": "string"
+                },
+                "clientName": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.BillingDocumentResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "customerId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "reference": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.CarResponse": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "licensePlate": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "make": {
+                    "type": "string"
+                },
+                "mileage": {
+                    "type": "integer"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "ownerID": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "vin": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handler.CreateAppointmentRequest": {
+            "type": "object",
+            "properties": {
+                "carId": {
+                    "description": "frontend / Agent.md",
+                    "type": "string"
+                },
+                "customerID": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "employeeID": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "scheduledAt": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "scheduledTime": {
+                    "description": "legacy",
+                    "type": "string"
+                },
+                "serviceType": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.CreateBillingDocumentRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "customerId": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "reference": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.CreateCarRequest": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "licensePlate": {
+                    "type": "string"
+                },
+                "make": {
+                    "type": "string"
+                },
+                "mileage": {
+                    "type": "integer"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "ownerID": {
+                    "description": "OwnerID optional: solo personal del taller (admin/manager/employee) asigna el cliente dueño.",
+                    "type": "string"
+                },
+                "vin": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handler.CreateIssuedInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "customerId": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.CreateReceivedInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "invoiceDate": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "supplierId": {
+                    "type": "string"
+                },
+                "vendorName": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.CreateSupplierRequest": {
+            "type": "object",
+            "properties": {
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhone": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "taxId": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.IssuedInvoiceResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "customerId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.LoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.PatchIssuedInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.ReceivedInvoiceResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invoiceDate": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "supplierId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "vendorName": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.RepairAPIModel": {
+            "type": "object",
+            "properties": {
+                "car_id": {
+                    "type": "string"
+                },
+                "completed_at": {
+                    "type": "string"
+                },
+                "cost": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "started_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "technician_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.RepairResponse": {
+            "type": "object",
+            "properties": {
+                "car": {
+                    "$ref": "#/definitions/internal_handler.CarResponse"
+                },
+                "car_id": {
+                    "type": "string"
+                },
+                "cost": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "employee": {
+                    "$ref": "#/definitions/internal_handler.UserResponse"
+                },
+                "employee_id": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.SupplierResponse": {
+            "type": "object",
+            "properties": {
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhone": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "taxId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.SwaggerLoginOK": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.SwaggerMeOK": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "$ref": "#/definitions/internal_handler.SwaggerMeUser"
+                }
+            }
+        },
+        "internal_handler.SwaggerMeUser": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.SwaggerMessage": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.SwaggerProvisionUserOK": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "$ref": "#/definitions/internal_handler.SwaggerMeUser"
+                }
+            }
+        },
+        "internal_handler.SwaggerRegisterOK": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/internal_handler.SwaggerRegisterUser"
+                }
+            }
+        },
+        "internal_handler.SwaggerRegisterUser": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.UpdateAppointmentRequest": {
+            "type": "object",
+            "properties": {
+                "carId": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "customerID": {
+                    "type": "string"
+                },
+                "employeeID": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "scheduledAt": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "scheduledTime": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "serviceType": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.UpdateBillingDocumentRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "customerId": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "reference": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.UpdateCarRequest": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "licensePlate": {
+                    "description": "✅ camelCase",
+                    "type": "string"
+                },
+                "make": {
+                    "type": "string"
+                },
+                "mileage": {
+                    "type": "integer"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "vin": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handler.UpdateReceivedInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "invoiceDate": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "supplierId": {
+                    "type": "string"
+                },
+                "vendorName": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.UpdateSupplierRequest": {
+            "type": "object",
+            "properties": {
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhone": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "taxId": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.UserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.createRepairJSON": {
+            "type": "object",
+            "required": [
+                "car_id",
+                "description"
+            ],
+            "properties": {
+                "car_id": {
+                    "type": "string"
+                },
+                "cost": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "started_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.createServiceJobJSON": {
+            "type": "object",
+            "required": [
+                "car_id"
+            ],
+            "properties": {
+                "car_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.serviceJobDetailResponse": {
+            "type": "object",
+            "properties": {
+                "handover": {
+                    "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJobHandover"
+                },
+                "job": {
+                    "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJob"
+                },
+                "reception": {
+                    "$ref": "#/definitions/github_com_gaston-garcia-cegid_gonsgarage_internal_domain.ServiceJobReception"
+                },
+                "repair_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "internal_handler.updateRepairJSON": {
+            "type": "object",
+            "properties": {
+                "completed_at": {
+                    "type": "string"
+                },
+                "cost": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "started_at": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

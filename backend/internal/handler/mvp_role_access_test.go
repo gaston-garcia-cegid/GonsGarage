@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
@@ -207,6 +209,10 @@ func (m *mvpRepairRepo) GetByCarID(_ context.Context, carID uuid.UUID) ([]*domai
 	return m.byCar[carID], nil
 }
 
+func (m *mvpRepairRepo) ListIDsByServiceJobID(_ context.Context, _ uuid.UUID) ([]uuid.UUID, error) {
+	return nil, nil
+}
+
 var _ ports.UserRepository = (*mvpUserRepo)(nil)
 var _ ports.CarRepository = (*mvpCarRepo)(nil)
 var _ ports.RepairRepository = (*mvpRepairRepo)(nil)
@@ -254,6 +260,27 @@ func (m *mvpSJRepo) ListByCarID(_ context.Context, carID uuid.UUID) ([]*domain.S
 	return m.byCar[carID], nil
 }
 
+func (m *mvpSJRepo) ListByOpenedOn(_ context.Context, day time.Time) ([]*domain.ServiceJob, error) {
+	if m.byID == nil {
+		return []*domain.ServiceJob{}, nil
+	}
+	y, mth, d := day.UTC().Date()
+	start := time.Date(y, mth, d, 0, 0, 0, 0, time.UTC)
+	end := start.Add(24 * time.Hour)
+	var out []*domain.ServiceJob
+	for _, j := range m.byID {
+		if j.OpenedAt.Before(start) || !j.OpenedAt.Before(end) {
+			continue
+		}
+		cj := *j
+		out = append(out, &cj)
+	}
+	if out == nil {
+		out = []*domain.ServiceJob{}
+	}
+	return out, nil
+}
+
 func (m *mvpSJRepo) SaveReception(_ context.Context, r *domain.ServiceJobReception) error {
 	if m.rec == nil {
 		m.rec = make(map[uuid.UUID]*domain.ServiceJobReception)
@@ -292,7 +319,8 @@ func serviceJobWorkshopRouter(t *testing.T, secret string, userRepo ports.UserRe
 	t.Helper()
 	gin.SetMode(gin.TestMode)
 	am := middleware.NewAuthMiddleware(secret)
-	svc := servicejob.NewService(jobRepo, carRepo, userRepo)
+	rep := &mvpRepairRepo{}
+	svc := servicejob.NewService(jobRepo, carRepo, userRepo, rep)
 	h := NewServiceJobHandler(svc)
 
 	r := gin.New()
@@ -302,6 +330,7 @@ func serviceJobWorkshopRouter(t *testing.T, secret string, userRepo ports.UserRe
 	sj.Use(middleware.RequireWorkshopStaff())
 	{
 		sj.POST("", h.CreateServiceJob)
+		sj.GET("", h.ListServiceJobsByOpenedOn)
 		sj.GET("/car/:carId", h.ListServiceJobsByCar)
 		sj.GET("/:id/obd", h.StubOBD)
 		sj.GET("/:id", h.GetServiceJob)
@@ -435,6 +464,47 @@ func TestMVPAccess_ServiceJobPOST_EmployeeCreated(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
+}
+
+func TestMVPAccess_ServiceJobGET_ByOpenedOn_MissingParam_BadRequest(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-sj-list-bad"
+	empID := uuid.New()
+	carID := uuid.New()
+	emp, err := domain.NewUser("e-list-bad@test.local", "x", "E", "M", domain.RoleEmployee)
+	require.NoError(t, err)
+	emp.ID = empID
+	users := &mvpUserRepo{byID: map[uuid.UUID]*domain.User{empID: emp}}
+	cars := &mvpCarRepo{car: &domain.Car{ID: carID, OwnerID: uuid.New()}}
+	sj := &mvpSJRepo{byID: map[uuid.UUID]*domain.ServiceJob{}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {}}}
+
+	r := serviceJobWorkshopRouter(t, secret, users, cars, sj)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/service-jobs", nil)
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, empID, domain.RoleEmployee))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestMVPAccess_ServiceJobGET_ByOpenedOn_EmployeeOK(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-sj-list-ok"
+	empID := uuid.New()
+	carID := uuid.New()
+	emp, err := domain.NewUser("e-list-ok@test.local", "x", "E", "M", domain.RoleEmployee)
+	require.NoError(t, err)
+	emp.ID = empID
+	users := &mvpUserRepo{byID: map[uuid.UUID]*domain.User{empID: emp}}
+	cars := &mvpCarRepo{car: &domain.Car{ID: carID, OwnerID: uuid.New()}}
+	sj := &mvpSJRepo{byID: map[uuid.UUID]*domain.ServiceJob{}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {}}}
+
+	r := serviceJobWorkshopRouter(t, secret, users, cars, sj)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/service-jobs?opened_on=1990-06-01", nil)
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, empID, domain.RoleEmployee))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "[]", strings.TrimSpace(w.Body.String()))
 }
 
 func TestMVPAccess_ServiceJobFlow_ReceptionHandoverGetClosed(t *testing.T) {

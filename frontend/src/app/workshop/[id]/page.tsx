@@ -118,6 +118,16 @@ export default function WorkshopDetailPage() {
               Entrega: {detail.handover.odometer_km} km — {detail.handover.general_notes || '—'}
             </p>
           ) : null}
+          <p>
+            <strong>Reparos (IDs):</strong>{' '}
+            {detail.repair_ids && detail.repair_ids.length > 0
+              ? detail.repair_ids.map(rid => (
+                  <code key={rid} className={styles.monoId}>
+                    {rid.slice(0, 8)}…
+                  </code>
+                ))
+              : 'nenhum'}
+          </p>
           {detail.job.status !== 'closed' && detail.job.status !== 'cancelled' ? (
             <>
               <h2>Recepção</h2>

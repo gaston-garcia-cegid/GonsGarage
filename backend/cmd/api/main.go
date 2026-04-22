@@ -148,10 +148,12 @@ func main() {
 		log.Printf("Successfully migrated %T", model)
 	}
 
-	// Optional future: repairs.service_job_id (NULL) FK a service_jobs al enlazar reparos a visitas (change workshop-mechanic-vehicle-lifecycle; no aplicado aún).
 	// Bases creadas antes de domain.Repair.technician_id: AutoMigrate puede haber fallado y el repo sqlx asume la columna.
 	if err := ensureRepairsTechnicianIDColumn(db); err != nil {
 		log.Fatalf("repairs.technician_id schema fix: %v", err)
+	}
+	if err := ensureRepairsServiceJobIDColumn(db); err != nil {
+		log.Fatalf("repairs.service_job_id schema: %v", err)
 	}
 
 	// Create indexes manually if they don't exist
@@ -214,7 +216,7 @@ func main() {
 	carService := car.NewCarService(carRepo, userRepo, cacheRepo)
 	appointmentService := appointment.NewAppointmentService(appointmentRepo, userRepo, carRepo)
 	repairService := repair.NewRepairService(repairRepo, carRepo, userRepo)
-	serviceJobService := servicejob.NewService(serviceJobRepo, carRepo, userRepo)
+	serviceJobService := servicejob.NewService(serviceJobRepo, carRepo, userRepo, repairRepo)
 	supplierService := supplier.NewSupplierService(supplierRepo, userRepo)
 	receivedInvoiceService := received_invoice.NewReceivedInvoiceService(receivedInvoiceRepo, userRepo)
 	billingDocumentService := billing_document.NewBillingDocumentService(billingDocRepo, userRepo)
@@ -308,6 +310,15 @@ func ensureRepairsTechnicianIDColumn(db *gorm.DB) error {
 	return nil
 }
 
+// ensureRepairsServiceJobIDColumn adds optional link from repairs to service_jobs (visits).
+func ensureRepairsServiceJobIDColumn(db *gorm.DB) error {
+	const q = `ALTER TABLE repairs ADD COLUMN IF NOT EXISTS service_job_id uuid`
+	if err := db.Exec(q).Error; err != nil {
+		return fmt.Errorf("%s: %w", q, err)
+	}
+	return nil
+}
+
 // Create indexes manually
 func createIndexes(db *gorm.DB) error {
 	indexes := []string{
@@ -321,6 +332,7 @@ func createIndexes(db *gorm.DB) error {
 		"CREATE INDEX IF NOT EXISTS idx_repairs_car_id ON repairs(car_id)",
 		"CREATE INDEX IF NOT EXISTS idx_repairs_technician_id ON repairs(technician_id)",
 		"CREATE INDEX IF NOT EXISTS idx_repairs_deleted_at ON repairs(deleted_at)",
+		"CREATE INDEX IF NOT EXISTS idx_repairs_service_job_id ON repairs(service_job_id)",
 		"CREATE INDEX IF NOT EXISTS idx_appointments_customer_id ON appointments(customer_id)",
 		"CREATE INDEX IF NOT EXISTS idx_appointments_car_id ON appointments(car_id)",
 		"CREATE INDEX IF NOT EXISTS idx_appointments_deleted_at ON appointments(deleted_at)",
@@ -498,6 +510,7 @@ func setupRoutes(
 		svcJobs.Use(middleware.RequireWorkshopStaff())
 		{
 			svcJobs.POST("", serviceJobHandler.CreateServiceJob)
+			svcJobs.GET("", serviceJobHandler.ListServiceJobsByOpenedOn)
 			svcJobs.GET("/car/:carId", serviceJobHandler.ListServiceJobsByCar)
 			svcJobs.GET("/:id/obd", serviceJobHandler.StubOBD)
 			svcJobs.GET("/:id", serviceJobHandler.GetServiceJob)

@@ -12,13 +12,14 @@ import (
 
 // Service implements workshop service-job use cases.
 type Service struct {
-	jobRepo  ports.ServiceJobRepository
-	carRepo  ports.CarRepository
-	userRepo ports.UserRepository
+	jobRepo    ports.ServiceJobRepository
+	carRepo    ports.CarRepository
+	userRepo   ports.UserRepository
+	repairRepo ports.RepairRepository // optional: nil yields empty repair_ids in detail
 }
 
-func NewService(jobRepo ports.ServiceJobRepository, carRepo ports.CarRepository, userRepo ports.UserRepository) *Service {
-	return &Service{jobRepo: jobRepo, carRepo: carRepo, userRepo: userRepo}
+func NewService(jobRepo ports.ServiceJobRepository, carRepo ports.CarRepository, userRepo ports.UserRepository, repairRepo ports.RepairRepository) *Service {
+	return &Service{jobRepo: jobRepo, carRepo: carRepo, userRepo: userRepo, repairRepo: repairRepo}
 }
 
 func (s *Service) requireWorkshopUser(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
@@ -71,31 +72,59 @@ func (s *Service) CreateServiceJob(ctx context.Context, carID uuid.UUID, userID 
 	return job, nil
 }
 
-// GetWithDetails returns job, reception, handover if present.
-func (s *Service) GetWithDetails(ctx context.Context, jobID uuid.UUID, userID uuid.UUID) (*domain.ServiceJob, *domain.ServiceJobReception, *domain.ServiceJobHandover, error) {
+// GetWithDetails returns job, reception, handover if present, and repair IDs for the visit (empty slice if none or no repair repo).
+func (s *Service) GetWithDetails(ctx context.Context, jobID uuid.UUID, userID uuid.UUID) (*domain.ServiceJob, *domain.ServiceJobReception, *domain.ServiceJobHandover, []uuid.UUID, error) {
 	u, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("get user: %w", err)
+		return nil, nil, nil, nil, fmt.Errorf("get user: %w", err)
 	}
 	if u == nil {
-		return nil, nil, nil, domain.ErrUnauthorizedAccess
+		return nil, nil, nil, nil, domain.ErrUnauthorizedAccess
 	}
 	j, err := s.jobRepo.GetByID(ctx, jobID)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 	if _, err := s.canAccessCar(ctx, u, j.CarID); err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 	rec, err := s.jobRepo.GetReception(ctx, jobID)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 	ho, err := s.jobRepo.GetHandover(ctx, jobID)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
-	return j, rec, ho, nil
+	repIDs, err := s.repairIDsForJob(ctx, jobID)
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+	return j, rec, ho, repIDs, nil
+}
+
+func (s *Service) repairIDsForJob(ctx context.Context, serviceJobID uuid.UUID) ([]uuid.UUID, error) {
+	if s.repairRepo == nil {
+		return []uuid.UUID{}, nil
+	}
+	ids, err := s.repairRepo.ListIDsByServiceJobID(ctx, serviceJobID)
+	if err != nil {
+		return nil, err
+	}
+	if ids == nil {
+		return []uuid.UUID{}, nil
+	}
+	return ids, nil
+}
+
+// ListOpenedOn returns visits opened on the given calendar day in UTC (see ListByOpenedOn on repository). Staff only.
+func (s *Service) ListOpenedOn(ctx context.Context, day time.Time, userID uuid.UUID) ([]*domain.ServiceJob, error) {
+	if _, err := s.requireWorkshopUser(ctx, userID); err != nil {
+		return nil, err
+	}
+	y, m, d := day.UTC().Date()
+	utcDay := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+	return s.jobRepo.ListByOpenedOn(ctx, utcDay)
 }
 
 // ListByCarID returns visits for a car (client: own car; staff: any in catalog).

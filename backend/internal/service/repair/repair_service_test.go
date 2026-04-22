@@ -84,6 +84,10 @@ func (s *stubRepairRepo) GetByCarID(ctx context.Context, carID uuid.UUID) ([]*do
 	return s.byCar[carID], nil
 }
 
+func (s *stubRepairRepo) ListIDsByServiceJobID(_ context.Context, _ uuid.UUID) ([]uuid.UUID, error) {
+	return nil, nil
+}
+
 type repairStubCarRepo struct {
 	byID map[uuid.UUID]*domain.Car
 }

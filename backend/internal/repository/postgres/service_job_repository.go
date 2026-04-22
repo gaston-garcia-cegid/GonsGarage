@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -48,6 +49,22 @@ func (r *PostgresServiceJobRepository) Update(ctx context.Context, job *domain.S
 func (r *PostgresServiceJobRepository) ListByCarID(ctx context.Context, carID uuid.UUID) ([]*domain.ServiceJob, error) {
 	var rows []*domain.ServiceJob
 	if err := r.db.WithContext(ctx).Where("car_id = ?", carID).Order("opened_at desc").Find(&rows).Error; err != nil {
+		return nil, err
+	}
+	if rows == nil {
+		rows = []*domain.ServiceJob{}
+	}
+	return rows, nil
+}
+
+// ListByOpenedOn returns service jobs with OpenedAt in [day 00:00:00 UTC, next calendar day 00:00:00 UTC).
+// The `day` argument is normalized: only year, month, and day in UTC are used.
+func (r *PostgresServiceJobRepository) ListByOpenedOn(ctx context.Context, day time.Time) ([]*domain.ServiceJob, error) {
+	y, m, d := day.UTC().Date()
+	start := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+	end := start.Add(24 * time.Hour)
+	var rows []*domain.ServiceJob
+	if err := r.db.WithContext(ctx).Where("opened_at >= ? AND opened_at < ? AND deleted_at IS NULL", start, end).Order("opened_at asc").Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	if rows == nil {

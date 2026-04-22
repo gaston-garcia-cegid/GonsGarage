@@ -32,6 +32,7 @@ export default function WorkshopListPage() {
   const [cars, setCars] = useState<Car[]>([]);
   const [carId, setCarId] = useState<string>('');
   const [jobs, setJobs] = useState<ServiceJob[]>([]);
+  const [todayJobs, setTodayJobs] = useState<ServiceJob[]>([]);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -48,11 +49,24 @@ export default function WorkshopListPage() {
     setCars(data ?? []);
   }, [user]);
 
+  const loadTodayUTC = useCallback(async () => {
+    if (!user) return;
+    const d = new Date();
+    const openedOn = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+    const { data, error } = await apiClient.listServiceJobsByOpenedOn(openedOn);
+    if (error) {
+      setTodayJobs([]);
+      return;
+    }
+    setTodayJobs(data ?? []);
+  }, [user]);
+
   useEffect(() => {
     if (authHydrated && user) {
       void loadCars();
+      void loadTodayUTC();
     }
-  }, [authHydrated, user, loadCars]);
+  }, [authHydrated, user, loadCars, loadTodayUTC]);
 
   useEffect(() => {
     if (cars.length > 0 && !carId) {
@@ -110,12 +124,49 @@ export default function WorkshopListPage() {
       toolbar={
         <>
           <h1>Visitas (service jobs)</h1>
+          <Button type="button" variant="outline" asChild>
+            <Link href="/workshop/recepcion">Receção rápida</Link>
+          </Button>
           <Button type="button" disabled={!carId || loading} onClick={() => void onNewVisit()}>
             Nova visita
           </Button>
         </>
       }
     >
+      <section className={styles.todaySection} aria-labelledby="today-heading">
+        <h2 id="today-heading" className={styles.sectionTitle}>
+          Hoje (UTC)
+        </h2>
+        <p className={styles.hint}>Visitas abertas neste dia civil (UTC), parâmetro opened_on.</p>
+        {todayJobs.length === 0 ? (
+          <p className={styles.muted}>Nenhuma visita neste dia.</p>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Estado</th>
+                <th>Aberta (UTC)</th>
+                <th>ID</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {todayJobs.map(j => (
+                <tr key={j.id}>
+                  <td>{statusLabel(j.status)}</td>
+                  <td>{j.opened_at ? new Date(j.opened_at).toLocaleString('en-GB', { timeZone: 'UTC' }) : '—'}</td>
+                  <td style={{ fontSize: '0.85rem', fontFamily: 'monospace' }}>{j.id.slice(0, 8)}…</td>
+                  <td>
+                    <Button type="button" variant="outline" size="sm" asChild>
+                      <Link href={`/workshop/${j.id}`}>Detalhe</Link>
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
       <p className={styles.hint}>Seleccione um veículo para listar e abrir visitas de oficina.</p>
       <div className={styles.select}>
         <label htmlFor="workshop-car">Viatura</label>

@@ -135,6 +135,24 @@ func (r *PostgresRepairRepository) GetByCarID(ctx context.Context, carID uuid.UU
 	return r.repairsToDomain(dbRepairs), nil
 }
 
+// ListIDsByServiceJobID implements ports.RepairRepository.
+func (r *PostgresRepairRepository) ListIDsByServiceJobID(ctx context.Context, serviceJobID uuid.UUID) ([]uuid.UUID, error) {
+	var ids []uuid.UUID
+	if r.sqlx != nil {
+		if err := r.sqlx.SelectContext(ctx, &ids, `SELECT id FROM repairs WHERE service_job_id = $1 AND deleted_at IS NULL ORDER BY created_at`, serviceJobID); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := r.db.WithContext(ctx).Model(&domain.Repair{}).Where("service_job_id = ? AND deleted_at IS NULL", serviceJobID).Order("created_at").Pluck("id", &ids).Error; err != nil {
+			return nil, err
+		}
+	}
+	if ids == nil {
+		ids = []uuid.UUID{}
+	}
+	return ids, nil
+}
+
 func (r *PostgresRepairRepository) List(ctx context.Context, limit, offset int) ([]*domain.Repair, error) {
 	if r.sqlx != nil {
 		return r.selectRepairsSQLX(ctx, "", nil, limit, offset, "failed to list repairs")

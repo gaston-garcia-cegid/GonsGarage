@@ -101,6 +101,24 @@ func (s *stubJobRepo) ListByCarID(_ context.Context, carID uuid.UUID) ([]*domain
 	return s.byCar[carID], nil
 }
 
+func (s *stubJobRepo) ListByOpenedOn(_ context.Context, day time.Time) ([]*domain.ServiceJob, error) {
+	y, m, d := day.UTC().Date()
+	start := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+	end := start.Add(24 * time.Hour)
+	var out []*domain.ServiceJob
+	for _, j := range s.byID {
+		if j.OpenedAt.Before(start) || !j.OpenedAt.Before(end) {
+			continue
+		}
+		cj := *j
+		out = append(out, &cj)
+	}
+	if out == nil {
+		out = []*domain.ServiceJob{}
+	}
+	return out, nil
+}
+
 func (s *stubJobRepo) SaveReception(_ context.Context, r *domain.ServiceJobReception) error {
 	if s.rec == nil {
 		s.rec = make(map[uuid.UUID]*domain.ServiceJobReception)
@@ -138,7 +156,7 @@ func TestService_CreateServiceJob_ClientDenied(t *testing.T) {
 	je := stubJobRepo{byID: map[uuid.UUID]*domain.ServiceJob{}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {}}}
 	cu, _ := domain.NewUser("c@t", "p", "C", "L", domain.RoleClient)
 	cu.ID = clientID
-	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: clientID}}, tUser{clientID: cu})
+	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: clientID}}, tUser{clientID: cu}, nil)
 
 	out, err := s.CreateServiceJob(context.Background(), carID, clientID)
 	require.Error(t, err)
@@ -154,7 +172,7 @@ func TestService_CreateServiceJob_EmployeeOK(t *testing.T) {
 	emp, _ := domain.NewUser("e@t", "p", "E", "E", domain.RoleEmployee)
 	emp.ID = empID
 	je := stubJobRepo{byID: map[uuid.UUID]*domain.ServiceJob{}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {}}}
-	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: ownerID}}, tUser{empID: emp})
+	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: ownerID}}, tUser{empID: emp}, nil)
 
 	out, err := s.CreateServiceJob(context.Background(), carID, empID)
 	require.NoError(t, err)
@@ -173,7 +191,7 @@ func TestService_SaveHandover_WithoutReception(t *testing.T) {
 	emp.ID = empID
 	j := &domain.ServiceJob{ID: jobID, CarID: carID, Status: domain.ServiceJobStatusInProgress, OpenedByUserID: empID, OpenedAt: time.Now().UTC()}
 	je := stubJobRepo{byID: map[uuid.UUID]*domain.ServiceJob{jobID: j}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {j}}, rec: map[uuid.UUID]*domain.ServiceJobReception{}}
-	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: uuid.New()}}, tUser{empID: emp})
+	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: uuid.New()}}, tUser{empID: emp}, nil)
 
 	_, err := s.SaveHandover(context.Background(), jobID, SaveHandoverInput{OdometerKM: 10}, empID)
 	require.Error(t, err)
@@ -189,7 +207,7 @@ func TestService_SaveReception_Then_Handover_Closed(t *testing.T) {
 	emp.ID = empID
 	j := &domain.ServiceJob{ID: jobID, CarID: carID, Status: domain.ServiceJobStatusOpen, OpenedByUserID: empID, OpenedAt: time.Now().UTC(), CreatedAt: time.Now().UTC(), UpdatedAt: time.Now().UTC()}
 	je := stubJobRepo{byID: map[uuid.UUID]*domain.ServiceJob{jobID: j}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {j}}}
-	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: uuid.New()}}, tUser{empID: emp})
+	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: uuid.New()}}, tUser{empID: emp}, nil)
 
 	_, err := s.SaveReception(context.Background(), jobID, SaveReceptionInput{OdometerKM: 100, GeneralNotes: "in"}, empID)
 	require.NoError(t, err)
@@ -212,9 +230,54 @@ func TestService_SaveReception_InvalidOdometer(t *testing.T) {
 	emp.ID = empID
 	j := &domain.ServiceJob{ID: jobID, CarID: carID, Status: domain.ServiceJobStatusOpen, OpenedByUserID: empID, OpenedAt: time.Now().UTC()}
 	je := stubJobRepo{byID: map[uuid.UUID]*domain.ServiceJob{jobID: j}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {j}}}
-	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: uuid.New()}}, tUser{empID: emp})
+	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: uuid.New()}}, tUser{empID: emp}, nil)
 
 	_, err := s.SaveReception(context.Background(), jobID, SaveReceptionInput{OdometerKM: -1}, empID)
 	require.Error(t, err)
 	assert.ErrorIs(t, err, domain.ErrInvalidServiceJobData)
+}
+
+func TestService_ListOpenedOn_EmptyDay(t *testing.T) {
+	t.Parallel()
+	empID := uuid.New()
+	emp, _ := domain.NewUser("e@t", "p", "E", "E", domain.RoleEmployee)
+	emp.ID = empID
+	je := stubJobRepo{byID: map[uuid.UUID]*domain.ServiceJob{}}
+	s := NewService(&je, tCar{}, tUser{empID: emp}, nil)
+
+	day := time.Date(2024, 6, 10, 0, 0, 0, 0, time.UTC)
+	out, err := s.ListOpenedOn(context.Background(), day, empID)
+	require.NoError(t, err)
+	require.NotNil(t, out)
+	assert.Len(t, out, 0)
+}
+
+func TestService_ListOpenedOn_OneJob(t *testing.T) {
+	t.Parallel()
+	empID := uuid.New()
+	carID := uuid.New()
+	jobID := uuid.New()
+	emp, _ := domain.NewUser("e@t", "p", "E", "E", domain.RoleEmployee)
+	emp.ID = empID
+	opened := time.Date(2024, 6, 10, 14, 30, 0, 0, time.UTC)
+	j := &domain.ServiceJob{ID: jobID, CarID: carID, Status: domain.ServiceJobStatusOpen, OpenedByUserID: empID, OpenedAt: opened}
+	je := stubJobRepo{byID: map[uuid.UUID]*domain.ServiceJob{jobID: j}, byCar: map[uuid.UUID][]*domain.ServiceJob{carID: {j}}}
+	s := NewService(&je, tCar{carID: {ID: carID, OwnerID: uuid.New()}}, tUser{empID: emp}, nil)
+
+	out, err := s.ListOpenedOn(context.Background(), time.Date(2024, 6, 10, 0, 0, 0, 0, time.UTC), empID)
+	require.NoError(t, err)
+	require.Len(t, out, 1)
+	assert.Equal(t, jobID, out[0].ID)
+}
+
+func TestService_ListOpenedOn_ClientDenied(t *testing.T) {
+	t.Parallel()
+	clientID := uuid.New()
+	cu, _ := domain.NewUser("c@t", "p", "C", "L", domain.RoleClient)
+	cu.ID = clientID
+	je := stubJobRepo{byID: map[uuid.UUID]*domain.ServiceJob{}}
+	s := NewService(&je, tCar{}, tUser{clientID: cu}, nil)
+	_, err := s.ListOpenedOn(context.Background(), time.Now().UTC(), clientID)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, domain.ErrUnauthorizedAccess)
 }
