@@ -1,8 +1,8 @@
-# GonsGarage — SDD (Spec-Driven). Refrescado por sdd-init (2026-04-20).
+# GonsGarage — SDD (Spec-Driven). Refrescado por sdd-init (2026-04-24).
 schema: spec-driven
 
 context: |
-  Monorepo: Go 1.25 (Gin, GORM, Postgres, Redis, JWT, swag) + Next.js 15 / React 19 (pnpm, Zustand).
+  Monorepo: Go 1.25.3 (Gin, GORM, Postgres, Redis, JWT, swag) + Next.js 15.5 / React 19 (pnpm, Zustand).
   API REST bajo /api/v1; dominio en backend/internal (handlers, services, repository).
   Frontend App Router; estado con Zustand; UI pt_PT por defecto (i18n futuro: docs/i18n-reminder.md).
   CI: .github/workflows/ci.yml — backend go vet + go test -race; frontend pnpm lint/typecheck/test (--passWithNoTests) + build.
@@ -11,9 +11,9 @@ strict_tdd: true
 
 testing:
   strict_tdd: true
-  detected: "2026-04-20"
+  detected: "2026-04-24"
   test_runner:
-    frontend: { framework: vitest, command: "cd frontend && pnpm test" }
+    frontend: { framework: vitest, command: "cd frontend && pnpm test", alt: "jest via pnpm test:jest" }
     backend: { framework: go test, command: "cd backend && go test ./... -count=1" }
   ci_commands:
     frontend_test: "cd frontend && pnpm test -- --passWithNoTests"
