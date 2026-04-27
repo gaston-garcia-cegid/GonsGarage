@@ -39,15 +39,36 @@ The **vehicles** and **appointments** user-facing views that ship with this chan
 - WHEN status chips or alerts are shown
 - THEN their colours map to semantic tokens (success, warning, error, info) or documented utilities, not standalone hex blocks that ignore dark mode
 
+### Requirement: Lint warning budget on default frontend gate
+
+A release or merge that touches the **Next.js frontend package** **SHALL** satisfy the repository default **`pnpm lint`** outcome **without warnings**, so React Hooks and related rules deferred as `warn` during migration **MUST NOT** accumulate unchecked.
+
+#### Scenario: Clean lint output on review
+
+- **GIVEN** a change ready for review that modifies files under `frontend/`
+- **WHEN** a maintainer runs `pnpm lint` in the frontend package as documented in `openspec/config.yaml`
+- **THEN** the command **SHALL** complete with **zero warnings** in the aggregate lint report for that package
+- **AND** `pnpm build` in the same package **SHALL** still complete successfully unless the change explicitly documents a temporary build exception approved outside this requirement
+
+#### Scenario: Capped, documented waivers
+
+- **GIVEN** a specific warning cannot be removed in the same change without unacceptable product risk
+- **WHEN** the change documents the exception in its proposal or verify notes with rationale
+- **THEN** at most **three** source files **MAY** retain a targeted suppression
+- **AND** each suppression **SHALL** be scoped (rule + line or narrow block), not a file-wide disable of the default hook ruleset
+
 ### Requirement: Non-regression quality gate
 
-A release that claims this capability SHALL keep the frontend **lint-clean** and **buildable** after styling refactors.
+A release that claims this capability SHALL keep the frontend **lint-clean (no errors and no warnings on the default `pnpm lint` invocation)** and **buildable** after styling refactors and related UI refactors, subject only to the **Lint warning budget** waiver rules above.
+
+(Previously: success required no new **errors** from lint; **warnings** were not contractually capped.)
 
 #### Scenario: CI-quality commands succeed locally
 
-- GIVEN the change is ready for review
-- WHEN `pnpm lint` and `pnpm build` are run in the frontend package
-- THEN both complete successfully with no new errors introduced by this work
+- **GIVEN** the change is ready for review
+- **WHEN** `pnpm lint` and `pnpm build` are run in the frontend package
+- **THEN** both complete successfully with **no errors and no warnings** introduced or left unresolved by this work, except waivers that meet the **Lint warning budget** requirement
+- **AND** any waiver **SHALL** appear in the active change documentation with rationale
 
 ---
 
@@ -218,3 +239,9 @@ Cada alteración **estructural** na capa de presentación (config Tailwind v4, t
 - **GIVEN** un mantenedor revisa un diff non obvio (p. ex. renomeo de utilidades Tailwind)
 - **WHEN** abre o ADR ou design do change
 - **THEN** **SHALL** atopar entrada que ligue o cambio a requisito ou risco mitigado
+
+---
+
+## Merged additions (change `frontend-eslint-warnings-cleanup`, archived 2026-04-27)
+
+Integráronse no bloque **`## Requirements`** (antes desta sección de arquivo): o requisito **Lint warning budget on default frontend gate** e a versión actualizada de **Non-regression quality gate** (delta en `openspec/changes/archive/2026-04-27-frontend-eslint-warnings-cleanup/specs/ui-brand-shell/spec.md`).
