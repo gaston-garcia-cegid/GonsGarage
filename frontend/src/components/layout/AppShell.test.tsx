@@ -92,3 +92,65 @@ describe('AppShell staff user management nav', () => {
     expect(btn.className).toMatch(/active/);
   });
 });
+
+describe('AppShell parts inventory nav (manager/admin only)', () => {
+  beforeEach(() => {
+    mockPush.mockClear();
+  });
+
+  it('shows Peças (stock) and navigates to /admin/parts for manager', async () => {
+    const user = userEvent.setup();
+    const manager = buildUser({ role: UserRole.MANAGER });
+    render(
+      <AppShell user={manager} subtitle="Teste" activeNav="dashboard" onLogout={vi.fn()}>
+        <p>Conteúdo</p>
+      </AppShell>
+    );
+
+    const navParts = screen.getByRole('button', { name: 'Peças (stock)' });
+    expect(navParts).toBeInTheDocument();
+    await user.click(navParts);
+    expect(mockPush).toHaveBeenCalledWith('/admin/parts');
+  });
+
+  it('shows Peças (stock) for admin', () => {
+    const admin = buildUser({ role: UserRole.ADMIN });
+    render(
+      <AppShell user={admin} subtitle="Teste" activeNav="dashboard" onLogout={vi.fn()}>
+        <p>X</p>
+      </AppShell>
+    );
+    expect(screen.getByRole('button', { name: 'Peças (stock)' })).toBeInTheDocument();
+  });
+
+  it('does not show Peças (stock) for client', () => {
+    const client = buildUser({ role: UserRole.CLIENT });
+    render(
+      <AppShell user={client} subtitle="Teste" activeNav="dashboard" onLogout={vi.fn()}>
+        <p>X</p>
+      </AppShell>
+    );
+    expect(screen.queryByRole('button', { name: 'Peças (stock)' })).not.toBeInTheDocument();
+  });
+
+  it('does not show Peças (stock) for employee', () => {
+    const employee = buildUser({ role: UserRole.EMPLOYEE });
+    render(
+      <AppShell user={employee} subtitle="Teste" activeNav="accounting" onLogout={vi.fn()}>
+        <p>X</p>
+      </AppShell>
+    );
+    expect(screen.queryByRole('button', { name: 'Peças (stock)' })).not.toBeInTheDocument();
+  });
+
+  it('marks Peças (stock) active when activeNav is admin_parts', () => {
+    const manager = buildUser({ role: UserRole.MANAGER });
+    render(
+      <AppShell user={manager} subtitle="Inventário" activeNav="admin_parts" onLogout={vi.fn()}>
+        <p>Lista</p>
+      </AppShell>
+    );
+    const btn = screen.getByRole('button', { name: 'Peças (stock)' });
+    expect(btn.className).toMatch(/active/);
+  });
+});

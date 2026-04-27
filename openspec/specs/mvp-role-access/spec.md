@@ -1,6 +1,6 @@
 # mvp-role-access Specification
 
-> **Promoción:** catálogo principal desde el change archivado `openspec/changes/archive/2026-04-20-mvp-role-verification/` (2026-04-20). Actualizado desde `openspec/changes/archive/2026-04-20-admin-provision-user-roles/` — fila de aprovisionamiento staff y CI (2026-04-20). Actualizado desde `openspec/changes/archive/2026-04-21-ui-admin-users-discoverability/` — matriz UI `/admin/users`, CI UI y `openspec/specs/staff-user-management-ui/spec.md` (2026-04-21). Actualizado desde `openspec/changes/archive/2026-04-22-workshop-mechanic-vehicle-lifecycle/` — taller (service job), fila de matriz y pruebas CI (2026-04-22).
+> **Promoción:** catálogo principal desde el change archivado `openspec/changes/archive/2026-04-20-mvp-role-verification/` (2026-04-20). Actualizado desde `openspec/changes/archive/2026-04-20-admin-provision-user-roles/` — fila de aprovisionamiento staff y CI (2026-04-20). Actualizado desde `openspec/changes/archive/2026-04-21-ui-admin-users-discoverability/` — matriz UI `/admin/users`, CI UI y `openspec/specs/staff-user-management-ui/spec.md` (2026-04-21). Actualizado desde `openspec/changes/archive/2026-04-22-workshop-mechanic-vehicle-lifecycle/` — taller (service job), fila de matriz y pruebas CI (2026-04-22). Actualizado desde `openspec/changes/archive/2026-04-24-spare-parts-inventory/` — inventario de peças `/api/v1/parts` y shell `/admin/parts` (`canManageUsers`), matriz, CI y spec `openspec/specs/parts-inventory/spec.md`.
 
 ## Purpose
 
@@ -17,6 +17,7 @@ Reproducible **MVP verification** by **role** (`client`, `employee`, `manager`, 
 | `/api/v1/employees` | MUST NOT | MUST NOT | MUST | MUST |
 | Staff user provisioning `POST /api/v1/admin/users` | MUST NOT | MUST NOT | MUST** | MUST |
 | Staff user management UI (`/admin/users` via shell) | MUST NOT | MUST NOT | MUST | MUST |
+| Parts inventory HTTP (`GET/POST/PATCH/DELETE /api/v1/parts`) and UI (`/admin/parts` via shell, `canManageUsers`) | MUST NOT | MUST NOT | MUST | MUST |
 | Workshop / service job (taller) `POST/PUT/PATCH` bajo `/api/v1/service-jobs` y *checklists* (muta) | MUST NOT | MUST* | MUST* | MUST* |
 | Invoices HTTP/UI (MVP v1) | **Deferred** (`p1-accounting-defer`) | — | — | — |
 
@@ -27,7 +28,7 @@ Reproducible **MVP verification** by **role** (`client`, `employee`, `manager`, 
 
 ### Requirement: Published role–surface matrix
 
-MVP verification docs **SHALL** expose the matrix above (or equivalent), including **staff user provisioning** and **workshop (service job)** (taller visit) como filas de API/superficie distintas, alineadas con `openspec/specs/workshop-repair-execution/spec.md` donde aplica.
+MVP verification docs **SHALL** expose the matrix above (or equivalent), including **staff user provisioning**, **parts inventory** (manager/admin stock), and **workshop (service job)** (taller visit) como filas de API/superficie distintas, alineadas con `openspec/specs/workshop-repair-execution/spec.md` donde aplica.
 
 #### Scenario: Four roles listed
 
@@ -52,6 +53,12 @@ MVP verification docs **SHALL** expose the matrix above (or equivalent), includi
 - GIVEN the normative matrix summary
 - WHEN the matrix is read
 - THEN a row documents `Workshop / service job` and distinguishes `client` **MUST NOT** on mutating those routes from staff (`employee` / `manager` / `admin`) **MUST\*** for the HTTP surface in `workshop-repair-execution` scope
+
+#### Scenario: Matrix row for parts inventory
+
+- GIVEN the normative matrix summary
+- WHEN the matrix is read
+- THEN a row documents **Parts inventory** for `/api/v1/parts` and shell `/admin/parts`, with `client` and `employee` **MUST NOT** and `manager` and `admin` **MUST**
 
 ### Requirement: Staff user provisioning HTTP surface
 
@@ -110,6 +117,40 @@ The repo **SHALL** ship idempotent seed command(s) creating ≥1 user per role w
 - GIVEN users already exist for those emails
 - WHEN seed runs again
 - THEN exit success without duplicate errors or silent password overwrite
+
+### Requirement: Parts inventory API and UI for manager and admin only
+
+Spare-parts inventory **SHALL** use the same **staff-managers** surface as employees and staff user provisioning: HTTP bajo `/api/v1/parts` con `RequireStaffManagers()`, and in-app UI bajo `/admin/parts` only when `canManageUsers` is true (manager + admin). Domain detail: `openspec/specs/parts-inventory/spec.md`.
+
+#### Scenario: Client forbidden on parts list
+
+- GIVEN JWT role `client`
+- WHEN `GET /api/v1/parts`
+- THEN response is forbidden (e.g. 403) before part business logic
+
+#### Scenario: Employee forbidden on parts mutator
+
+- GIVEN JWT role `employee`
+- WHEN `POST /api/v1/parts` with otherwise valid payload
+- THEN response is not 2xx success **solely** due to staff-manager authorization
+
+#### Scenario: Manager allowed past parts role gate
+
+- GIVEN JWT role `manager`
+- WHEN `GET /api/v1/parts` or `POST /api/v1/parts` with valid payload
+- THEN response is not forbidden **solely** by `RequireStaffManagers` (service may still return 4xx for validation)
+
+#### Scenario: Parts shell nav present for manager in UI tests
+
+- GIVEN `pnpm test` (or equivalent) in CI
+- WHEN a test renders `AppShell` with a `manager` user
+- THEN a navigation control linking to `/admin/parts` is present (e.g. **Peças (stock)**)
+
+#### Scenario: Parts shell nav absent for client and employee in UI tests
+
+- GIVEN `pnpm test` in CI
+- WHEN a test renders `AppShell` with a `client` or `employee` user
+- THEN no navigation control links to `/admin/parts`
 
 ### Requirement: Employees API for manager and admin only
 
@@ -173,7 +214,7 @@ MVP completion **SHALL NOT** depend on invoice Gin routes nor Next invoice pages
 
 ### Requirement: CI authorization regression tests
 
-Tests **SHALL** fail CI if employees list opens to `client`/`employee`, if `client` gains 2xx repair mutation, if `client` gains 2xx on mutating a workshop service job (see prior requirement), if staff user provisioning rules in `staff-user-provisioning` are violated, **or** if `AppShell` omits the `/admin/users` nav entry when `canManageUsers` is true (regression on staff user management UI discovery).
+Tests **SHALL** fail CI if employees list opens to `client`/`employee`, if `client` gains 2xx repair mutation, if `client` gains 2xx on mutating a workshop service job (see prior requirement), if staff user provisioning rules in `staff-user-provisioning` are violated, if `AppShell` omits the `/admin/users` nav entry when `canManageUsers` is true (regression on staff user management UI discovery), **or** if parts inventory authorization regresses (`/api/v1/parts` for `client`/`employee`, or `AppShell` omits `/admin/parts` for manager when `canManageUsers` is true).
 
 #### Scenario: Employees gate tested
 
@@ -204,3 +245,9 @@ Tests **SHALL** fail CI if employees list opens to `client`/`employee`, if `clie
 - GIVEN `pnpm test` in CI
 - WHEN a test renders `AppShell` with a `client` user
 - THEN no navigation control links to `/admin/users`
+
+#### Scenario: Parts HTTP gate tested in Go
+
+- GIVEN `go test` in CI
+- WHEN MVP role access tests run for `/api/v1/parts`
+- THEN `client` and `employee` do not receive 2xx on list or mutating methods guarded like employees, and `manager`/`admin` pass the role gate (see `backend/internal/handler/mvp_role_access_test.go`)

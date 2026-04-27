@@ -1,7 +1,9 @@
 // ✅ Centralized API client following Agent.md standards
 // Handles HTTP requests, error management, authentication, and interceptors
 
+import type { ItemsTotal } from '@/types/accounting';
 import type { User } from '@/types';
+import type { PartItem, PartItemWriteBody } from '@/types/parts';
 
 import { getPublicApiOrigin } from './api-public-origin';
 
@@ -412,6 +414,42 @@ export class ApiClient {
     role: 'manager' | 'employee' | 'client';
   }): Promise<ApiResponse<{ user: User }>> {
     return this.post<{ user: User }>('/admin/users', body);
+  }
+
+  /** Manager/admin: GET /api/v1/parts (`barcode`, `search`, pagination). */
+  async listParts(params?: {
+    barcode?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<ApiResponse<ItemsTotal<PartItem>>> {
+    const q = new URLSearchParams();
+    if (params?.barcode) q.set('barcode', params.barcode);
+    if (params?.search) q.set('search', params.search);
+    if (params?.limit != null) q.set('limit', String(params.limit));
+    if (params?.offset != null) q.set('offset', String(params.offset));
+    const qs = q.toString();
+    return this.get<ItemsTotal<PartItem>>(`/parts${qs ? `?${qs}` : ''}`);
+  }
+
+  /** Manager/admin: GET /api/v1/parts/:id */
+  async getPart(id: string): Promise<ApiResponse<PartItem>> {
+    return this.get<PartItem>(`/parts/${encodeURIComponent(id)}`);
+  }
+
+  /** Manager/admin: POST /api/v1/parts */
+  async createPart(body: PartItemWriteBody): Promise<ApiResponse<PartItem>> {
+    return this.post<PartItem>('/parts', body);
+  }
+
+  /** Manager/admin: PATCH /api/v1/parts/:id */
+  async updatePart(id: string, body: PartItemWriteBody): Promise<ApiResponse<PartItem>> {
+    return this.patch<PartItem>(`/parts/${encodeURIComponent(id)}`, body);
+  }
+
+  /** Manager/admin: DELETE /api/v1/parts/:id (soft delete). */
+  async deletePart(id: string): Promise<ApiResponse<unknown>> {
+    return this.delete(`/parts/${encodeURIComponent(id)}`);
   }
 
   async put<T>(endpoint: string, body?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {

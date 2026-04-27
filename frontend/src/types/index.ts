@@ -67,6 +67,9 @@ export type {
   ItemsTotal
 } from './accounting';
 
+// ✅ Parts inventory (manager/admin)
+export type { PartItem, PartItemWriteBody, PartUOM } from './parts';
+
 // ✅ API types per Agent.md
 export type {
   ApiResponse,

@@ -186,3 +186,12 @@ type SupplierService interface {
 	Update(ctx context.Context, s *domain.Supplier, requestingUserID uuid.UUID) (*domain.Supplier, error)
 	Delete(ctx context.Context, id uuid.UUID, requestingUserID uuid.UUID) error
 }
+
+// PartService manages spare-parts inventory (authorization in HTTP layer).
+type PartService interface {
+	Create(ctx context.Context, item *domain.PartItem, requestingUserID uuid.UUID) (*domain.PartItem, error)
+	Get(ctx context.Context, id uuid.UUID, requestingUserID uuid.UUID) (*domain.PartItem, error)
+	List(ctx context.Context, filters PartItemListFilters, requestingUserID uuid.UUID) ([]*domain.PartItem, int64, error)
+	Update(ctx context.Context, item *domain.PartItem, requestingUserID uuid.UUID) (*domain.PartItem, error)
+	Delete(ctx context.Context, id uuid.UUID, requestingUserID uuid.UUID) error
+}

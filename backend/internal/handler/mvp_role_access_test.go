@@ -15,13 +15,17 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/core/ports"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/domain"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/middleware"
+	repopg "github.com/gaston-garcia-cegid/gonsgarage/internal/repository/postgres"
+	partsvc "github.com/gaston-garcia-cegid/gonsgarage/internal/service/part"
 	repairsvc "github.com/gaston-garcia-cegid/gonsgarage/internal/service/repair"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/servicejob"
 	"github.com/gin-gonic/gin"
+	"github.com/glebarez/sqlite"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gorm.io/gorm"
 )
 
 func testJWT(t *testing.T, secret string, userID uuid.UUID, role string) string {
@@ -136,13 +140,295 @@ func TestMVPAccess_EmployeesGET_AdminReachesHandler(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "ok")
 }
 
+// --- Parts inventory: RequireStaffManagers (spec: client + employee forbidden; manager + admin allowed) ---
+
+func partsStaffStubRouter(secret string) *gin.Engine {
+	gin.SetMode(gin.TestMode)
+	am := middleware.NewAuthMiddleware(secret)
+	r := gin.New()
+	api := r.Group("/api/v1")
+	api.Use(middleware.GinBearerJWT(am))
+	parts := api.Group("/parts")
+	parts.Use(middleware.RequireStaffManagers())
+	{
+		parts.GET("", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"items": []any{}, "total": int64(0)})
+		})
+		parts.POST("", func(c *gin.Context) {
+			c.JSON(http.StatusCreated, gin.H{"ok": true})
+		})
+	}
+	return r
+}
+
+func TestMVPAccess_PartsGET_ClientForbidden(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-get-client"
+	uid := uuid.New()
+	r := partsStaffStubRouter(secret)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/parts", nil)
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, uid, domain.RoleClient))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}
+
+func TestMVPAccess_PartsGET_EmployeeForbidden(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-get-emp"
+	uid := uuid.New()
+	r := partsStaffStubRouter(secret)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/parts", nil)
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, uid, domain.RoleEmployee))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}
+
+func TestMVPAccess_PartsGET_ManagerReachesHandler(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-get-mgr"
+	uid := uuid.New()
+	r := partsStaffStubRouter(secret)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/parts", nil)
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, uid, domain.RoleManager))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestMVPAccess_PartsGET_AdminReachesHandler(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-get-adm"
+	uid := uuid.New()
+	r := partsStaffStubRouter(secret)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/parts", nil)
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, uid, domain.RoleAdmin))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestMVPAccess_PartsPOST_ClientForbidden(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-post-client"
+	uid := uuid.New()
+	r := partsStaffStubRouter(secret)
+	body := []byte(`{"reference":"r","brand":"b","name":"n","barcode":"x","quantity":1,"uom":"unit"}`)
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/parts", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, uid, domain.RoleClient))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}
+
+func TestMVPAccess_PartsPOST_EmployeeForbidden(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-post-emp"
+	uid := uuid.New()
+	r := partsStaffStubRouter(secret)
+	body := []byte(`{"reference":"r","brand":"b","name":"n","barcode":"x","quantity":1,"uom":"unit"}`)
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/parts", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, uid, domain.RoleEmployee))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}
+
+func TestMVPAccess_PartsPOST_ManagerReachesHandler(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-post-mgr"
+	uid := uuid.New()
+	r := partsStaffStubRouter(secret)
+	body := []byte(`{"reference":"r","brand":"b","name":"n","barcode":"x","quantity":1,"uom":"unit"}`)
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/parts", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, uid, domain.RoleManager))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusCreated, w.Code)
+}
+
+func partsRouterWithPartHandler(t *testing.T, secret string, h *PartHandler) *gin.Engine {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	am := middleware.NewAuthMiddleware(secret)
+	r := gin.New()
+	api := r.Group("/api/v1")
+	api.Use(middleware.GinBearerJWT(am))
+	p := api.Group("/parts")
+	p.Use(middleware.RequireStaffManagers())
+	{
+		p.GET("", h.ListParts)
+		p.POST("", h.CreatePartItem)
+		p.GET("/:id", h.GetPartItem)
+		p.PATCH("/:id", h.UpdatePartItem)
+		p.DELETE("/:id", h.DeletePartItem)
+	}
+	return r
+}
+
+func TestMVPAccess_PartsGET_ManagerRealHandlerEmptyList(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-real-list"
+	mgrID := uuid.New()
+	mgr, err := domain.NewUser("mgr-parts-list@test", "x", "M", "L", domain.RoleManager)
+	require.NoError(t, err)
+	mgr.ID = mgrID
+	ur := &mvpUserRepo{byID: map[uuid.UUID]*domain.User{mgrID: mgr}}
+
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&domain.PartItem{}))
+	t.Cleanup(func() {
+		sqlDB, _ := db.DB()
+		if sqlDB != nil {
+			_ = sqlDB.Close()
+		}
+	})
+	repo := repopg.NewPostgresPartItemRepository(db)
+	svc := partsvc.NewPartService(repo, ur)
+	h := NewPartHandler(svc)
+	r := partsRouterWithPartHandler(t, secret, h)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/parts", nil)
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, mgrID, domain.RoleManager))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	require.Equal(t, http.StatusOK, w.Code, w.Body.String())
+	var payload struct {
+		Items []json.RawMessage `json:"items"`
+		Total int64             `json:"total"`
+	}
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &payload))
+	assert.Equal(t, int64(0), payload.Total)
+	assert.Len(t, payload.Items, 0)
+}
+
+func TestMVPAccess_PartsPOST_ManagerRealHandlerCreated(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-real-create"
+	mgrID := uuid.New()
+	mgr, err := domain.NewUser("mgr-parts-post@test", "x", "M", "P", domain.RoleManager)
+	require.NoError(t, err)
+	mgr.ID = mgrID
+	ur := &mvpUserRepo{byID: map[uuid.UUID]*domain.User{mgrID: mgr}}
+
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&domain.PartItem{}))
+	t.Cleanup(func() {
+		sqlDB, _ := db.DB()
+		if sqlDB != nil {
+			_ = sqlDB.Close()
+		}
+	})
+	repo := repopg.NewPostgresPartItemRepository(db)
+	svc := partsvc.NewPartService(repo, ur)
+	h := NewPartHandler(svc)
+	r := partsRouterWithPartHandler(t, secret, h)
+
+	body := map[string]any{
+		"reference": "R1", "brand": "B", "name": "Filter", "barcode": "5900000000999",
+		"quantity": 3.0, "uom": "unit",
+	}
+	b, err := json.Marshal(body)
+	require.NoError(t, err)
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/parts", bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, mgrID, domain.RoleManager))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	require.Equal(t, http.StatusCreated, w.Code, w.Body.String())
+	var created PartItemResponse
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &created))
+	assert.Equal(t, "R1", created.Reference)
+	assert.Equal(t, "5900000000999", created.Barcode)
+}
+
+func TestMVPAccess_PartsPOST_ClientForbidden_RealHandler(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-real-client-post"
+	clientID := uuid.New()
+	cl, err := domain.NewUser("cl-parts@test", "x", "C", "L", domain.RoleClient)
+	require.NoError(t, err)
+	cl.ID = clientID
+	ur := &mvpUserRepo{byID: map[uuid.UUID]*domain.User{clientID: cl}}
+
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&domain.PartItem{}))
+	t.Cleanup(func() {
+		sqlDB, _ := db.DB()
+		if sqlDB != nil {
+			_ = sqlDB.Close()
+		}
+	})
+	repo := repopg.NewPostgresPartItemRepository(db)
+	svc := partsvc.NewPartService(repo, ur)
+	h := NewPartHandler(svc)
+	r := partsRouterWithPartHandler(t, secret, h)
+
+	body := map[string]any{
+		"reference": "R1", "brand": "B", "name": "N", "barcode": "x", "quantity": 1.0, "uom": "unit",
+	}
+	b, err := json.Marshal(body)
+	require.NoError(t, err)
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/parts", bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, clientID, domain.RoleClient))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}
+
+func TestMVPAccess_PartsPOST_EmployeeForbidden_RealHandler(t *testing.T) {
+	t.Parallel()
+	secret := "mvp-parts-real-emp-post"
+	empID := uuid.New()
+	emp, err := domain.NewUser("emp-parts@test", "x", "E", "M", domain.RoleEmployee)
+	require.NoError(t, err)
+	emp.ID = empID
+	ur := &mvpUserRepo{byID: map[uuid.UUID]*domain.User{empID: emp}}
+
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&domain.PartItem{}))
+	t.Cleanup(func() {
+		sqlDB, _ := db.DB()
+		if sqlDB != nil {
+			_ = sqlDB.Close()
+		}
+	})
+	repo := repopg.NewPostgresPartItemRepository(db)
+	svc := partsvc.NewPartService(repo, ur)
+	h := NewPartHandler(svc)
+	r := partsRouterWithPartHandler(t, secret, h)
+
+	body := map[string]any{
+		"reference": "R1", "brand": "B", "name": "N", "barcode": "x", "quantity": 1.0, "uom": "unit",
+	}
+	b, err := json.Marshal(body)
+	require.NoError(t, err)
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/parts", bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+testJWT(t, secret, empID, domain.RoleEmployee))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}
+
 // --- Repairs POST: client 403; employee 201 with stubs ---
 
 type mvpUserRepo struct {
 	byID map[uuid.UUID]*domain.User
 }
 
-func (m *mvpUserRepo) Create(context.Context, *domain.User) error                     { return errors.New("mvpUserRepo.Create not used") }
+func (m *mvpUserRepo) Create(context.Context, *domain.User) error {
+	return errors.New("mvpUserRepo.Create not used")
+}
 func (m *mvpUserRepo) GetByID(_ context.Context, id uuid.UUID) (*domain.User, error) {
 	u, ok := m.byID[id]
 	if !ok {
@@ -150,13 +436,15 @@ func (m *mvpUserRepo) GetByID(_ context.Context, id uuid.UUID) (*domain.User, er
 	}
 	return u, nil
 }
-func (m *mvpUserRepo) GetByEmail(context.Context, string) (*domain.User, error) { return nil, domain.ErrUserNotFound }
+func (m *mvpUserRepo) GetByEmail(context.Context, string) (*domain.User, error) {
+	return nil, domain.ErrUserNotFound
+}
 func (m *mvpUserRepo) GetByRole(context.Context, string, int, int) ([]*domain.User, error) {
 	return nil, nil
 }
 func (m *mvpUserRepo) List(context.Context, int, int) ([]*domain.User, error) { return nil, nil }
 func (m *mvpUserRepo) Update(context.Context, *domain.User) error             { return errors.New("not used") }
-func (m *mvpUserRepo) Delete(context.Context, uuid.UUID) error                  { return errors.New("not used") }
+func (m *mvpUserRepo) Delete(context.Context, uuid.UUID) error                { return errors.New("not used") }
 func (m *mvpUserRepo) UpdatePassword(context.Context, uuid.UUID, string) error {
 	return errors.New("not used")
 }
@@ -183,7 +471,7 @@ func (m *mvpCarRepo) GetByLicensePlate(context.Context, string) (*domain.Car, er
 }
 func (m *mvpCarRepo) List(context.Context, int, int) ([]*domain.Car, error) { return nil, nil }
 func (m *mvpCarRepo) Update(context.Context, *domain.Car) error             { return errors.New("not used") }
-func (m *mvpCarRepo) Delete(context.Context, uuid.UUID) error                { return errors.New("not used") }
+func (m *mvpCarRepo) Delete(context.Context, uuid.UUID) error               { return errors.New("not used") }
 func (m *mvpCarRepo) GetWithRepairs(context.Context, uuid.UUID) (*domain.Car, error) {
 	return nil, nil
 }
@@ -535,7 +823,7 @@ func TestMVPAccess_ServiceJobFlow_ReceptionHandoverGetClosed(t *testing.T) {
 	jid := created.ID.String()
 
 	putR, _ := json.Marshal(map[string]any{
-		"odometer_km":  5000,
+		"odometer_km":   5000,
 		"general_notes": "reception ok",
 	})
 	rr := httptest.NewRequest(http.MethodPut, "/api/v1/service-jobs/"+jid+"/reception", bytes.NewReader(putR))

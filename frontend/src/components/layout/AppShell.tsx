@@ -14,6 +14,7 @@ export type AppShellNavId =
   | 'cars'
   | 'appointments'
   | 'admin_users'
+  | 'admin_parts'
   | 'accounting'
   | 'my_invoices'
   | 'workshop';
@@ -125,14 +126,24 @@ export default function AppShell({
           </Button>
         ) : null}
         {canManageUsers(user) ? (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => router.push('/admin/users')}
-            className={cn(styles.navButton, activeNav === 'admin_users' && styles.active)}
-          >
-            Utilizadores
-          </Button>
+          <>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => router.push('/admin/users')}
+              className={cn(styles.navButton, activeNav === 'admin_users' && styles.active)}
+            >
+              Utilizadores
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => router.push('/admin/parts')}
+              className={cn(styles.navButton, activeNav === 'admin_parts' && styles.active)}
+            >
+              Peças (stock)
+            </Button>
+          </>
         ) : null}
         {isClient(user) ? (
           <Button

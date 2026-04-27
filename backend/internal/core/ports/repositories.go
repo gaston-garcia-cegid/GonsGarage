@@ -170,6 +170,24 @@ type SupplierRepository interface {
 	List(ctx context.Context, limit, offset int) ([]*domain.Supplier, int64, error)
 }
 
+// PartItemListFilters drives listing spare parts (barcode exact, or text search).
+type PartItemListFilters struct {
+	Barcode *string
+	Search  *string
+	Limit   int
+	Offset  int
+}
+
+// PartItemRepository persists spare-part catalog rows (no auth rules here).
+type PartItemRepository interface {
+	Create(ctx context.Context, p *domain.PartItem) error
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.PartItem, error)
+	GetByBarcode(ctx context.Context, barcode string) (*domain.PartItem, error)
+	Update(ctx context.Context, p *domain.PartItem) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	List(ctx context.Context, f PartItemListFilters) ([]*domain.PartItem, int64, error)
+}
+
 // Logger defines the interface for logging
 type Logger interface {
 	Info(msg string, keysAndValues ...interface{})

@@ -34,6 +34,7 @@ import (
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/car"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/employee"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/invoice"
+	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/part"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/received_invoice"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/repair"
 	"github.com/gaston-garcia-cegid/gonsgarage/internal/service/servicejob"
@@ -132,6 +133,7 @@ func main() {
 		&domain.ServiceJobReception{},
 		&domain.ServiceJobHandover{},
 		&domain.Appointment{},
+		&domain.PartItem{},
 		&domain.Supplier{},
 		&domain.ReceivedInvoice{},
 		&domain.BillingDocument{},
@@ -202,6 +204,7 @@ func main() {
 	receivedInvoiceRepo := postgresRepo.NewPostgresReceivedInvoiceRepository(db)
 	billingDocRepo := postgresRepo.NewPostgresBillingDocumentRepository(db)
 	invoiceRepo := postgresRepo.NewPostgresInvoiceRepository(db)
+	partItemRepo := postgresRepo.NewPostgresPartItemRepository(db)
 	log.Printf("Repositories initialized")
 
 	// Initialize use cases
@@ -221,6 +224,7 @@ func main() {
 	receivedInvoiceService := received_invoice.NewReceivedInvoiceService(receivedInvoiceRepo, userRepo)
 	billingDocumentService := billing_document.NewBillingDocumentService(billingDocRepo, userRepo)
 	invoiceService := invoice.NewInvoiceService(invoiceRepo, userRepo)
+	partService := part.NewPartService(partItemRepo, userRepo)
 
 	log.Printf("Use cases initialized")
 
@@ -241,6 +245,7 @@ func main() {
 	receivedInvoiceHandler := handler.NewReceivedInvoiceHandler(receivedInvoiceService)
 	billingDocumentHandler := handler.NewBillingDocumentHandler(billingDocumentService)
 	invoiceHandler := handler.NewInvoiceHandler(invoiceService)
+	partHandler := handler.NewPartHandler(partService)
 
 	log.Printf("Handlers initialized")
 
@@ -256,7 +261,7 @@ func main() {
 
 	// Setup routes
 	setupRoutes(router, authHandler, adminUserHandler, employeeHandler, carHandler, appointmentHandler, repairHandler, serviceJobHandler,
-		supplierHandler, receivedInvoiceHandler, billingDocumentHandler, invoiceHandler,
+		supplierHandler, receivedInvoiceHandler, billingDocumentHandler, invoiceHandler, partHandler,
 		authMiddleware, sqlxDB)
 
 	log.Printf("Routes set up")
@@ -280,6 +285,7 @@ func dropAllTables(db *gorm.DB) error {
 		"received_invoices",
 		"billing_documents",
 		"invoices",
+		"part_items",
 		"suppliers",
 		"cars",
 		"employees",
@@ -419,6 +425,7 @@ func setupRoutes(
 	receivedInvoiceHandler *handler.ReceivedInvoiceHandler,
 	billingDocumentHandler *handler.BillingDocumentHandler,
 	invoiceHandler *handler.InvoiceHandler,
+	partHandler *handler.PartHandler,
 	authMiddleware *middleware.AuthMiddleware,
 	sqlxDB *sqlx.DB,
 ) {
@@ -475,6 +482,16 @@ func setupRoutes(
 			employees.GET("/:id", employeeHandler.GetEmployee)
 			employees.PUT("/:id", employeeHandler.UpdateEmployee)
 			employees.DELETE("/:id", employeeHandler.DeleteEmployee)
+		}
+
+		parts := protected.Group("/parts")
+		parts.Use(middleware.RequireStaffManagers())
+		{
+			parts.POST("", partHandler.CreatePartItem)
+			parts.GET("", partHandler.ListParts)
+			parts.GET("/:id", partHandler.GetPartItem)
+			parts.PATCH("/:id", partHandler.UpdatePartItem)
+			parts.DELETE("/:id", partHandler.DeletePartItem)
 		}
 
 		// Car routes would go here
