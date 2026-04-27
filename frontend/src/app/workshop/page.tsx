@@ -1,12 +1,19 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import AppShell from '@/components/layout/AppShell';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { apiClient, type Car, type ServiceJob } from '@/lib/api';
 import styles from './workshop.module.css';
 
@@ -34,14 +41,17 @@ export default function WorkshopListPage() {
   const [jobs, setJobs] = useState<ServiceJob[]>([]);
   const [todayJobs, setTodayJobs] = useState<ServiceJob[]>([]);
   const [err, setErr] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  /** Cars + list-by-car fetches (not create visit). */
+  const [listLoading, setListLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [createSubmitting, setCreateSubmitting] = useState(false);
 
   const loadCars = useCallback(async () => {
     if (!user) return;
     setErr(null);
-    setLoading(true);
+    setListLoading(true);
     const { data, error } = await apiClient.getCars();
-    setLoading(false);
+    setListLoading(false);
     if (error) {
       setErr(error.message);
       return;
@@ -80,9 +90,9 @@ export default function WorkshopListPage() {
       return;
     }
     setErr(null);
-    setLoading(true);
+    setListLoading(true);
     const { data, error } = await apiClient.listServiceJobsByCar(carId);
-    setLoading(false);
+    setListLoading(false);
     if (error) {
       setErr(error.message);
       setJobs([]);
@@ -97,16 +107,19 @@ export default function WorkshopListPage() {
     }
   }, [authHydrated, carId, loadJobs]);
 
-  const onNewVisit = async () => {
+  const selectedCar = useMemo(() => cars.find(c => c.id === carId), [cars, carId]);
+
+  const confirmCreateVisit = async () => {
     if (!carId) return;
     setErr(null);
-    setLoading(true);
+    setCreateSubmitting(true);
     const { data, error } = await apiClient.createServiceJob(carId);
-    setLoading(false);
+    setCreateSubmitting(false);
     if (error) {
       setErr(error.message);
       return;
     }
+    setConfirmOpen(false);
     if (data?.id) {
       router.push(`/workshop/${data.id}`);
     }
@@ -127,7 +140,7 @@ export default function WorkshopListPage() {
           <Button type="button" variant="outline" asChild>
             <Link href="/workshop/recepcion">Receção rápida</Link>
           </Button>
-          <Button type="button" disabled={!carId || loading} onClick={() => void onNewVisit()}>
+          <Button type="button" disabled={!carId || listLoading} onClick={() => setConfirmOpen(true)}>
             Nova visita
           </Button>
         </>
@@ -186,7 +199,7 @@ export default function WorkshopListPage() {
         </select>
       </div>
       {err ? <p className={styles.err}>{err}</p> : null}
-      {loading ? <p>A carregar…</p> : null}
+      {listLoading ? <p>A carregar…</p> : null}
       <table className={styles.table}>
         <thead>
           <tr>
@@ -211,6 +224,35 @@ export default function WorkshopListPage() {
           ))}
         </tbody>
       </table>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle>Nova visita</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {selectedCar ? (
+              <>
+                Confirma criar uma visita para{' '}
+                <strong>
+                  {selectedCar.license_plate} — {selectedCar.make} {selectedCar.model}
+                </strong>
+                ?
+              </>
+            ) : (
+              'Seleccione uma viatura antes de criar a visita.'
+            )}
+          </p>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={() => setConfirmOpen(false)} disabled={createSubmitting}>
+              Cancelar
+            </Button>
+            <Button type="button" onClick={() => void confirmCreateVisit()} disabled={!selectedCar || createSubmitting}>
+              {createSubmitting ? 'A criar…' : 'Criar visita'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }

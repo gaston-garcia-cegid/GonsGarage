@@ -36,3 +36,23 @@ The Shadcn theme **SHALL** map GonsGarage brand colours (navy, accent, signal) t
 - **GIVEN** Phase 4 is merged to `main`
 - **WHEN** a maintainer opens the theme guide (`docs/ui-shadcn-theme.md` or successor)
 - **THEN** a table or commentary links brand tokens ↔ component-system variables
+
+---
+
+## Merged additions (change `ui-homogeneity-modal-workshop-parts`, archived 2026-04-27)
+
+### Requirement: Primitivas do sistema para criação em peças e taller
+
+Os fluxos de **criação** na UI de inventário de peças e na **lista taller** (incluindo confirmação antes ou depois da mutação, conforme desenho) **SHALL** usar primitivas do **sistema canónico** (`Dialog`, `Button`, `Input` ou equivalentes documentados em `frontend/src/components/ui/`) para campos e acções primárias **novas ou migradas** por esta mudança; **MUST NOT** acrescentar formulários de criação apenas com marcação legacy na mesma alteração sem plano de substituição referenciado no relatório de verificação.
+
+#### Scenario: Superfície de nova peça
+
+- **GIVEN** o fluxo de criação de peça a partir da lista
+- **WHEN** o diálogo ou painel de criação está aberto
+- **THEN** campos editáveis e botões de submeter/cancelar **SHALL** ser componentes do sistema canónico
+
+#### Scenario: Fluxo de nova visita na lista taller
+
+- **GIVEN** staff com permissão de taller na lista de visitas
+- **WHEN** inicia **Nova visita**
+- **THEN** qualquer confirmação ou captura mínima obrigatória antes de navegar **SHALL** usar o mesmo conjunto de primitivas do sistema para acções e campos expostos

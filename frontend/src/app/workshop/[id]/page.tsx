@@ -7,15 +7,34 @@ import { useAuth } from '@/stores';
 import { useAuthHydrationReady } from '@/hooks/useAuthHydrationReady';
 import AppShell from '@/components/layout/AppShell';
 import { Button } from '@/components/ui/button';
+import { AppLoading } from '@/components/ui/AppLoading';
 import { apiClient, type ServiceJobDetail } from '@/lib/api';
 import styles from '../workshop.module.css';
 
+type LoadState = 'idle' | 'loading' | 'success' | 'error';
+
+function normalizeJobId(raw: string | string[] | undefined): string {
+  if (typeof raw === 'string') return raw;
+  if (Array.isArray(raw) && raw.length > 0 && typeof raw[0] === 'string') return raw[0];
+  return '';
+}
+
+function isValidJobDetail(data: unknown): data is ServiceJobDetail {
+  if (!data || typeof data !== 'object') return false;
+  const o = data as Record<string, unknown>;
+  const job = o.job;
+  if (!job || typeof job !== 'object' || job === null) return false;
+  return 'status' in job;
+}
+
 export default function WorkshopDetailPage() {
-  const { id: jobId } = useParams<{ id: string }>();
+  const rawId = useParams<{ id: string }>().id;
+  const jobId = normalizeJobId(rawId);
   const { user, logout } = useAuth();
   const authHydrated = useAuthHydrationReady();
   const [detail, setDetail] = useState<ServiceJobDetail | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [loadState, setLoadState] = useState<LoadState>('idle');
   const [saving, setSaving] = useState(false);
   const [rKm, setRKm] = useState('');
   const [rNotes, setRNotes] = useState('');
@@ -23,25 +42,45 @@ export default function WorkshopDetailPage() {
   const [hNotes, setHNotes] = useState('');
 
   const load = useCallback(async () => {
-    if (!jobId) return;
+    if (!jobId) {
+      setDetail(null);
+      setErr('Identificador de visita em falta.');
+      setLoadState('error');
+      return;
+    }
+    setLoadState('loading');
     setErr(null);
     const { data, error } = await apiClient.getServiceJob(jobId);
     if (error) {
+      setDetail(null);
       setErr(error.message);
+      setLoadState('error');
       return;
     }
-    setDetail(data ?? null);
+    if (!isValidJobDetail(data)) {
+      setDetail(null);
+      setErr('Resposta inválida: dados da visita em falta.');
+      setLoadState('error');
+      return;
+    }
+    setDetail(data);
+    setLoadState('success');
   }, [jobId]);
 
   useEffect(() => {
-    if (authHydrated && user && jobId) {
-      void load();
+    if (!authHydrated || !user) return;
+    if (!jobId) {
+      setDetail(null);
+      setErr('Identificador de visita em falta.');
+      setLoadState('error');
+      return;
     }
+    void load();
   }, [authHydrated, user, jobId, load]);
 
   const onSaveReception = async () => {
     if (!jobId) return;
-    const km = parseInt(rKm, 10);
+    const km = Number.parseInt(rKm, 10);
     if (Number.isNaN(km) || km < 0) {
       setErr('Indique quilometragem (km) válida.');
       return;
@@ -64,7 +103,7 @@ export default function WorkshopDetailPage() {
 
   const onSaveHandover = async () => {
     if (!jobId) return;
-    const km = parseInt(hKm, 10);
+    const km = Number.parseInt(hKm, 10);
     if (Number.isNaN(km) || km < 0) {
       setErr('Indique quilometragem (km) válida.');
       return;
@@ -86,6 +125,7 @@ export default function WorkshopDetailPage() {
   };
 
   if (!authHydrated || !user) return null;
+
   return (
     <AppShell
       user={user}
@@ -102,9 +142,25 @@ export default function WorkshopDetailPage() {
         </>
       }
     >
-      {err ? <p className={styles.err}>{err}</p> : null}
-      {detail ? (
+      {loadState === 'loading' ? (
+        <p className={styles.hint}>
+          <AppLoading size="md" className="mr-2 align-middle" aria-busy={false} />
+          A carregar…
+        </p>
+      ) : null}
+
+      {loadState === 'error' && err ? (
+        <div className={styles.err}>
+          <p>{err}</p>
+          <p className={styles.hint}>
+            <Link href="/workshop">Voltar à lista do taller</Link>
+          </p>
+        </div>
+      ) : null}
+
+      {loadState === 'success' && detail ? (
         <>
+          {err ? <p className={styles.err}>{err}</p> : null}
           <p>
             <strong>Estado:</strong> {detail.job.status}
           </p>
@@ -192,8 +248,6 @@ export default function WorkshopDetailPage() {
             <p className={styles.hint}>Visita concluída.</p>
           )}
         </>
-      ) : !err ? (
-        <p>A carregar…</p>
       ) : null}
     </AppShell>
   );

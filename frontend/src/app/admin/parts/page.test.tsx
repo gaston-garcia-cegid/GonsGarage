@@ -6,12 +6,17 @@ import AdminPartsPage from './page';
 import { UserRole } from '@/types';
 
 const listPartsMock = vi.fn();
+const mockReplace = vi.fn();
+const { searchParamsRef } = vi.hoisted(() => ({
+  searchParamsRef: { current: '' },
+}));
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
-    replace: vi.fn(),
+    replace: mockReplace,
   }),
+  useSearchParams: () => new URLSearchParams(searchParamsRef.current),
 }));
 
 vi.mock('@/stores', () => ({
@@ -40,6 +45,7 @@ const emptyList = { success: true as const, data: { items: [], total: 0 } };
 describe('AdminPartsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    searchParamsRef.current = '';
     listPartsMock.mockResolvedValue(emptyList);
   });
 
@@ -55,7 +61,7 @@ describe('AdminPartsPage', () => {
 
     expect(within(main).getByRole('heading', { name: 'Peças (stock)', level: 1 })).toBeInTheDocument();
     expect(await within(main).findByText(/Sem peças nesta vista/i)).toBeInTheDocument();
-    expect(within(main).getByRole('link', { name: /Criar a primeira/i })).toBeInTheDocument();
+    expect(within(main).getByRole('button', { name: /Criar a primeira/i })).toBeInTheDocument();
   });
 
   it('renders rows when API returns items', async () => {
@@ -107,5 +113,24 @@ describe('AdminPartsPage', () => {
         })
       );
     });
+  });
+
+  it('opens create dialog when URL has create=1 and clears the query (modal parity)', async () => {
+    searchParamsRef.current = 'create=1';
+    render(<AdminPartsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+    expect(screen.getByRole('heading', { name: /Nova peça/i })).toBeInTheDocument();
+    expect(mockReplace).toHaveBeenCalledWith('/admin/parts', expect.objectContaining({ scroll: false }));
+  });
+
+  it('does not open create dialog when create query is absent', async () => {
+    searchParamsRef.current = '';
+    render(<AdminPartsPage />);
+    const main = screen.getByRole('main');
+    await waitFor(() => expect(listPartsMock).toHaveBeenCalled());
+    expect(within(main).queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

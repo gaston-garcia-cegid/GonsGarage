@@ -1,16 +1,22 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/stores';
 import AppShell from '@/components/layout/AppShell';
 import { apiClient } from '@/lib/api-client';
 import type { PartItem } from '@/types/parts';
 import styles from './admin-parts.module.css';
 import { Button } from '@/components/ui/button';
+import { PartCreateModal } from './components/PartCreateModal';
 
-export default function AdminPartsPage() {
+function AdminPartsPageContent() {
   const { user, logout } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const openedFromCreateQuery = useRef(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [items, setItems] = useState<PartItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [barcode, setBarcode] = useState('');
@@ -35,6 +41,13 @@ export default function AdminPartsPage() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (searchParams.get('create') !== '1' || openedFromCreateQuery.current) return;
+    openedFromCreateQuery.current = true;
+    setCreateOpen(true);
+    router.replace('/admin/parts', { scroll: false });
+  }, [searchParams, router]);
+
   if (!user) return null;
 
   function onFilterSubmit(e: React.FormEvent) {
@@ -53,11 +66,17 @@ export default function AdminPartsPage() {
     void load();
   }
 
+  const handlePartCreated = (partId: string) => {
+    setCreateOpen(false);
+    void load();
+    router.push(`/admin/parts/${partId}`);
+  };
+
   const toolbar = (
     <>
       <h1>Peças (stock)</h1>
-      <Button type="button" asChild>
-        <Link href="/admin/parts/new">Nova peça</Link>
+      <Button type="button" onClick={() => setCreateOpen(true)}>
+        Nova peça
       </Button>
     </>
   );
@@ -80,7 +99,7 @@ export default function AdminPartsPage() {
         <input
           name="barcode"
           value={barcode}
-          onChange={(ev) => setBarcode(ev.target.value)}
+          onChange={ev => setBarcode(ev.target.value)}
           placeholder="Código de barras"
           aria-label="Código de barras"
           autoComplete="off"
@@ -88,13 +107,13 @@ export default function AdminPartsPage() {
         <input
           name="search"
           value={searchText}
-          onChange={(ev) => setSearchText(ev.target.value)}
+          onChange={ev => setSearchText(ev.target.value)}
           placeholder="Texto (ref., marca, nome)"
           aria-label="Pesquisa por texto"
           autoComplete="off"
         />
         <Button type="submit">Aplicar</Button>
-        <Button type="button" variant="outline" onClick={() => void onShowAll()}>
+        <Button type="button" variant="outline" onClick={() => onShowAll()}>
           Mostrar todas
         </Button>
       </form>
@@ -112,7 +131,7 @@ export default function AdminPartsPage() {
             </tr>
           </thead>
           <tbody>
-            {items.map((p) => (
+            {items.map(p => (
               <tr key={p.id}>
                 <td>
                   <Link href={`/admin/parts/${p.id}`}>{p.reference}</Link>
@@ -128,15 +147,25 @@ export default function AdminPartsPage() {
               <tr>
                 <td colSpan={6}>
                   Sem peças nesta vista.{' '}
-                  <Link href="/admin/parts/new" className={styles.mutedLink}>
+                  <button type="button" className={styles.inlineTextButton} onClick={() => setCreateOpen(true)}>
                     Criar a primeira
-                  </Link>
+                  </button>
                 </td>
               </tr>
             ) : null}
           </tbody>
         </table>
       </div>
+
+      <PartCreateModal open={createOpen} onOpenChange={setCreateOpen} onSuccess={handlePartCreated} />
     </AppShell>
+  );
+}
+
+export default function AdminPartsPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminPartsPageContent />
+    </Suspense>
   );
 }
