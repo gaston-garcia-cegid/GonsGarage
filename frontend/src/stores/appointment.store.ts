@@ -1,3 +1,6 @@
+/**
+ * Client-only: appointment domain state (Zustand + Immer). Do not import from RSC / server files.
+ */
 // ✅ Appointment Store - Zustand + Immer + TypeScript following Agent.md patterns
 // Provides centralized appointment state management with CRUD operations
 

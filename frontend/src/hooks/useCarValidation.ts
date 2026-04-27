@@ -57,10 +57,15 @@ export function useCarValidation() {
     setErrors({});
   }, []);
 
+  const setGeneralError = useCallback((message: string) => {
+    setErrors((prev) => ({ ...prev, general: message }));
+  }, []);
+
   return {
     errors,
     validateCar,
     clearFieldError,
     clearErrors,
+    setGeneralError,
   };
 }

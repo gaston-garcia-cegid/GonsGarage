@@ -1,3 +1,7 @@
+/**
+ * Client-only: auth session + `apiClient` token sync. Single source for login/logout/check;
+ * `AuthProvider` only calls `checkAuthStatus` on mount.
+ */
 // AuthStore using Zustand following Agent.md patterns
 
 import { create } from 'zustand';
@@ -298,6 +302,9 @@ export const useAuthStore = create<AuthStore>()(
           state.token = token;
           state.isAuthenticated = !!state.user && !!token;
         });
+        if (typeof token === 'string' && token.length > 0) {
+          apiClient.setToken(token);
+        }
       },
 
       setLoading: (loading: boolean) => {

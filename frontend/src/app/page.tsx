@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/stores';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { BrandHeroBanner } from '@/components/brand/BrandHeroBanner';
 import styles from './landing.module.css';

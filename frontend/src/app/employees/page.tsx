@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/stores';
 import { CreateEmployeeRequest, Employee, apiClient } from '@/lib/api';
 import { AppLoading } from '@/components/ui/AppLoading';
 import { Button } from '@/components/ui/button';
@@ -155,7 +155,7 @@ export default function EmployeesPage() {
                 fontSize: '0.875rem',
                 color: 'var(--color-gray-700)',
               }}>
-                Olá, {user?.first_name} {user?.last_name}
+                Olá, {user?.firstName} {user?.lastName}
               </span>
               <Button type="button" variant="destructive" size="sm" onClick={logout}>
                 Terminar sessão

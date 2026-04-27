@@ -1,6 +1,4 @@
-'use client';
-
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import LoginForm from './LoginForm';
 
 export default function LoginPage() {

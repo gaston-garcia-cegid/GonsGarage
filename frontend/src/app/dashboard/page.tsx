@@ -25,6 +25,7 @@ function repairStatusPt(status: string): string {
 export default function ClientDashboardPage() {
   const [recentRepairs, setRecentRepairs] = useState<Repair[]>([]);
   const [repairsLoading, setRepairsLoading] = useState(false);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   const { user, logout } = useAuth();
   const authHydrated = useAuthHydrationReady();
@@ -41,10 +42,15 @@ export default function ClientDashboardPage() {
     const raw = appointment.date;
     if (!raw) return false;
     const t = new Date(raw).getTime();
-    return !Number.isNaN(t) && t > Date.now();
+    return !Number.isNaN(t) && t > nowMs;
   });
 
   const isClientRole = user?.role === UserRole.CLIENT;
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
 
   useEffect(() => {
     if (!authHydrated) return;

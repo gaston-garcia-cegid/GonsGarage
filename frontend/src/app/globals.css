@@ -1,10 +1,9 @@
 @import '../styles/tokens.css';
 @import '../styles/shadcn-theme.css';
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+@import "tw-animate-css";
 @import '../styles/utilities.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 /* Reset and base (complementa Tailwind preflight) */
 *,

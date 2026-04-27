@@ -1,7 +1,7 @@
 /**
  * HSL triples (no `hsl()` wrapper) for shadcn/ui + Tailwind (`hsl(var(--primary))`).
  * Valores alineados aprox. a `tokens.css`; tabla en `docs/ui-shadcn-theme.md`.
- * Sin `@layer base` aquí: el import va antes de `@tailwind base` en `globals.css`.
+ * Sin `@layer base` aquí: el import va antes de `@import "tailwindcss"` en `globals.css`.
  */
 :root {
     --background: 210 20% 97%;

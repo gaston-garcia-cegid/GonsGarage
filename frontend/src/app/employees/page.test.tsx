@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import EmployeesPage from './page';
+import { UserRole } from '@/types';
 
 const mockLogout = vi.fn();
 const mockGetEmployees = vi.fn();
@@ -11,17 +12,16 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
-vi.mock('@/contexts/AuthContext', () => ({
+vi.mock('@/stores', () => ({
   useAuth: () => ({
     user: {
       id: 'emp-admin',
       email: 'admin@test.com',
-      first_name: 'Pat',
-      last_name: 'Lee',
-      role: 'admin',
-      is_active: true,
-      created_at: '',
-      updated_at: '',
+      firstName: 'Pat',
+      lastName: 'Lee',
+      role: UserRole.ADMIN,
+      createdAt: '',
+      updatedAt: '',
     },
     logout: mockLogout,
   }),

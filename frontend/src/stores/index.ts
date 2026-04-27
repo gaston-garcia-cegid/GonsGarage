@@ -1,4 +1,8 @@
-// Stores index - Central exports following Agent.md
+/**
+ * Stores index — central exports following Agent.md.
+ * Client-only: import from `"use client"` modules, hooks, or event handlers only
+ * (Zustand + `persist`); do not import from Server Components.
+ */
 
 // ✅ Authentication store
 export {

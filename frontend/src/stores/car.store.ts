@@ -1,3 +1,6 @@
+/**
+ * Client-only: car domain state (Zustand + Immer). Do not import from RSC / server files.
+ */
 // ✅ Car Store - Zustand + Immer + TypeScript following Agent.md patterns
 // Provides centralized car state management with CRUD operations
 

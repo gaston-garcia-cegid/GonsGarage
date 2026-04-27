@@ -1,4 +1,5 @@
 import { getPublicApiOrigin } from './api-public-origin';
+import { apiClient as primaryHttpClient } from './api-client';
 
 interface ApiError {
   message: string;
@@ -197,21 +198,18 @@ class ApiClient {
   }
 
   setToken(token: string) {
+    primaryHttpClient.setToken(token);
     this.token = token;
     if (typeof window !== 'undefined') {
-      localStorage.setItem('auth_token', token);
       localStorage.setItem('token', token);
     }
   }
 
   clearToken() {
+    primaryHttpClient.clearToken();
     this.token = null;
-
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
-      localStorage.clear();
     }
   }
 

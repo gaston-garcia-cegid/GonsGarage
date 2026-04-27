@@ -28,7 +28,7 @@ export default function CarModal({
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const { errors, validateCar, clearFieldError } = useCarValidation();
+  const { errors, validateCar, clearFieldError, setGeneralError } = useCarValidation();
 
   // Handle form field changes - following Agent.md form handling
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -79,8 +79,7 @@ export default function CarModal({
       if (success) {
         onClose();
       } else {
-        errors.general = 'Não foi possível guardar o automóvel. Tente novamente.';
-        //alert('Failed to save car. Please try again.');
+        setGeneralError('Não foi possível guardar o automóvel. Tente novamente.');
       }
     } catch (err) {
       console.log(err);
