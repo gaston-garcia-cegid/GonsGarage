@@ -58,19 +58,33 @@ export default function ClientDashboardPage() {
       router.replace('/auth/login');
       return;
     }
-    fetchCars();
-    fetchAppointments();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      fetchCars();
+      fetchAppointments();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [authHydrated, user, router, fetchCars, fetchAppointments]);
 
   useEffect(() => {
     if (!authHydrated || !user) return;
     if (cars.length === 0) {
-      setRecentRepairs([]);
-      return;
+      let cancelledEmpty = false;
+      queueMicrotask(() => {
+        if (!cancelledEmpty) setRecentRepairs([]);
+      });
+      return () => {
+        cancelledEmpty = true;
+      };
     }
     let cancelled = false;
-    setRepairsLoading(true);
     void (async () => {
+      await Promise.resolve();
+      if (cancelled) return;
+      setRepairsLoading(true);
       try {
         const batches = await Promise.all(
           cars.map(async (car) => {

@@ -16,13 +16,17 @@ export function useClientData() {
   const error = carsError || appointmentsError;
 
   useEffect(() => {
-    // Fetch data from stores
-    fetchCars();
-    fetchAppointments();
-    
-    // TODO: Load repairs data when repair store is available
-    // For now keeping repairs empty
-    setRepairs([]);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      fetchCars();
+      fetchAppointments();
+      // TODO: Load repairs data when repair store is available
+      setRepairs([]);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [fetchCars, fetchAppointments]);
 
   return { cars, repairs, appointments, loading, error };

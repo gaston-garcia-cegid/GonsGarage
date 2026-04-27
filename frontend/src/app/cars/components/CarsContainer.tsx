@@ -107,7 +107,7 @@ export default function CarsContainer({
     } finally {
       setIsCreating(false);
     }
-  }, [createCar, fetchCars, maxCars, onAddCar, onUpdateCar]);
+  }, [cars.length, createCar, fetchCars, maxCars, onAddCar, onUpdateCar]);
 
   // ✅ Update car handler
   const handleUpdateCar = useCallback(async (id: string, carData: Partial<CreateCarRequest>): Promise<boolean> => {
@@ -203,8 +203,15 @@ export default function CarsContainer({
       router.replace('/cars', { scroll: false });
       return;
     }
-    setShowCreateModal(true);
-    router.replace('/cars', { scroll: false });
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setShowCreateModal(true);
+      router.replace('/cars', { scroll: false });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [isLoading, searchParams, router, maxCars, cars.length]);
 
   // ✅ Loading state

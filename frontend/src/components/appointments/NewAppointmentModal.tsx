@@ -64,30 +64,50 @@ export default function NewAppointmentModal({
   // effect runs again → an infinite loop. Cars are already loaded on /appointments.
   useEffect(() => {
     if (!isOpen) return;
-    setFormData(emptyForm());
-    setAppointmentDay('');
-    setAppointmentSlot('');
-    setCustomServiceType('');
-    setErrors({});
-    useAppointmentStore.getState().clearError();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setFormData(emptyForm());
+      setAppointmentDay('');
+      setAppointmentSlot('');
+      setCustomServiceType('');
+      setErrors({});
+      useAppointmentStore.getState().clearError();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen]);
 
   useEffect(() => {
     if (!appointmentSlot) return;
-    if (!bookableSlots.includes(appointmentSlot)) {
+    if (bookableSlots.includes(appointmentSlot)) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
       setAppointmentSlot('');
-    }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [appointmentDay, bookableSlots, appointmentSlot]);
 
   useEffect(() => {
     if (!isOpen) return;
-    if (initialCarId && cars.some((c) => c.id === initialCarId)) {
-      setFormData((prev) => ({ ...prev, carId: initialCarId }));
-      return;
-    }
-    if (cars.length === 1) {
-      setFormData((prev) => ({ ...prev, carId: cars[0].id }));
-    }
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      if (initialCarId && cars.some((c) => c.id === initialCarId)) {
+        setFormData((prev) => ({ ...prev, carId: initialCarId }));
+        return;
+      }
+      if (cars.length === 1) {
+        setFormData((prev) => ({ ...prev, carId: cars[0].id }));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen, initialCarId, cars]);
 
   const validateForm = (): boolean => {

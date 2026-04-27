@@ -27,9 +27,15 @@ export default function LoginForm() {
 
   useEffect(() => {
     const message = searchParams.get('message');
-    if (message) {
+    if (!message) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
       setSuccessMessage(message);
-    }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [searchParams]);
 
   const validateForm = () => {

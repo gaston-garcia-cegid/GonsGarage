@@ -47,12 +47,19 @@ export default function ProvisionUserModal({
 
   useEffect(() => {
     if (!open) return;
-    setEmail('');
-    setPassword('');
-    setFirstName('');
-    setLastName('');
-    setRole(defaultRole);
-    setError(null);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setEmail('');
+      setPassword('');
+      setFirstName('');
+      setLastName('');
+      setRole(defaultRole);
+      setError(null);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [open, defaultRole]);
 
   async function onSubmit(e: React.FormEvent) {

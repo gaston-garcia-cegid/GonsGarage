@@ -9,8 +9,15 @@ export default function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    setPref(getStoredPreference());
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setMounted(true);
+      setPref(getStoredPreference());
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const syncFromStorage = useCallback(() => {

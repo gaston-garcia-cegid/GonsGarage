@@ -69,13 +69,20 @@ export default function WorkshopDetailPage() {
 
   useEffect(() => {
     if (!authHydrated || !user) return;
-    if (!jobId) {
-      setDetail(null);
-      setErr('Identificador de visita em falta.');
-      setLoadState('error');
-      return;
-    }
-    void load();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      if (!jobId) {
+        setDetail(null);
+        setErr('Identificador de visita em falta.');
+        setLoadState('error');
+        return;
+      }
+      void load();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [authHydrated, user, jobId, load]);
 
   const onSaveReception = async () => {

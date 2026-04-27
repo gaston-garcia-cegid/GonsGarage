@@ -52,7 +52,13 @@ export default function EmployeesPage() {
       router.push('/auth/login');
       return;
     }
-    void fetchEmployees();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) void fetchEmployees();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [user, router, fetchEmployees]);
 
   const handleDelete = async (id: string) => {

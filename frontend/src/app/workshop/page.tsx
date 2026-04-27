@@ -72,16 +72,28 @@ export default function WorkshopListPage() {
   }, [user]);
 
   useEffect(() => {
-    if (authHydrated && user) {
+    if (!authHydrated || !user) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
       void loadCars();
       void loadTodayUTC();
-    }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [authHydrated, user, loadCars, loadTodayUTC]);
 
   useEffect(() => {
-    if (cars.length > 0 && !carId) {
+    if (cars.length === 0 || carId) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
       setCarId(cars[0].id);
-    }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [cars, carId]);
 
   const loadJobs = useCallback(async () => {
@@ -102,9 +114,14 @@ export default function WorkshopListPage() {
   }, [carId]);
 
   useEffect(() => {
-    if (authHydrated && carId) {
-      void loadJobs();
-    }
+    if (!authHydrated || !carId) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) void loadJobs();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [authHydrated, carId, loadJobs]);
 
   const selectedCar = useMemo(() => cars.find(c => c.id === carId), [cars, carId]);

@@ -57,9 +57,15 @@ export default function AppointmentModal({
 
   useEffect(() => {
     if (!formData.time) return;
-    if (!bookableSlots.includes(formData.time)) {
+    if (bookableSlots.includes(formData.time)) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
       setFormData((prev) => ({ ...prev, time: '' }));
-    }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [formData.date, bookableSlots, formData.time]);
 
   const selectedCar = cars.find(c => c.id === formData.carId);

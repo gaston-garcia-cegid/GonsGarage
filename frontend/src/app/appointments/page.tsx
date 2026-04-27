@@ -65,9 +65,19 @@ function AppointmentsPageContent() {
     }
     if (scheduleQueryHandledRef.current) return;
     scheduleQueryHandledRef.current = true;
-    setScheduleOpen(true);
-    if (carIdFromQuery) setScheduleCarId(carIdFromQuery);
-    router.replace('/appointments', { scroll: false });
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) {
+        scheduleQueryHandledRef.current = false;
+        return;
+      }
+      setScheduleOpen(true);
+      if (carIdFromQuery) setScheduleCarId(carIdFromQuery);
+      router.replace('/appointments', { scroll: false });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [scheduleFlag, carIdFromQuery, router]);
 
   useEffect(() => {

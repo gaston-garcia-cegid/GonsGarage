@@ -26,11 +26,18 @@ export default function MyInvoicesListClient({ initialItems }: MyInvoicesListCli
   }, []);
 
   useEffect(() => {
-    if (initialItems.length > 0) {
-      setItems(initialItems);
-      return;
-    }
-    void load();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      if (initialItems.length > 0) {
+        setItems(initialItems);
+        return;
+      }
+      void load();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [initialItems, load]);
 
   if (!user) return null;

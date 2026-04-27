@@ -45,12 +45,19 @@ export default function MyInvoiceDetailClient({ invoiceId, initialRow }: MyInvoi
   }, [invoiceId]);
 
   useEffect(() => {
-    if (initialRow) {
-      setRow(initialRow);
-      setNotes(initialRow.notes ?? '');
-      return;
-    }
-    void load();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      if (initialRow) {
+        setRow(initialRow);
+        setNotes(initialRow.notes ?? '');
+        return;
+      }
+      void load();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [initialRow, load]);
 
   if (!user) return null;

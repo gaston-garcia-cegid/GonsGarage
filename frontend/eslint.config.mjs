@@ -5,10 +5,10 @@ const eslintConfig = [
   ...nextCoreWebVitals,
   {
     rules: {
-      // React 19 / Hooks v7: migrate incrementally (openspec change nextjs-16-react19-migration).
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/immutability": "warn",
-      "react-hooks/purity": "warn",
+      // React 19 / Hooks v7 — barra endurecida tras `frontend-eslint-warnings-cleanup` (openspec).
+      "react-hooks/set-state-in-effect": "error",
+      "react-hooks/immutability": "error",
+      "react-hooks/purity": "error",
     },
   },
   {

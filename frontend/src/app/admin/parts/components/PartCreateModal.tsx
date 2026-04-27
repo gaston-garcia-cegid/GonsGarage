@@ -44,15 +44,22 @@ export function PartCreateModal({ open, onOpenChange, onSuccess }: Readonly<Part
 
   useEffect(() => {
     if (!open) return;
-    setReference('');
-    setBrand('');
-    setName('');
-    setBarcode('');
-    setQuantity('0');
-    setUom('unit');
-    setMinimumQuantity('');
-    setFormError(null);
-    setSaving(false);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setReference('');
+      setBrand('');
+      setName('');
+      setBarcode('');
+      setQuantity('0');
+      setUom('unit');
+      setMinimumQuantity('');
+      setFormError(null);
+      setSaving(false);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [open]);
 
   async function onSubmit(e: React.FormEvent) {

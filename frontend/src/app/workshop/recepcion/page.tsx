@@ -43,13 +43,26 @@ function WorkshopRecepcionInner() {
   }, [user]);
 
   useEffect(() => {
-    if (authHydrated && user) void loadCars();
+    if (!authHydrated || !user) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) void loadCars();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [authHydrated, user, loadCars]);
 
   useEffect(() => {
-    if (cars.length > 0 && !carId) {
+    if (cars.length === 0 || carId) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
       setCarId(cars[0].id);
-    }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [cars, carId]);
 
   const loadJobs = useCallback(async () => {
@@ -68,9 +81,14 @@ function WorkshopRecepcionInner() {
   }, [carId]);
 
   useEffect(() => {
-    if (authHydrated && carId && !jobId) {
-      void loadJobs();
-    }
+    if (!authHydrated || !carId || jobId) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) void loadJobs();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [authHydrated, carId, jobId, loadJobs]);
 
   const loadDetail = useCallback(async () => {
@@ -89,9 +107,14 @@ function WorkshopRecepcionInner() {
   }, [jobId]);
 
   useEffect(() => {
-    if (authHydrated && user && jobId) {
-      void loadDetail();
-    }
+    if (!authHydrated || !user || !jobId) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) void loadDetail();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [authHydrated, user, jobId, loadDetail]);
 
   const onSaveReception = async () => {

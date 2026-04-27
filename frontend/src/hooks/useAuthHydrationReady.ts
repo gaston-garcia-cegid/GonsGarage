@@ -15,8 +15,13 @@ export function useAuthHydrationReady(): boolean {
 
   useEffect(() => {
     if (useAuthStore.persist.hasHydrated()) {
-      setReady(true);
-      return;
+      let cancelled = false;
+      queueMicrotask(() => {
+        if (!cancelled) setReady(true);
+      });
+      return () => {
+        cancelled = true;
+      };
     }
     return useAuthStore.persist.onFinishHydration(() => {
       setReady(true);

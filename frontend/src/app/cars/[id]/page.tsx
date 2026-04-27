@@ -70,8 +70,15 @@ export default function CarDetailsPage() {
       return;
     }
     if (!carId || carId === 'new') return;
-    fetchCarById(carId);
-    fetchCarRepairs();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      fetchCarById(carId);
+      fetchCarRepairs();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [authHydrated, user, router, carId, fetchCarById, fetchCarRepairs]);
 
   const formatDate = (dateString: string) => {
