@@ -2,7 +2,7 @@
 
 ## Intent
 
-El **MVP checklist** (`docs/mvp-solo-checklist.md`) tiene fases **1–5** y endurecimiento **hechos**; **Fase 6** solo **parcial** (repairs staff + doc deploy manual; CI→servidor sigue opcional). **`mvp-minimum-phases.md`** aún marca Fase C opcional staff sin tachar pese a 6.1 cerrada — **deuda de documentación**. El **roadmap** deja abiertas Fase 0 (matriz→issues), Fase 4 (changelog, plantillas, observabilidad) y Fase 5 (secretos/CORS/imagen). **`mvp-next-steps.md`** ya ordena P0→deploy→P1→P2; falta **ejecutar** filas (issue GitHub, seeds smoke, etc.). Este change **prioriza y acota** el siguiente tramo sin nuevo alcance de producto.
+El **MVP checklist** (`docs/mvp-solo-checklist.md`) tiene fases **1–6** **hechas** (CI→servidor explícitamente opcional). **`mvp-minimum-phases.md`** y **`application-analysis.md`** se alinearon en 2026-06-01 (Fase C staff repairs, post-MVP entregado, rutas actuales). El **roadmap** deja abiertas Fase 0 (matriz→issues), Fase 4 (changelog, plantillas, observabilidad) y Fase 5 (secretos/CORS/imagen). **`mvp-next-steps.md`** ya ordena P0→deploy→P1→P2; falta **ejecutar** filas (issue GitHub, seeds smoke, etc.). Este change **prioriza y acota** el siguiente tramo sin nuevo alcance de producto.
 
 ## Scope
 

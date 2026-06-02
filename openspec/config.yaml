@@ -1,4 +1,4 @@
-# GonsGarage — SDD (Spec-Driven). Refrescado por sdd-init (2026-04-27).
+# GonsGarage — SDD (Spec-Driven). Refrescado por sdd-init (2026-06-01).
 schema: spec-driven
 
 context: |
@@ -11,7 +11,7 @@ strict_tdd: true
 
 testing:
   strict_tdd: true
-  detected: "2026-04-27"
+  detected: "2026-06-01"
   test_runner:
     frontend: { framework: vitest, command: "cd frontend && pnpm test", alt: "jest via pnpm test:jest" }
     backend: { framework: go test, command: "cd backend && go test ./... -count=1" }

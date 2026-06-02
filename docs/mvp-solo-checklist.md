@@ -108,7 +108,7 @@
 | ID | Tarea | Criterio de hecho |
 |----|--------|-------------------|
 | 6.1 | API + UI staff para **crear/editar** repairs | **Hecho** (2026-04-19) — Gin `POST|GET|PUT|DELETE /api/v1/repairs…` + panel staff en [`frontend/src/app/cars/[id]/page.tsx`](../frontend/src/app/cars/[id]/page.tsx). |
-| 6.2 | Automatizar **deploy** (GitHub Actions → tu servidor) | **Hecho** (doc, 2026-04-19) — política **solo manual** en [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml); despliegue real vía `deploy/README.md`. |
+| 6.2 | Automatizar **deploy** (GitHub Actions → tu servidor) | **Hecho** (doc, 2026-04-19) — política **solo manual** en [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml); despliegue real vía `deploy/README.md`. **CI→servidor automático:** opcional / **no priorizado** (no bloquea cerrar MVP). |
 
 ---
 
@@ -121,4 +121,4 @@
 | 3 Demo local | **hecha** (3.1–3.3, 2026-04-18) |
 | 4 Servidor pruebas | **Hecha** (4.1–4.6; smoke LAN 2026-04-17 en `192.168.1.100:8102`) |
 | 5 Endurecimiento | **Hecha** (5.1–5.3 documentadas en `deploy/README.md`, 2026-04-17) |
-| 6 MVP+ | **Parcial** (6.1 staff repairs + 6.2 política deploy doc; automatizar CI→servidor sigue opcional) |
+| 6 MVP+ | **Hecha** (6.1 staff repairs + 6.2 política deploy doc; CI→servidor explícitamente opcional / no priorizado) |

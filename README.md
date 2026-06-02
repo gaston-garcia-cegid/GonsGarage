@@ -4,7 +4,7 @@ Auto repair shop management system: **Go** API (Gin, GORM, PostgreSQL, Redis) an
 
 [![CI](https://img.shields.io/badge/CI-GitHub_Actions-blue)](.github/workflows/ci.yml)
 [![Go](https://img.shields.io/badge/Go-1.25-blue)](backend/go.mod)
-[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](frontend/package.json)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2-black)](frontend/package.json)
 [![React](https://img.shields.io/badge/React-19-61dafb)](frontend/package.json)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -31,7 +31,7 @@ Versions below are taken from the repo manifests as of the last README refresh. 
 | HTTP | Gin, JWT, GORM, sqlx, Redis client | `backend/go.mod` |
 | Database (local) | **PostgreSQL 16** (`postgres:16-alpine`) | [`docker-compose.yml`](docker-compose.yml) |
 | Cache (local) | **Redis 7** (`redis:7-alpine`) | [`docker-compose.yml`](docker-compose.yml) |
-| Frontend | **Next.js 15.5.5**, **React 19.1.0**, TypeScript **^5** | [`frontend/package.json`](frontend/package.json) |
+| Frontend | **Next.js 16.2.4**, **React 19.1.0**, TypeScript **^5**, Tailwind **4** | [`frontend/package.json`](frontend/package.json) |
 | Package manager | **pnpm 9.15.4** (`packageManager` field) | [`frontend/package.json`](frontend/package.json) |
 | Unit / component tests (default) | **Vitest** + Testing Library | `frontend/package.json` → `pnpm test` |
 | Lint / types | ESLint 9, `eslint-config-next` aligned with Next | `frontend/package.json` |
@@ -128,19 +128,24 @@ The default **`pnpm test`** script runs **Vitest**. Jest remains available for l
 
 ## Demo users
 
-| Role | Email | Password | Notes |
-|------|-------|----------|--------|
-| Admin | `admin@gonsgarage.com` | `admin123` | Shown on login UI for local demos; create the user via **Register** if it does not exist (this repo does not auto-seed admin in the API). |
-| Client | `cliente.demo@gonsgarage.local` | `ClienteDemo123` | Created by **`go run ./cmd/seed-test-client`** when missing; safe to re-run (checks email first, exit 0, no duplicate). |
-
-**Demo client (optional seed)** from `backend/` with PostgreSQL up and schema migrated (e.g. after the API has run once):
+**Solo desarrollo** — con PostgreSQL en marcha y tablas migradas (arrancá la API al menos una vez). Los seeds son **idempotentes** (segunda ejecución sin duplicar).
 
 ```bash
 cd backend
-go run ./cmd/seed-test-client
+go run ./cmd/seed-mvp-users      # admin, manager, employee
+go run ./cmd/seed-test-client    # cliente demo
 ```
 
-Default client: `cliente.demo@gonsgarage.local` / `ClienteDemo123`. Override with `SEED_CLIENT_EMAIL` and `SEED_CLIENT_PASSWORD`. If that email is **already** in `users`, the command does nothing and exits successfully.
+| Role | Email (default) | Password (default) | Seed command |
+|------|-----------------|-------------------|--------------|
+| Admin | `admin.demo@gonsgarage.local` | `AdminDemo123` | `seed-mvp-users` |
+| Manager | `manager.demo@gonsgarage.local` | `ManagerDemo123` | `seed-mvp-users` |
+| Employee | `employee.demo@gonsgarage.local` | `EmployeeDemo123` | `seed-mvp-users` |
+| Client | `cliente.demo@gonsgarage.local` | `ClienteDemo123` | `seed-test-client` |
+
+Override emails/passwords with `SEED_ADMIN_*`, `SEED_MANAGER_*`, `SEED_EMPLOYEE_*`, `SEED_CLIENT_*`, and `DATABASE_URL` (see comments in each `cmd/seed-*/main.go`).
+
+The login UI may still show `admin@gonsgarage.com` / `admin123` as a hint — use the seeded admin above or **Register** if you prefer that account.
 
 ## Project layout
 

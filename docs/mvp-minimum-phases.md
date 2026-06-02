@@ -33,21 +33,35 @@ Objetivo del MVP: **un taller puede registrar usuarios, clientes con coches, ped
 
 **Criterio de salida:** demo en local: cliente crea coche y cita; empleado/admin lista y actualiza estados básicos.
 
-## Fase C — Reparaciones (diferenciador de taller)
+## Fase C — Reparaciones (cerrada)
 
-- [x] **API:** `GET /api/v1/repairs/car/:carId` activo en `cmd/api` (lista por coche; permisos en servicio).
-- [x] **UI cliente:** detalle de coche carga historial; **dashboard** agrega reparaciones recientes de la flota del usuario (solo lectura).
-- [ ] **Opcional MVP+:** `POST`/`PATCH`/`DELETE` de repairs en Gin + UI mínima para staff; o documentar aplazamiento con issue.
+- [x] **API:** `GET /api/v1/repairs/car/:carId` (lista por coche; permisos en servicio).
+- [x] **UI cliente:** detalle de coche y dashboard con historial (lectura).
+- [x] **Staff CRUD repairs (MVP+):** `POST|GET|PUT|DELETE /api/v1/repairs…` + panel en `/cars/[id]` — checklist [mvp-solo-checklist.md](./mvp-solo-checklist.md) ítem **6.1** (2026-04-19).
 
-**Criterio de salida:** historia de reparación visible para el cliente (**cumplido** en lectura); ampliaciones staff = criterio opcional arriba.
+**Criterio de salida:** cumplido (lectura cliente + escritura staff).
 
-## Fase D — MVP en producción (mínimo viable “de verdad”)
+## Fase D — MVP en producción (parcialmente cerrada en LAN)
 
-- **Secrets** fuera del repo; `JWT_SECRET` y DB en variables del entorno.
-- Imagen Docker o plataforma elegida (un solo `docker compose` de prod o PaaS).
-- **Deploy workflow** sustituyendo el placeholder `.github/workflows/deploy.yml` (migraciones, healthcheck, rollback básico).
+- [x] **Secrets** documentados fuera del repo (`.env.prod.example`, `deploy/README.md`; checklist fases 4–5).
+- [x] **Stack Docker prod/LAN** (`docker-compose.prod.yml`, nginx :8102, smoke documentado).
+- [x] **Deploy workflow** — [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) con política **solo manual**; runbook en `deploy/README.md` (no CD automático al servidor).
+- [ ] **HTTPS** en entorno expuesto (doc LAN vs TLS en `deploy/README.md`; opcional si solo red interna).
+- [ ] **Automatizar CI → servidor** (opcional; ver checklist Fase **6.2** — explícitamente no priorizado).
 
-**Criterio de salida:** URL pública o entorno staging con HTTPS y backup de BD documentado.
+**Criterio de salida mínimo:** entorno de pruebas accesible con backup y rollback documentados (**cumplido** en LAN según checklist). HTTPS/CD automático = mejora posterior.
+
+## Post-MVP entregado (referencia, no bloquea Fase D)
+
+Funcionalidad ya en `main` además del MVP v1 original; detalle en [application-analysis.md](./application-analysis.md) y specs `openspec/specs/`:
+
+- [x] Contabilidad P1 — API + UI `/accounting/*`, cliente `/my-invoices` (change archivado `2026-04-20-p1-invoices-billing-suppliers`).
+- [x] Taller — *service jobs* (`/workshop/*`, API `/service-jobs`).
+- [x] Inventario repuestos (`/admin/parts/*`, API `/parts`).
+- [x] Aprovisionamiento usuarios staff (`/admin/users`, `POST /admin/users`).
+- [x] Frontend Next.js 16 / React 19 / Tailwind v4 (change archivado `2026-04-27-nextjs-16-react19-migration`).
+
+**Siguientes pasos operativos:** [mvp-next-steps.md](./mvp-next-steps.md) (P0/P1/P2).
 
 ## Orden recomendado
 

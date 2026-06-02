@@ -2,112 +2,126 @@
 
 **Delegator use only.** Any agent that launches sub-agents reads this registry to resolve compact rules, then injects them directly into sub-agent prompts. Sub-agents do NOT read this registry or individual SKILL.md files.
 
-See `_shared/skill-resolver.md` (Gentleman skills) for the full resolution protocol.
+See `_shared/skill-resolver.md` for the full resolution protocol.
 
 ## User Skills
 
 | Trigger | Skill | Path |
 |---------|-------|------|
-| When creating a pull request, opening a PR, or preparing changes for review. | branch-pr | `C:\Users\gaston.garcia\.claude\skills\branch-pr\SKILL.md` |
-| When creating a GitHub issue, reporting a bug, or requesting a feature. | issue-creation | `C:\Users\gaston.garcia\.claude\skills\issue-creation\SKILL.md` |
-| When writing Go tests, using teatest, or adding test coverage. | go-testing | `C:\Users\gaston.garcia\.claude\skills\go-testing\SKILL.md` |
-| judgment day, judgment-day, review adversarial, dual review, doble review, juzgar, que lo juzguen | judgment-day | `C:\Users\gaston.garcia\.claude\skills\judgment-day\SKILL.md` |
-| When the user asks to create a new skill, add agent instructions, or document patterns for AI. | skill-creator | `C:\Users\gaston.garcia\.claude\skills\skill-creator\SKILL.md` |
-| Keep a PR merge-ready by triaging comments, resolving clear conflicts, and fixing CI in a loop. | babysit | `C:\Users\gaston.garcia\.cursor\skills-cursor\babysit\SKILL.md` |
-| Standalone analytical artifacts, data-heavy deliverables, MCP tool results as UI; create/edit `.canvas.tsx`. | canvas | `C:\Users\gaston.garcia\.cursor\skills-cursor\canvas\SKILL.md` |
-| Create a rule, add coding standards, `.cursor/rules/`, AGENTS.md. | create-rule | `C:\Users\gaston.garcia\.cursor\skills-cursor\create-rule\SKILL.md` |
-| Create, write, or author a new skill; SKILL.md format. | create-skill | `C:\Users\gaston.garcia\.cursor\skills-cursor\create-skill\SKILL.md` |
-| Split a chat, set of changes, branch, or PR into small PRs. | split-to-prs | `C:\Users\gaston.garcia\.cursor\skills-cursor\split-to-prs\SKILL.md` |
-| Change editor settings, settings.json, themes, format on save. | update-cursor-settings | `C:\Users\gaston.garcia\.cursor\skills-cursor\update-cursor-settings\SKILL.md` |
-| Create hooks, hooks.json, automate around agent events. | create-hook | `C:\Users\gaston.garcia\.cursor\skills-cursor\create-hook\SKILL.md` |
-| status line, statusline, CLI status bar, prompt footer. | statusline | `C:\Users\gaston.garcia\.cursor\skills-cursor\statusline\SKILL.md` |
-| User explicitly invokes `/shell` and wants literal command execution. | shell | `C:\Users\gaston.garcia\.cursor\skills-cursor\shell\SKILL.md` |
-| Migrate `.mdc` rules / slash commands to `.cursor/skills/`. | migrate-to-skills | `C:\Users\gaston.garcia\.cursor\skills-cursor\migrate-to-skills\SKILL.md` |
-| Create custom subagents, `.cursor/agents/`. | create-subagent | `C:\Users\gaston.garcia\.cursor\skills-cursor\create-subagent\SKILL.md` |
-| Change CLI settings, `cli-config.json`, permissions, sandbox. | update-cli-config | `C:\Users\gaston.garcia\.cursor\skills-cursor\update-cli-config\SKILL.md` |
+| When writing Go tests, using teatest, or adding test coverage | go-testing | C:\Users\gaston.garcia\.claude\skills\go-testing\SKILL.md |
+| When creating a pull request, opening a PR, or preparing changes for review | branch-pr | C:\Users\gaston.garcia\.claude\skills\branch-pr\SKILL.md |
+| When creating a GitHub issue, reporting a bug, or requesting a feature | issue-creation | C:\Users\gaston.garcia\.claude\skills\issue-creation\SKILL.md |
+| judgment day, judgment-day, review adversarial, dual review, doble review, juzgar, que lo juzguen | judgment-day | C:\Users\gaston.garcia\.claude\skills\judgment-day\SKILL.md |
+| When user asks to create a new skill, add agent instructions, or document patterns for AI | skill-creator | C:\Users\gaston.garcia\.claude\skills\skill-creator\SKILL.md |
+| User explicitly wants Cursor Automations | automate | C:\Users\gaston.garcia\.cursor\skills-cursor\automate\SKILL.md |
+| Keep a PR merge-ready (comments, conflicts, CI) | babysit | C:\Users\gaston.garcia\.cursor\skills-cursor\babysit\SKILL.md |
+| Standalone analytical artifact, data-heavy output, MCP tool results | canvas | C:\Users\gaston.garcia\.cursor\skills-cursor\canvas\SKILL.md |
+| Create Cursor rules, .cursor/rules/, AGENTS.md | create-rule | C:\Users\gaston.garcia\.cursor\skills-cursor\create-rule\SKILL.md |
+| Authoring new skill or SKILL.md structure | create-skill | C:\Users\gaston.garcia\.cursor\skills-cursor\create-skill\SKILL.md |
+| Split work into small reviewable PRs | split-to-prs | C:\Users\gaston.garcia\.cursor\skills-cursor\split-to-prs\SKILL.md |
+| Cursor SDK (@cursor/sdk, cursor-sdk, Agent.create, run.stream) | sdk | C:\Users\gaston.garcia\.cursor\skills-cursor\sdk\SKILL.md |
+| User invokes /shell | shell | C:\Users\gaston.garcia\.cursor\skills-cursor\shell\SKILL.md |
+| /loop recurring prompt | loop | C:\Users\gaston.garcia\.cursor\skills-cursor\loop\SKILL.md |
+| Custom CLI status line | statusline | C:\Users\gaston.garcia\.cursor\skills-cursor\statusline\SKILL.md |
+| Cursor hooks (hooks.json) | create-hook | C:\Users\gaston.garcia\.cursor\skills-cursor\create-hook\SKILL.md |
+| settings.json, editor preferences | update-cursor-settings | C:\Users\gaston.garcia\.cursor\skills-cursor\update-cursor-settings\SKILL.md |
 
 ## Compact Rules
 
 Pre-digested rules per skill. Delegators copy matching blocks into sub-agent prompts as `## Project Standards (auto-resolved)`.
 
+### go-testing
+- Prefer table-driven tests with `t.Run(tt.name, ...)` for multiple cases
+- Use `testify` (`assert`/`require`) already in go.mod — match existing test style in `backend/internal/**/**_test.go`
+- Handler tests: `net/http/httptest` + Gin test context; see `backend/internal/handler/*_test.go`
+- Integration flows: `backend/tests/integration/` with real HTTP against test server + sqlite/postgres as peers do
+- Repo tests: glebarez/sqlite driver for local DB; follow `*_repository_test.go` patterns
+- Run: `cd backend && go test ./... -count=1`; CI uses `-race -timeout=2m`
+- Never skip error-path cases when adding domain validation tests
+
 ### branch-pr
-- Every PR MUST link an approved issue (`Closes`/`Fixes`/`Resolves #N`).
-- Every PR MUST have exactly one `type:*` label.
-- Branch names MUST match `^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)\/[a-z0-9._-]+$`.
-- Use `.github/PULL_REQUEST_TEMPLATE.md`; automated checks must pass before merge.
+- Every PR MUST link an approved issue with `status:approved` (Agent Teams Lite repos)
+- Exactly one `type:*` label on PR
+- Branch naming: `^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)/[a-z0-9._-]+$`
+- Use `gh pr create` with template; wait for CI green before merge
+- GonsGarage CI: backend go vet/test + frontend lint/typecheck/test/build
 
 ### issue-creation
-- Use GitHub templates only (blank issues disabled).
-- New issues get `status:needs-review`; maintainer MUST add `status:approved` before any PR.
-- Search duplicates first; questions go to Discussions per template workflow.
-
-### go-testing
-- Prefer table-driven tests with `t.Run` subtests.
-- Skill targets Gentleman.Dots / Bubbletea patterns; for this repo use standard `testing` + `testify` as in `backend/`.
-- Use `httptest` for HTTP handler tests; integration tests live under `backend/tests/integration/`.
+- Use GitHub issue templates — blank issues disabled in ATL repos
+- New issues get `status:needs-review`; maintainer adds `status:approved` before PR
+- Search duplicates first; questions → Discussions not issues
 
 ### judgment-day
-- Before judges: resolve skills via registry or Engram `mem_search(skill-registry)`; inject `## Project Standards (auto-resolved)` into both judges and fix agent.
-- Launch two blind judges in parallel; synthesize Confirmed / Suspect / Contradiction; classify WARNING as real vs theoretical.
-- Re-judge after fixes until pass or two iterations; orchestrator coordinates only.
+- Load skill registry (engram or `.atl/skill-registry.md`) before launching judges
+- Launch TWO blind judge sub-agents in parallel — orchestrator coordinates only
+- Inject matching compact rules into both judges and fix agent
+- Re-judge after fixes; escalate after 2 iterations if both still fail
 
 ### skill-creator
-- Use Agent Skills layout: `skills/{name}/SKILL.md` (+ optional assets/references).
-- Frontmatter: `name`, `description` with Trigger line, version metadata.
-- Do not create a skill when docs or a one-off suffices.
+- Skills live in `skills/{name}/SKILL.md` with YAML frontmatter (`name`, `description` with Trigger)
+- Keep SKILL.md focused; use `references/` for long docs
+- Don't create skills for trivial one-off tasks or existing docs
+
+### automate
+- Only for explicit Cursor Automations requests — not generic CI/scripts
+- Plain language in user chat; no MCP/proto names
+- Finish via Automations editor handoff after user approves draft table
 
 ### babysit
-- Triage every PR comment (including Bugbot); fix only what you agree with, explain the rest.
-- Resolve conflicts only when intent is clear; otherwise stop for clarification.
-- Fix CI with small scoped fixes and re-check until green and mergeable.
+- Resolve merge conflicts preserving branch intent; ask if intents conflict
+- Triage unresolved PR comments; validate Bugbot before acting
+- Fix CI within PR scope only — never weaken workflows to pass
+- Merge latest base if failures seem unrelated
 
 ### canvas
-- Use for standalone analytical deliverables (audits, metrics, MCP-sourced tables); skip for normal code fixes or short answers.
-- One `.canvas.tsx` per canvas; import only from `cursor/canvas`; no `fetch`, no extra modules.
-- Read `canvas/sdk` typings before using uncommon components; prefer built-ins over hand-rolled UI.
+- Use for standalone analytical artifacts (tables, charts, timelines, MCP data dumps)
+- Single `.canvas.tsx` beside chat — not for code fixes or draft messages
+- Read canvas skill when editing `.canvas.tsx`
 
 ### create-rule
-- Rules are `.mdc` in `.cursor/rules/` with YAML frontmatter (`description`, optional `globs`, `alwaysApply`).
-- Clarify scope and file patterns before writing; use AskQuestion when ambiguous.
+- Rules in `.cursor/rules/*.mdc` with frontmatter (`description`, `alwaysApply` or globs)
+- One concern per rule; reference real bug examples when enforcing patterns
 
 ### create-skill
-- Gather purpose, location (user vs project), triggers, output format; respect user verbatim wording in SKILL.md.
-- Skills are directories with `SKILL.md`; follow Cursor Agent Skills conventions.
+- Personal: `~/.cursor/skills/`; project: `.cursor/skills/` or repo `skills/`
+- Frontmatter `description` must include Trigger line
+- Respect user verbatim wording when provided
 
 ### split-to-prs
-- Do not branch/commit/push/open PRs until the user approves the split plan.
-- No destructive git without explicit approval; no `git add .`; save recoverable snapshot before moving work.
-- Default independent PRs off default branch; stack only for real dependencies.
+- Never branch/commit/push until user approves split plan
+- Snapshot before moving work; stage named files only — no `git add .`
+- Split by reviewer/ownership boundaries; stack only when dependency is real
 
-### update-cursor-settings
-- Read `%APPDATA%\Cursor\User\settings.json` (Windows) first; preserve unrelated keys; validate JSON.
-
-### create-hook
-- Choose project (`.cursor/hooks.json`) vs user hooks; narrowest event; decide fail-open vs fail-closed.
-- Project hook paths are relative to repo root.
-
-### statusline
-- Configure via `~/.cursor/cli-config.json` `statusLine.command`; stdin JSON matches CLI `StatusLinePayload`.
-- Respect `updateIntervalMs` (>=300) and `timeoutMs` defaults.
+### sdk
+- TypeScript `@cursor/sdk` or Python `cursor-sdk` — read skill for current API, don't guess
+- Agent → Run model; local vs cloud runtime choice matters for cwd/repo
+- Handle streaming, cancellation, CursorAgentError explicitly
 
 ### shell
-- Only when user invokes `/shell`; treat following text as literal command; no rewrite before run.
+- Only when user invokes `/shell` — run following text literally, no rewriting
+- Report exit status and key stdout/stderr after run
 
-### migrate-to-skills
-- Copy rule/command body verbatim when converting `.mdc`/commands to skills.
-- Migrate rules that have `description` but no `globs` and not `alwaysApply: true`.
+### loop
+- Recurring prompt execution at user-specified interval
+- Read loop skill for /loop syntax and persistence
 
-### create-subagent
-- Project agents in `.cursor/agents/` override user `~/.cursor/agents/` by name.
-- Markdown + frontmatter body is the system prompt.
+### statusline
+- Customize Cursor CLI status line via skill instructions
+- Read skill for config file locations
 
-### update-cli-config
-- Home config `~/.cursor/cli-config.json`; merge project `.cursor/cli.json` along path; restart CLI to apply.
+### create-hook
+- Cursor hooks in hooks.json; read skill for event types and script layout
+
+### update-cursor-settings
+- Modify settings.json values only user requested
+- Preserve existing keys; validate JSON before write
 
 ## Project Conventions
 
 | File | Path | Notes |
 |------|------|-------|
-| nextjs-app-router-navigation | `d:\Repos\GonsGarage\.cursor\rules\nextjs-app-router-navigation.mdc` | `alwaysApply: true` — App Router `page.tsx` must exist for each `Link`/`router.push` target; prefer modals over invented edit routes. |
+| Next.js navigation rule | `.cursor/rules/nextjs-app-router-navigation.mdc` | Always apply — verify `page.tsx` exists before Link/router.push |
+| SDD config | `openspec/config.yaml` | strict_tdd, testing commands, SDD rules |
+| CI | `.github/workflows/ci.yml` | Backend + frontend gates |
 
 Read the convention files listed above for project-specific patterns and rules.

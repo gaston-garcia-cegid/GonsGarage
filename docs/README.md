@@ -2,9 +2,14 @@
 
 Índice de la documentación técnica del repositorio. El README principal del proyecto sigue siendo la puerta de entrada general; aquí se concentra el material para **desarrollo, arquitectura y planificación**.
 
+**Última revisión del índice:** 2026-06-01.
+
 | Documento | Contenido |
 |-----------|-----------|
-| [application-analysis.md](./application-analysis.md) | Análisis de la aplicación: stack, módulos, rutas API, frontend, infraestructura. |
+| [application-analysis.md](./application-analysis.md) | Análisis de la aplicación: stack, rutas API, frontend, taller, contabilidad, seeds, OpenSpec. |
+| [mvp-next-steps.md](./mvp-next-steps.md) | Prioridades post-MVP (P0/P1/P2), incidente deploy Arnela, estado con evidencia. |
+| [github-issue-p1-employees-admin.md](./github-issue-p1-employees-admin.md) | Plantilla para issue GitHub P1 (admin `/employees`). |
+| [../CHANGELOG.md](../CHANGELOG.md) | Changelog del proyecto (borrador). |
 | [development-guide.md](./development-guide.md) | Cómo levantar backend y frontend, variables de entorno, Docker y comprobaciones rápidas. |
 | [../deploy/README.md](../deploy/README.md) | Despliegue Docker/LAN (compose prod, nginx, scripts; Arnela: red externa + `docker-compose.prod.arnela-network.yml`). |
 | [arnela-specs.md](./arnela-specs.md) | Arnela en **`D:\Repos\Arnela`**, matriz vs GonsGarage y enlaces al resumen en `specs/arnela/`. |

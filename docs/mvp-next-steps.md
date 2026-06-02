@@ -1,6 +1,8 @@
 # Siguientes pasos (post‑MVP v1)
 
-Priorización después del cierre operativo del checklist MVP (fases 1–5) y de [`mvp-role-access`](../openspec/specs/mvp-role-access/spec.md). **Accounting** HTTP/UI sigue fuera: [`p1-accounting-defer`](../openspec/specs/p1-accounting-defer/spec.md).
+**Última revisión:** 2026-06-01.
+
+Priorización después del cierre operativo del checklist MVP (fases 1–6) y de [`mvp-role-access`](../openspec/specs/mvp-role-access/spec.md). La **contabilidad P1** (API + UI) ya está en `main`; el spec [`p1-accounting-defer`](../openspec/specs/p1-accounting-defer/spec.md) documenta el aplazamiento histórico del MVP v1 original frente a lo entregado después.
 
 ## Orden sugerido
 
@@ -15,15 +17,15 @@ Con **`.env.prod`** apuntando a **`arnela-postgres`** pero un `docker compose` *
 
 ## Tabla P0 / P1 / P2
 
-| P | Ítem | Criterio “hecho” observable |
-|---|------|----------------------------|
-| **P0** | Seeds en Postgres dev | `go run ./cmd/seed-mvp-users` dos veces seguidas: segunda ejecución sin error y sin duplicar usuarios (log “ya existe”). |
-| **P0** | CI backend con carrera de datos | Job Linux: `go test ./... -race` en verde (CGO disponible en runner). |
-| **P0** | Secretos en servidor real | Ningún DSN ni `JWT_SECRET` en repo; solo env en host (ya documentado en `deploy/README.md` — revisión periódica). |
-| **P1** | Cobertura middleware `admin` en `/employees` | Test `GET /api/v1/employees` con JWT `role=admin` → **200** (no 403 por `RequireStaffManagers`) — ver `backend/internal/handler/mvp_role_access_test.go`. |
-| **P1** | Issue en GitHub (tracker) | Issue abierto con título sugerido: **`test: GET /api/v1/employees accepts admin JWT`** (cuerpo: enlace a este doc + spec `mvp-role-access`). Marcar checkbox abajo cuando exista. |
-| **P2** | Matriz Arnela Fase 0 | De [`roadmap.md`](./roadmap.md): filas de `arnela-specs.md` convertidas en issues priorizados. |
-| **P2** | Changelog / versionado API | Documento o sección en `docs/` + regla en PR (roadmap Fase 4). |
+| P | Ítem | Estado | Criterio / evidencia |
+|---|------|--------|----------------------|
+| **P0** | Seeds en Postgres dev | **Hecho** 2026-06-02 | `seed-mvp-users` ×2: 1.ª creó 3 usuarios; 2.ª log `already exists … Skip`, exit 0. |
+| **P0** | CI backend con carrera de datos | **CI** (local requiere gcc) | `.github/workflows/ci.yml` → `go test ./... -race`. En Windows sin gcc: tests unitarios OK con `CGO_ENABLED=0`; integración (`//go:build cgo`) solo en Linux CI. |
+| **P0** | Secretos en servidor real | **Doc** | `.env.prod` en `.gitignore`; runbook [`deploy/README.md`](../deploy/README.md). Revisión periódica manual en el host. |
+| **P1** | Cobertura middleware `admin` en `/employees` | **Hecho** | `TestMVPAccess_EmployeesGET_AdminReachesHandler` — PASS (2026-06-02). |
+| **P1** | Issue en GitHub (tracker) | **Pendiente** | Plantilla: [`github-issue-p1-employees-admin.md`](./github-issue-p1-employees-admin.md). Crear en GitHub y marcar checkbox abajo. |
+| **P2** | Matriz Arnela Fase 0 | Pendiente | Issues desde [`arnela-specs.md`](./arnela-specs.md). |
+| **P2** | Changelog / versionado API | Pendiente | Ver [`CHANGELOG.md`](../CHANGELOG.md) (borrador iniciado 2026-06-02). |
 
 ## P2 — Paridad Arnela (issues sugeridos)
 
@@ -37,7 +39,9 @@ Change SDD (archivado): [`openspec/changes/archive/2026-04-21-arnela-parity/`](.
 
 ## Checklist issue GitHub (P1)
 
-- [ ] Issue creado en el repositorio con enlace a `docs/mvp-next-steps.md` y a `openspec/specs/mvp-role-access/spec.md`.
+- [ ] Issue creado en el repositorio (título sugerido: `test: GET /api/v1/employees accepts admin JWT`). Cuerpo listo para pegar: [`github-issue-p1-employees-admin.md`](./github-issue-p1-employees-admin.md).
+
+> **Nota:** el test ya existe y pasa; el issue sirve como trazabilidad en el tracker (roadmap Fase 0 / P1), no como trabajo de implementación pendiente.
 
 ## Referencias
 

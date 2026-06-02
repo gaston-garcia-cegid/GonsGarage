@@ -12,7 +12,7 @@ Orden para una máquina “limpia” siguiendo también el [README en la raíz](
 2. **Variables:** `backend/.env` desde `.env.example` y `frontend/.env.local` desde `.env.local.example` (en Windows: `Copy-Item` como en los bloques de abajo).
 3. **Bases de datos:** desde la raíz, `docker compose up -d` (Postgres + Redis; Redis no es opcional si usás el compose por defecto).
 4. **Backend:** carpeta `backend/`, `go mod download`, luego **`go run ./cmd/api`** (equivale a ejecutar el `main` del paquete `cmd/api`; AutoMigrate crea tablas al arrancar).
-5. **Comprobar:** `GET http://localhost:8080/health` y, si querés datos demo, `go run ./cmd/seed-test-client` (misma consola en `backend/`, con Postgres en marcha).
+5. **Comprobar:** `GET http://localhost:8080/health` y, si querés datos demo, `go run ./cmd/seed-mvp-users` y `go run ./cmd/seed-test-client` (misma consola en `backend/`, con Postgres en marcha; idempotentes).
 6. **Frontend:** carpeta `frontend/`, `pnpm install`, `pnpm dev`.
 7. **Abrir** `http://localhost:3000` con el API en `http://localhost:8080` (o el valor de `NEXT_PUBLIC_API_URL` sin sufijo `/api/v1`).
 
@@ -22,7 +22,7 @@ Si algo falla, revisá firewall/puertos **5432** (Postgres) y **6379** (Redis) n
 
 Objetivo: comprobar en el navegador **login → coche → cita → reparaciones en el detalle del coche** (MVP v1).
 
-1. Abrí `http://localhost:3000/auth/login`. Usuario cliente de prueba (tras seed, ver arriba): **cliente.demo@gonsgarage.local** / **ClienteDemo123**.
+1. Abrí `http://localhost:3000/auth/login`. Tras seeds: cliente **cliente.demo@gonsgarage.local** / **ClienteDemo123**; staff **admin.demo@gonsgarage.local** / **AdminDemo123** (ver tabla en [README](../README.md#demo-users)).
 2. **Coches:** `/cars` — añadí un coche o abrí uno existente; el detalle está en **`/cars/{id}`** (también hay enlaces desde el dashboard y desde las citas).
 3. **Cita:** **`/appointments/new`** — reservá un servicio para el coche elegido; en **`/appointments`** debe aparecer en la lista.
 4. **Reparaciones:** en **`/cars/{id}`** la sección de reparaciones llama a **`GET /api/v1/repairs/car/{carId}`** (puede estar vacía hasta que el taller registre reparaciones). Si la API devolvía error SQL por columna **`technician_id`** en bases creadas antes de ese campo, **actualizá el repo y reiniciá** `go run ./cmd/api`: al arrancar se ejecuta un `ALTER` idempotente que asegura esa columna en la tabla `repairs`.
@@ -58,24 +58,28 @@ docker compose up -d
 
 Credenciales y nombres coinciden con `backend/.env.example` y con los valores por defecto en `backend/cmd/api/main.go` si no defines `DATABASE_URL`.
 
-## Cuenta cliente de prueba (seed)
+## Cuentas demo (seeds)
 
-Con la API usando la misma base PostgreSQL (la tabla `users` debe existir: levantá **`go run ./cmd/api`** al menos una vez para que corra AutoMigrate; el seed **no** hace AutoMigrate).
+Con la API usando la misma base PostgreSQL (la tabla `users` debe existir: levantá **`go run ./cmd/api`** al menos una vez para AutoMigrate; los seeds **no** migran el esquema).
 
 ```powershell
 Set-Location backend
-go run ./cmd/seed-test-client
+go run ./cmd/seed-mvp-users    # admin, manager, employee (solo dev)
+go run ./cmd/seed-test-client  # cliente demo
 ```
 
-Por defecto intenta crear **cliente.demo@gonsgarage.local** / **ClienteDemo123** (rol `client`). Variables opcionales: `SEED_CLIENT_EMAIL`, `SEED_CLIENT_PASSWORD`, `DATABASE_URL`.
+| Comando | Usuarios por defecto |
+|---------|----------------------|
+| `seed-mvp-users` | `admin.demo@gonsgarage.local`, `manager.demo@gonsgarage.local`, `employee.demo@gonsgarage.local` |
+| `seed-test-client` | `cliente.demo@gonsgarage.local` / `ClienteDemo123` |
 
-### Comportamiento antes de crear (checklist 3.3)
+Variables opcionales: `SEED_*_EMAIL`, `SEED_*_PASSWORD`, `DATABASE_URL` (ver comentarios en cada `main.go`).
 
-El comando **no** asume que haya que insertar siempre: consulta el email (`GetByEmail`). Si **ya existe** un usuario con ese email, escribe en log *«El usuario … ya existe … No se creó nada.»* y termina con **código de salida 0** (no duplica filas). Podés ejecutarlo en cada demo o máquina nueva sin riesgo de clonar el cliente.
+### Comportamiento idempotente (checklist 3.3)
 
-Si ya tenés usuarios de prueba creados por registro manual u otro flujo, **no hace falta** borrar nada: solo usá el seed cuando falte concretamente el cliente con el email configurado (por defecto el demo anterior).
+Ambos comandos consultan el email antes de insertar. Si **ya existe**, log de skip y **exit 0** (no duplican filas). Criterio P0 en [mvp-next-steps.md](./mvp-next-steps.md): ejecutar `seed-mvp-users` dos veces seguidas sin error.
 
-**No** crea usuarios **admin/manager/employee**; solo el rol **client** para el email indicado. Las credenciales de admin que aparezcan en la UI o en el README son independientes de este comando.
+**No** ejecutar seeds contra producción.
 
 ## Backend
 

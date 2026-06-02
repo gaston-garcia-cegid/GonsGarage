@@ -1,82 +1,120 @@
 # Análisis de la aplicación GonsGarage
 
+**Última revisión:** 2026-06-01 — alineado con `backend/cmd/api/main.go` y `frontend/src/app/`.
+
 ## Propósito
 
-Sistema de gestión para taller mecánico: usuarios con roles, vehículos, citas, empleados y dominio de reparaciones (lectura por coche + **escritura staff** en API y UI mínima en ficha de coche).
+Sistema de gestión para **taller mecánico** (una instancia = un taller): usuarios con roles, vehículos, citas, reparaciones, **órdenes de taller** (*service jobs*), **inventario de repuestos** y **contabilidad staff** (proveedores, facturas recibidas, documentos billing, facturas emitidas a clientes).
 
 ## Stack real (código actual)
 
 | Capa | Tecnología |
 |------|------------|
-| Backend | Go, Gin, GORM (PostgreSQL), JWT, Redis opcional (cache con fallback si no hay conexión) |
-| Frontend | Next.js (App Router), TypeScript, Zustand (según `Agent.md` y estructura `src/`) |
+| Backend | Go 1.25.3, Gin, GORM (PostgreSQL), JWT, Redis opcional (cache con fallback si no hay conexión) |
+| Frontend | Next.js 16.2.x (App Router), React 19.1, TypeScript 5, Zustand, Tailwind CSS 4 |
 | Datos | PostgreSQL; migraciones vía `AutoMigrate` en `backend/cmd/api/main.go` y scripts SQL en `backend/scripts/` |
+| Tests | Backend: `go test`; frontend: **Vitest** (por defecto), Jest legacy para algunos suites |
 
 ## Punto de entrada del backend
 
-- **Ejecutable principal**: `backend/cmd/api/main.go` (no `cmd/server` en el árbol actual).
-- **Swagger**: ruta `GET /swagger/*any` (swaggo).
-- **Salud**: `GET /health`.
-- **Prefijo API**: `/api/v1`.
-- **CORS**: con `GIN_MODE=release`, orígenes permitidos = localhost:3000/3001 más los de la variable **`CORS_ORIGINS`** (coma-separado). Ver `corsMiddleware` en `backend/cmd/api/main.go`. Despliegue Docker/LAN: [`deploy/README.md`](./deploy/README.md).
+- **API:** `backend/cmd/api/main.go`
+- **Seeds (solo desarrollo):** `backend/cmd/seed-test-client` (cliente demo), `backend/cmd/seed-mvp-users` (admin / manager / employee)
+- **Swagger:** `GET /swagger/*any` (swaggo)
+- **Salud:** `GET /health`, `GET /ready`
+- **Prefijo API:** `/api/v1`
+- **CORS:** con `GIN_MODE=release`, orígenes = localhost:3000/3001 más **`CORS_ORIGINS`** (coma-separado). Ver `corsMiddleware` en `main.go`. Despliegue Docker/LAN: [`deploy/README.md`](./deploy/README.md).
 
 ## Rutas API expuestas (resumen)
 
-**Públicas**
+Fuente: `setupRoutes` en `backend/cmd/api/main.go`. JSON **camelCase** en respuestas.
+
+### Públicas
 
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
 
-**Protegidas** (middleware JWT en contexto Gin)
+### Protegidas (JWT)
 
-- Sesión: `GET /api/v1/auth/me` (usuario actual, camelCase)
-- Aprovisionamiento de usuarios (**solo admin/manager**; matriz de roles en API): `POST /api/v1/admin/users` (cuerpo JSON camelCase; no crea `admin` por este flujo). UI: `/admin/users`.
-- Empleados (**só admin/manager**): `POST|GET|GET/:id|PUT|DELETE /api/v1/employees/...`
-- Coches: `POST|GET|GET/:id|PUT|DELETE /api/v1/cars/...` — listado de flota de un cliente (staff): `GET /api/v1/cars?ownerId=<uuid>&limit=&offset=` (no existe `GET /cars/owner/:id`).
-- Citas: `POST|GET|GET/:id|PUT|DELETE /api/v1/appointments/...` — cambiar estado (cancelar / confirmar / completar): **`PUT /api/v1/appointments/:id`** con JSON parcial (`status`, etc.); **no** hay `PATCH …/cancel|/confirm|/complete`.
+| Dominio | Rutas | Notas |
+|---------|--------|--------|
+| Sesión | `GET /auth/me` | Perfil actual |
+| Admin users | `POST /admin/users` | Solo admin/manager; no crea rol `admin` por este flujo |
+| Empleados | `POST\|GET\|GET/:id\|PUT\|DELETE /employees/...` | Solo admin/manager |
+| Repuestos | `POST\|GET\|GET/:id\|PATCH\|DELETE /parts/...` | Inventario (staff) |
+| Coches | `POST\|GET\|GET/:id\|PUT\|DELETE /cars/...` | Listado por cliente: `GET /cars?ownerId=&limit=&offset=` |
+| Citas | `POST\|GET\|GET/:id\|PUT\|DELETE /appointments/...` | Estado vía `PUT /appointments/:id` con `{ status, … }` |
+| Reparaciones | `GET /repairs/car/:carId`, `POST\|GET\|PUT\|DELETE /repairs/...` | Escritura staff; cliente solo lectura por su coche |
+| Taller (*service jobs*) | `POST\|GET /service-jobs`, `GET /service-jobs/car/:carId`, `GET\|PUT /service-jobs/:id/...` | Recepción `PUT …/reception`, entrega `PUT …/handover`; stub OBD `GET …/:id/obd` |
+| Proveedores | CRUD `/suppliers/...` | Contabilidad P1 |
+| Facturas recibidas | CRUD `/received-invoices/...` | Contabilidad P1 |
+| Documentos billing | CRUD `/billing-documents/...` | Tipos: `client_invoice`, `payroll`, `irs`, `other` |
+| Facturas emitidas | `GET /invoices/me`, `GET\|PATCH /invoices/:id` (cliente); staff `POST\|GET\|DELETE /invoices` | Cliente ve las suyas; staff emite y lista |
 
-**Reparaciones** (JWT): `GET /api/v1/repairs/car/:carId` (cliente: solo su coche; staff: cualquier coche); **`POST /api/v1/repairs`**, `GET|PUT|DELETE /api/v1/repairs/:id` — escritura solo personal (`RepairService` exige `IsEmployee()` para crear/actualizar/borrar). UI staff: formulario y acciones en `/cars/[id]` cuando el usuario no es `client`.
-
-**Regresión por rol (tests):** `GET /api/v1/employees` solo `admin`/`manager` (middleware `RequireStaffManagers`); `POST /api/v1/repairs` devuelve **403** para JWT `client` y **201** para `employee` en condiciones válidas — cubierto en `backend/internal/handler/mvp_role_access_test.go`; spec [`openspec/specs/mvp-role-access/spec.md`](../openspec/specs/mvp-role-access/spec.md).
+**Regresión por rol:** `backend/internal/handler/mvp_role_access_test.go`; spec [`openspec/specs/mvp-role-access/spec.md`](../openspec/specs/mvp-role-access/spec.md).
 
 ## Frontend (App Router)
 
-Rutas de página localizadas bajo `frontend/src/app/`:
+Rutas bajo `frontend/src/app/` (principales):
 
-- `/`, `/dashboard`, `/client`, `/employees`, `/admin/users` (formulario crear usuario; solo admin/manager)
-- `/auth/login`, `/auth/register`
-- `/cars`, `/cars/[id]`
-- `/appointments`, `/appointments/new`
+| Área | Rutas |
+|------|--------|
+| Auth / home | `/`, `/auth/login`, `/auth/register`, `/dashboard`, `/client` |
+| Flota y citas | `/cars`, `/cars/[id]`, `/appointments`, `/appointments/new` |
+| Personal | `/employees`, `/admin/users` |
+| Taller | `/workshop`, `/workshop/recepcion`, `/workshop/[id]` |
+| Inventario | `/admin/parts`, `/admin/parts/new`, `/admin/parts/[id]` |
+| Contabilidad (staff) | `/accounting`, `/accounting/suppliers`, `/accounting/received-invoices`, `/accounting/billing-documents`, `/accounting/issued-invoices` (+ subrutas `new`, `[id]`) |
+| Cliente | `/my-invoices`, `/my-invoices/[id]` |
 
-La integración con la API debe alinearse con el prefijo `/api/v1` y JSON en camelCase (`Agent.md`). El cliente HTTP principal está en `frontend/src/lib/api-client.ts`; citas en `lib/api/appointment.api.ts`; coches en `lib/services/car.service.ts`; el módulo legacy `lib/api.ts` (usado por dashboard/coches) debe limitarse a rutas realmente expuestas (p. ej. repairs solo `GET /repairs/car/:carId`).
+**Navegación:** cada `Link` / `router.push` a página debe existir como `page.tsx` bajo `src/app/` (regla Cursor: `.cursor/rules/nextjs-app-router-navigation.mdc`). Edición de citas: modal en lista, no rutas `/appointments/[id]/edit` inventadas.
+
+**Cliente HTTP:** `frontend/src/lib/api-client.ts`; dominios en `lib/api/*` y `lib/services/*`; legacy `lib/api.ts` solo para rutas aún usadas por dashboard/coches.
+
+## Seeds de demo (solo desarrollo)
+
+| Comando | Roles / usuario |
+|---------|------------------|
+| `go run ./cmd/seed-test-client` | Cliente: `cliente.demo@gonsgarage.local` / `ClienteDemo123` (idempotente) |
+| `go run ./cmd/seed-mvp-users` | Admin, manager, employee (`*.gonsgarage.local`; ver env `SEED_*` en `main.go`) |
+
+No ejecutar seeds contra producción. Ver también [`mvp-solo-checklist.md`](./mvp-solo-checklist.md).
 
 ## Infraestructura y documentación
 
-1. **Docker Compose** en la raíz (`docker-compose.yml`): PostgreSQL y Redis para desarrollo local. **`docker-compose.prod.yml`**: stack prod (API + Redis + Next + nginx en 8102) con Postgres en el host vía `DATABASE_URL`; ver [`deploy/README.md`](./deploy/README.md).
-2. **Entrada del servidor**: `backend/cmd/api/main.go` (AutoMigrate al arranque; no hay `cmd/migrate` obligatorio).
-3. **README del frontend** sigue siendo en parte la plantilla de `create-next-app`; ver `.env.local.example` y [development-guide.md](./development-guide.md).
+1. **Docker Compose** en raíz (`docker-compose.yml`): PostgreSQL + Redis (dev).
+2. **Producción/LAN:** `docker-compose.prod.yml` + [`deploy/README.md`](../deploy/README.md) (nginx **8102**, Postgres en host, rollback, CORS, backup).
+3. **CI:** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — backend vet/test `-race`; frontend lint/typecheck/test/build.
+4. **Deploy:** [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) — **solo manual** (`workflow_dispatch`); despliegue real documentado en `deploy/`.
 
-Guía operativa: [development-guide.md](./development-guide.md). Planificación: [roadmap.md](./roadmap.md).
+Guía operativa: [development-guide.md](./development-guide.md). Post-MVP: [mvp-next-steps.md](./mvp-next-steps.md). Planificación: [roadmap.md](./roadmap.md).
 
 ## Estructura de código (alto nivel)
 
-```
+```text
 backend/
-  cmd/api/main.go          # Arranque, migraciones GORM, rutas Gin
-  internal/domain          # Entidades
-  internal/service         # Casos de uso (subpaquetes auth, car, …)
-  internal/handler         # Handlers HTTP (Gin)
-  internal/middleware      # Auth, CORS, etc.
+  cmd/api/main.go              # Arranque, AutoMigrate, rutas Gin
+  cmd/seed-test-client/        # Seed cliente demo
+  cmd/seed-mvp-users/          # Seed admin / manager / employee
+  internal/domain              # Entidades
+  internal/service/            # Casos de uso (auth, car, appointment, repair, servicejob, part, …)
+  internal/handler/            # HTTP Gin
+  internal/middleware/         # JWT, roles, CORS
   internal/repository/postgres|redis|mock
-  internal/core/ports      # Contratos (interfaces)
+  tests/integration/           # Tests HTTP integración
 
 frontend/
-  src/app/                 # Rutas UI
-  src/stores/              # Estado (Zustand)
-  src/lib/api/             # Cliente HTTP
+  src/app/                     # App Router (páginas)
+  src/components/              # UI compartida
+  src/stores/                  # Zustand
+  src/lib/api/                 # Cliente HTTP por dominio
 ```
+
+## OpenSpec (SDD)
+
+Especificaciones de dominio en `openspec/specs/` (p. ej. `mvp-role-access`, `workshop-repair-execution`, `parts-inventory`, `invoices`, `billing`, `suppliers`). Changes activos y archivados en `openspec/changes/`.
 
 ## Referencias cruzadas
 
-- Detalle de convenciones: [../Agent.md](../Agent.md).
-- Cliente API frontend: [../frontend/docs/api-client.md](../frontend/docs/api-client.md).
+- Convenciones de código: [../Agent.md](../Agent.md)
+- Cliente API frontend: [../frontend/docs/api-client.md](../frontend/docs/api-client.md)
+- Checklist MVP: [mvp-solo-checklist.md](./mvp-solo-checklist.md)

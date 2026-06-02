@@ -38,7 +38,7 @@ Ajustar según lo que marque la matriz Arnela vs GonsGarage. Candidatos típicos
 
 - [x] Pipeline CI: `.github/workflows/ci.yml` (Go + vet + test con CGO; pnpm install + lint + typecheck + test + build frontend).
 - [x] Workflow deploy: `.github/workflows/deploy.yml` documenta **solo manual** (`workflow_dispatch` + paso que referencia `deploy/README.md`).
-- [ ] Política de versionado de API y changelog.
+- [ ] Política de versionado de API y changelog (borrador: [`CHANGELOG.md`](../CHANGELOG.md) — ampliar en PRs).
 - [ ] Plantillas de PR / issues (si Arnela las usa).
 - [ ] Observabilidad: logs estructurados, health agregado, métricas (si aplica).
 
